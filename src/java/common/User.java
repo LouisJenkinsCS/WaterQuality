@@ -1,7 +1,7 @@
 package common;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import utilities.Debug;
 
 /**
@@ -19,8 +19,8 @@ public class User implements Comparable<User>, Serializable {
     private String firstName;
     private String emailAddress;
     private UserRole userRole;
-    private LocalDateTime lastLoginTime;//time and date of last login
-    private LocalDateTime lastAttemptedLoginTime;
+    private Timestamp lastLoginTime;//time and date of last login
+    private Timestamp lastAttemptedLoginTime;
     private int loginCount; // how many successful logins
     private int attemptedLoginCount; // How many consecutive failed login attempts 
     private boolean locked;//If the account is locked out
@@ -71,7 +71,7 @@ public class User implements Comparable<User>, Serializable {
      * not.
      */
     public User(int userNumber, String loginName, String password, String salt, String lastName, String firstName, String emailAddress, 
-            UserRole userRole, LocalDateTime lastLogin, LocalDateTime lastAttemptedLogin, int loginCount, int attemptedLoginCount, boolean locked) {
+            UserRole userRole, Timestamp lastLogin, Timestamp lastAttemptedLogin, int loginCount, int attemptedLoginCount, boolean locked) {
         this.userNumber = userNumber;
         this.loginName = loginName;
         this.userPassword = password;
@@ -269,7 +269,7 @@ public class User implements Comparable<User>, Serializable {
      * @return The last time this user logged in. If no last time logged in
      * exists null is returned.
      */
-    public LocalDateTime getLastLoginTime() {
+    public Timestamp getLastLoginTime() {
         return lastLoginTime;
     }
 
@@ -279,7 +279,7 @@ public class User implements Comparable<User>, Serializable {
      *
      * @param lastLoginTime The last time this user logged in.
      */
-    public void setLastLoginTime(LocalDateTime lastLoginTime) {
+    public void setLastLoginTime(Timestamp lastLoginTime) {
         this.lastLoginTime = lastLoginTime;
     }
 
@@ -291,7 +291,7 @@ public class User implements Comparable<User>, Serializable {
      * @return The last time this user failed to log in not within a certain
      * time interval. If user has not failed to log in this value returns null.
      */
-    public LocalDateTime getLastAttemptedLoginTime() {
+    public Timestamp getLastAttemptedLoginTime() {
         return lastAttemptedLoginTime;
     }
 
@@ -303,7 +303,7 @@ public class User implements Comparable<User>, Serializable {
      * @param lastAttemptedLogin The time the user failed to log in not within a
      * certain time interval.
      */
-    public void setLastAttemptedLoginTime(LocalDateTime lastAttemptedLogin) {
+    public void setLastAttemptedLoginTime(Timestamp lastAttemptedLogin) {
         this.lastAttemptedLoginTime = lastAttemptedLogin;
     }
 
@@ -428,14 +428,14 @@ public class User implements Comparable<User>, Serializable {
         u1.setLastName("James");
         u1.setEmailAddress("drj@drj.com");
         u1.setLoginName("drj");
-        u1.setLastLoginTime(LocalDateTime.now());
+        u1.setLastLoginTime(new Timestamp(900001));
         u1.setLoginCount(30);
         u1.setUserNumber(007);
         u1.setUserPassword("123abc");
         u1.setUserRole(UserRole.Student);
 
         User u2 = new User(8, "dtp", "mypasswordisbetter", "12asd21f8a", "Pany", "Dan", "dtp@dtp.com",
-                UserRole.Student, LocalDateTime.now(), null, 9001, 0, false);
+                UserRole.Student, new Timestamp(90000), null, 9001, 0, false);
 
         Debug.println("FNAME: " + u1.getFirstName());
         Debug.println("LNAME: " + u1.getLastName());

@@ -3,6 +3,7 @@ package servlets;
 import async.DataReceiver;
 import common.User;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -100,7 +101,7 @@ public class LoginServlet extends HttpServlet {
 
         // Creates and assigns a <class>UserManager</class> from the 
         // DatabaseManagement class.
-           database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
+           database.DatabaseManager um = new database.DatabaseManager();
         
             String username = request.getParameter("username");
             String password = request.getParameter("password");
@@ -132,7 +133,7 @@ public class LoginServlet extends HttpServlet {
             User potentialUser = um.getUserByLoginName(username);
             if (potentialUser != null && !potentialUser.isLocked()) {
                 if (potentialUser.getAttemptedLoginCount() < loginAttempts) {
-                    User user = um.validateUser(username, security.Encryption.hashString(password + salt));
+                    User user = um.validateUser(username, security.SecurityCode.encryptSHA256(password + salt));
                     if (user != null) { //Password was valid for this user
                         //Thread Safe
                         synchronized(lock){
@@ -146,20 +147,20 @@ public class LoginServlet extends HttpServlet {
                     else {
 
                         if (potentialUser.getLastAttemptedLoginTime() == null) {
-                            potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
+                            potentialUser.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
                         }
                         // If the current time is less than 15 mins after the first time they tried to log in,
                         // increment their login count bringing them closer to the number from property file
-                        if (LocalDateTime.now().isBefore(potentialUser.getLastAttemptedLoginTime().plusMinutes(15))) {
+                        if (Timestamp.valueOf(LocalDateTime.now()).before(Timestamp.valueOf(LocalDateTime.now().plusMinutes(15)) ) ) {
                             if (potentialUser.getAttemptedLoginCount() == 0) {
-                                potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
+                                potentialUser.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
                             }
                             potentialUser.setAttemptedLoginCount(potentialUser.getAttemptedLoginCount() + 1);
-                            um.updateUser(potentialUser);
+                            um.updateUserLogin(potentialUser);
                         } else {
-                            potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
+                            potentialUser.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
                             potentialUser.setAttemptedLoginCount(1);
-                            um.updateUser(potentialUser);
+                            um.updateUserLogin(potentialUser);
                         }
 
                         request.setAttribute("errorMessage", "Invalid password.");
@@ -176,7 +177,7 @@ public class LoginServlet extends HttpServlet {
                     request.setAttribute("errorMessage", "You have been Locked out. Please contact system administrator for access.");
                     potentialUser.setLocked(true);
                     potentialUser.setAttemptedLoginCount(0);
-                    um.updateUser(potentialUser);
+                    um.updateUserLogin(potentialUser);
                     emailUser(potentialUser, ipAddress);
 
                     // Returns the user back to the login screen.

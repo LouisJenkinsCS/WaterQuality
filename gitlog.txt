@@ -1,0 +1,367 @@
+* commit a2be4ce8b56f25271a0526177aa43db0cb02e912 (HEAD -> tyler-development, origin/tyler-development)
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Mon Feb 13 11:24:42 2017 -0500
+| 
+|     DatabaseManager
+|     
+|     Merged work done at lab with work done at home. Fixed a number of
+|     possible uncaught exceptions.
+|  
+* commit 4eba48e6a3d7e6ea20ebe9b36404f3287da9d015
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Mon Feb 13 00:50:05 2017 -0500
+| 
+|     Database manager updates
+|     
+|     Modified Database manager to have transactions for each function that
+|     inserts, deletes, or modifies data. Also added a function for inserting
+|     things into the water data database as a JSON.
+|  
+* commit 89f87c0a330cf36ce84a10a58af3c43836959719
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Mon Feb 13 10:52:05 2017 -0500
+| 
+|     DatabaseManager and loginservlet changes
+|     
+|     fixed errors in loginservlet. Added loginservlets needed functions to
+|     databasemanager
+|  
+* commit ded19a7773f5ec72fa0bc65a1822c1802fa28445
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Mon Feb 13 09:31:43 2017 -0500
+| 
+|     Fixed Errors
+|     
+|     Changed localdatetime to timestamp
+|  
+* commit 0f1b1a9a28e3e982d0d818fc86ef14de967b50e2
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Mon Feb 13 09:15:05 2017 -0500
+| 
+|     SQLUtility changed
+|     
+|     changed localdatetime to timestamp
+|  
+* commit 9a14da20bb476bb520dc5a4df056a4bfe179242f
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Wed Feb 8 17:37:10 2017 -0500
+| 
+|     Added more to Database manager
+|     
+|     Added createuser, create user tables, delete data manually, and delete
+|     user functions. Also made minor alterations to datavalue, user, and
+|     userrole classes
+|  
+* commit d1f94814afad9c59208ad8fdc5a79d8004851816
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Wed Feb 8 10:54:14 2017 -0500
+| 
+|     Delete DataValue.java
+|  
+* commit c992d355f9fc61bdbdc2448efa241c19ff8fff86
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Wed Feb 8 10:54:08 2017 -0500
+| 
+|     Delete DatabaseManager.java
+|  
+* commit 56d85bff77789a9c957a4e808acbda2a479da75b
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Wed Feb 8 10:53:57 2017 -0500
+| 
+|     wrong spot
+|  
+* commit a250644709757f37311428376a15b5bd9e76dcb6
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Wed Feb 8 10:53:40 2017 -0500
+| 
+|     wrong spot
+|  
+* commit c0ca0c4b800f57862b2041cc3e8178e96a0427a7
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Wed Feb 8 10:51:35 2017 -0500
+| 
+|     Work during group meeting
+|     
+|     Added addnewUser function, manual data delete, user delete, and create user table function to databasemanager and minor alterations to UserRole, User, and DataValue
+|  
+* commit 6bc3dd1b51f240e2e7465a044ee908d1eb466234
+| Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| Date:   Mon Feb 6 19:45:05 2017 -0500
+| 
+|     Database backup work
+|     
+|     Changed database manager from a servlet to a simpler java class that
+|     handles database interactions, and edited datavalue to use timestamp
+|     instead of localdatetime because it simplifies read / writes.
+|    
+*   commit 0fa17e5684447e4ff926047671377c8e01470193
+|\  Merge: db15b95 1a0c89b
+| | Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| | Date:   Tue Feb 7 10:53:21 2017 -0500
+| | 
+| |     Merge pull request #13 from LouisJenkinsCS/Development
+| |     
+| |     Development
+| |   
+| * commit 1a0c89b4ed0119f1bf85f328f1b6046743b65042
+| | Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| | Date:   Tue Feb 7 10:32:57 2017 -0500
+| | 
+| |     Remove properties files
+| |     
+| |     Removed annoying properties files from being submitted.
+| |     
+| *   commit a2cff8347cc6e64e5d8d786d0540639884c823c8
+| |\  Merge: c82015e e1db5f4
+| | | Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| | | Date:   Tue Feb 7 10:17:25 2017 -0500
+| | | 
+| | |     Merge pull request #10 from LouisJenkinsCS/Kevin-Development
+| | |     
+| | |     Kevin development
+| | |      
+| | *   commit e1db5f4ab1152ef67e3ef2f84e305a8a3f1a29fc
+| | |\  Merge: 66f7a8c c82015e
+| | |/  Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| |/|   Date:   Tue Feb 7 10:17:20 2017 -0500
+| | |   
+| | |       Merge branch 'Development' into Kevin-Development
+| | |      
+| * |   commit c82015e73d6c1e93a0a678cc3de263e892190acd
+| |\ \  Merge: 58e43a8 6a63859
+| | | | Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| | | | Date:   Tue Feb 7 10:12:00 2017 -0500
+| | | | 
+| | | |     Merge pull request #9 from LouisJenkinsCS/Dan-development
+| | | |     
+| | | |     Admin Prototype v1
+| | | |     
+| | * | commit 6a63859b2f5bae7bc3744ecc3df247c4380fa817
+| | | | Author: dan0x19b <djlatovich@outlook.com>
+| | | | Date:   Tue Feb 7 09:48:33 2017 -0500
+| | | | 
+| | | |     Admin Prototype v1
+| | | |     
+| | | |     basic attempt
+| | | |       
+| | * |   commit 798a5e478b22506042b57cb0b5ed449ae3135ebc
+| | |\ \  Merge: 67a3031 66eab52
+| | | | | Author: dan0x19b <djlatovich@outlook.com>
+| | | | | Date:   Tue Feb 7 03:20:31 2017 -0500
+| | | | | 
+| | | | |     Merge remote-tracking branch 'refs/remotes/origin/Development' into Dan-development
+| | | | |        
+| * | | |   commit 58e43a864db2e59c3203ee4507b972ef4951bcee
+| |\ \ \ \  Merge: 66eab52 aae494c
+| | |_|/ /  Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| |/| | |   Date:   Tue Feb 7 10:11:44 2017 -0500
+| | | | |   
+| | | | |       Merge pull request #8 from LouisJenkinsCS/Brandon-Development
+| | | | |       
+| | | | |       Sample pull request
+| | | | |      
+| | * | | commit aae494cee775047d6f49149288bfc31db1dd347c
+| | |/ /  Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+| | | |   Date:   Tue Feb 7 09:55:04 2017 -0500
+| | | |   
+| | | |       fixed small issue
+| | | |       
+| | | *   commit 66f7a8c3b5082047d219027841e7e9f69ad41a28
+| | | |\  Merge: 5662089 66eab52
+| | |_|/  Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+| |/| |   Date:   Tue Feb 7 10:06:03 2017 -0500
+| | | |   
+| | | |       Merge remote-tracking branch 'refs/remotes/origin/Development' into Kevin-Development
+| | | |       
+| * | |   commit 66eab524c1579b3ff7e8334fa5084a03dd6e556b (Development)
+| |\ \ \  Merge: 9cb94b8 67a3031
+| | |/ /  Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| | | |   Date:   Mon Feb 6 16:23:16 2017 -0500
+| | | |   
+| | | |       Merge pull request #4 from LouisJenkinsCS/master
+| | | |       
+| | | |       Bringing Development up to speed
+| | | |     
+| | | * commit 5662089a1bd0dcb487aac0d8ad7292347f8c886d
+| | | | Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+| | | | Date:   Tue Feb 7 09:44:39 2017 -0500
+| | | | 
+| | | |     style stuffs
+| | | |     
+| | | * commit 77a90def3101ca985c81c582c58364b33f69dd53
+| | | | Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+| | | | Date:   Mon Feb 6 22:09:45 2017 -0500
+| | | | 
+| | | |     Sample dashboard as it is so far
+| | | |     
+| | | * commit 48a001c7e206d7ed973ce27cd952952d142357f2 (origin/KevinDevelopment, KevinDevelopment)
+| | |/  Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+| | |   Date:   Mon Feb 6 16:14:34 2017 -0500
+| | |   
+| | |       Sample dashboard as it is so far
+| | |    
+| | * commit 67a3031dcc349ad659ce213a79cffd6373fedc97 (origin/master, origin/HEAD, master)
+| | | Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+| | | Date:   Sun Feb 5 20:29:33 2017 -0500
+| | | 
+| | |     Added the jfreechart jars to the lib folder
+| | |    
+* | | commit db15b9501cce8450f93e2879e9c595cdfe02ab17
+| | | Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+| | | Date:   Sat Feb 4 22:25:28 2017 -0500
+| | | 
+| | |     Database stuff
+| | |     
+| | |     some in-progress database stuff
+| | |      
+* | |   commit 81498a515ecc02f866f58a2b0f3da75d0079fe99
+|\ \ \  Merge: 9cb94b8 ea6a928
+| |/ /  Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+|/| /   Date:   Sat Feb 4 22:24:38 2017 -0500
+| |/    
+| |         Merge remote-tracking branch 'refs/remotes/origin/master' into tyler-development
+| |   
+| * commit ea6a928584fd81ac0150282b0b8a91c5a19ca7b2
+|/  Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+|   Date:   Sat Feb 4 20:31:15 2017 -0500
+|   
+|       fixed small issue
+|  
+* commit 9cb94b88874f7c1221cf2fd3c3c2516147550025
+| Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+| Date:   Sat Feb 4 20:28:28 2017 -0500
+| 
+|     Edited the resource which directs the program to the correct database
+|  
+* commit 6bec765576122ceca177d86132cd4487c77f4e5b
+| Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+| Date:   Sat Feb 4 19:26:50 2017 -0500
+| 
+|     Changed the background image from BU fountain to Bloom creek
+|  
+* commit 86328873db99174dabd7bdbe79c86c1f1953e437
+| Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+| Date:   Sat Feb 4 16:02:37 2017 -0500
+| 
+|     Added a continue as guest link that we can use in the future
+|    
+*   commit d9c6e68e0c7e6c02aea1075ecb5ad46f3bdca814
+|\  Merge: 4bed693 8505704
+| | Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| | Date:   Sat Feb 4 14:45:26 2017 -0500
+| | 
+| |     Merge branch 'master' of https://github.com/LouisJenkinsCS/WaterQuality
+| |   
+| * commit 8505704e8e54a5556b8d7e9d30342fbdf68445a0
+| | Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+| | Date:   Fri Feb 3 17:16:31 2017 -0500
+| | 
+| |     Just fixed a small issue that caused an error when clicking the
+| |     cancel button. Now cancel returns to main login screen
+| |   
+* | commit 4bed6932e5239a6b8e0696e6aa13654035184b45
+|/  Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+|   Date:   Sat Feb 4 14:42:28 2017 -0500
+|   
+|       Added my favorite libraries to the project.
+|       
+|       Java-Tuples supply what is desparately missing with Java so far:
+|       Tuples. Tuples, such as Pairs, Triples, etc, are necessary, especially
+|       for mapping data, and they allow you to add items, I.E adding to a Pair
+|       produces a Triple, and are functionally pure.
+|       
+|       JSON Simple provides the android-JSON interface that is much needed,
+|       providing JSONArray and JSONObject, both making working with them a
+|       breeze.
+|       
+|       RxJava is a personal favorite of mine that I can't program without.
+|       Reactive Streams is needed by RxJava, but their usage cannot be
+|       explained in a simple commit. Much needed
+|  
+* commit 486977b1ed8c9a762fc3a6bc7951051539632530
+| Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| Date:   Fri Feb 3 15:57:32 2017 -0500
+| 
+|     Kevin was nice enough to run out and send the files we were missing, which were the web files. Pretty generous of him, as now we have enough tog et started
+|  
+* commit ea7389e8a5203d1a2ee24cbb3aaee28dbd230955
+| Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| Date:   Fri Feb 3 11:55:24 2017 -0500
+| 
+|     Create .gitkeep
+|  
+* commit ac0f2bf94c617c3d58af4aa6048f2d14ed112d6e
+| Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| Date:   Fri Feb 3 11:28:10 2017 -0500
+| 
+|     Pushing out an actual working build this time. Added the files Dr Jones gave us with a new working template
+|  
+* commit 774d588a2e0c410dff0e1bd884c9e1e9068e7cd3
+| Author: Louis Jenkins <theif517@gmail.com>
+| Date:   Thu Feb 2 19:56:28 2017 -0500
+| 
+|     Update README for tutorial
+|    
+*   commit 5dc7861c6df9d1736f0fa2f7e3c3b13e4de9ebc8
+|\  Merge: 913ff4e 2c61c96
+| | Author: theif519 <theif517@gmail.com>
+| | Date:   Tue Jan 31 10:45:50 2017 -0500
+| | 
+| |     Merge branch 'master' of https://github.com/LouisJenkinsCS/WeatherProject
+| |   
+| * commit 2c61c9633e4895595bbb9f73104b733e62a460f5
+| | Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| | Date:   Tue Jan 31 10:08:11 2017 -0500
+| | 
+| |     Update README.md
+| |   
+* | commit 913ff4ef0f7913308ea631538a06d5e4b2a19e45
+|/  Author: theif519 <theif517@gmail.com>
+|   Date:   Tue Jan 31 10:45:34 2017 -0500
+|   
+|       Updated WaterQuality
+|  
+* commit 5fef0920ee4e704891fc38c01c6cc5a2deb26898
+| Author: theif519 <theif517@gmail.com>
+| Date:   Tue Jan 31 09:22:35 2017 -0500
+| 
+|     Updated with svn source code
+|  
+* commit f4e702d100bee5822f33f2050a827cd9da7d8831
+| Author: Louis Jenkins <theif517@gmail.com>
+| Date:   Fri Jan 27 16:20:57 2017 -0500
+| 
+|     Created initial skeleton for project. Not much of a skeleton, but it
+|     does demonstrate a few things. For one, it is officially a proof of
+|     concept for the issue of displaying data. So far, the data that is
+|     collected should be mapped to a GraphData object, which will handle not
+|     only timestamping that data, but as well keeping track of the data
+|     itself. This is extremely easy to have in a database and in memory, and
+|     doubly so for manipulating at runtime (Observables and Streams anyone?).
+|     
+|     As well, I defined a "Provider" interface but I am not sure if I want to
+|     go through with it. A Provider would essentially provide the user with
+|     data. This however may not work anyway if the modular approach is
+|     needed.
+|     
+|     As well, I have a decent graph up and running with randomly generated
+|     stubbed data. So far it does a decent job of testing, and I can say that
+|     chart.js definitely is a very handy library to use.
+|  
+* commit 2cf719e391f25f264d1f2a856e92a2ccafb37e1d
+| Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| Date:   Thu Jan 26 16:29:07 2017 +0000
+| 
+|     README.md edited online with Bitbucket
+|  
+* commit 31c7f4f72e8ef42df96628fb54db53dcd0761347
+| Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+| Date:   Thu Jan 26 15:39:07 2017 +0000
+| 
+|     README.md edited online with Bitbucket
+|  
+* commit 439f7172bd51699a3965009931c668a9c9448cf2
+  Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+  Date:   Thu Jan 26 15:35:15 2017 +0000
+  
+      README.md created online with Bitbucket
