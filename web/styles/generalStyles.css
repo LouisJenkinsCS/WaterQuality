@@ -39,7 +39,7 @@ h3{
     width: 100%;
     text-align: center;
     height: 50px;
-    background-color: #5A0000;
+    background-color: #81D3B6;
     margin-top: 0px;
     margin-right: 0px;
     margin-left: 0px;
@@ -139,7 +139,7 @@ h3{
     margin-right: auto;
     border: 2px solid;
     border-radius: 25px; 
-    background-color: #FFCC99;
+    background-color: #B4CFE9;
     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
@@ -277,6 +277,24 @@ tr:nth-child(even){
     margin-top: 10%;
     width: 400px;
     height: 100%;
+}
+
+#dashboard_container{
+    margin-top: 5%;
+    width: 1000px;
+    height: 1000px;
+}
+
+#dashboard_data_container{
+    float:right;
+    margin-top:5%;
+    width: 300px;
+}
+
+#graph_container{
+    float:left;
+    margin-top: 5%;
+    width: 600px;
 }
 
 #reset_container{
@@ -690,4 +708,57 @@ Stylings for the Change Password Screen
 .addGECourse_container {
     margin-left: 25%;
     vertical-align: middle;
+}
+
+
+/* Style the list */
+ul.tab {
+    list-style-type: none;
+    margin-top:0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Float the list items side by side */
+ul.tab li {float: left;}
+
+/* Style the links inside the list items */
+ul.tab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of links on hover */
+ul.tab li a:hover {background-color: #ddd;}
+
+/* Create an active/current tablink class */
+ul.tab li a:focus, .active {background-color: #ccc;}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+/**
+ *added for admin page
+ *@author Dan
+ */
+
+#admin_container{
+    margin-top: 10%;
+    width: 700px;
+    height: 400px;
+}
+
+#date_box{
+    width: 50px;
 }

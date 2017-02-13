@@ -3,8 +3,12 @@ package servlets;
 
 
 
+import async.DataReceiver;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,6 +38,8 @@ public class ControlServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        log("Printed");
+        System.out.println("Date: " + DataReceiver.test(Instant.now().minus(Period.ofWeeks(1)), Instant.now()).blockingFirst());
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         final Object lock = session.getId().intern();//To synchronize the session variable
         database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
