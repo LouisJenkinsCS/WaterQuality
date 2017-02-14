@@ -87,11 +87,7 @@
                     </div>
                 </header>
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
-                <p>${datadesc}This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. </p>
+                <p id="descr"></p>
             </section>
             
         </section> 
@@ -107,11 +103,11 @@
                        <input type="hidden" name="control" value="getDesc"></form>
                 if(cb.checked())
                 <!--I attempted to hardcode a value, just to see something happen in the description box-->
-                    datadesc = (this.value() + " clicked");
+                    document.getElementById("descr").innerHTML=</script>
             }
         </script>
-                   
-                   
+                         
+        
         <%
         Pair<String, String> data = DataReceiver.generateGraph();
         out.append(data.getValue0()).append(data.getValue1());

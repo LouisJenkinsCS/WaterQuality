@@ -92,9 +92,9 @@ public class ControlServlet extends HttpServlet {
             user.setLoginCount(user.getLoginCount()+1);
             LocalDateTime now = LocalDateTime.now();
 
-            user.setLastLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+            user.setLastLoginTime(LocalDateTime.now());
             user.setAttemptedLoginCount(0);
-            user.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+            user.setLastAttemptedLoginTime(LocalDateTime.now());
             um.updateUser(user);
         
             // Always lock a session variable to be thread safe.
