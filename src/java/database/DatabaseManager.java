@@ -56,6 +56,34 @@ public class DatabaseManager
         }
     }
     
+    public void createDataDescriptionTable()    
+    {
+        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
+        Statement s = null;
+        try(Connection conn = sql.getConnection();)
+        {
+            s = conn.createStatement();
+            String createTable = "Create Table DataDescriptions("
+                    + "name varchar primary key,"
+                    + "description varchar"
+                    + ");";
+            s.executeQuery(createTable);
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            System.out.println("Error processing request: Create Data Value Table");
+        }
+        finally
+        {
+            try
+            {
+                if(s != null)
+                    s.close();
+            }
+            catch(SQLException e){System.out.println("Error closing statement");}
+        }
+    }
+    
     public void createUserTable()
     {
         Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
@@ -638,6 +666,122 @@ public class DatabaseManager
                 }
             catch(SQLException excep)
             {System.out.println("Rollback unsuccessful");}
+        }
+        finally
+        {
+            try
+            {
+                if(p != null)
+                    p.close();
+                if(conn != null)
+                    conn.close();
+            }
+            catch(Exception excep)
+            {
+                System.out.println("Error closing statement or connection");
+            }
+        }
+    }
+    
+    public void updateDescription(String desc, String name)
+    {
+        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
+        Connection conn = sql.getConnection();
+        PreparedStatement p = null;
+        try
+        {
+            conn.setAutoCommit(false);
+            String updateSQL = "UPDATE DataDescriptions"
+                    + "SET description = ?,"
+                    + "WHERE name = ?;";
+            p = conn.prepareStatement(updateSQL);
+            p.setString(1, desc);
+            p.setString(2, name);
+            p.executeQuery();
+            conn.commit();
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error updating description for " + name);
+            if(conn != null)
+                try
+                {
+                    System.out.println("Transaction is being rolled back");
+                    conn.rollback();
+                }
+            catch(SQLException excep)
+            {System.out.println("Rollback unsuccessful");}
+        }
+        finally
+        {
+            try
+            {
+                if(p != null)
+                    p.close();
+                if(conn != null)
+                    conn.close();
+            }
+            catch(Exception excep)
+            {
+                System.out.println("Error closing statement or connection");
+            }
+        }
+    }
+    
+    public String getDescription(String name)
+    {
+        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
+        Connection conn = sql.getConnection();
+        PreparedStatement p = null;
+        ResultSet rs = null;
+        String desc = null;
+        try
+        {
+            String getSQL = "SELECT * FROM DataDescriptions WHERE name = ?";
+            p = conn.prepareStatement(getSQL);
+            p.setString(1, name);
+            rs = p.executeQuery();
+            desc = rs.getString("description");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error retrieving description for " + name);
+        }
+        finally
+        {
+            try
+            {
+                if(p != null)
+                    p.close();
+                if(rs != null)
+                    rs.close();
+                if(conn != null)
+                    conn.close();
+            }
+            catch(Exception excep)
+            {
+                System.out.println("Error closing statement or connection");
+            }
+        }
+        return desc;
+    }
+    
+    public void insertDescription(String name, String desc)
+    {
+        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
+        Connection conn = sql.getConnection();
+        PreparedStatement p = null;
+        try
+        {
+            String insertSQL = "INSERT INTO DataDescriptions values(?, ?)";
+            p = conn.prepareStatement(insertSQL);
+            p.setString(1, name);
+            p.setString(2, desc);
+            p.executeQuery();
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error inserting description for " + name);
         }
         finally
         {
