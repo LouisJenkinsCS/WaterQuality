@@ -5,7 +5,7 @@
 package common;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 /**
  *
  * @author Tyler Mutzek
@@ -16,14 +16,14 @@ public class DataValue implements Serializable
     private String name;//name of this data type (e.g. temperature, pressure)
     private String units;//units this data value is in (e.g. celcius)
     private String sensor;//name distinguishing this sensor from others
-    private Timestamp time;//time the data value was recorded
+    private LocalDateTime time;//time the data value was recorded
     private float value;//the value the sensor detected
     
     public DataValue()
     {
         
     }
-    public DataValue(int entryID, String name, String units, String sensor, Timestamp time, float value)
+    public DataValue(int entryID, String name, String units, String sensor, LocalDateTime time, float value)
     {
         this.entryID = entryID;
         this.name = name;
@@ -91,14 +91,14 @@ public class DataValue implements Serializable
     /**
      * @return the time
      */
-    public Timestamp getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
     /**
      * @param time the time to set
      */
-    public void setTime(Timestamp time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 

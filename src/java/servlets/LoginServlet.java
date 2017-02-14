@@ -147,18 +147,18 @@ public class LoginServlet extends HttpServlet {
                     else {
 
                         if (potentialUser.getLastAttemptedLoginTime() == null) {
-                            potentialUser.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+                            potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
                         }
                         // If the current time is less than 15 mins after the first time they tried to log in,
                         // increment their login count bringing them closer to the number from property file
-                        if (Timestamp.valueOf(LocalDateTime.now()).before(Timestamp.valueOf(LocalDateTime.now().plusMinutes(15)) ) ) {
+                        if (LocalDateTime.now().isBefore(LocalDateTime.now().plusMinutes(15)) ) {
                             if (potentialUser.getAttemptedLoginCount() == 0) {
-                                potentialUser.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+                                potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
                             }
                             potentialUser.setAttemptedLoginCount(potentialUser.getAttemptedLoginCount() + 1);
                             um.updateUserLogin(potentialUser);
                         } else {
-                            potentialUser.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+                            potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
                             potentialUser.setAttemptedLoginCount(1);
                             um.updateUserLogin(potentialUser);
                         }

@@ -4,7 +4,6 @@ import common.User;
 import common.UserRole;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.logging.Level;
 import utilities.WebErrorLogger;
@@ -25,11 +24,11 @@ public class SQLUtility {
             user.setFirstName(rs.getString("firstName"));
             user.setLastName(rs.getString("lastName"));
             user.setUserRole(UserRole.getUserRole(rs.getString("userRole")));
-            user.setLastLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+            user.setLastLoginTime(LocalDateTime.now());
             if (rs.getString("LastAttemptedLoginTime") == null) {
-                user.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+                user.setLastAttemptedLoginTime(LocalDateTime.now());
             } else {
-                user.setLastAttemptedLoginTime(Timestamp.valueOf(rs.getString("LastAttemptedLoginTime")));
+                user.setLastAttemptedLoginTime(LocalDateTime.parse(rs.getString("LastAttemptedLoginTime")));
             }
             int loginCount = rs.getInt("loginCount");
             user.setLoginCount(loginCount);
