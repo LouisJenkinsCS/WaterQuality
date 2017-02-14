@@ -12,7 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import org.json.simple.JSONObject;
 import security.SecurityCode;
@@ -36,7 +36,7 @@ public class DatabaseManager
                     + "name varchar,"
                     + "units varchar,"
                     + "sensor varchar"
-                    + "time Timestamp"
+                    + "time varchar"
                     + "value number"
                     + ");";
             s.executeQuery(createTable);
@@ -72,8 +72,8 @@ public class DatabaseManager
                     + "firstName varchar"
                     + "emailAddress varchar"
                     + "userRole varchar"
-                    + "lastLogin Timestamp"
-                    + "lastAttemptedLogin Timestamp"
+                    + "lastLogin varchar"
+                    + "lastAttemptedLogin varchar"
                     + "loginCount number"
                     + "attemptedLoginCount number"
                     + "locked boolean"
@@ -95,7 +95,7 @@ public class DatabaseManager
         }
     }
     
-    public void manualInput(String name, String units, Timestamp time, float value, User u)
+    public void manualInput(String name, String units, LocalDateTime time, float value, User u)
     {
         Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         Connection conn = sql.getConnection();
@@ -241,7 +241,7 @@ public class DatabaseManager
         }
     }
     
-    public ArrayList<DataValue> getGraphData(String name, Timestamp lower, Timestamp upper, String sensor)
+    public ArrayList<DataValue> getGraphData(String name, LocalDateTime lower, LocalDateTime upper, String sensor)
     {
         ArrayList<DataValue> graphData = new ArrayList<>();
         Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
@@ -261,7 +261,7 @@ public class DatabaseManager
             
             int entryID;
             String units;
-            Timestamp time;
+            LocalDateTime time;
             float value;
             while(!rs.isAfterLast())
             {
@@ -269,7 +269,7 @@ public class DatabaseManager
                 name = rs.getString(2);
                 units = rs.getString(3);
                 sensor = rs.getString(4);
-                time = rs.getTimestamp(5);
+                time = LocalDateTime.parse(rs.getString(5));
                 value = rs.getFloat(6);
                 DataValue dV = new DataValue(entryID,name,units,sensor,time,value);
                 graphData.add(dV);
@@ -296,7 +296,7 @@ public class DatabaseManager
         return graphData;
     }
     
-    public void sensorDataInput(String name, String units, String sensor, Timestamp time, float value)
+    public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value)
     {
         Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         Connection conn = sql.getConnection();
@@ -368,8 +368,8 @@ public class DatabaseManager
             p.setString(5, lastName);
             p.setString(6, email);
             p.setString(7, userRole.getRoleName());
-            p.setString(8, new Timestamp(1483246800000L).toString());//last login time
-            p.setString(9, new Timestamp(1483246800000L).toString());//last attempted login time
+            p.setString(8, LocalDateTime.now() + "");//last login time
+            p.setString(9, LocalDateTime.now() + "");//last attempted login time
             p.setString(10, 0+"");//login count
             p.setString(11, 0+"");//login attempted count
             p.setString(12, false+"");
@@ -527,8 +527,8 @@ public class DatabaseManager
                 rs.getString("firstName"),
                 rs.getString("emailAddress"),
                 UserRole.getUserRole(rs.getString("userRole")),
-                Timestamp.valueOf(rs.getString("lastLoginTime")),
-                Timestamp.valueOf(rs.getString("lastAttemptedLoginTime")),
+                LocalDateTime.parse(rs.getString("lastLoginTime")),
+                LocalDateTime.parse(rs.getString("lastAttemptedLoginTime")),
                 rs.getInt("loginCount"),
                 rs.getInt("attemptedLoginCount"),
                 rs.getBoolean("locked")
@@ -577,8 +577,8 @@ public class DatabaseManager
                 rs.getString("firstName"),
                 rs.getString("emailAddress"),
                 UserRole.getUserRole(rs.getString("userRole")),
-                Timestamp.valueOf(rs.getString("lastLoginTime")),
-                Timestamp.valueOf(rs.getString("lastAttemptedLoginTime")),
+                LocalDateTime.parse(rs.getString("lastLoginTime")),
+                LocalDateTime.parse(rs.getString("lastAttemptedLoginTime")),
                 rs.getInt("loginCount"),
                 rs.getInt("attemptedLoginCount"),
                 rs.getBoolean("locked")

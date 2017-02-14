@@ -49,23 +49,27 @@
             <header class = "content_title_bar" id="login_header"> 
                 <div class = "title" >
                     Data Type
-                </div> 
+                </div>
             </header> 
                 <%--The <code>data_type_form</code> allows the user to select
                     the desired data to be outputed into either a table or
                     a graph
                 --%>
-                <form id="data_type_form">
+                <form id="data_type_form" action="ControlServlet" method = "POST">
                     <div class="" id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                            id="select_all_data" value="select_all_data">Select all</div><br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data1')" class="data" id="data1" value="data1">Data<br>
+                    
+                    ${DummyData}
+                    <input type="submit" name="Get Data" value="Get Data" />
+                    <input type="hidden" name="control" value ="getData">
+<!--                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data1')" class="data" id="data1" value="data1">Data<br>
                     <input type="checkbox" onclick="if(current=='Graph')fullCheck('data2')" class="data" id="data2" value="data2">Data<br>
                     <input type="checkbox" onclick="if(current=='Graph')fullCheck('data3')" class="data" id="data3" value="data3">Data<br>
                     <input type="checkbox" onclick="if(current=='Graph')fullCheck('data4')" class="data" id="data4" value="data4">Data<br>
                     <input type="checkbox" onclick="if(current=='Graph')fullCheck('data5')" class="data" id="data5" value="data5">Data<br>
                     <input type="checkbox" onclick="if(current=='Graph')fullCheck('data6')" class="data" id="data6" value="data6">Data<br>
                     <input type="checkbox" onclick="if(current=='Graph')fullCheck('data7')" class="data" id="data7" value="data7">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data8')" class="data" id="data8" value="data8">Data<br>
+                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data8')" class="data" id="data8" value="data8">Data<br>-->
                     <br>
                     <div class="data_type_submit" id="Graph_submit" ><input type="submit" ></div>
                     <div class="data_type_submit" id="Table_submit" ><input type="submit" ></div>

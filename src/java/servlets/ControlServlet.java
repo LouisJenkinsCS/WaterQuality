@@ -4,6 +4,7 @@ package servlets;
 
 
 import async.DataReceiver;
+import io.reactivex.Observable;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -17,6 +18,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  * <code>ControlServlet</code> is the main servlet that processes most 
@@ -40,13 +43,29 @@ public class ControlServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        log("Printed");
-        System.out.println("Date: " + DataReceiver.test(Instant.now().minus(Period.ofWeeks(1)), Instant.now()).blockingFirst());
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         final Object lock = session.getId().intern();//To synchronize the session variable
         database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
         common.User user = (common.User) session.getAttribute("user");
         String action = request.getParameter("control");
+        
+        if (action.trim().equalsIgnoreCase("getData")) {
+            StringBuilder data = new StringBuilder();
+            DataReceiver
+                    .getData(DataReceiver.JSON_URL)
+                    .map((JSONObject obj) -> (JSONArray) obj.get("data"))
+                    .flatMap(Observable::fromIterable)
+                    .map(obj -> (String) ((JSONObject) obj).get("name"))
+                    .map(name -> "<input type=\"checkbox\" onclick=\"if(current=='Graph')fullCheck('data1')\" class=\"data\" id=\"data1\" value=\"data\">" + name + "<br>\n")
+                    .blockingSubscribe(data::append);
+                   
+            request.setAttribute("DummyData", data.toString());
+            
+            request.getServletContext()
+                .getRequestDispatcher("/dashboard.jsp") //page we want after successful login. 
+                .forward(request, response);
+            return;
+        }
         
         log("action is "+action) ;       
         // Fix the login data for the user

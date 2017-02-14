@@ -11,7 +11,7 @@ So it is also known as the deployment descriptor -->
     </session-config>
     
     <welcome-file-list>
-        <welcome-file>loginScreen.jsp</welcome-file> 
+        <welcome-file>dashboard.jsp</welcome-file> 
     </welcome-file-list>
     
     <error-page>
@@ -63,14 +63,14 @@ So it is also known as the deployment descriptor -->
          <url-pattern>/*</url-pattern>
       </filter-mapping>
      -->
-    <filter>
+<!--    <filter>
         <filter-name>LoginFilter</filter-name>
         <filter-class>servlets.filter.LoginFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/*</url-pattern>
-    </filter-mapping>
+    </filter-mapping>-->
     
     <!--<resource-ref>
         <description>jdbc:mysql://hermes.bloomu.edu:3306/ISISData</description>

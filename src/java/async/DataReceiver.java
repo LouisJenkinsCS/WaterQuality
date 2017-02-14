@@ -27,7 +27,7 @@ import org.json.simple.parser.JSONParser;
  * @author lpj11535
  */
 public class DataReceiver {
-    private static final String JSON_URL = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
+    public static final String JSON_URL = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
     
     public static Pair<String, String> generateGraph() {
         List<Pair<String, Double>> data = new ArrayList<>();
@@ -72,7 +72,7 @@ public class DataReceiver {
         return Pair.with(chart, table);
     }
     
-    private static Observable<JSONObject> getData(String url) {
+    public static Observable<JSONObject> getData(String url) {
         return Observable.just(url)
                 .subscribeOn(Schedulers.io())
                 .map(URL::new)
