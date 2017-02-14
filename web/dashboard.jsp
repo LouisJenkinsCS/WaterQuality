@@ -86,14 +86,27 @@
                         Description
                     </div>
                 </header>
-                <p>This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. </p>
+                <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
+                <p id="descr"></p>
             </section>
             
         </section> 
+        
+                   
+        <script>
+            <!--handleClick is defined as the onclick function in ControlServlet-->
+            function handleClick(cb)
+            {
+            <!--I used the form above as a sort of template for this form...
+            it's really shouldn't return anything yet besides the hard coded test string (see ControlServlet)-->
+                <form id="click_data_receiver" action="ControlServlet" method="POST">
+                       <input type="hidden" name="control" value="getDesc"></form>
+                if(cb.checked())
+                <!--I attempted to hardcode a value, just to see something happen in the description box-->
+                    document.getElementById("descr").innerHTML=</script>
+            }
+        </script>
+                         
         
         <%
         Pair<String, String> data = DataReceiver.generateGraph();

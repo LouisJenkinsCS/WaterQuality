@@ -56,13 +56,29 @@ public class ControlServlet extends HttpServlet {
                     .map((JSONObject obj) -> (JSONArray) obj.get("data"))
                     .flatMap(Observable::fromIterable)
                     .map(obj -> (String) ((JSONObject) obj).get("name"))
-                    .map(name -> "<input type=\"checkbox\" onclick=\"if(current=='Graph')fullCheck('data1')\" class=\"data\" id=\"data1\" value=\"data\">" + name + "<br>\n")
+                    //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
+                    //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
+                    .map(name -> "<input type=\"checkbox\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + name + "\" value=\"data\">" + name + "<br>\n")
                     .blockingSubscribe(data::append);
                    
             request.setAttribute("DummyData", data.toString());
             
             request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp") //page we want after successful login. 
+                .forward(request, response);
+            return;
+        }
+        
+        //I modeled this after the above case ^^
+        if(action.trim().equalsIgnoreCase("getDesc"))
+        {
+            StringBuilder description = new StringBuilder();
+            description.append("Test String");
+            request.setAttribute("datadesc", description.toString());
+            
+            //I don't understand this part, but I assume it's necessary?
+            request.getServletContext()
+                .getRequestDispatcher("/dashboard.jsp") 
                 .forward(request, response);
             return;
         }
@@ -76,9 +92,9 @@ public class ControlServlet extends HttpServlet {
             user.setLoginCount(user.getLoginCount()+1);
             LocalDateTime now = LocalDateTime.now();
 
-            user.setLastLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+            user.setLastLoginTime(LocalDateTime.now());
             user.setAttemptedLoginCount(0);
-            user.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
+            user.setLastAttemptedLoginTime(LocalDateTime.now());
             um.updateUser(user);
         
             // Always lock a session variable to be thread safe.
