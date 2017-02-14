@@ -31,7 +31,7 @@ public class DatabaseManager
         try(Connection conn = sql.getConnection();)
         {
             s = conn.createStatement();
-            String createTable = "Create Table DataValues("
+            String createTable = "Create Table IF NOT EXISTS DataValues("
                     + "entryID number primary key AUTO_INCREMENT,"
                     + "name varchar,"
                     + "units varchar,"
@@ -63,7 +63,7 @@ public class DatabaseManager
         try(Connection conn = sql.getConnection();)
         {
             s = conn.createStatement();
-            String createTable = "Create Table DataDescriptions("
+            String createTable = "Create Table IF NOT EXISTS DataDescriptions("
                     + "name varchar primary key,"
                     + "description varchar"
                     + ");";
@@ -91,7 +91,7 @@ public class DatabaseManager
         try(Connection conn = sql.getConnection();)
         {
             s = conn.createStatement();
-            String createTable = "Create Table Users("
+            String createTable = "Create Table IF NOT EXISTS Users("
                     + "userNumber number primary key AUTO_INCREMENT,"
                     + "loginName varchar,"
                     + "password varchar,"
