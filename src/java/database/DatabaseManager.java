@@ -63,15 +63,15 @@ public class DatabaseManager
         try(Connection conn = sql.getConnection();)
         {
             s = conn.createStatement();
-            String createTable = "Create Table DataDescriptions("
-                    + "name varchar primary key,"
+            String createTable = "Create Table IF NOT EXISTS DataDescriptions("
+                    + "name varchar(40) primary key,"
                     + "description varchar"
                     + ");";
             s.executeQuery(createTable);
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: Create Data Value Table");
+            System.out.println("Error processing request: Create Data Description Table");
         }
         finally
         {
@@ -110,7 +110,7 @@ public class DatabaseManager
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: Create Data Value Table");
+            System.out.println("Error processing request: Create User Table");
         }
         finally
         {
@@ -831,5 +831,22 @@ public class DatabaseManager
         }
         
         return salt;
+    }
+    
+    public static void main(String[] args)
+    {
+        DatabaseManager dbm = new DatabaseManager();
+        
+        dbm.createDataDescriptionTable();
+        
+        String altitude = "Air pressure is the measurement of the"
+                + " weight or mass of the air on the surface of a body "
+                + "of water. Just before a storm hits, one can expec"
+                + "t low air pressure. Once the rainy weather passe"
+                + "s, the air pressure is expected to be high. Some"
+                + " people believe there is an association between air"
+                + " pressure and fishing conditions!";
+        
+        dbm.insertDescription("Air Pressure", altitude);
     }
 }
