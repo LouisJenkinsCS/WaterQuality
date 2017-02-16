@@ -60,7 +60,7 @@ public enum UserRole implements Serializable{
     
     /**
      * Returns the <code> UserRole </code> of the given role name. If the role name
-     * given is not one of the roles in the enumerated type, the default is set to "Guest."
+     * given is not one of the roles in the enumerated type, the default is null."
      * 
      * @param roleName The name of this role, preferably one already in the enumerated type
      * (SystemAdmin, Administrator, Chair, Advisor, Instructor, Staff, or Student).
@@ -68,7 +68,7 @@ public enum UserRole implements Serializable{
      * @return The <code> UserRole </code> corresponding to the role name given.
      */
      public static UserRole getUserRole (String roleName) {
-       UserRole name = Guest; // default is guest 
+        UserRole name = null;
 
         for (UserRole e : UserRole.values ()) {
             if (e.roleName.equalsIgnoreCase(roleName.trim())){

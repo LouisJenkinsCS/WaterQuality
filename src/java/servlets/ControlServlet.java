@@ -3,14 +3,23 @@ package servlets;
 
 
 
+import async.DataReceiver;
+import io.reactivex.Observable;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import org.javatuples.Pair;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  * <code>ControlServlet</code> is the main servlet that processes most 
@@ -40,6 +49,41 @@ public class ControlServlet extends HttpServlet {
         common.User user = (common.User) session.getAttribute("user");
         String action = request.getParameter("control");
         
+        if (action.trim().equalsIgnoreCase("getData")) {
+            StringBuilder data = new StringBuilder();
+            DataReceiver
+                    .getData(DataReceiver.JSON_URL)
+                    .map((JSONObject obj) -> (JSONArray) obj.get("data"))
+                    .flatMap(Observable::fromIterable)
+                    .map(obj -> Pair.with((String) ((JSONObject) obj).get("name"), (String) ((JSONObject) obj).get("unit")))
+                    .map(p -> ((Pair) p).getValue0() + " (" + ((Pair) p).getValue1() + ")")
+                    //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
+                    //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
+                    .map(str -> "<input type=\"checkbox\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str  + "\" value=\"data\">" + str + "<br>\n")
+                    .blockingSubscribe(data::append);
+                   
+            request.setAttribute("DummyData", data.toString());
+            
+            request.getServletContext()
+                .getRequestDispatcher("/dashboard.jsp") //page we want after successful login. 
+                .forward(request, response);
+            return;
+        }
+        
+        //I modeled this after the above case ^^
+        if(action.trim().equalsIgnoreCase("getDesc"))
+        {
+            StringBuilder description = new StringBuilder();
+            description.append("Test Dummy\n");
+            request.setAttribute("datadesc", description.toString());
+            
+            //I don't understand this part, but I assume it's necessary?
+            request.getServletContext()
+                .getRequestDispatcher("/dashboard.jsp") 
+                .forward(request, response);
+            return;
+        }
+        
         log("action is "+action) ;       
         // Fix the login data for the user
         if(action.trim().equalsIgnoreCase("login")){
@@ -49,9 +93,9 @@ public class ControlServlet extends HttpServlet {
             user.setLoginCount(user.getLoginCount()+1);
             LocalDateTime now = LocalDateTime.now();
 
-            user.setLastLoginTime(now);
+            user.setLastLoginTime(Timestamp.valueOf(LocalDateTime.now()));
             user.setAttemptedLoginCount(0);
-            user.setLastAttemptedLoginTime(now);
+            user.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
             um.updateUser(user);
         
             // Always lock a session variable to be thread safe.

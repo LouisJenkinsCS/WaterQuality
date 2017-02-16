@@ -24,8 +24,7 @@ public class SQLUtility {
             user.setFirstName(rs.getString("firstName"));
             user.setLastName(rs.getString("lastName"));
             user.setUserRole(UserRole.getUserRole(rs.getString("userRole")));
-            LocalDateTime now = LocalDateTime.parse(rs.getString("lastLoginTime"));
-            user.setLastLoginTime(now);
+            user.setLastLoginTime(LocalDateTime.now());
             if (rs.getString("LastAttemptedLoginTime") == null) {
                 user.setLastAttemptedLoginTime(LocalDateTime.now());
             } else {
