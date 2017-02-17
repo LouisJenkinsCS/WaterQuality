@@ -8,7 +8,7 @@ import io.reactivex.Observable;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
-
+import org.javatuples.Pair;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
@@ -55,10 +55,11 @@ public class ControlServlet extends HttpServlet {
                     .getData(DataReceiver.JSON_URL)
                     .map((JSONObject obj) -> (JSONArray) obj.get("data"))
                     .flatMap(Observable::fromIterable)
-                    .map(obj -> (String) ((JSONObject) obj).get("name"))
+                    .map(obj -> Pair.with((String) ((JSONObject) obj).get("name"), (String) ((JSONObject) obj).get("unit")))
+                    .map(p -> ((Pair) p).getValue0() + " (" + ((Pair) p).getValue1() + ")")
                     //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
                     //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
-                    .map(name -> "<input type=\"checkbox\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + name + "\" value=\"data\">" + name + "<br>\n")
+                    .map(str -> "<input type=\"checkbox\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str  + "\" value=\"data\">" + str + "<br>\n")
                     .blockingSubscribe(data::append);
                    
             request.setAttribute("DummyData", data.toString());
@@ -73,7 +74,7 @@ public class ControlServlet extends HttpServlet {
         if(action.trim().equalsIgnoreCase("getDesc"))
         {
             StringBuilder description = new StringBuilder();
-            description.append("Test String");
+            description.append("Test Dummy\n");
             request.setAttribute("datadesc", description.toString());
             
             //I don't understand this part, but I assume it's necessary?
