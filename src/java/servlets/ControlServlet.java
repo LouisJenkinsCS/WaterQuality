@@ -43,6 +43,7 @@ public class ControlServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         final Object lock = session.getId().intern();//To synchronize the session variable
         database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
@@ -50,39 +51,50 @@ public class ControlServlet extends HttpServlet {
         String action = request.getParameter("control");
         
         if (action == null) {
-            StringBuilder data = new StringBuilder();
-            
-            DataReceiver
-                    // Obtains the data pulled from server of last 24 hours as a JSONObject
-                    .getData(DataReceiver.JSON_URL)
-                    // The JSON sent contains the data inside of a JSONArray
-                    .map((JSONObject obj) -> (JSONArray) obj.get("data"))
-                    // Take each element from the JSONArray and emit as their own JSONObject
-                    // I.E: Given an array = [1, 2, 3] which is a single item,
-                    // it will emit the items 1, 2, and 3 individually. 
-                    .flatMap(Observable::fromIterable)
-                    // Obtain the name and unit of the parameter as a Pair<String, String>
-                    .map(obj -> Pair.with((String) ((JSONObject) obj).get("name"), (String) ((JSONObject) obj).get("unit")))
-                    // Format as a String
-                    .map(p -> ((Pair) p).getValue0() + " (" + ((Pair) p).getValue1() + ")")
-                    // Create the equivalent checkboxes.
-                    .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str + "\" value=\"data\">" + str + "<br>\n")
-                    .blockingSubscribe(data::append);
-                   
-            request.setAttribute("DummyData", data.toString());
-            
-            request.getServletContext()
-                .getRequestDispatcher("/dashboard.jsp") //page we want after successful login. 
-                .forward(request, response);
             return;
         }
         
         log("Action is: " + action);
         
         if (action.trim().equalsIgnoreCase("getData")) {
-            request.getParameterMap().forEach((k, v) -> System.out.println("Key: " + k + ", Value: " + v));
-            log(action);
-            System.out.println("Got Action: " + action);
+            String selected =  request
+                    .getParameterMap()
+                    .keySet()
+                    .stream()
+                    .filter(k -> !k.equals("Get Data") && !k.equals("control"))
+                    .findFirst()
+                    .orElse(null);
+            
+            // Nothing selected...
+            if (selected == null) {
+                return;
+            }
+            
+            log("User Selected: " + selected);
+            Pair<String, String> graphData = DataReceiver.generateGraph(selected);
+            String js = graphData.getValue0() + graphData.getValue1();
+            
+//            request
+//                    .getParameterMap()
+//                    .keySet()
+//                    .stream()
+//                    .filter(k -> !k.equals("Get Data") && !k.equals("control"))
+//                    .forEach(k -> log("Key: " + k));
+            StringBuilder data = new StringBuilder();
+            DataReceiver
+                .getParameters()
+                .sorted()
+                //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
+                //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
+                .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str  + "\" value=\"data\">" + str + "<br>\n")
+                .blockingSubscribe(data::append);
+
+            request.setAttribute("DummyData", data.toString());
+            request.setAttribute("DummyGraphAndTable", js);
+            request.getServletContext()
+                .getRequestDispatcher("/dashboard.jsp") 
+                .forward(request, response);
+            log("Got Action: " + action);
             return;
         }
         
@@ -101,7 +113,7 @@ public class ControlServlet extends HttpServlet {
                 .forward(request, response);
             return;
         }
-        
+
         // Fix the login data for the user
         if(action.trim().equalsIgnoreCase("login")){
             //all this code should be in the login servlet
@@ -176,7 +188,19 @@ public class ControlServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        StringBuilder data = new StringBuilder();
+        DataReceiver
+                .getParameters()
+                .sorted()
+                //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
+                //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
+                .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str  + "\" value=\"data\">" + str + "<br>\n")
+                .blockingSubscribe(data::append);
+
+        request.setAttribute("DummyData", data.toString());
+        request.getServletContext()
+                .getRequestDispatcher("/dashboard.jsp") 
+                .forward(request, response);
     }
 
     /**
