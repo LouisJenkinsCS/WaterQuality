@@ -721,7 +721,7 @@ public class DatabaseManager
         String desc = null;
         try
         {
-            String getSQL = "SELECT * FROM DataDescriptions WHERE name = ?";
+            String getSQL = "SELECT * FROM DataDescriptions WHERE dataName = ?";
             p = conn.prepareStatement(getSQL);
             p.setString(1, name);
             rs = p.executeQuery();
