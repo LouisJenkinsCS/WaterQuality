@@ -74,7 +74,6 @@ public class DataReceiver {
     
     public static Observable<JSONObject> getData(String url) {
         return Observable.just(url)
-                .subscribeOn(Schedulers.io())
                 .map(URL::new)
                 .map(URL::openConnection)
                 .doOnNext(conn -> conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"))
@@ -96,11 +95,9 @@ public class DataReceiver {
     
     public static Observable<Pair<String, Double>> test(Instant start, Instant end) {
         String url = "https://ienvironet.com/api/data/" + start.getEpochSecond() + ":" + end.getEpochSecond() + "/637737849.json?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
-        System.out.println("Getting data from " + url);
         return getData(url)
                 .map((JSONObject obj) -> (JSONArray) obj.get("data"))
                 .flatMap(Observable::fromIterable)
-                .doOnNext(obj -> System.out.println("Data Received: " + obj))
                 .map(obj -> Pair.with((String)((JSONObject) obj).get("timestamp"), (Double) ((JSONObject) obj).get("value")));
                 
     }
