@@ -154,12 +154,12 @@
                    
             ${DummyGraphAndTable}
                          
-        
+        <%--
         <%
         Pair<String, String> data = DataReceiver.generateGraph();
         out.append(data.getValue0()).append(data.getValue1());
         %>
-        
+        --%>
             <script>
                 var ctx = document.getElementById('myChart').getContext('2d');
                 var myChart = new Chart(ctx, {
