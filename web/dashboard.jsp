@@ -20,7 +20,7 @@
         <title>Dashboard</title>
     </head>
     <body onload="onLoad();">
-        <img id="backPhoto" src="images/backgroundImage.JPG">
+        <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container"> 
             <div id="HeaderText">Water Quality</div>
         </header>
@@ -32,18 +32,23 @@
             </header>
             
             <section class = "content_container2" id = "graph_container">    
-            <ul class="tab">
-                <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph'); hide();"
-                       id="GraphTab">Graph</a></li>
-                <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();"
-                       id="TableTab">Table</a></li>
-            </ul>
-                <div id="Graph" class="tabcontent">
-                    <canvas id="myChart" width=25% height=20%></canvas>
-                </div>
-                <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
-                    ${Table}
-                </div>
+                <ul class="tab">
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph'); hide();"
+                           id="GraphTab">Graph</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();"
+                           id="TableTab">Table</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Export'); hide();"
+                       id="ExportTab">Export</a></li>
+                </ul>
+                    <div id="Graph" class="tabcontent">
+                        ${DummyGraph}
+                        <canvas id="myChart" width=25% height=20%></canvas>
+                    </div>
+                    <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">  
+                    </div>
+                    <div id="Export" class="tabcontent">
+                        <img id="Excel" src="images/excel.png" onclick="exportData('Excel')">
+                    </div>
             </section>
             
             <aside class = "content_container2" id = "dashboard_data_container">
@@ -57,8 +62,12 @@
                     a graph
                 --%>
                 <form id="data_type_form" action="ControlServlet" method = "POST">
+                    <!--<div id="dateInstructDiv">Start Date to End Date</div>
+                    <div id="dateselectordiv"><input class="dateselector" type="date" name="startdate"> to
+                    <input class="dateselector" type="date" name="enddate"></div>-->
                     <div class="" id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                            id="select_all_data" value="select_all_data">Select all</div><br>
+                    ${DummyData}
                     ${Parameters}
                     <input type="submit" name="Get Data" value="Get Data" />
                     <input type="hidden" name="control" value ="getData">
@@ -137,7 +146,7 @@
                 }
 //                post("ControlServlet", {key: 'control', control: 'getDesc'});
             }
-            
+ 
             function graphSubmit(){
                 var checkboxes = document.querySelectorAll('input[type="checkbox"]');
                 var data = "{ data: [";
@@ -149,6 +158,10 @@
                 data += "] }";
                 
                 post("ControlServlet", {key: 'control', control: 'getData ' + data});
+            }
+            
+            function exportData(id){
+                document.write(id);
             }
         </script>
             ${ChartJS}
@@ -212,7 +225,7 @@
              */
             function hide(){
                 var item=document.getElementById("select_all_toggle");
-                if(item.className=='hide')
+                if(current=='Table')
                     item.className='unhide';
                 else
                     item.className='hide';
@@ -228,7 +241,7 @@
             function fullCheck(id){
                 var item=document.getElementById(id);
                 if(item.checked==true){
-                    if(checkedBoxes<3)
+                    if(checkedBoxes<2)
                         checkedBoxes++;
                     else{
                         item.checked=false;
@@ -238,52 +251,7 @@
                     checkedBoxes--;
             }
             
-            /**
-             * The <code>toggle</code> function checks or unchecks
-             * all of the checkboxes in the given <code>source</code> 
-             * @param {type} source
-             */
-            function toggle(source) {
-                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                for (var i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i] != source)
-                        checkboxes[i].checked = source.checked;
-                }
-            }
             
-            /**
-             * The <code>hide</code> function hides the
-             * <code>select_all_toggle</code> checkbox when the Graph tab
-             * is selected and reveals the checkbox when the table
-             * tab is selected
-             */
-            function hide(){
-                var item=document.getElementById("select_all_toggle");
-                if(item.className=='hide')
-                    item.className='unhide';
-                else
-                    item.className='hide';
-            }
-            
-            var checkedBoxes=0;
-            /**
-             * The <code>fullCheck</code> function limits the number of data
-             * checkboxes checked at a time to 3 by unchecking <coe>id</code>
-             * if <code>checkedBoxes</code> equals 3
-             * @param {type} id the current data type the user is trying to check
-             */
-            function fullCheck(id){
-                var item=document.getElementById(id);
-                if(item.checked==true){
-                    if(checkedBoxes<3)
-                        checkedBoxes++;
-                    else{
-                        item.checked=false;
-                    }
-                }
-                else
-                    checkedBoxes--;
-            }
         </script>
     </body>
 </html>

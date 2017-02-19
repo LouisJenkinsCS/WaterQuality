@@ -103,8 +103,6 @@ public class ControlServlet extends HttpServlet {
             return;
         }
         
-        
-        
         //I modeled this after the above case ^^
         if(action.trim().equalsIgnoreCase("getDesc"))
         {
