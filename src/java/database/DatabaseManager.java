@@ -23,7 +23,11 @@ import security.SecurityCode;
  */
 public class DatabaseManager 
 {
-
+    
+    /*
+        Creates the data value table
+        *Tested*
+    */
     public void createDataValueTable()    
     {
         Statement s = null;
@@ -34,7 +38,7 @@ public class DatabaseManager
                     + "entryID INT primary key AUTO_INCREMENT,"
                     + "dataName varchar(40),"
                     + "units varchar(10),"
-                    + "sensor varchar(15),"
+                    + "sensor varchar(20),"
                     + "timeRecorded varchar(25),"
                     + "dataValue FLOAT(3)"
                     + ");";
@@ -55,6 +59,10 @@ public class DatabaseManager
         }
     }
     
+    /*
+        Creates the data description table
+        *Tested*
+    */
     public void createDataDescriptionTable()    
     {
         Statement s = null;
@@ -62,7 +70,7 @@ public class DatabaseManager
         {
             s = conn.createStatement();
             String createTable = "Create Table IF NOT EXISTS DataDescriptions("
-                    + "name varchar(40) primary key,"
+                    + "dataName varchar(40) primary key,"
                     + "description varchar(500)"
                     + ");";
             s.executeUpdate(createTable);
@@ -82,26 +90,30 @@ public class DatabaseManager
         }
     }
     
+    /*
+        Creates the user table
+        *Tested*
+    */
     public void createUserTable()
     {
         Statement s = null;
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
             s = conn.createStatement();
-            String createTable = "Create Table IF NOT EXISTS Users("
+            String createTable = "Create Table IF NOT EXISTS users("
                     + "userNumber INT primary key AUTO_INCREMENT,"
                     + "loginName varchar(15),"
                     + "password varchar(64),"
-                    + "salt varchar(10)"
-                    + "lastName varchar(10)"
-                    + "firstName varchar(10)"
-                    + "emailAddress varchar(50)"
-                    + "userRole varchar(10)"
-                    + "lastLogin varchar(25)"
-                    + "lastAttemptedLogin varchar(25)"
-                    + "loginCount INT"
-                    + "attemptedLoginCount INT"
-                    + "locked boolean"
+                    + "firstName varchar(15),"
+                    + "lastName varchar(15),"
+                    + "emailAddress varchar(50),"
+                    + "userRole varchar(20),"
+                    + "lastLoginTime varchar(25),"
+                    + "loginCount INT,"
+                    + "salt varchar(30),"
+                    + "LastAttemptedLoginTime varchar(25),"
+                    + "locked boolean,"
+                    + "AttemptedLoginCount INT"
                     + ");";
             s.executeUpdate(createTable);
         }
@@ -120,6 +132,10 @@ public class DatabaseManager
         }
     }
     
+    /*
+        Allows an admin to insert data into the data values table
+        *Tested*
+    */
     public void manualInput(String name, String units, LocalDateTime time, float value, User u)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -127,21 +143,23 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues values(?,?,?,?,?,?)";
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue) "
+                    + "values(?,?,?,?,?)";
             String sensor = u.getFirstName()+u.getLastName();
-                
+            if(sensor.length() > 20)
+                sensor = sensor.substring(0, 20);
             p = conn.prepareStatement(insertSQL);
             p.setString(1, name);
             p.setString(2, units);
             p.setString(3, sensor);
             p.setString(4, time+"");
-            p.setString(5, value+"");
+            p.setFloat(5, value);
             p.executeUpdate();
             conn.commit();
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: Manual Data Insertion");
+            System.out.println("Error processing request: Manual Data Insertion\n" + ex);
             if(conn!=null)
             {
                 try
@@ -171,23 +189,29 @@ public class DatabaseManager
         }
     }
     
-    public void manualDeletion(int entryID)
+    /*
+        Allows an admin to delete data from the data values table
+        *Tested*
+    */
+    public void manualDeletion(int entryID, User u)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
+            if(u.getUserRole() != common.UserRole.SystemAdmin)
+                throw new Exception("Attempted Data Deletion by Non-Admin");
             conn.setAutoCommit(false);
             String deleteSQL = "Delete from DataValues where entryID = ?";
                 
             p = conn.prepareStatement(deleteSQL);
-            p.setString(1, entryID+"");
+            p.setInt(1, entryID);
             p.executeUpdate();
             conn.commit();
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: Manual Data Deletion");
+            System.out.println("Error processing request: Manual Data Deletion\n" + ex);
             if(conn!=null)
             {
                 try
@@ -217,23 +241,33 @@ public class DatabaseManager
         }
     }
     
-    public void deleteUser(int userID)
+    /*
+        @param userID the user number of the user being deleted
+        @param u the user who is doing the deletion
+        Deletes user with parameter user number
+        *Tested*
+    */
+    public void deleteUser(int userID, User u)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
+            if(u.getUserRole() != common.UserRole.SystemAdmin)
+                throw new Exception("Attempted User Deletion by Non-Admin");
+            if(userID == u.getUserNumber())
+                throw new Exception("User Attempting to delete self");
             conn.setAutoCommit(false);
-            String deleteSQL = "Delete from users where entryID = ?";
+            String deleteSQL = "Delete from users where userNumber = ?";
                 
             p = conn.prepareStatement(deleteSQL);
-            p.setString(1, userID+"");
+            p.setInt(1, userID);
             p.executeUpdate();
             conn.commit();
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: Manual User Deletion");
+            System.out.println("Error processing request: Manual User Deletion\n" + ex);
             if(conn!=null)
             {
                 try
@@ -284,7 +318,7 @@ public class DatabaseManager
             String units;
             LocalDateTime time;
             float value;
-            while(!rs.isAfterLast())
+            while(rs.next())
             {
                 entryID = rs.getInt(1);
                 name = rs.getString(2);
@@ -367,6 +401,10 @@ public class DatabaseManager
         }
     }
     
+    /*
+        Adds a new user to the user table
+        *Tested*
+    */
     public void addNewUser(String username, String password, String firstName,
             String lastName, String email, UserRole userRole)
     {
@@ -375,29 +413,32 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO users values(?,?,?,?,?,?,?,?,?,?,?,?)";
+            String insertSQL = "INSERT INTO users (loginName,password,firstName,lastName,"
+                    + "emailAddress,userRole,lastLoginTime,loginCount,salt,"
+                    + "LastAttemptedLoginTime,locked,AttemptedLoginCount)"
+                    + " values(?,?,?,?,?,?,?,?,?,?,?,?)";
             String salt = "Brandon";
             password = SecurityCode.encryptSHA256(password + salt);
             
             p = conn.prepareStatement(insertSQL);
             p.setString(1, username);
             p.setString(2, password);
-            p.setString(3, salt);
-            p.setString(4, firstName);
-            p.setString(5, lastName);
-            p.setString(6, email);
-            p.setString(7, userRole.getRoleName());
-            p.setString(8, LocalDateTime.now() + "");//last login time
-            p.setString(9, LocalDateTime.now() + "");//last attempted login time
-            p.setString(10, 0+"");//login count
-            p.setString(11, 0+"");//login attempted count
-            p.setString(12, false+"");
+            p.setString(3, firstName);
+            p.setString(4, lastName);
+            p.setString(5, email);
+            p.setString(6, userRole.getRoleName());
+            p.setString(7, LocalDateTime.now() + "");//last login time
+            p.setInt(8, 0);//login count
+            p.setString(9, salt);
+            p.setString(10, LocalDateTime.now() + "");//last attempted login time
+            p.setBoolean(11, false);
+            p.setInt(12, 0);//login attempted count
             p.executeUpdate();
             conn.commit();
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: Add new user");
+            System.out.println("Error processing request: Add new user\n" + ex);
             if(conn!=null)
             {
                 try
@@ -427,6 +468,10 @@ public class DatabaseManager
         }
     }
     
+    /*
+        locks the user with the parameter userID
+        *Tested*
+    */
     public void lockUser(int userID)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -434,13 +479,65 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String modifySQL = "UPDATE users"
-                    + "SET locked = true"
+            String modifySQL = "UPDATE users "
+                    + "SET locked = 1 "
                     + "WHERE userNumber = ?;";
           
             
             p = conn.prepareStatement(modifySQL);
-            p.setString(1, userID+"");
+            p.setInt(1, userID);
+            p.executeUpdate();
+            conn.commit();
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            System.out.println("Error processing request: Lock User #" + userID);
+            if(conn!=null)
+            {
+                try
+                {
+                    System.out.println("Transaction is being rolled back");
+                    conn.rollback();
+                }
+                catch(SQLException excep)
+                {
+                    System.out.println("Rollback unsuccessful: " + excep);
+                }
+            }
+        }
+        finally
+        {
+            try
+            {
+                if(p != null)
+                    p.close();
+                if(conn != null)
+                    conn.close();
+            }
+            catch(SQLException excep)
+            {
+                System.out.println("Error closing statement or connection");
+            }
+        }
+    }
+    
+    /*
+        Unlocks the user with the parameter userID
+    */
+    public void unlockUser(int userID)
+    {
+        Connection conn = Web_MYSQL_Helper.getConnection();
+        PreparedStatement p = null;
+        try
+        {
+            conn.setAutoCommit(false);
+            String modifySQL = "UPDATE users "
+                    + "SET locked = 0 "
+                    + "WHERE userNumber = ?;";
+          
+            
+            p = conn.prepareStatement(modifySQL);
+            p.setInt(1, userID);
             p.executeUpdate();
             conn.commit();
         }
@@ -522,6 +619,10 @@ public class DatabaseManager
         }
     }
     
+    /*
+        Gets the user with the parameter login name
+        *Tested*
+    */
     public User getUserByLoginName(String username) 
     {
         User u = null;
@@ -534,10 +635,11 @@ public class DatabaseManager
             p = conn.prepareStatement(getSQL);
             p.setString(1, username);
             rs = p.executeQuery();
+            rs.next();
             u = new User(
                 rs.getInt("userNumber"),
                 rs.getString("loginName"),
-                rs.getString("userPassword"),
+                rs.getString("password"),
                 rs.getString("salt"),
                 rs.getString("lastName"),
                 rs.getString("firstName"),
@@ -552,7 +654,7 @@ public class DatabaseManager
         }
         catch(Exception e)
         {
-            System.out.println("Error retrieving user by login name");
+            System.out.println("Error retrieving user by login name\n" + e);
         }
         finally
         {
@@ -570,6 +672,10 @@ public class DatabaseManager
         return u;
     }
 
+    /*
+        Returns the user info if the username and password are correct
+        *Tested*
+    */
     public User validateUser(String username, String password) 
     {
         User u = null;
@@ -578,15 +684,17 @@ public class DatabaseManager
         ResultSet rs = null;
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
-            String getSQL = "SELECT * FROM users WHERE loginName = ?, userPassword = ?;";
+            password = security.SecurityCode.encryptSHA256(password+getSaltByLoginName(username));
+            String getSQL = "SELECT * FROM users WHERE loginName = ? and password = ?;";
             p = conn.prepareStatement(getSQL);
             p.setString(1, username);
             p.setString(2, password);
             rs = p.executeQuery();
+            rs.next();
             u = new User(
                 rs.getInt("userNumber"),
                 rs.getString("loginName"),
-                rs.getString("userPassword"),
+                rs.getString("password"),
                 rs.getString("salt"),
                 rs.getString("lastName"),
                 rs.getString("firstName"),
@@ -601,7 +709,7 @@ public class DatabaseManager
         }
         catch(Exception e)
         {
-            System.out.println("Error retrieving user by login name");
+            System.out.println("Error validating user: " + username + "\n" + e);
         }
         finally
         {
@@ -619,6 +727,11 @@ public class DatabaseManager
         return u;
     }
 
+    /*
+        Updates the user's loginCount, attemptedLoginCount, lastLoginTime
+        and lastAttemptedLoginTime
+        *Tested*
+    */
     public void updateUserLogin(User potentialUser) 
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -626,24 +739,24 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String updateSQL = "UPDATE users"
+            String updateSQL = "UPDATE users "
                     + "SET lastLoginTime = ?,"
                     + "lastAttemptedLoginTime = ?,"
                     + "loginCount = ?,"
-                    + "attemptedLoginCount = ?"
-                    + "WHERE loginName = ?;";
+                    + "attemptedLoginCount = ? "
+                    + "WHERE userNumber = ?;";
             p = conn.prepareStatement(updateSQL);
             p.setString(1, potentialUser.getLastLoginTime().toString());
             p.setString(2, potentialUser.getLastAttemptedLoginTime().toString());
-            p.setString(3, potentialUser.getLoginCount()+"");
-            p.setString(4, potentialUser.getAttemptedLoginCount()+"");
-            p.setString(5, potentialUser.getLoginName());
-            p.executeQuery();
+            p.setInt(3, potentialUser.getLoginCount());
+            p.setInt(4, potentialUser.getAttemptedLoginCount());
+            p.setInt(5, potentialUser.getUserNumber());
+            p.executeUpdate();
             conn.commit();
         }
         catch(Exception e)
         {
-            System.out.println("Error retrieving user by login name");
+            System.out.println("Error updating user login\n" + e);
             if(conn != null)
                 try
                 {
@@ -669,6 +782,10 @@ public class DatabaseManager
         }
     }
     
+    /*
+        Updates the description with dataName 'name' using the description 'desc'
+        *Tested*
+    */
     public void updateDescription(String desc, String name)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -676,13 +793,13 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String updateSQL = "UPDATE DataDescriptions"
-                    + "SET description = ?,"
-                    + "WHERE name = ?;";
+            String updateSQL = "UPDATE DataDescriptions "
+                    + "SET description = ? "
+                    + "WHERE dataName = ?;";
             p = conn.prepareStatement(updateSQL);
             p.setString(1, desc);
             p.setString(2, name);
-            p.executeQuery();
+            p.executeUpdate();
             conn.commit();
         }
         catch(Exception e)
@@ -713,6 +830,10 @@ public class DatabaseManager
         }
     }
     
+    /*
+        Retrieves the description for the parameter data name
+        *Tested*
+    */
     public String getDescription(String name)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -721,10 +842,11 @@ public class DatabaseManager
         String desc = null;
         try
         {
-            String getSQL = "SELECT * FROM DataDescriptions WHERE name = ?";
+            String getSQL = "SELECT * FROM DataDescriptions WHERE dataName = ?";
             p = conn.prepareStatement(getSQL);
             p.setString(1, name);
             rs = p.executeQuery();
+            rs.next();
             desc = rs.getString("description");
         }
         catch(Exception e)
@@ -750,6 +872,10 @@ public class DatabaseManager
         return desc;
     }
     
+    /*
+        Inserts a description into the DataDescriptions table
+        *Tested*
+    */
     public void insertDescription(String name, String desc)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -760,7 +886,7 @@ public class DatabaseManager
             p = conn.prepareStatement(insertSQL);
             p.setString(1, name);
             p.setString(2, desc);
-            p.executeQuery();
+            p.executeUpdate();
         }
         catch(Exception e)
         {
@@ -782,7 +908,11 @@ public class DatabaseManager
         }
     }
 
-    public String getSaltByLoginName(String username) 
+    /*
+        Retrieves the salt of the user with the parameter login name
+        *Tested*
+    */
+    public String getSaltByLoginName(String loginName) 
     {
         PreparedStatement p = null;
         ResultSet rs = null;
@@ -791,13 +921,14 @@ public class DatabaseManager
         {
             String getSQL = "SELECT * FROM users WHERE loginName = ?;";
             p = conn.prepareStatement(getSQL);
-            p.setString(1, username);
+            p.setString(1, loginName);
             rs = p.executeQuery();
+            rs.next();
             salt = rs.getString("salt");
         }
         catch(SQLException e)
         {
-            System.out.println("Error retrieving user by login name");
+            System.out.println("Error retrieving salt by login name" + e);
         }
         finally
         {
@@ -818,6 +949,5 @@ public class DatabaseManager
     public static void main(String[] args)
     {
         DatabaseManager d = new DatabaseManager();
-        d.createDataValueTable();
     }
 }
