@@ -45,7 +45,8 @@ public class DatabaseManager
                     + "units varchar(10),"
                     + "sensor varchar(20),"
                     + "timeRecorded varchar(25),"
-                    + "dataValue FLOAT(3)"
+                    + "dataValue FLOAT(3),"
+                    + "delta FLOAT(8)"
                     + ");";
             s.execute(createTable);
         }
@@ -141,15 +142,15 @@ public class DatabaseManager
         Allows an admin to insert data into the data values table
         *Tested*
     */
-    public void manualInput(String name, String units, LocalDateTime time, float value, User u)
+    public void manualInput(String name, String units, LocalDateTime time, float value, float delta, User u)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue) "
-                    + "values(?,?,?,?,?)";
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta) "
+                    + "values(?,?,?,?,?,?)";
             String sensor = u.getFirstName()+u.getLastName();
             if(sensor.length() > 20)
                 sensor = sensor.substring(0, 20);
@@ -159,6 +160,7 @@ public class DatabaseManager
             p.setString(3, sensor);
             p.setString(4, time+"");
             p.setFloat(5, value);
+            p.setFloat(6, delta);
             p.executeUpdate();
             conn.commit();
         }
@@ -323,6 +325,7 @@ public class DatabaseManager
             String units;
             LocalDateTime time;
             float value;
+            float delta;
             while(rs.next())
             {
                 entryID = rs.getInt(1);
@@ -331,7 +334,8 @@ public class DatabaseManager
                 sensor = rs.getString(4);
                 time = LocalDateTime.parse(rs.getString(5));
                 value = rs.getFloat(6);
-                DataValue dV = new DataValue(entryID,name,units,sensor,time,value);
+                delta = rs.getFloat(7);
+                DataValue dV = new DataValue(entryID,name,units,sensor,time,value,delta);
                 graphData.add(dV);
                     
                 rs.next();
@@ -357,14 +361,14 @@ public class DatabaseManager
     }
     
     
-    public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value)
+    public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value, float delta)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue) "
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue, delta) "
                     + "values(?,?,?,?,?,?)";
                 
             p = conn.prepareStatement(insertSQL);
@@ -373,6 +377,7 @@ public class DatabaseManager
             p.setString(3, sensor);
             p.setString(4, time+"");
             p.setFloat(5, value);
+            p.setFloat(6, delta);
             p.executeUpdate();
             conn.commit();
         }
@@ -587,15 +592,16 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue) "
-                    + "values (?,?,?,?,?)";
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta) "
+                    + "values (?,?,?,?,?,?)";
             
             p = conn.prepareStatement(insertSQL);
             p.setString(1, (String)j.get("name"));
             p.setString(2, (String)j.get("unit"));
             p.setString(3, Objects.toString((long)j.get("node_id"),null));
-            p.setString(4, (String)j.get("timestamp"));
+            p.setString(4, ((String)j.get("timestamp")).substring(0,19));
             p.setFloat(5, (float)(double)j.get("value"));
+            p.setFloat(6, (float)(double)j.get("delta"));
             p.executeUpdate();
             conn.commit();
         }
