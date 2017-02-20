@@ -7,6 +7,7 @@ import common.DataValue;
 import java.io.IOException;
 import common.User;
 import common.UserRole;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +15,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Objects;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import security.SecurityCode;
 
 /**
@@ -351,6 +356,7 @@ public class DatabaseManager
         return graphData;
     }
     
+    
     public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -358,14 +364,15 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues values(?,?,?,?,?,?)";
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue) "
+                    + "values(?,?,?,?,?,?)";
                 
             p = conn.prepareStatement(insertSQL);
             p.setString(1, name);
             p.setString(2, units);
             p.setString(3, sensor);
             p.setString(4, time+"");
-            p.setString(5, value+"");
+            p.setFloat(5, value);
             p.executeUpdate();
             conn.commit();
         }
@@ -580,16 +587,21 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues JSON ?";
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue) "
+                    + "values (?,?,?,?,?)";
             
             p = conn.prepareStatement(insertSQL);
-            p.setString(1, j.toJSONString());
+            p.setString(1, (String)j.get("name"));
+            p.setString(2, (String)j.get("unit"));
+            p.setString(3, Objects.toString((long)j.get("node_id"),null));
+            p.setString(4, (String)j.get("timestamp"));
+            p.setFloat(5, (float)(double)j.get("value"));
             p.executeUpdate();
             conn.commit();
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: JSON Insertion");
+            System.out.println("Error processing request: JSON Insertion\n" + ex);
             if(conn!=null)
             {
                 try
@@ -948,6 +960,19 @@ public class DatabaseManager
     
     public static void main(String[] args)
     {
+        /*
         DatabaseManager d = new DatabaseManager();
+        JSONParser parser = new JSONParser();
+        try{
+            Object obj = parser.parse(new FileReader("P:/Compsci480/environet_api_data.json"));
+            JSONObject jsonObject = (JSONObject)obj;
+            JSONArray jarray = (JSONArray)jsonObject.get("data");
+            Iterator<JSONObject> iterator = jarray.iterator();
+            while(iterator.hasNext())
+                d.insertJSON(iterator.next());
+        }
+        catch(Exception e)
+        {}
+        */
     }
 }
