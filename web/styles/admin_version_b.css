@@ -188,6 +188,7 @@ ul.tab li a:focus, .active {background-color: #8CCE8C;}
     padding: 6px 12px;
     border-top: none;
 }
+
 admincontent {
     margin-left: 10px;
     overflow:auto;

@@ -32,6 +32,8 @@
             
             <section class = "content_container2" id = "graph_container">    
                 <ul class="tab">
+                    <!--href="javascript:void(0) allows the associated
+                    javascript to run without redirecting to another page-->
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Input_Data'); hide();"
                         id="InputTab">Input Data</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Delete_Data'); hide();"
@@ -44,19 +46,42 @@
                         id="EditTab">Edit Description</a></li>
                 </ul>
                     <admincontent id="Input_Data" class="tabcontent" style="tabstyle">
-                        <div>Filler stuff</div>
+                        
+                            <h2>Upload .CSV File</h2>
+                            <button type="button" onclick="browsefile()">Browse...</button><br/><br/>
+                            
+                            <form action="ControlServlet" method="POST">
+                                <h2>Enter Data Manually:</h2>
+                                Date: <div id="date"></div>
+                                Time: <div id="time"></div>
+                                Parameter: <select id="select_param" width:20px></select><br/>
+                                Value: <input type="text" name="value"><br/>
+                                <input type="submit" value="Submit">
+                            </form>
+                            
+                            <script>
+                                var d = document.createElement("INPUT");
+                                var t = document.createElement("INPUT");
+                                d.setAttribute("type", "date");
+                                t.setAttribute("type", "time");
+                                d.setAttribute("value", "2017-02-20");
+                                t.setAttribute("value", "05:22:00");
+                                document.getElementById("date").appendChild(d);
+                                document.getElementById("time").appendChild(t);
+                            </script>
+                            
                     </admincontent>
                     <admincontent id="Delete_Data" class="tabcontent" style="tabstyle">
-                        <div>More filler</div>
+                        <div></div>
                     </admincontent>
                     <admincontent id="Register_User" class="tabcontent">
-                        <!--TODO things;-->
+                        <div></div>
                     </admincontent>
                     <admincontent id="Remove_User" class="tabcontent">
-                        <!--TODO things;-->
+                        <div></div>
                     </admincontent>
                     <admincontent id="Edit_Description" class="tabcontent">
-                        <!--TODO things;-->
+                        <div></div>
                     </admincontent>
             </section>
             
