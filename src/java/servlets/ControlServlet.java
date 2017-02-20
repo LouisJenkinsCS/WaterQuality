@@ -1,5 +1,6 @@
 package servlets;
 
+import async.Data;
 import async.DataReceiver;
 import io.reactivex.Observable;
 import java.io.IOException;
@@ -108,8 +109,11 @@ public class ControlServlet extends HttpServlet {
             }
 
             log("User Selected: " + Arrays.deepToString(selected));
-            Triplet<String, String, String> data = DataReceiver.generateGraph(selected);
-
+            
+            // Obtain the data for what is selected
+            Data data = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), selected);
+            
+            
             StringBuilder paramData = new StringBuilder();
             DataReceiver
                     .getParameters()
@@ -119,9 +123,9 @@ public class ControlServlet extends HttpServlet {
                     .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str + "\" value=\"data\">" + str + "<br>\n")
                     .blockingSubscribe(paramData::append);
 
-            request.setAttribute("Descriptions", data.getValue2());
-            request.setAttribute("ChartJS", data.getValue0());
-            request.setAttribute("Table", data.getValue1());
+            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
+            request.setAttribute("ChartJS", DataReceiver.generateChartJS(data));
+            request.setAttribute("Table", DataReceiver.generateTable(data));
             request.setAttribute("Parameters", paramData.toString());
 
             request.getServletContext()
