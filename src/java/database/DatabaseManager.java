@@ -42,7 +42,7 @@ public class DatabaseManager
             String createTable = "Create Table IF NOT EXISTS DataValues("
                     + "entryID INT primary key AUTO_INCREMENT,"
                     + "dataName varchar(40),"
-                    + "units varchar(10),"
+                    + "units nvarchar(10),"
                     + "sensor varchar(20),"
                     + "timeRecorded varchar(25),"
                     + "dataValue FLOAT(3),"
@@ -598,7 +598,7 @@ public class DatabaseManager
             p = conn.prepareStatement(insertSQL);
             p.setString(1, (String)j.get("name"));
             p.setString(2, (String)j.get("unit"));
-            p.setString(3, Objects.toString((long)j.get("node_id"),null));
+            p.setString(3, (String)j.get("sensor_name"));
             p.setString(4, ((String)j.get("timestamp")).substring(0,19));
             p.setFloat(5, (float)(double)j.get("value"));
             p.setFloat(6, (float)(double)j.get("delta"));
