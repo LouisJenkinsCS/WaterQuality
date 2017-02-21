@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<!--author: dan0x19b-->
+<!--WIP means Work In Progress.  This is an html for now until I get the format right, then it will become a jsp.-->
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="styles/admin.css" type="text/css">
+	<noscript>
+		<meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
+	</noscript>
+	<title>User Priviledges</title>
+</head>
+
+<body>
+	<img id="backPhoto" src="images/Creek3.JPEG">
+	<header class="Banner"> 
+            <div id="Banner_Text">Water Quality</div>
+	</header>
+	<section class="ContentBox">
+		<header class="ContentBox_Banner">
+			<div class="ContentBox_Banner_Text">
+				User Priviledges
+			</div>
+		</header>
+		<!--tabs modified from w3schools.com-->
+		<div class="tabs">
+			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'InputData')">Input Data</a>
+			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'DeleteData')">Remove Data</a>
+			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'RegisterUser')">Register User</a>
+			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'RemoveUser')">Remove User</a>
+			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'EditDesc')">Edit Desc</a>
+		</div>
+
+		<div id="InputData" class="TabContent">
+			Interface for Inputting Data goes here.  This can be done with an include page for clean html.
+		</div>
+
+		<div id="DeleteData" class="TabContent">
+			Interface for Deleting Data goes here.  This can be done with an include page for clean html.
+		</div>
+
+		<div id="RegisterUser" class="TabContent">
+			Interface for Registering Users goes here.  This can be done with an include page for clean html.
+		</div>
+		
+		<div id="RemoveUser" class="TabContent">
+			Interface for Removing Users goes here.  This can be done with an include page for clean html.
+		</div>
+		
+		<div id="EditDesc" class="TabContent">
+			Interface for Editing Descriptions goes here.  This can be done with an include page for clean html.
+		</div>
+		
+	</section>
+
+	<script type="text/javascript">
+		/**
+		 * Executes when a tab is clicked on the User Priviledges pages
+		 *
+		 * @param event Not used here, but required.
+		 * @param tabName The name of the tab that was clicked.
+		 */
+		function clickTab(event, tabName) {
+			// Declare all variables
+			var i, arrTabContents, arrTabLinks;
+
+			// Get all elements with class="tabcontent" and hide them
+			arrTabContents = document.getElementsByClassName("TabContent");
+			for (i = 0; i < arrTabContents.length; i++) {
+				arrTabContents[i].style.display = "none";
+			}
+
+			// Get all elements with class="TabLink" and remove the class "active"
+			arrTabLinks = document.getElementsByClassName("TabLink");
+			for (i = 0; i < arrTabLinks.length; i++) {
+				arrTabLinks[i].className = arrTabLinks[i].className.replace(" active", "");
+			}
+
+			// Show the current tab, and add an "active" class to the link that opened the tab
+			document.getElementById(tabName).style.display = "block";
+			event.currentTarget.className += " active";
+		}
+	</script>
+	
+</body>
+
+</html>
