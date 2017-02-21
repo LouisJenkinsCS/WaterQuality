@@ -64,7 +64,7 @@
                 <form id="data_type_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
                     </br>
-                    <div id="dateselectordiv">
+                    <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
                         <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="" max="">
                         </BR>to</BR>
@@ -142,8 +142,8 @@
                     mm='0'+mm;
                 } 
                 today = yyyy+'-'+mm+'-'+dd; */
-                //var date=new Date();
-                //var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+                var date=end;
+                var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
                 document.getElementById("enddate").setAttribute("max",dateStr);
                 document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
                 document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
