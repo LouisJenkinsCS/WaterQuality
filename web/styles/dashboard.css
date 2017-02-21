@@ -62,6 +62,7 @@ and open the template in the editor.
 
 .title_bar_container{
     width: 100%;
+    min-width: 1000px;
     text-align: center;
     height: 50px;
     background-color: #266B6B;
@@ -115,36 +116,46 @@ and open the template in the editor.
     opacity:1;
 }
 
-
+/* Styles the large section that contains the graph, data, and 
+description boxes */
 #dashboard_container{
     margin-top: 5%;
-    width: 1000px;
+    width: auto;
+    min-width:1000px;
     overflow:auto;
+    padding-bottom:10px;
 }
 
+/* Styles the section with the data checboxes */
 #dashboard_data_container{
     float:right;
     margin-top:10px;
     margin-right:10px;
+    margin-left:5px;
     margin-bottom: 10px;;
-    width: 350px;
-    position:relative;
+    min-width: 350px;
+    width:35%;
+    display:inline-block;
 }
 
+/* Styles the section the graph is displayed in */
 #graph_container{
     float:left;
     margin-top: 10px;
     margin-left:10px;
-    width: 600px;
+    margin-right:5px;
+    min-width: 600px;
+    width:60%;
     position:relative;
 }
 
+/* Styles the description box */
 #dashboard_data_description{
     display:inline-block;
-    margin-top:10px;
-    margin-left:10px;
-    margin-bottom:10px;
-    width:600px;
+    margin:10px 10px 0px 10px;
+    min-width:600px;
+    width:60%;
+    
 }
 
 /* Style the list */
@@ -202,7 +213,7 @@ input[type="submit"]{
     width: 100px;
     height:25px;
     background: #266B6B;
-    margin-left: 100px;
+    margin-bottom:10px;
 }
 
 button:hover,input[type = "submit"]:hover {
@@ -210,12 +221,18 @@ button:hover,input[type = "submit"]:hover {
 }
 
 .data_type_submit{
-    display:none;
+    text-align:center;
+}
+
+#data_type_form{
+    font-family: "Ariel", Helvetica, san-serif;
+    font-weight:bold;
+    font-stretch: ultra-expanded;
 }
 
 #dateselectordiv{
     text-align:center;
-    margin:5px;
+    margin:10px;
 }
 
 .dateselector{
