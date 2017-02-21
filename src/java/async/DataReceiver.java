@@ -180,7 +180,7 @@ public class DataReceiver {
                  "  type: 'line',\n" +
                  "  data: {\n");
         
-        StringBuilder labels = new StringBuilder("    labels: [");
+        StringBuilder labels = new StringBuilder("    labels: [ ");
         source.getData()
                 .map(DataValue::getTimestamp)
                 .distinct()
@@ -191,7 +191,7 @@ public class DataReceiver {
         // Replace the last ',' for a end bracket ']'
         labels.replace(labels.length()-1, labels.length(), "]");
         chartJS.append(labels.toString());
-        chartJS.append(",\n    datasets: [");
+        chartJS.append(",\n    datasets: [ ");
         
         // Add all data to the dataset for each element
         source.getData()
@@ -213,8 +213,8 @@ public class DataReceiver {
                 .blockingSubscribe(chartJS::append);
         
         // Replace the last ',' with a ']' and finish off chartJS
-        chartJS.replace(labels.length()-1, labels.length(), "]");
-        chartJS.append("]\n  }\n});</script>");
+        chartJS.replace(chartJS.length()-1, chartJS.length(), "]");
+        chartJS.append("\n  }\n});</script>");
         
         return chartJS.toString();
     }
