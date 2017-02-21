@@ -47,42 +47,69 @@
                 </ul>
                     <admincontent id="Input_Data" class="tabcontent" style="tabstyle">
                         
+                        <form id="csv_upload_form" action="ControlServlet" method="POST">
                             <h2>Upload .CSV File</h2>
-                            <button type="button" onclick="browsefile()">Browse...</button><br/><br/>
+                            <input type="file" value="Browse..."><br/>
+                            <input type="submit" value="Submit">
+                        </form>
                             
-                            <form action="ControlServlet" method="POST">
-                                <h2>Enter Data Manually:</h2>
-                                Date: <div id="date"></div>
-                                Time: <div id="time"></div>
-                                Parameter: <select id="select_param" width:20px></select><br/>
-                                Value: <input type="text" name="value"><br/>
-                                <input type="submit" value="Submit">
-                            </form>
-                            
-                            <script>
-                                var d = document.createElement("INPUT");
-                                var t = document.createElement("INPUT");
-                                d.setAttribute("type", "date");
-                                t.setAttribute("type", "time");
-                                d.setAttribute("value", "2017-02-20");
-                                t.setAttribute("value", "05:22:00");
-                                document.getElementById("date").appendChild(d);
-                                document.getElementById("time").appendChild(t);
-                            </script>
+                        <form id="manual_data_entry_form" action="ControlServlet" method="POST">
+                            <h2>Enter Data Manually:</h2>
+                            Date: <input type="date" name="data_date"><br/>
+                            Time: <input type="time" name="data_time"><br/>
+                            Parameter: <select id="select_param" width:20px></select><br/>
+                            Value: <input type="text" name="value"><br/>
+                            <input type="submit" value="Submit">
+                        </form>
+
+                        <button type="button" onclick="createNewInput()">+</button>
+                        <div id="new_input_space"></div>
+
+<!--                    <script>
+                        function createNewInput()
+                        {
+                            var space = document.getElementById("new_input_space");
+                            var d = document.createElement("INPUT");
+                            var t = document.createElement("INPUT");
+                            var p = document.createElement("SELECT");
+                            d.setAttribute("type", "date");
+                            t.setAttribute("type", "time");
+                            p.setAttribute("width", "20px");
+                            d.setAttribute("value", "2017-02-20");
+                            t.setAttribute("value", "05:22:00");                                    
+                            space.appendChild(d);
+                            space.appendChild("<br/>");
+                            space.appendChild(t);
+                            space.appendChild("<br/>");
+                            space.appendChild(p);
+                            space.appendChild("<br/>");
+                        }
+                        </script>-->
                             
                     </admincontent>
-                    <admincontent id="Delete_Data" class="tabcontent" style="tabstyle">
-                        <div></div>
+                
+                
+                    <admincontent id="Delete_Data" class="tabcontent">
+                        <h2>Time Frame:</h2>
+                        
                     </admincontent>
+                
+                
                     <admincontent id="Register_User" class="tabcontent">
                         <div></div>
                     </admincontent>
+                
+                
                     <admincontent id="Remove_User" class="tabcontent">
                         <div></div>
                     </admincontent>
+                
+                
                     <admincontent id="Edit_Description" class="tabcontent">
                         <div></div>
                     </admincontent>
+                
+                
             </section>
             
 <!--            <aside class = "content_container2" id = "dashboard_data_container">
@@ -274,8 +301,8 @@
                 else
                     checkedBoxes--;
             }
-            
-            
+           
+           
         </script>
     </body>
 </html>
