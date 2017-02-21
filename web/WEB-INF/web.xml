@@ -11,7 +11,7 @@ So it is also known as the deployment descriptor -->
     </session-config>
     
     <welcome-file-list>
-        <welcome-file>dashboard.jsp</welcome-file> 
+        <welcome-file>ControlServlet</welcome-file> 
     </welcome-file-list>
     
     <error-page>

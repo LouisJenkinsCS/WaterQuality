@@ -1,0 +1,64 @@
+{
+  "descriptions": [
+    {
+      "name": "PAR",
+      "description": "Photosynthetically Active Radiation is a measurement of how much solar radiation is available for plants and algae to use for photosynthesis. This amount changes with the season and time of day. Grow Lamps, which are lamps used indoors to grow plants, give off light with wavelengths between 400 and 700 nanometers to imitate naturally occurring light – that’s what is being measured here!"
+    },
+    {
+      "name": "Air Pressure",
+      "description": "Air pressure is the measurement of the weight or mass of the air on the surface of a body of water. Just before a storm hits, one can expect low air pressure. Once the rainy weather passes, the air pressure is expected to be high. Some people believe there is an association between air pressure and fishing conditions!"
+    },
+    {
+      "name": "Dewpoint",
+      "description": "The dew point will vary with other conditions such as air pressure and humidity, but it is the temperature at which water vapor will condense into water droplets – or dew. Think about the last time you walked across grass first thing in the morning and got your shoes wet. On that morning, the air temperature dipped below the dew point, causing water to form on the grass."
+    },
+    {
+      "name": "Precipitation",
+      "description": "If the weatherman calls for a 100% chance of precipitation, get your umbrella ready! Any form of water as it falls from the sky is considered precipitation. This measurement shows just how much precipitation has fallen in the given time interval."
+    },
+    {
+      "name": "Precipitation Intensity",
+      "description": "You may have heard someone refer to the amount of rainfall or snow in terms of inches – or feet! When you pair this with a measurement of time, you have a measurement of precipitation intensity."
+    },
+    {
+      "name": "Relative Humidity",
+      "description": "The current water content of the air compared to the maximum amount of water the air should be able to hold at the current temperature. When the relative humidity is high, sweat does not evaporate as quickly making us feel hotter."
+    },
+    {
+      "name": "Temperature",
+      "description": "This is how much heat is present in the air adjacent to the stream."
+    },
+    {
+      "name": "Temperature",
+      "description": "Not only does water temperature govern the metabolic rates of aquatic organisms, it also determines the amount of dissolved oxygen the water will hold.  Therefore, temperature often determines the types of organisms present.  For example, trout require cooler waters while bass can tolerate warmer conditions  "
+    },
+    {
+      "name": "CDOM",
+      "description": "Colored Dissolved Organic Matter refers to material in the water which absorbs light, mainly blue and ultraviolet, which reduces the amount of light which may pass through the water. This causes the water to appear darker or tea-stained.  CDOM increases during the fall due to fallen leaf litter leaching dissolved organic matter into the stream (similar to a tea bag placed in a cup of water)."
+    },
+    {
+      "name": "Depth",
+      "description": "Distance from the surface of the water to the bottom of the stream at the location of the monitoring station.   "
+    },
+    {
+      "name": "HDO",
+      "description": "Concentration of oxygen dissolved in the water.  Water gains and losses oxygen through photosynthesis, respiration and atmospheric exchange.  We typically see oxygen concentration increase during the day due to photosynthesis and decreases at night due to respiration and cessation of photosynthesis.  Different aquatic organisms have different oxygen requirements.  For example, brook trout require high oxygen levels (>7 mg/L), while few aquatic organisms tolerate levels less than 3 mg/L.  "
+    },
+    {
+      "name": "HDO",
+      "description": "The current oxygen content of water compared to the maximum amount of oxygen the water will hold at the current temperature.  Cold water holds less oxygen than warm water.  It is not unusual for streams with high rates of photosynthesis to become supersaturated with oxygen (>100%) during daylight hours. "
+    },
+    {
+      "name": "pH",
+      "description": "A method of expressing hydrogen ion concentration.  A pH=7 is considered neutral with a  pH<7 being considered acidic and >7 basic. Most inland waters have pH ranging from 6 to 9. In productive streams, pH can fluctuate over a 24 hour period due to carbon dioxide removal by photosynthesis during the day and release by respiration at night."
+    },
+    {
+      "name": "Sp. Conductivity",
+      "description": "A measure of how well water conducts electricity and is directly related the concentrations of dissolved ions in the water from both natural sources (e.g. dissolved from rock) and human pollution"
+    },
+    {
+      "name": "Turbidity",
+      "description": "A measure of how much sediment is suspended in the water.  Turbidity often increases after a rain events and is worsened when soil is allowed to erode into a waterway. "
+    }
+  ]
+}
