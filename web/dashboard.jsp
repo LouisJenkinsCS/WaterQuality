@@ -20,7 +20,7 @@
         <title>Dashboard</title>
     </head>
     <body>
-        <img id="backPhoto" src="images/backgroundImage.JPG">
+        <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container"> 
             <div id="HeaderText">Water Quality</div>
         </header>
@@ -32,17 +32,23 @@
             </header>
             
             <section class = "content_container2" id = "graph_container">    
-            <ul class="tab">
-                <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph'); hide();"
-                       id="defaultOpen">Graph</a></li>
-                <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();">
-                        Table</a></li>
-            </ul>
-                <div id="Graph" class="tabcontent">
-                    <canvas id="myChart" width=25% height=20%></canvas>
-                </div>
-                <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">                    
-                </div>
+                <ul class="tab">
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph'); hide();"
+                           id="GraphTab">Graph</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();"
+                           id="TableTab">Table</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Export'); hide();"
+                       id="ExportTab">Export</a></li>
+                </ul>
+                    <div id="Graph" class="tabcontent">
+                        <canvas id="myChart" width=25% height=20%></canvas>
+                    </div>
+                    <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
+                    ${Table}
+                    </div>
+                    <div id="Export" class="tabcontent">
+                        <img id="Excel" src="images/excel.png" onclick="exportData('Excel')">
+                    </div>
             </section>
             
             <aside class = "content_container2" id = "dashboard_data_container">
@@ -56,26 +62,25 @@
                     a graph
                 --%>
                 <form id="data_type_form" action="ControlServlet" method = "POST">
+                    <!--Allows the user to select a range of dates for data viewing-->
+                    </br><div id="dateInstructDiv">Start Date to End Date</div>
+                    <div id="dateselectordiv"><input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="2016-01-01" max=""> to
+                    <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="2016-01-01" max=""></div>
                     <div class="" id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                            id="select_all_data" value="select_all_data">Select all</div><br>
-                    
-                    ${DummyData}
-                    <input type="submit" name="Get Data" value="Get Data" />
+                    ${Parameters}
+                    <div class="data_type_submit"><input type="submit" name="Get Data" value="Get Data" /></div>
                     <input type="hidden" name="control" value ="getData">
-<!--                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data1')" class="data" id="data1" value="data1">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data2')" class="data" id="data2" value="data2">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data3')" class="data" id="data3" value="data3">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data4')" class="data" id="data4" value="data4">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data5')" class="data" id="data5" value="data5">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data6')" class="data" id="data6" value="data6">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data7')" class="data" id="data7" value="data7">Data<br>
-                    <input type="checkbox" onclick="if(current=='Graph')fullCheck('data8')" class="data" id="data8" value="data8">Data<br>-->
                     <br>
+                    
+                    <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph" onclick="graphSubmit()"></div>
+                    <div class="data_type_submit" id="Table_submit"><input type="submit" value="Table"></div>
+                    
                 </form>
                     
                     <form id="submit_query" action="ControlServlet" value="Submit Query">
                         <input type="hidden" name="control" value="submitQuery">
-                         <div class="data_type_submit" id="Graph_submit" action=""><input type="submit" ></div>
+                         <div class="data_type_submit" id="Graph_submit" onclick="graphSubmit()"><input type="submit" ></div>
                         <div class="data_type_submit" id="Table_submit" ><input type="submit" ></div>
                     </form>
             </aside><br>
@@ -93,17 +98,35 @@
                 
                 <p id="tmp"> </p>
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
-                <p>${datadesc}This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. 
-                   This is where the description of the data will go! This will need to be pulled from a text file. </p>
+                <p>${Descriptions}</p>
             </section>
                    
                    
             
         </section> 
-        
+            
+            <script>
+            function pad(num, size) {
+                var s = num+"";
+                while (s.length < size) s = "0" + s;
+                return s;
+            }
+            
+            function setDate(date, id) {
+                var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+                document.getElementById(id).value = dateStr;
+                console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
+            }
+            
+            var end = new Date();
+            end.setSeconds(0);
+            var start = new Date();
+            start.setSeconds(0);
+            start.setMonth(start.getMonth() - 1);
+            setDate(end, "enddate");
+            setDate(start, "startdate");
+            </script>
+<!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
                    
         <script>
             function post(path, params, method) {
@@ -132,38 +155,33 @@
             
             function handleClick(cb)
             {
-                window.alert("Checkbox Clicked...");
-                post("ControlServlet", {key: 'control', control: 'getDesc'});
-                window.alert("POST sent...");
-//                document.getElementById("tmp").innerHTML = "<form id=\"click_data_receiver\" action=\"ControlServlet\" method=\"POST\"> <input type=\"hidden\" name=\"control\" value=\"getDesc\"></form>"
-//                if(cb.checked())
-//                    datadesc = (this.value() + " clicked");
+                if(current=='Graph') {
+                    fullCheck(cb.id);
+                }
+//                post("ControlServlet", {key: 'control', control: 'getDesc'});
+            }
+ 
+            function graphSubmit(){
+                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                var data = "{ data: [";
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if(checkboxes[i].checked==true) {
+                        data += checkbox[i].id.toString();
+                    }
+                }
+                data += "] }";
+                
+                post("ControlServlet", {key: 'control', control: 'getData ' + data});
+            }
+            
+            function exportData(id){
+                document.write(id);
             }
         </script>
-                   
-                   
-        <%
-        Pair<String, String> data = DataReceiver.generateGraph();
-        out.append(data.getValue0()).append(data.getValue1());
-        %>
-        
-            <script>
-                var ctx = document.getElementById('myChart').getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [timeStr],
-                        datasets: [{
-                            label: 'Current (~1 Month)',
-                            data: [dataStr],
-                            backgroundColor: 'transparent', borderColor: 'orange'
-                        }]
-                    }
-                });
-            </script>
-        
+            ${ChartJS}
         <script type="text/javascript">
-            document.getElementById("defaultOpen").click();
+            document.getElementById("GraphTab").click();
+            document.getElementById("dateselectordiv").click();
             var current;
             /**
              * The <code>openTab</code> function activates a certain event
@@ -222,7 +240,7 @@
              */
             function hide(){
                 var item=document.getElementById("select_all_toggle");
-                if(item.className=='hide')
+                if(current=='Table')
                     item.className='unhide';
                 else
                     item.className='hide';
@@ -249,50 +267,34 @@
             }
             
             /**
-             * The <code>toggle</code> function checks or unchecks
-             * all of the checkboxes in the given <code>source</code> 
-             * @param {type} source
+             * Makes it so the date input fields can not be chosen for furture
+             * dates. Also sets makes sure the <code>enddate</code> can not be a
+             * date that is earlier than <code>startdate</code>
              */
-            function toggle(source) {
-                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                for (var i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i] != source)
-                        checkboxes[i].checked = source.checked;
+            function dateLimits(){
+                var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth()+1; //January is 0!
+                var yyyy = today.getFullYear();
+                if(dd<10){
+                    dd='0'+dd;
+                } 
+                if(mm<10){
+                    mm='0'+mm;
+                } 
+                today = yyyy+'-'+mm+'-'+dd;
+                if(document.getElementById("enddate").value==""
+                        &&document.getElementById("startdate").value==""){
+                    document.getElementById("startdate").value=today;
+                    document.getElementById("enddate").value=today;
                 }
-            }
-            
-            /**
-             * The <code>hide</code> function hides the
-             * <code>select_all_toggle</code> checkbox when the Graph tab
-             * is selected and reveals the checkbox when the table
-             * tab is selected
-             */
-            function hide(){
-                var item=document.getElementById("select_all_toggle");
-                if(item.className=='hide')
-                    item.className='unhide';
-                else
-                    item.className='hide';
-            }
-            
-            var checkedBoxes=0;
-            /**
-             * The <code>fullCheck</code> function limits the number of data
-             * checkboxes checked at a time to 3 by unchecking <coe>id</code>
-             * if <code>checkedBoxes</code> equals 3
-             * @param {type} id the current data type the user is trying to check
-             */
-            function fullCheck(id){
-                var item=document.getElementById(id);
-                if(item.checked==true){
-                    if(checkedBoxes<3)
-                        checkedBoxes++;
-                    else{
-                        item.checked=false;
-                    }
-                }
-                else
-                    checkedBoxes--;
+                
+                document.getElementById("enddate").setAttribute("max",today);
+                document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
+                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
+                
+                
+                
             }
         </script>
     </body>
