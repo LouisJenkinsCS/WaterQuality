@@ -45,6 +45,7 @@
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Edit_Description'); hide();"
                         id="EditTab">Edit Description</a></li>
                 </ul>
+                    <!--Admin insertion functionality and GUI are defined here-->
                     <admincontent id="Input_Data" class="tabcontent" style="tabstyle">
                         
                         <form id="csv_upload_form" action="ControlServlet" method="POST">
@@ -88,10 +89,29 @@
                             
                     </admincontent>
                 
-                
+                    <!--Admin deletion functionality and GUI are defined here-->
                     <admincontent id="Delete_Data" class="tabcontent">
-                        <h2>Time Frame:</h2>
-                        
+                        <form action="ControlServlet" method="POST">
+                            <h2>Time Frame:</h2>
+                            <div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-dd)</div>
+                            <div id="dateselectordiv" onclick="dateLimits();">
+                            <input class="dateselector" id="startdate" type="date" min="2016-01-01" max="" value="2017-02-18"> to
+                            <input class="dateselector" id="enddate" type="date" min="2016-01-01" max="" value=""></div>
+                            <h2>Parameter to delete:</h2>
+                            <select>
+                                <!--populate with parameters-->
+                                <option>Air Temp</option>
+                                <option>Water Temp</option>
+                            </select>
+                            <h2>Please select the data entry from below:</h2>
+                            <table border="2">
+                                <!--populate with data within specifications-->
+                                <tr><td>paramname</td><td>value</td></tr>
+                                <tr><td>Air Temp</td><td>5</td><td><input type="checkbox"></td></tr>
+                                <tr><td>Water Temp</td><td>6</td><td><input type="checkbox"></td></tr>
+                            </table><br/>
+                            <input type="submit" value="Delete">
+                        </form>
                     </admincontent>
                 
                 
@@ -300,6 +320,30 @@
                 }
                 else
                     checkedBoxes--;
+            }
+            
+            /**
+             * Makes it so the date input fields can not be chosen for furture
+             * dates. Also sets makes sure the <code>enddate</code> can not be a
+             * date that is earlier than <code>startdate</code>
+             */
+            function dateLimits(){
+                var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth()+1; //January is 0!
+                var yyyy = today.getFullYear();
+                if(dd<10){
+                    dd='0'+dd;
+                } 
+                if(mm<10){
+                    mm='0'+mm;
+                } 
+                today = yyyy+'-'+mm+'-'+dd;
+                document.getElementById("enddate").setAttribute("max",today);
+                document.getElementById("startdate").setAttribute("max",today);
+                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
+                if(document.getElementById("enddate").value!=null)
+                    document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
             }
            
            

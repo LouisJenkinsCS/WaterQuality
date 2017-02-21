@@ -231,7 +231,7 @@ button:hover,input[type = "submit"]:hover {
 }
 
 #dateselectordiv{
-    text-align:center;
+    text-align:left;
     margin:10px;
 }
 
