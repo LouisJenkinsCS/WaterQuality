@@ -155,7 +155,7 @@ description boxes */
     margin:10px 10px 0px 10px;
     min-width:600px;
     width:60%;
-    
+    font-family: "Ariel", Helvetica, san-serif;
 }
 
 /* Style the list */
@@ -236,7 +236,7 @@ button:hover,input[type = "submit"]:hover {
 }
 
 .dateselector{
-    width:130px;
+    width:auto;
 }
 
 #dateInstructDiv{
