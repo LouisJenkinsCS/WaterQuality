@@ -94,11 +94,26 @@ public class ControlServlet extends HttpServlet {
         log("Action is: " + action);
 
         if (action.trim().equalsIgnoreCase("getData")) {
+            String start = request.getParameterValues("startdate")[0];
+            String end = request.getParameterValues("enddate")[0];
+            log("Start: " + start);
+            log("End: " + start);
+            
+            if(!start.endsWith(":00")) {
+                start += ":00";
+            }
+            start += "Z";
+            
+            if (!end.endsWith(":00")) {
+                end += ":00";
+            }
+            end += "Z";
+            
             String[] selected = request
                     .getParameterMap()
                     .keySet()
                     .stream()
-                    .filter(k -> !k.equals("Get Data") && !k.equals("control"))
+                    .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
                     .collect(Collectors.toList())
                     .toArray(new String[0]);
 
@@ -111,8 +126,10 @@ public class ControlServlet extends HttpServlet {
             log("User Selected: " + Arrays.deepToString(selected));
             
             // Obtain the data for what is selected
-            Data data = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), selected);
-            
+            Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
+            String descriptions = DataReceiver.generateDescriptions(data);
+            String chartjs = DataReceiver.generateChartJS(data);
+            String table = DataReceiver.generateTable(data);
             
             StringBuilder paramData = new StringBuilder();
             DataReceiver
