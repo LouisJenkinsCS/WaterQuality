@@ -4,7 +4,6 @@
 package database;
 
 import common.DataValue;
-import java.io.IOException;
 import common.User;
 import common.UserRole;
 import java.io.FileReader;
@@ -16,7 +15,6 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Objects;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -42,7 +40,7 @@ public class DatabaseManager
             String createTable = "Create Table IF NOT EXISTS DataValues("
                     + "entryID INT primary key AUTO_INCREMENT,"
                     + "dataName varchar(40),"
-                    + "units nvarchar(10),"
+                    + "units varchar(10) CHARACTER SET utf16,"
                     + "sensor varchar(20),"
                     + "timeRecorded varchar(25),"
                     + "dataValue FLOAT(3),"
@@ -304,7 +302,7 @@ public class DatabaseManager
         }
     }
     
-    public ArrayList<DataValue> getGraphData(String name, LocalDateTime lower, LocalDateTime upper, String sensor)
+    public ArrayList<DataValue> getGraphData(String name, LocalDateTime lower, LocalDateTime upper)
     {
         ArrayList<DataValue> graphData = new ArrayList<>();
         PreparedStatement p = null;
@@ -312,20 +310,19 @@ public class DatabaseManager
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
             String query = "Select * from DataValues Where dataName = ?"
-                + " AND timeRecorded >= ? AND timeRecorded <= ? AND sensor = ?";
+                + " AND timeRecorded >= ? AND timeRecorded <= ?;";
             p = conn.prepareStatement(query);
             p.setString(1, name);
             p.setString(2, lower+"");
             p.setString(3, upper+"");
-            p.setString(4, sensor);
             rs = p.executeQuery();
-                
             
             int entryID;
             String units;
             LocalDateTime time;
             float value;
             float delta;
+            String sensor;
             while(rs.next())
             {
                 entryID = rs.getInt(1);
@@ -337,8 +334,6 @@ public class DatabaseManager
                 delta = rs.getFloat(7);
                 DataValue dV = new DataValue(entryID,name,units,sensor,time,value,delta);
                 graphData.add(dV);
-                    
-                rs.next();
             }
         }
         catch (Exception ex)//SQLException ex 
@@ -595,6 +590,7 @@ public class DatabaseManager
             String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta) "
                     + "values (?,?,?,?,?,?)";
             
+            
             p = conn.prepareStatement(insertSQL);
             p.setString(1, (String)j.get("name"));
             p.setString(2, (String)j.get("unit"));
@@ -602,6 +598,7 @@ public class DatabaseManager
             p.setString(4, ((String)j.get("timestamp")).substring(0,19));
             p.setFloat(5, (float)(double)j.get("value"));
             p.setFloat(6, (float)(double)j.get("delta"));
+            System.out.println(p.toString());
             p.executeUpdate();
             conn.commit();
         }
@@ -966,8 +963,8 @@ public class DatabaseManager
     
     public static void main(String[] args)
     {
-        /*
         DatabaseManager d = new DatabaseManager();
+        d.createDataValueTable();
         JSONParser parser = new JSONParser();
         try{
             Object obj = parser.parse(new FileReader("P:/Compsci480/environet_api_data.json"));
@@ -979,6 +976,15 @@ public class DatabaseManager
         }
         catch(Exception e)
         {}
+
+        /*
+        LocalDateTime l = LocalDateTime.parse("2017-02-06T04:15:00");
+        LocalDateTime u = LocalDateTime.parse("2017-02-08T04:15:00");
+        ArrayList<DataValue> a = d.getGraphData("Temperature", l, u);
+        for(DataValue data: a)
+        {
+            System.out.println(data);
+        }
         */
     }
 }

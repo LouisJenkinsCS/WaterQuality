@@ -132,4 +132,9 @@ public class DataValue implements Serializable
         this.delta = delta;
     }
     
+    public String toString()
+    {
+        return name + ", " + units + ", " + sensor + ", " + value + ", " + delta + ", " + time;
+    }
+    
 }
