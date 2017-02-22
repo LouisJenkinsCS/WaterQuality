@@ -37,8 +37,7 @@
                            id="GraphTab">Graph</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();"
                            id="TableTab">Table</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Export'); hide();"
-                       id="ExportTab">Export</a></li>
+                           <li><form><input id="exportbutton" type="submit" value="Export"></form></li>
                 </ul>
                     <div id="Graph" class="tabcontent">
                         <canvas id="myChart" width=25% height=20%></canvas>
