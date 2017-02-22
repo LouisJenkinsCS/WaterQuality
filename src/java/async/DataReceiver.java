@@ -42,7 +42,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.javatuples.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -192,6 +194,7 @@ public class DataReceiver {
         labels.replace(labels.length()-1, labels.length(), "]");
         chartJS.append(labels.toString());
         chartJS.append(",\n    datasets: [ ");
+        AtomicInteger yAxis = new AtomicInteger(0);
         
         // Add all data to the dataset for each element
         source.getData()
@@ -200,13 +203,14 @@ public class DataReceiver {
                         group1.getKey().compareTo(group2.getKey())
                 )
                 .flatMap((GroupedObservable<String, DataValue> group) -> {
+                    int axis = yAxis.getAndIncrement();
                     int rgb[] = new Random().ints(0, 256).limit(3).toArray();
                     return group
                             .buffer(Integer.MAX_VALUE)
                             .map((List<DataValue> data) -> "{\n" +
                                     "      label: '" + group.getKey() + "',\n" +
                                     "      data: [" + data.stream().map(DataValue::getValue).map(Object::toString).collect(Collectors.joining(",")) + "],\n" +
-                                    "      backgroundColor: 'transparent', borderColor: 'rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")'\n" +
+                                    "      backgroundColor: 'transparent', yAxisID: 'y-axis-" + axis + "', borderColor: 'rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")'\n" +
                                     "},"
                             );
                 })
@@ -214,7 +218,21 @@ public class DataReceiver {
         
         // Replace the last ',' with a ']' and finish off chartJS
         chartJS.replace(chartJS.length()-1, chartJS.length(), "]");
-        chartJS.append("\n  }\n});</script>");
+        chartJS.append("\n  }");
+        
+        chartJS.append(",options: { scales: {\n" +
+"          yAxes: [{\n" +
+"            position: 'left',\n" +
+"            id: 'y-axis-0'\n" +
+"          }");
+        
+        if (yAxis.get() >= 2) {
+            chartJS.append(", {\n" +
+"            position: 'right',\n" +
+"            id: 'y-axis-1'\n" +
+"          }");
+        }
+        chartJS.append("]}\n}});</script>");
         
         return chartJS.toString();
     }
