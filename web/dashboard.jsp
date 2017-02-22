@@ -65,12 +65,13 @@
                     <!--Allows the user to select a range of dates for data viewing-->
 
                     </br>
-                    <div id="dateselectordiv" onclick="dateLimits();">
+
+                    <div id="dateselectordiv">
                         Start Date:
-                        <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="" max="">
+                        <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="2016-01-01" max="">
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
+                        <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="2016-01-01" max="">
                     </div>
                     <div class="" id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                            id="select_all_data" value="select_all_data">Select all</div><br>
