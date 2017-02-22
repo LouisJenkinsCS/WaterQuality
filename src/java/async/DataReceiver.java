@@ -63,8 +63,7 @@ public class DataReceiver {
     
     // TODO: Quit being lazy and create a single map which holds the data needed
     // The keys are the exact same, and only differ in values.
-    private static final Map<String, String> descriptionMap = new HashMap<>();
-    private static final Map<String, Long> idMap = new HashMap<>();
+    private static final Map<Long, DataParameter> PARAMETER_MAP = new HashMap<>();
     
     // Read-in and fill map of descriptions.
     static {
@@ -79,7 +78,7 @@ public class DataReceiver {
                 .map(str -> (JSONObject) new JSONParser().parse(str))
                 .map(obj -> (JSONArray) obj.get("descriptions"))
                 .flatMap(Observable::fromIterable)
-                .blockingSubscribe(obj -> descriptionMap.put((String) ((JSONObject) obj).get("name"), ((String) ((JSONObject) obj).get("description")).replaceAll("\\P{Print}", "")));
+                .blockingSubscribe(obj -> PARAMETER_MAP.put((Long) ((JSONObject) obj).get("id"), new DataParameter((JSONObject) obj)));
     }
     
     static {
@@ -90,7 +89,7 @@ public class DataReceiver {
         
         // This is the URL used to obtain ALL data for the sensor within the past
         // 15 minutes. This is important as, again, it holds ALL of the data. So
-        // we can use this to construct our map.
+        // we can use this to construct our map. 
         String url = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
         
         // We want to make some API calls next. Given the above URL, we can then
