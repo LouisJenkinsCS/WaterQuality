@@ -440,6 +440,13 @@ public class UserManager implements database.UserManager {
         return users;
     }
 
+    public static void main(String[] args)
+    {
+        UserManager d = new UserManager();
+        String name = "Turbidity";
+        String desc = "A measure of how much sediment is suspended in the water.  Turbidity often increases after a rain events and is worsened when soil is allowed to erode into a waterway.";
+        //d.addUser(name);
+    }
 }
     
 

@@ -26,24 +26,50 @@ public class DatabaseManager
 
     public void createDataValueTable()    
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         Statement s = null;
-        try(Connection conn = sql.getConnection();)
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
             s = conn.createStatement();
-            String createTable = "Create Table DataValues("
-                    + "entryID number primary key AUTO_INCREMENT,"
-                    + "name varchar,"
-                    + "units varchar,"
-                    + "sensor varchar"
-                    + "time varchar"
-                    + "value number"
+            String createTable = "Create Table IF NOT EXISTS DataValues("
+                    + "entryID INT primary key AUTO_INCREMENT,"
+                    + "dataName varchar(40),"
+                    + "units varchar(10),"
+                    + "sensor varchar(15),"
+                    + "timeRecorded varchar(25),"
+                    + "dataValue FLOAT(3)"
                     + ");";
-            s.executeQuery(createTable);
+            s.execute(createTable);
         }
         catch (Exception ex)//SQLException ex 
         {
             System.out.println("Error processing request: Create Data Value Table");
+        }
+        finally
+        {
+            try
+            {
+                if(s != null)
+                    s.close();
+            }
+            catch(SQLException e){System.out.println("Error closing statement");}
+        }
+    }
+    
+    public void createDataDescriptionTable()    
+    {
+        Statement s = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            s = conn.createStatement();
+            String createTable = "Create Table IF NOT EXISTS DataDescriptions("
+                    + "name varchar(40) primary key,"
+                    + "description varchar(500)"
+                    + ");";
+            s.executeUpdate(createTable);
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            System.out.println("Error processing request: Create Data Description Table");
         }
         finally
         {
@@ -58,31 +84,30 @@ public class DatabaseManager
     
     public void createUserTable()
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         Statement s = null;
-        try(Connection conn = sql.getConnection();)
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
             s = conn.createStatement();
-            String createTable = "Create Table Users("
-                    + "userNumber number primary key AUTO_INCREMENT,"
-                    + "loginName varchar,"
-                    + "password varchar,"
-                    + "salt varchar"
-                    + "lastName varchar"
-                    + "firstName varchar"
-                    + "emailAddress varchar"
-                    + "userRole varchar"
-                    + "lastLogin varchar"
-                    + "lastAttemptedLogin varchar"
-                    + "loginCount number"
-                    + "attemptedLoginCount number"
+            String createTable = "Create Table IF NOT EXISTS Users("
+                    + "userNumber INT primary key AUTO_INCREMENT,"
+                    + "loginName varchar(15),"
+                    + "password varchar(64),"
+                    + "salt varchar(10)"
+                    + "lastName varchar(10)"
+                    + "firstName varchar(10)"
+                    + "emailAddress varchar(50)"
+                    + "userRole varchar(10)"
+                    + "lastLogin varchar(25)"
+                    + "lastAttemptedLogin varchar(25)"
+                    + "loginCount INT"
+                    + "attemptedLoginCount INT"
                     + "locked boolean"
                     + ");";
-            s.executeQuery(createTable);
+            s.executeUpdate(createTable);
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Error processing request: Create Data Value Table");
+            System.out.println("Error processing request: Create Users Table");
         }
         finally
         {
@@ -97,13 +122,12 @@ public class DatabaseManager
     
     public void manualInput(String name, String units, LocalDateTime time, float value, User u)
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO WaterData values(?,?,?,?,?,?)";
+            String insertSQL = "INSERT INTO DataValues values(?,?,?,?,?,?)";
             String sensor = u.getFirstName()+u.getLastName();
                 
             p = conn.prepareStatement(insertSQL);
@@ -149,13 +173,12 @@ public class DatabaseManager
     
     public void manualDeletion(int entryID)
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String deleteSQL = "Delete from WaterData where entryID = ?";
+            String deleteSQL = "Delete from DataValues where entryID = ?";
                 
             p = conn.prepareStatement(deleteSQL);
             p.setString(1, entryID+"");
@@ -196,13 +219,12 @@ public class DatabaseManager
     
     public void deleteUser(int userID)
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String deleteSQL = "Delete from Users where entryID = ?";
+            String deleteSQL = "Delete from users where entryID = ?";
                 
             p = conn.prepareStatement(deleteSQL);
             p.setString(1, userID+"");
@@ -244,13 +266,12 @@ public class DatabaseManager
     public ArrayList<DataValue> getGraphData(String name, LocalDateTime lower, LocalDateTime upper, String sensor)
     {
         ArrayList<DataValue> graphData = new ArrayList<>();
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         PreparedStatement p = null;
         ResultSet rs = null;
-        try(Connection conn = sql.getConnection();)
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
-            String query = "Select * from WaterData Where name = ?"
-                + " AND time >= ? AND time <= ? AND sensor = ?";
+            String query = "Select * from DataValues Where dataName = ?"
+                + " AND timeRecorded >= ? AND timeRecorded <= ? AND sensor = ?";
             p = conn.prepareStatement(query);
             p.setString(1, name);
             p.setString(2, lower+"");
@@ -298,13 +319,12 @@ public class DatabaseManager
     
     public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value)
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO WaterData values(?,?,?,?,?,?)";
+            String insertSQL = "INSERT INTO DataValues values(?,?,?,?,?,?)";
                 
             p = conn.prepareStatement(insertSQL);
             p.setString(1, name);
@@ -350,13 +370,12 @@ public class DatabaseManager
     public void addNewUser(String username, String password, String firstName,
             String lastName, String email, UserRole userRole)
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO AdminList values(?,?,?,?,?,?,?,?,?,?,?,?)";
+            String insertSQL = "INSERT INTO users values(?,?,?,?,?,?,?,?,?,?,?,?)";
             String salt = "Brandon";
             password = SecurityCode.encryptSHA256(password + salt);
             
@@ -410,13 +429,12 @@ public class DatabaseManager
     
     public void lockUser(int userID)
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String modifySQL = "UPDATE Users"
+            String modifySQL = "UPDATE users"
                     + "SET locked = true"
                     + "WHERE userNumber = ?;";
           
@@ -460,13 +478,12 @@ public class DatabaseManager
     
     public void insertJSON(JSONObject j)
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO WaterData JSON ?";
+            String insertSQL = "INSERT INTO DataValues JSON ?";
             
             p = conn.prepareStatement(insertSQL);
             p.setString(1, j.toJSONString());
@@ -509,12 +526,11 @@ public class DatabaseManager
     {
         User u = null;
         
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         PreparedStatement p = null;
         ResultSet rs = null;
-        try(Connection conn = sql.getConnection();)
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
-            String getSQL = "SELECT * FROM Users WHERE loginName = ?;";
+            String getSQL = "SELECT * FROM users WHERE loginName = ?;";
             p = conn.prepareStatement(getSQL);
             p.setString(1, username);
             rs = p.executeQuery();
@@ -558,12 +574,11 @@ public class DatabaseManager
     {
         User u = null;
         
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         PreparedStatement p = null;
         ResultSet rs = null;
-        try(Connection conn = sql.getConnection();)
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
-            String getSQL = "SELECT * FROM Users WHERE loginName = ?, userPassword = ?;";
+            String getSQL = "SELECT * FROM users WHERE loginName = ?, userPassword = ?;";
             p = conn.prepareStatement(getSQL);
             p.setString(1, username);
             p.setString(2, password);
@@ -606,13 +621,12 @@ public class DatabaseManager
 
     public void updateUserLogin(User potentialUser) 
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
-        Connection conn = sql.getConnection();
+        Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
             conn.setAutoCommit(false);
-            String updateSQL = "UPDATE Users"
+            String updateSQL = "UPDATE users"
                     + "SET lastLoginTime = ?,"
                     + "lastAttemptedLoginTime = ?,"
                     + "loginCount = ?,"
@@ -654,16 +668,128 @@ public class DatabaseManager
             }
         }
     }
+    
+    public void updateDescription(String desc, String name)
+    {
+        Connection conn = Web_MYSQL_Helper.getConnection();
+        PreparedStatement p = null;
+        try
+        {
+            conn.setAutoCommit(false);
+            String updateSQL = "UPDATE DataDescriptions"
+                    + "SET description = ?,"
+                    + "WHERE name = ?;";
+            p = conn.prepareStatement(updateSQL);
+            p.setString(1, desc);
+            p.setString(2, name);
+            p.executeQuery();
+            conn.commit();
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error updating description for " + name);
+            if(conn != null)
+                try
+                {
+                    System.out.println("Transaction is being rolled back");
+                    conn.rollback();
+                }
+            catch(SQLException excep)
+            {System.out.println("Rollback unsuccessful");}
+        }
+        finally
+        {
+            try
+            {
+                if(p != null)
+                    p.close();
+                if(conn != null)
+                    conn.close();
+            }
+            catch(Exception excep)
+            {
+                System.out.println("Error closing statement or connection");
+            }
+        }
+    }
+    
+    public String getDescription(String name)
+    {
+        Connection conn = Web_MYSQL_Helper.getConnection();
+        PreparedStatement p = null;
+        ResultSet rs = null;
+        String desc = null;
+        try
+        {
+            String getSQL = "SELECT * FROM DataDescriptions WHERE dataName = ?";
+            p = conn.prepareStatement(getSQL);
+            p.setString(1, name);
+            rs = p.executeQuery();
+            desc = rs.getString("description");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error retrieving description for " + name);
+        }
+        finally
+        {
+            try
+            {
+                if(p != null)
+                    p.close();
+                if(rs != null)
+                    rs.close();
+                if(conn != null)
+                    conn.close();
+            }
+            catch(Exception excep)
+            {
+                System.out.println("Error closing statement or connection");
+            }
+        }
+        return desc;
+    }
+    
+    public void insertDescription(String name, String desc)
+    {
+        Connection conn = Web_MYSQL_Helper.getConnection();
+        PreparedStatement p = null;
+        try
+        {
+            String insertSQL = "INSERT INTO DataDescriptions (dataName, description) VALUES (?, ?)";
+            p = conn.prepareStatement(insertSQL);
+            p.setString(1, name);
+            p.setString(2, desc);
+            p.executeUpdate();
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error inserting description for " + name);
+        }
+        finally
+        {
+            try
+            {
+                if(p != null)
+                    p.close();
+                if(conn != null)
+                    conn.close();
+            }
+            catch(Exception excep)
+            {
+                System.out.println("Error closing statement or connection");
+            }
+        }
+    }
 
     public String getSaltByLoginName(String username) 
     {
-        Web_MYSQL_Helper sql = new Web_MYSQL_Helper();
         PreparedStatement p = null;
         ResultSet rs = null;
         String salt = null;
-        try(Connection conn = sql.getConnection();)
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
-            String getSQL = "SELECT * FROM Users WHERE loginName = ?;";
+            String getSQL = "SELECT * FROM users WHERE loginName = ?;";
             p = conn.prepareStatement(getSQL);
             p.setString(1, username);
             rs = p.executeQuery();
@@ -687,5 +813,13 @@ public class DatabaseManager
         }
         
         return salt;
+    }
+    
+    public static void main(String[] args)
+    {
+        DatabaseManager d = new DatabaseManager();
+        String name = "Turbidity";
+        String desc = "A measure of how much sediment is suspended in the water.  Turbidity often increases after a rain events and is worsened when soil is allowed to erode into a waterway.";
+        d.insertDescription(name, desc);
     }
 }
