@@ -65,12 +65,12 @@
                     <!--Allows the user to select a range of dates for data viewing-->
 
                     </br>
-                    <div id="dateselectordiv">
+                    <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="2016-01-01" max="">
+                        <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="" max="">
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="2016-01-01" max="">
+                        <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
                     </div>
                     <div class="" id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                            id="select_all_data" value="select_all_data">Select all</div><br>
@@ -83,12 +83,6 @@
                     <div class="data_type_submit" id="Table_submit"><input type="submit" value="Table"></div>
                     
                 </form>
-                    
-                    <form id="submit_query" action="ControlServlet" value="Submit Query">
-                        <input type="hidden" name="control" value="submitQuery">
-                         <div class="data_type_submit" id="Graph_submit" onclick="graphSubmit()"><input type="submit" ></div>
-                        <div class="data_type_submit" id="Table_submit" ><input type="submit" ></div>
-                    </form>
             </aside><br>
             
             <!--The data description box is defined here. Sample text is shown-->
@@ -131,6 +125,33 @@
             start.setMonth(start.getMonth() - 1);
             setDate(end, "enddate");
             setDate(start, "startdate");
+            
+            /**
+             * Makes it so the date input fields can not be chosen for furture
+             * dates. Also sets makes sure the <code>enddate</code> can not be a
+             * date that is earlier than <code>startdate</code>
+             */
+            function dateLimits(){
+                /*var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth()+1; //January is 0!
+                var yyyy = today.getFullYear();
+                if(dd<10){
+                    dd='0'+dd;
+                } 
+                if(mm<10){
+                    mm='0'+mm;
+                } 
+                today = yyyy+'-'+mm+'-'+dd; */
+                var date=end;
+                var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+                document.getElementById("enddate").setAttribute("max",dateStr);
+                document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
+                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
+                
+                
+                
+            }
             </script>
 <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
                    
@@ -187,7 +208,7 @@
             ${ChartJS}
         <script type="text/javascript">
             document.getElementById("GraphTab").click();
-            document.getElementById("dateselectordiv").click();
+            //document.getElementById("dateselectordiv").click();
             var current;
             /**
              * The <code>openTab</code> function activates a certain event
@@ -262,7 +283,7 @@
             function fullCheck(id){
                 var item=document.getElementById(id);
                 if(item.checked==true){
-                    if(checkedBoxes<3)
+                    if(checkedBoxes<2)
                         checkedBoxes++;
                     else{
                         item.checked=false;
@@ -272,36 +293,7 @@
                     checkedBoxes--;
             }
             
-            /**
-             * Makes it so the date input fields can not be chosen for furture
-             * dates. Also sets makes sure the <code>enddate</code> can not be a
-             * date that is earlier than <code>startdate</code>
-             */
-            function dateLimits(){
-                var today = new Date();
-                var dd = today.getDate();
-                var mm = today.getMonth()+1; //January is 0!
-                var yyyy = today.getFullYear();
-                if(dd<10){
-                    dd='0'+dd;
-                } 
-                if(mm<10){
-                    mm='0'+mm;
-                } 
-                today = yyyy+'-'+mm+'-'+dd;
-                if(document.getElementById("enddate").value==""
-                        &&document.getElementById("startdate").value==""){
-                    document.getElementById("startdate").value=today;
-                    document.getElementById("enddate").value=today;
-                }
-                
-                document.getElementById("enddate").setAttribute("max",today);
-                document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
-                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
-                
-                
-                
-            }
+            
         </script>
     </body>
 </html>
