@@ -12,19 +12,18 @@ import org.json.simple.JSONObject;
  * @author lpj11535
  */
 public class DataParameter {
-    private final String sensor;
-    private final long id;
-    private final String name;
-    private final String unit;
+    private String sensor;
+    private long id;
+    private String name;
+    private String unit;
+    private String description;
 
-    public DataParameter(String sensor, long id, String name, String unit) {
-        this.sensor = sensor;
-        this.id = id;
+    public DataParameter(String name, String description) {
         this.name = name;
-        this.unit = unit;
+        this.description = description;
     }
     
-    public DataParameter(JSONObject data) {
+    public void fromJSON(JSONObject data) {
         this.sensor = (String) data.get("sensor_name");
         this.id = (Long) data.get("id");
         this.name = (String) data.get("name");
@@ -50,4 +49,34 @@ public class DataParameter {
     public String getPrintableUnit() {
         return unit.replaceAll("\\P{Print}", "");
     }
+
+    public String getDescription() {
+        return description.replaceAll("\\P{Print}", "");
+    }
+
+    public void setSensor(String sensor) {
+        this.sensor = sensor;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    @Override
+    public String toString() {
+        return "DataParameter{" + "sensor=" + sensor + ", id=" + id + ", name=" + name + ", unit=" + unit + ", description=" + description + '}';
+    }
+    
 }

@@ -262,7 +262,7 @@
             function fullCheck(id){
                 var item=document.getElementById(id);
                 if(item.checked==true){
-                    if(checkedBoxes<3)
+                    if(checkedBoxes<2)
                         checkedBoxes++;
                     else{
                         item.checked=false;
