@@ -36,6 +36,8 @@ public class ControlServlet extends HttpServlet {
 
     private void defaultHandler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         StringBuilder data = new StringBuilder();
+        
+        Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), "Temperature ()", "Temperature (C)");
         DataReceiver
                 .getParameters()
                 .sorted()
@@ -60,9 +62,9 @@ public class ControlServlet extends HttpServlet {
                 + "</table>";
 
         request.setAttribute("Parameters", data.toString());
-        request.setAttribute("Descriptions", defaultDescription);
-        request.setAttribute("ChartJS", defaultChart);
-        request.setAttribute("Table", defaultTable);
+        request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
+        request.setAttribute("ChartJS", DataReceiver.generateChartJS(source));
+        request.setAttribute("Table", DataReceiver.generateTable(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
                 .forward(request, response);
