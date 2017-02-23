@@ -13,6 +13,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles/dashboard.css" type="text/css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+        <script type="text/javascript" src="/js/themes/dark-blue.js"></script>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
             <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -41,6 +45,7 @@
                 </ul>
                     <div id="Graph" class="tabcontent">
                         <canvas id="myChart" width=25% height=20%></canvas>
+                        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                     </div>
                     <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
                     ${Table}
@@ -292,6 +297,34 @@
             }
             
             
+        </script>
+        <script>
+            $(function () { 
+    var myChart = Highcharts.chart('container', {
+        chart: {
+            zoomType: 'x',
+            type: 'line'
+        },
+        title: {
+            text: 'Fruit Consumption'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: 'Graph'
+            }
+        },
+        series: [{
+            name: 'Jane',
+            data: [1, 0, 4]
+        }, {
+            name: 'John',
+            data: [5, 7, 3]
+        }]
+    });
+});
         </script>
     </body>
 </html>
