@@ -13,6 +13,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles/dashboard.css" type="text/css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
             <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -40,8 +42,7 @@
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Export'); hide();"
                        id="ExportTab">Export</a></li>
                 </ul>
-                    <div id="Graph" class="tabcontent">
-                        <canvas id="myChart" width=25% height=20%></canvas>
+                    <div id="Graph" width=25% height=20% class="tabcontent">
                     </div>
                     <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
                     ${Table}
@@ -124,6 +125,7 @@
                 console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
             }
             
+            
             var end = new Date();
             end.setSeconds(0);
             var start = new Date();
@@ -184,7 +186,106 @@
                 document.write(id);
             }
         </script>
-            ${ChartJS}
+        <script>
+        // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
+        Highcharts.theme = {
+            colors: ['#7cb5ec', '#f7a35c', '#90ee7e', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee',
+               '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+            chart: {
+               backgroundColor: null,
+               style: {
+                  fontFamily: 'Dosis, sans-serif'
+               }
+            },
+            title: {
+               style: {
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase'
+               }
+            },
+            tooltip: {
+               borderWidth: 0,
+               backgroundColor: 'rgba(219,219,216,0.8)',
+               shadow: false
+            },
+            legend: {
+               itemStyle: {
+                  fontWeight: 'bold',
+                  fontSize: '13px'
+               }
+            },
+            xAxis: {
+               gridLineWidth: 1,
+               labels: {
+                  style: {
+                     fontSize: '12px'
+                  }
+               }
+            },
+            yAxis: {
+               minorTickInterval: 'auto',
+               title: {
+                  style: {
+                     textTransform: 'uppercase'
+                  }
+               },
+               labels: {
+                  style: {
+                     fontSize: '12px'
+                  }
+               }
+            },
+            plotOptions: {
+               candlestick: {
+                  lineColor: '#404048'
+               }
+            },
+
+            // General
+            background2: '#F0F0EA'
+         };
+
+         // Apply the theme
+         Highcharts.setOptions(Highcharts.theme);
+         
+         // Setup chart, the data will be fed from the servlet through JSP (temporary)
+         Highcharts.chart('Graph', {
+                title: {
+                    text: 'Water Creek Parameter Values',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: 'Source: environet.com',
+                    x: -20
+                },
+                xAxis: {
+                    ${HighChartJS_Categories}
+                },
+                yAxis: {
+                    title: {
+                        text: 'Values'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: [${HighChartJS_Series}]
+            });
+         
+         </script>
+         
         <script type="text/javascript">
             document.getElementById("GraphTab").click();
             document.getElementById("dateselectordiv").click();

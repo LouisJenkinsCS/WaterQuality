@@ -3,6 +3,7 @@ package servlets;
 import async.Data;
 import async.DataParameter;
 import async.DataReceiver;
+import async.DataValue;
 import io.reactivex.Observable;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -48,13 +49,16 @@ public class ControlServlet extends HttpServlet {
                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                 .blockingSubscribe(data::append);
 
-        String defaultChart = "<script>var ctx = document.getElementById('myChart').getContext('2d');\n"
-                + "var myChart = new Chart(ctx, {\n"
-                + "  type: 'line',\n"
-                + "  data: {\n"
-                + "    labels: [],\n"
-                + "    datasets: [],\n"
-                + "}});</script>";
+        StringBuilder categories = new StringBuilder("categories: [");
+        source.getData()
+                .map(DataValue::getTimestamp)
+                .distinct()
+                .sorted()
+                .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                .blockingSubscribe(categories::append);
+        categories.append("]");
+        
+        
         String defaultDescription = "<center><h1>None Selected</h1></center>";
         String defaultTable = "<table border='1'>\n"
                 + "	<tr>\n"
@@ -65,7 +69,8 @@ public class ControlServlet extends HttpServlet {
 
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-        request.setAttribute("ChartJS", DataReceiver.generateChartJS(source));
+        request.setAttribute("HighChartJS_Categories", categories);
+        request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(source));
         request.setAttribute("Table", DataReceiver.generateTable(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
@@ -135,6 +140,14 @@ public class ControlServlet extends HttpServlet {
             String descriptions = DataReceiver.generateDescriptions(data);
             String chartjs = DataReceiver.generateChartJS(data);
             String table = DataReceiver.generateTable(data);
+            StringBuilder categories = new StringBuilder("categories: [");
+            data.getData()
+                    .map(DataValue::getTimestamp)
+                    .distinct()
+                    .sorted()
+                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                    .blockingSubscribe(categories::append);
+            categories.append("]");
             
             StringBuilder paramData = new StringBuilder();
             DataReceiver
@@ -146,7 +159,8 @@ public class ControlServlet extends HttpServlet {
                  .blockingSubscribe(paramData::append);
 
             request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
-            request.setAttribute("ChartJS", DataReceiver.generateChartJS(data));
+            request.setAttribute("HighChartJS_Categories", categories);
+            request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
             request.setAttribute("Table", DataReceiver.generateTable(data));
             request.setAttribute("Parameters", paramData.toString());
 
