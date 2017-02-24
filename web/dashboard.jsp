@@ -300,31 +300,46 @@
         </script>
         <script>
             $(function () { 
-    var myChart = Highcharts.chart('container', {
-        chart: {
-            zoomType: 'x',
-            type: 'line'
-        },
-        title: {
-            text: 'Fruit Consumption'
-        },
-        xAxis: {
-            type: 'datetime'
-        },
-        yAxis: {
-            title: {
-                text: 'Graph'
-            }
-        },
-        series: [{
-            name: 'Jane',
-            data: [1, 0, 4]
-        }, {
-            name: 'John',
-            data: [5, 7, 3]
-        }]
-    });
-});
+                Highcharts.setOptions({
+                chart: {
+                    backgroundColor:'#FFF2D7',
+                    plotBackgroundColor: '#FFF2D7',
+                    plotBorderWidth: 1,
+                    menuColor:'#FFF2D7'
+                },
+                 navigation: {
+                    buttonOptions: {
+                        symbolStroke: '#266B6B',
+                        theme:{fill:'#FFF2D7'}
+                    }
+                }
+                
+            });
+                var myChart = Highcharts.chart('container', {
+                chart: {
+                    zoomType: 'x',
+                    type: 'line'
+                },
+                title: {
+                    text: 'Graph'
+                },
+                xAxis: {
+                    type: 'datetime'
+                },
+                yAxis: {
+                title: {
+                    text: 'Data'
+                }
+                },
+                series: [{
+                    name: 'Jane',
+                    data: [1,2]
+                }, {
+                    name: 'John',
+                    data: [5, 7, 3]
+                }]
+                });
+            });
         </script>
     </body>
 </html>
