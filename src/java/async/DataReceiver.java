@@ -33,11 +33,13 @@ package async;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import utilities.FileUtils;
+import utilities.JSONUtils;
 
 /**
  *
@@ -63,8 +66,7 @@ public class DataReceiver {
     
     // TODO: Quit being lazy and create a single map which holds the data needed
     // The keys are the exact same, and only differ in values.
-    private static final Map<String, String> descriptionMap = new HashMap<>();
-    private static final Map<String, Long> idMap = new HashMap<>();
+    private static final Map<Long, DataParameter> PARAMETER_MAP = new HashMap<>();
     
     // Read-in and fill map of descriptions.
     static {
@@ -72,27 +74,26 @@ public class DataReceiver {
         // which need to be displayed when selected. This is also used to filter
         // out any API data that we do not have a description of.
         String filename = "resources/descriptions.json";
+        List<DataParameter> parameters = new ArrayList<>();
         
         Observable
                 .just(filename)
                 .map(FileUtils::readAll)
                 .map(str -> (JSONObject) new JSONParser().parse(str))
                 .map(obj -> (JSONArray) obj.get("descriptions"))
-                .flatMap(Observable::fromIterable)
-                .blockingSubscribe(obj -> descriptionMap.put((String) ((JSONObject) obj).get("name"), ((String) ((JSONObject) obj).get("description")).replaceAll("\\P{Print}", "")));
-    }
-    
-    static {
+                .flatMap(JSONUtils::toData)
+                .blockingSubscribe((JSONObject obj) -> parameters.add(new DataParameter((String) obj.get("name"), (String) obj.get("description"))));
+        
         // Fill the map so we only need to obtain it once on startup.
         // The map will contain a list of identifiers (being the very same
         // identifier displayed in dashboard.jsp) to their actual identifier. This
         // MUST be refactored before actual release, but should be sufficient for now.
-        
+
         // This is the URL used to obtain ALL data for the sensor within the past
         // 15 minutes. This is important as, again, it holds ALL of the data. So
-        // we can use this to construct our map.
+        // we can use this to construct our map. 
         String url = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
-        
+
         // We want to make some API calls next. Given the above URL, we can then
         // make a connection and obtain the JSON data sent.
         getData(url)
@@ -102,20 +103,39 @@ public class DataReceiver {
                 // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
                 // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
                 // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                .flatMap(Observable::fromIterable)
-                .filter(obj -> descriptionMap.containsKey(((JSONObject) obj).get("name")))
-                // With the JSONObjects being the data we need, we can easily parse it into tuples
-                // of (Name, Id) pairs, or rather Pair<String, Long>
-                .map(obj -> Pair.with(((JSONObject) obj).get("name") + " (" + ((JSONObject)obj).get("unit") + ")", (Long) ((JSONObject)obj).get("id")))
-                .subscribe(pair -> idMap.put(((Pair<String, Long>) pair).getValue0(), ((Pair<String, Long>)pair).getValue1()));
-    };
+                .flatMap(JSONUtils::toData)
+                // Filter out any parameters we do not contain a description for
+                .filter((JSONObject obj) -> parameters
+                        .stream()
+                        .map(DataParameter::getName)
+                        .anyMatch((name -> name.equals(obj.get("name"))))
+                )
+                .doOnNext(obj -> System.out.println("Parameter: " + obj.toJSONString()))
+                // Update the current DataParameters loaded with the data from the JSON and add it
+                // to our map.
+                .blockingSubscribe((JSONObject obj) -> {
+                    List<DataParameter> parameter = parameters
+                            .stream()
+                            .filter((DataParameter param) -> param.getName().equals(obj.get("name")))
+                            .collect(Collectors.toList());
+                    
+                    // NOTE: This will be refactored, but for now, Dr. Rier's description
+                    // contains two "Temperature" fields, and they are literally indistinguishable from each other.
+                    // Because of this, when we find "Temperature", we assign them randomly to their description
+                    // as a temporary workaround.
+                    DataParameter param = parameter.get(0);
+                    param.fromJSON(obj);
+                    PARAMETER_MAP.put(param.getId(), param);
+                    parameters.remove(param);
+                });
+    }
     
     /**
      * Obtain all sensor parameter names.
      * @return All sensor parameter names.
      */
-    public static Observable<String> getParameters() {
-        return Observable.fromIterable(idMap.keySet());
+    public static Observable<DataParameter> getParameters() {
+        return Observable.fromIterable(PARAMETER_MAP.values());
     }
     
     /**
@@ -128,22 +148,22 @@ public class DataReceiver {
      * @param keys Selected data.
      * @return Data containing data from query.
      */
-    public static Data getData(Instant start, Instant end, String ...keys) {
+    public static Data getData(Instant start, Instant end, Long ...keys) {
         return new Data(Observable
                 // For each key
                 .fromArray(keys)
-                .flatMap((String key) ->
-                    getData(getParameterURL(start, end, idMap.get(key)))
+                .flatMap((Long key) ->
+                    getData(getParameterURL(start, end, key))
                             // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
                             // We need to obtain the "data" parameter, which a JSONArray.
                             .map((JSONObject obj) -> (JSONArray) obj.get("data"))
                             // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
                             // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
                             // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                            .flatMap(Observable::fromIterable)
+                            .flatMap(JSONUtils::toData)
                             // We take both the timestamp (X-Axis) and the value (Y-Axis).
                             // This data is what is returned as a DataValue.
-                            .map(obj -> new DataValue(key, (String)((JSONObject) obj).get("timestamp"), (Double) ((JSONObject) obj).get("value")))
+                            .map((JSONObject obj) -> new DataValue(key, (String) obj.get("timestamp"), (Double) obj.get("value")))
                 // 'replay' is a way to say that we want to take ALL items up to this point (being the DataValues), cache it, and then
                 // resend it each and every time it is subscribed to (pretty much meaning this becomes reusable).
                 ).replay());
@@ -159,9 +179,10 @@ public class DataReceiver {
     public static String generateDescriptions(Data source) {
         StringBuilder descriptions = new StringBuilder();
         source.getData()
-                .map(DataValue::getParameter)
+                .map(DataValue::getId)
                 .distinct()
-                .map((String parameter) -> "\n<center><h1>" + parameter + "</center></h1>\n" + descriptionMap.get(parameter.substring(0, parameter.indexOf("(") - 1)))
+                .map(PARAMETER_MAP::get)
+                .map((DataParameter parameter) -> "\n<center><h1>" + parameter.getName() + "</center></h1>\n" + parameter.getDescription())
                 .blockingSubscribe(descriptions::append);
         
         return descriptions.toString();
@@ -198,17 +219,17 @@ public class DataReceiver {
         
         // Add all data to the dataset for each element
         source.getData()
-                .groupBy((DataValue dv) -> dv.parameter)
-                .sorted((GroupedObservable<String, DataValue> group1, GroupedObservable<String, DataValue> group2) -> 
+                .groupBy(DataValue::getId)
+                .sorted((GroupedObservable<Long, DataValue> group1, GroupedObservable<Long, DataValue> group2) -> 
                         group1.getKey().compareTo(group2.getKey())
                 )
-                .flatMap((GroupedObservable<String, DataValue> group) -> {
+                .flatMap((GroupedObservable<Long, DataValue> group) -> {
                     int axis = yAxis.getAndIncrement();
                     int rgb[] = new Random().ints(0, 256).limit(3).toArray();
                     return group
                             .buffer(Integer.MAX_VALUE)
                             .map((List<DataValue> data) -> "{\n" +
-                                    "      label: '" + group.getKey() + "',\n" +
+                                    "      label: '" + PARAMETER_MAP.get(group.getKey()).getName() + "',\n" +
                                     "      data: [" + data.stream().map(DataValue::getValue).map(Object::toString).collect(Collectors.joining(",")) + "],\n" +
                                     "      backgroundColor: 'transparent', yAxisID: 'y-axis-" + axis + "', borderColor: 'rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")'\n" +
                                     "},"
@@ -248,10 +269,11 @@ public class DataReceiver {
         
         // Generate the headers first
         source.getData()
-                .map(DataValue::getParameter)
+                .map(DataValue::getId)
                 .distinct()
                 .sorted()
-                .map((String parameter) -> "\n\t\t<th>\n\t\t" + parameter + "\n\t\t</th>")
+                .map(PARAMETER_MAP::get)
+                .map((DataParameter parameter) -> "\n\t\t<th>\n\t\t" + parameter.getName() + "\n\t\t</th>")
                 .blockingSubscribe(table::append);
         
         // Generate the body next
@@ -301,13 +323,13 @@ public class DataReceiver {
                 // From the actual URL, form a connection with the endpoint (URL -> URLConnection)
                 .map(URL::openConnection)
                 // Need to set this or else API will refuse our request. We need to act like a web browser
-                .doOnNext(conn -> conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"))
+                .doOnNext((URLConnection conn) -> conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"))
                 // Attempt to form actual connection
                 .doOnNext(URLConnection::connect)
                 // Obtain the input stream, of which we can obtain the data it is sending
                 .map(URLConnection::getInputStream)
                 // Obtain the data from the Stream as a String
-                .map(stream -> {
+                .map((InputStream stream) -> {
                     BufferedReader r  = new BufferedReader(new InputStreamReader(stream, Charset.forName("UTF-8")));
 
                     StringBuilder sb = new StringBuilder();
@@ -319,8 +341,8 @@ public class DataReceiver {
                     return sb.toString();
                 })
                 // Remove any and all unicode characters
-                .map(str -> str.replaceAll("\\P{Print}", ""))
+                .map((String json) -> json.replaceAll("\\P{Print}", ""))
                 // From that received string, since it is in JSON, we can parse it into a JSONObject.
-                .map(str -> (JSONObject) new JSONParser().parse(str));
+                .map((String json) -> (JSONObject) new JSONParser().parse(json));
     }
 }

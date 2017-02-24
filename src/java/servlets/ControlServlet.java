@@ -1,6 +1,7 @@
 package servlets;
 
 import async.Data;
+import async.DataParameter;
 import async.DataReceiver;
 import io.reactivex.Observable;
 import java.io.IOException;
@@ -37,13 +38,14 @@ public class ControlServlet extends HttpServlet {
     private void defaultHandler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         StringBuilder data = new StringBuilder();
         
-        Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), "Temperature ()", "Temperature (C)");
+        long defaultId = DataReceiver.getParameters().blockingFirst().getId();
+        Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), defaultId);
         DataReceiver
                 .getParameters()
-                .sorted()
-                //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
-                //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
-                .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str + "\" value=\"data\">" + str + "<br>\n")
+                // Display based on lexicographical ordering
+                .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                // Generate a checkbox for each parameter.
+                .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                 .blockingSubscribe(data::append);
 
         String defaultChart = "<script>var ctx = document.getElementById('myChart').getContext('2d');\n"
@@ -111,13 +113,14 @@ public class ControlServlet extends HttpServlet {
             }
             end += "Z";
             
-            String[] selected = request
+            Long[] selected = request
                     .getParameterMap()
                     .keySet()
                     .stream()
                     .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
+                    .map(Long::parseLong)
                     .collect(Collectors.toList())
-                    .toArray(new String[0]);
+                    .toArray(new Long[0]);
 
             // Nothing selected...
             if (selected == null || selected.length == 0) {
@@ -135,12 +138,12 @@ public class ControlServlet extends HttpServlet {
             
             StringBuilder paramData = new StringBuilder();
             DataReceiver
-                    .getParameters()
-                    .sorted()
-                    //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
-                    //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
-                    .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str + "\" value=\"data\">" + str + "<br>\n")
-                    .blockingSubscribe(paramData::append);
+                 .getParameters()
+                 // Display based on lexicographical ordering
+                 .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                 // Generate a checkbox for each parameter.
+                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
+                 .blockingSubscribe(paramData::append);
 
             request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
             request.setAttribute("ChartJS", DataReceiver.generateChartJS(data));
