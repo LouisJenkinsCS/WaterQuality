@@ -198,12 +198,10 @@ public class DataReceiver {
      */
     public static String generateChartJS(Data source) {
         StringBuilder chartJS =  new StringBuilder("<script>" +
-                "var ctx = document.getElementById('myChart').getContext('2d');\n" + 
-                "var myChart = new Chart(ctx, {\n" +
-                 "  type: 'line',\n" +
-                 "  data: {\n");
+                "var chart = Highcharts.chart('Graph', {\n" + 
+                "title: { text: 'Water Quality Graph', x: -20}");
         
-        StringBuilder labels = new StringBuilder("    labels: [ ");
+        StringBuilder labels = new StringBuilder(", xAxis: { categories: [");
         source.getData()
                 .map(DataValue::getTimestamp)
                 .distinct()
@@ -214,7 +212,13 @@ public class DataReceiver {
         // Replace the last ',' for a end bracket ']'
         labels.replace(labels.length()-1, labels.length(), "]");
         chartJS.append(labels.toString());
-        chartJS.append(",\n    datasets: [ ");
+        chartJS.append("}, yAxis: { title: { text: 'Values' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] },");
+        chartJS.append("legend: {\n" +
+"        layout: 'vertical',\n" +
+"        align: 'right',\n" +
+"        verticalAlign: 'middle',\n" +
+"        borderWidth: 0\n" +
+"    },\nseries: [");
         AtomicInteger yAxis = new AtomicInteger(0);
         
         // Add all data to the dataset for each element
@@ -229,9 +233,8 @@ public class DataReceiver {
                     return group
                             .buffer(Integer.MAX_VALUE)
                             .map((List<DataValue> data) -> "{\n" +
-                                    "      label: '" + PARAMETER_MAP.get(group.getKey()).getName() + "',\n" +
+                                    "      name: '" + PARAMETER_MAP.get(group.getKey()).getName() + "',\n" +
                                     "      data: [" + data.stream().map(DataValue::getValue).map(Object::toString).collect(Collectors.joining(",")) + "],\n" +
-                                    "      backgroundColor: 'transparent', yAxisID: 'y-axis-" + axis + "', borderColor: 'rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")'\n" +
                                     "},"
                             );
                 })
@@ -239,23 +242,44 @@ public class DataReceiver {
         
         // Replace the last ',' with a ']' and finish off chartJS
         chartJS.replace(chartJS.length()-1, chartJS.length(), "]");
-        chartJS.append("\n  }");
-        
-        chartJS.append(",options: { scales: {\n" +
-"          yAxes: [{\n" +
-"            position: 'left',\n" +
-"            id: 'y-axis-0'\n" +
-"          }");
-        
-        if (yAxis.get() >= 2) {
-            chartJS.append(", {\n" +
-"            position: 'right',\n" +
-"            id: 'y-axis-1'\n" +
-"          }");
-        }
-        chartJS.append("]}\n}});</script>");
+        chartJS.append("\n  });$('#Graph').resizable({\n" +
+"    // On resize, set the chart size to that of the\n" +
+"    // resizer minus padding. If your chart has a lot of data or other\n" +
+"    // content, the redrawing might be slow. In that case, we recommend\n" +
+"    // that you use the 'stop' event instead of 'resize'.\n" +
+"    resize: function () {\n" +
+"        chart.setSize(\n" +
+"            this.offsetWidth - 20,\n" +
+"            this.offsetHeight - 20,\n" +
+"            false\n" +
+"        );\n" +
+"    }\n" +
+"});</script>");
         
         return chartJS.toString();
+    }
+    
+    public static String generateSeries(Data source) {
+        StringBuilder series = new StringBuilder();
+        // Add all data to the dataset for each element
+        source.getData()
+                .groupBy(DataValue::getId)
+                .sorted((GroupedObservable<Long, DataValue> group1, GroupedObservable<Long, DataValue> group2) -> 
+                        group1.getKey().compareTo(group2.getKey())
+                )
+                .flatMap((GroupedObservable<Long, DataValue> group) -> {
+                    return group
+                            .buffer(Integer.MAX_VALUE)
+                            .map((List<DataValue> data) -> "{\n" +
+                                    "      name: '" + PARAMETER_MAP.get(group.getKey()).getName() + "',\n" +
+                                    "      data: [" + data.stream().map(DataValue::getValue).map(Object::toString).collect(Collectors.joining(",")) + "],\n" +
+                                    "},"
+                            );
+                })
+                .blockingSubscribe(series::append);
+        series.delete(series.length()-1, series.length());
+        
+        return series.toString();
     }
     
     /**
