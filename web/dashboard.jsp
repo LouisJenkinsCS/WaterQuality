@@ -42,8 +42,7 @@
                            <li><form><input id="exportbutton" type="submit" value="Export"></form></li>
                 </ul>
                 
-                    <div id="Graph" width=25% height=20% class="tabcontent">
-                    </div>
+                    <div id="Graph" class="tabcontent"></div>
                     <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
                     ${Table}
                     </div>
@@ -209,13 +208,14 @@
         <script>
         // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
         Highcharts.theme = {
-            colors: ['#7cb5ec', '#f7a35c', '#90ee7e', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee',
-               '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
             chart: {
-               backgroundColor: null,
-               style: {
-                  fontFamily: 'Dosis, sans-serif'
-               }
+                zoomType:'x',
+                backgroundColor:'white',
+                plotBackgroundColor: 'white',
+                width:null,
+                style: {
+                    fontFamily: 'Ariel, Helvetica, san-serif'
+                }
             },
             title: {
                style: {
@@ -225,15 +225,15 @@
                }
             },
             tooltip: {
-               borderWidth: 0,
+               borderWidth: 5,
                backgroundColor: 'rgba(219,219,216,0.8)',
                shadow: false
             },
             legend: {
-               itemStyle: {
-                  fontWeight: 'bold',
-                  fontSize: '13px'
-               }
+                itemStyle: {
+                    fontWeight: 'bold',
+                    fontSize: '13px'
+                }
             },
             xAxis: {
                gridLineWidth: 1,
@@ -263,7 +263,7 @@
             },
 
             // General
-            background2: '#F0F0EA'
+            background2: '#FFF2D7'
          };
 
          // Apply the theme
@@ -282,7 +282,7 @@
                 xAxis: {
                     ${HighChartJS_Categories}
                 },
-                yAxis: {
+                yAxis: [{
                     title: {
                         text: 'Values'
                     },
@@ -291,15 +291,21 @@
                         width: 1,
                         color: '#808080'
                     }]
-                },
+                },{ // Secondary yAxis
+                    title: {
+                    text: 'Values',
+                    },
+                    opposite:true
+                }],
                 tooltip: {
                     valueSuffix: ''
                 },
                 legend: {
                     layout: 'vertical',
                     align: 'right',
-                    verticalAlign: 'middle',
-                    borderWidth: 0
+                    verticalAlign: 'top',
+                    borderWidth: 0,
+                    floating:true
                 },
                 series: [${HighChartJS_Series}]
             });
@@ -394,49 +400,6 @@
             }
             
             
-        </script>
-        <script>
-            $(function () { 
-                Highcharts.setOptions({
-                chart: {
-                    backgroundColor:'#FFF2D7',
-                    plotBackgroundColor: '#FFF2D7',
-                    plotBorderWidth: 1,
-                    menuColor:'#FFF2D7'
-                },
-                 navigation: {
-                    buttonOptions: {
-                        symbolStroke: '#266B6B',
-                        theme:{fill:'#FFF2D7'}
-                    }
-                }
-                
-            });
-                var myChart = Highcharts.chart('container', {
-                chart: {
-                    zoomType: 'x',
-                    type: 'line'
-                },
-                title: {
-                    text: 'Graph'
-                },
-                xAxis: {
-                    type: 'datetime'
-                },
-                yAxis: {
-                title: {
-                    text: 'Data'
-                }
-                },
-                series: [{
-                    name: 'Jane',
-                    data: [1,2]
-                }, {
-                    name: 'John',
-                    data: [5, 7, 3]
-                }]
-                });
-            });
         </script>
     </body>
 </html>

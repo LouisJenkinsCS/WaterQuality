@@ -262,3 +262,8 @@ button:hover,input[type = "submit"]:hover {
 #dateInstructDiv{
     text-align:center;
 }
+
+#Graph{
+    width:auto;
+    min-width: 57.7%;
+}
