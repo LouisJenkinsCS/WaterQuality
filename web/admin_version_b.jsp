@@ -20,8 +20,13 @@
     </head>
     <body onload="onLoad();">
         <img id="backPhoto" src="images/Creek3.jpeg">
+<<<<<<< HEAD
         <header class="page_banner"> 
             <div id="page_banner__text">Water Quality - Admin</div>
+=======
+        <header class="title_bar_container"> 
+            <div id="HeaderText">Water Quality - Admin</div>
+>>>>>>> refs/remotes/origin/Group-Development
         </header>
         <section class = "content_container1" id = "dashboard_container">
             <header class = "content_title_bar" id="login_header"> 
@@ -64,6 +69,7 @@
                         </form>
 
                         <button type="button" onclick="createNewInput()">+</button>
+<<<<<<< HEAD
                         <table id="table_input_space"></table>
 
                     <script>
@@ -88,6 +94,30 @@
 							tableInputSpace.appendChild(v);
                         }
                         </script>
+=======
+                        <div id="new_input_space"></div>
+
+<!--                    <script>
+                        function createNewInput()
+                        {
+                            var space = document.getElementById("new_input_space");
+                            var d = document.createElement("INPUT");
+                            var t = document.createElement("INPUT");
+                            var p = document.createElement("SELECT");
+                            d.setAttribute("type", "date");
+                            t.setAttribute("type", "time");
+                            p.setAttribute("width", "20px");
+                            d.setAttribute("value", "2017-02-20");
+                            t.setAttribute("value", "05:22:00");                                    
+                            space.appendChild(d);
+                            space.appendChild("<br/>");
+                            space.appendChild(t);
+                            space.appendChild("<br/>");
+                            space.appendChild(p);
+                            space.appendChild("<br/>");
+                        }
+                        </script>-->
+>>>>>>> refs/remotes/origin/Group-Development
                             
                     </admincontent>
                 
@@ -191,20 +221,36 @@
         <script>
             function post(path, params, method) {
                 method = method || "post"; // Set method to post by default if not specified.
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/Group-Development
                 // The rest of this code assumes you are not using a library.
                 // It can be made less wordy if you use one.
                 var form = document.createElement("form");
                 form.setAttribute("method", method);
                 form.setAttribute("action", path);
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/Group-Development
                 for(var key in params) {
                     if(params.hasOwnProperty(key)) {
                         var hiddenField = document.createElement("input");
                         hiddenField.setAttribute("type", "hidden");
                         hiddenField.setAttribute("name", key);
                         hiddenField.setAttribute("value", params[key]);
+<<<<<<< HEAD
                         form.appendChild(hiddenField);
                      }
                 }
+=======
+
+                        form.appendChild(hiddenField);
+                     }
+                }
+
+>>>>>>> refs/remotes/origin/Group-Development
                 document.body.appendChild(form);
                 form.submit();
             }
@@ -347,4 +393,8 @@
            
         </script>
     </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> refs/remotes/origin/Group-Development

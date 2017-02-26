@@ -7,7 +7,11 @@ and open the template in the editor.
     Created on : Feb 9, 2017, 9:05:43 PM
     Author     : Kevin
 */
+<<<<<<< HEAD
 #page_banner__text
+=======
+#HeaderText
+>>>>>>> refs/remotes/origin/Group-Development
 {
     display: inline;
     font-family: "Ariel", Helvetica, san-serif;
@@ -60,9 +64,14 @@ and open the template in the editor.
     cursor:pointer;
 }
 
+<<<<<<< HEAD
 .page_banner{
     width: 100%;
 	min-width: 600px;
+=======
+.title_bar_container{
+    width: 100%;
+>>>>>>> refs/remotes/origin/Group-Development
     text-align: center;
     height: 50px;
     background-color: #266B6B;
@@ -121,9 +130,14 @@ and open the template in the editor.
 
 #dashboard_container{
     margin-top: 5%;
+<<<<<<< HEAD
     margin-left: auto; /*old: 23.5%*/
     margin-right: auto; /*old: 23.5%*/
 	min-width: 600px;
+=======
+    margin-left:23.5%;
+    margin-right:23.5%;
+>>>>>>> refs/remotes/origin/Group-Development
     /*width: 1000px;*/
     overflow:auto;
 }
