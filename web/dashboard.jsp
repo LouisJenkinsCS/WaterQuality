@@ -39,20 +39,15 @@
                            id="GraphTab">Graph</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();"
                            id="TableTab">Table</a></li>
-                           <li><form><input id="exportbutton" type="submit" value="Export"></form></li>
+                           <li>
+                               <form><input id="exportbutton" type="submit" value="Export" onclick="exportData('exportbutton')"></form>
+                           </li>
                 </ul>
-<<<<<<< HEAD
-                
                     <div id="Graph" class="tabcontent"></div>
-=======
-                    <div id="Graph" width=25% height=20% class="tabcontent">
-                    </div>
->>>>>>> refs/remotes/origin/Group-Development
                     <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
                     ${Table}
                     </div>
                     <div id="Export" class="tabcontent">
-                        <img id="Excel" src="images/excel.png" onclick="exportData('Excel')">
                     </div>
             </section>
             
@@ -66,7 +61,7 @@
                     the desired data to be outputed into either a table or
                     a graph
                 --%>
-                <form id="data_type_form" action="ControlServlet" method = "POST">
+                <form class="data_type_form" id="Graph_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
                     </br>
                     <div id="dateselectordiv" onclick="dateLimits();">
@@ -76,16 +71,32 @@
                         End Date:
                         <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div class="" id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
+                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                            id="select_all_data" value="select_all_data">Select all</div><br>
                     ${Parameters}
-                    <div class="data_type_submit"><input type="submit" name="Get Data" value="Get Data" /></div>
-                    <input type="hidden" name="control" value ="getData">
                     <br>
+                    <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph"></div>
+                    <input type="hidden" name="control" value ="getData">
                     
-                    <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph" onclick="graphSubmit()"></div>
-                    <div class="data_type_submit" id="Table_submit"><input type="submit" value="Table"></div>
-                    
+                </form>
+                    <form class="data_type_form" id="Table_form" action="ControlServlet" method = "POST">
+                    <!--Allows the user to select a range of dates for data viewing-->
+                    </br>
+                    <div id="dateselectordiv" onclick="dateLimits();">
+                        Start Date:
+                        <input class="dateselector" id="startdate2" name="startdate"type="datetime-local" min="" max="">
+                        </BR>to</BR>
+                        End Date:
+                        <input class="dateselector" id="enddate2" name="enddate" type="datetime-local" min="" max="">
+                    </div>
+                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
+                           id="select_all_data" value="select_all_data">Select all</div><br>
+                    ${Parameters}
+                    <br>
+                    <div class="data_type_submit" id="Table_submit">
+                        <input type="submit" value="Table" onclick="">
+                    </div>
+                    <input type="hidden" name="control" value ="Table">   
                 </form>
             </aside><br>
             
@@ -130,6 +141,8 @@
             start.setMonth(start.getMonth() - 1);
             setDate(end, "enddate");
             setDate(start, "startdate");
+            setDate(end, "enddate2");
+            setDate(start, "startdate2");
             
             /**
              * Makes it so the date input fields can not be chosen for furture
@@ -308,14 +321,9 @@
                 legend: {
                     layout: 'vertical',
                     align: 'right',
-<<<<<<< HEAD
                     verticalAlign: 'top',
                     borderWidth: 0,
                     floating:true
-=======
-                    verticalAlign: 'middle',
-                    borderWidth: 0
->>>>>>> refs/remotes/origin/Group-Development
                 },
                 series: [${HighChartJS_Series}]
             });
@@ -323,8 +331,12 @@
          </script>
          
         <script type="text/javascript">
-            document.getElementById("GraphTab").click();
-            //document.getElementById("dateselectordiv").click();
+            //document.getElementById("GraphTab").click();
+            if(getCookie("id")=="Table")
+                document.getElementById("TableTab").click();
+            else
+                document.getElementById("GraphTab").click();
+            
             var current;
             /**
              * The <code>openTab</code> function activates a certain event
@@ -333,7 +345,7 @@
              * @param {type} tabName the tab that the user is switching to
              */
             function openTab(evt, tabName) {
-                var i, tabcontent, tablinks,submitbutton;
+                var i, tabcontent, tablinks,submitbutton,form;
                 tabcontent = document.getElementsByClassName("tabcontent");
                 
                 
@@ -355,11 +367,37 @@
                 //This is done because we need to limit the number of boxes checked
                 //for the Graph tab and not the Table tab
                 current=tabName;
-                submitbutton=document.getElementsByClassName("data_type_submit");
-                for(i=0; i<submitbutton.length; i++){
-                    submitbutton[i].style.display="none";
+                
+                
+                form=document.getElementsByClassName("data_type_form");
+                for(i=0; i<form.length; i++){
+                    form[i].style.display="none";
                 }
-                document.getElementById(current+"_submit").style.display = "block";
+                document.getElementById(current+"_form").style.display = "block";
+                setCookie("id",current,1);  
+            }
+            
+            function setCookie(cname, cvalue, exdays) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                var expires = "expires="+ d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+            
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i <ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
             }
             
             /**

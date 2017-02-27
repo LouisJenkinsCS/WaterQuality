@@ -244,7 +244,7 @@ button:hover,input[type = "submit"]:hover {
     text-align:center;
 }
 
-#data_type_form{
+.data_type_form{
     font-family: "Ariel", Helvetica, san-serif;
     font-weight:bold;
     font-stretch: ultra-expanded;
