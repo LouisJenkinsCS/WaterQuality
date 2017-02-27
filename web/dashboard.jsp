@@ -74,8 +74,6 @@
                         End Date:
                         <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
-                           id="select_all_data" value="select_all_data">Select all</div><br>
                     ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph"></div>
@@ -145,6 +143,7 @@
             setDate(start, "startdate");
             setDate(end, "enddate2");
             setDate(start, "startdate2");
+            
             /**
              * Makes it so the date input fields can not be chosen for furture
              * dates. Also sets makes sure the <code>enddate</code> can not be a
@@ -470,7 +469,5 @@
                 } else
                     checkedBoxes--;
             }
-            
-            
         </script>
     </body>
