@@ -1,7 +1,9 @@
 package servlets;
 
 import async.Data;
+import async.DataParameter;
 import async.DataReceiver;
+import async.DataValue;
 import io.reactivex.Observable;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -37,22 +39,26 @@ public class ControlServlet extends HttpServlet {
     private void defaultHandler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         StringBuilder data = new StringBuilder();
         
-        Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), "Temperature ()", "Temperature (C)");
+        long defaultId = DataReceiver.getParameters().blockingFirst().getId();
+        Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), defaultId);
         DataReceiver
                 .getParameters()
-                .sorted()
-                //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
-                //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
-                .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str + "\" value=\"data\">" + str + "<br>\n")
+                // Display based on lexicographical ordering
+                .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                // Generate a checkbox for each parameter.
+                .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                 .blockingSubscribe(data::append);
 
-        String defaultChart = "<script>var ctx = document.getElementById('myChart').getContext('2d');\n"
-                + "var myChart = new Chart(ctx, {\n"
-                + "  type: 'line',\n"
-                + "  data: {\n"
-                + "    labels: [],\n"
-                + "    datasets: [],\n"
-                + "}});</script>";
+        StringBuilder categories = new StringBuilder("categories: [");
+        source.getData()
+                .map(DataValue::getTimestamp)
+                .distinct()
+                .sorted()
+                .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                .blockingSubscribe(categories::append);
+        categories.append("]");
+        
+        
         String defaultDescription = "<center><h1>None Selected</h1></center>";
         String defaultTable = "<table border='1'>\n"
                 + "	<tr>\n"
@@ -63,7 +69,8 @@ public class ControlServlet extends HttpServlet {
 
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-        request.setAttribute("ChartJS", DataReceiver.generateChartJS(source));
+        request.setAttribute("HighChartJS_Categories", categories);
+        request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(source));
         request.setAttribute("Table", DataReceiver.generateTable(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
@@ -111,13 +118,14 @@ public class ControlServlet extends HttpServlet {
             }
             end += "Z";
             
-            String[] selected = request
+            Long[] selected = request
                     .getParameterMap()
                     .keySet()
                     .stream()
                     .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
+                    .map(Long::parseLong)
                     .collect(Collectors.toList())
-                    .toArray(new String[0]);
+                    .toArray(new Long[0]);
 
             // Nothing selected...
             if (selected == null || selected.length == 0) {
@@ -132,18 +140,95 @@ public class ControlServlet extends HttpServlet {
             String descriptions = DataReceiver.generateDescriptions(data);
             String chartjs = DataReceiver.generateChartJS(data);
             String table = DataReceiver.generateTable(data);
+            StringBuilder categories = new StringBuilder("categories: [");
+            data.getData()
+                    .map(DataValue::getTimestamp)
+                    .distinct()
+                    .sorted()
+                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                    .blockingSubscribe(categories::append);
+            categories.append("]");
             
             StringBuilder paramData = new StringBuilder();
             DataReceiver
-                    .getParameters()
-                    .sorted()
-                    //I changed the onclick function to handleClick(this) to pass the checkbox element to the function,
-                    //and replaced the id with the name given in the JSON object (at least, I think I did. I tried to. lol)
-                    .map(str -> "<input type=\"checkbox\" name=\"" + str + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + str + "\" value=\"data\">" + str + "<br>\n")
-                    .blockingSubscribe(paramData::append);
+                 .getParameters()
+                 // Display based on lexicographical ordering
+                 .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                 // Generate a checkbox for each parameter.
+                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
+                 .blockingSubscribe(paramData::append);
 
             request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
-            request.setAttribute("ChartJS", DataReceiver.generateChartJS(data));
+            request.setAttribute("HighChartJS_Categories", categories);
+            request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
+            //request.setAttribute("Table", DataReceiver.generateTable(data));
+            request.setAttribute("Parameters", paramData.toString());
+
+            request.getServletContext()
+                    .getRequestDispatcher("/dashboard.jsp")
+                    .forward(request, response);
+            log("Got Action: " + action);
+            return;
+        }
+        if (action.trim().equalsIgnoreCase("Table")) {
+            String start = request.getParameterValues("startdate")[0];
+            String end = request.getParameterValues("enddate")[0];
+            log("Start: " + start);
+            log("End: " + start);
+            
+            if(!start.endsWith(":00")) {
+                start += ":00";
+            }
+            start += "Z";
+            
+            if (!end.endsWith(":00")) {
+                end += ":00";
+            }
+            end += "Z";
+            
+            Long[] selected = request
+                    .getParameterMap()
+                    .keySet()
+                    .stream()
+                    .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList())
+                    .toArray(new Long[0]);
+
+            // Nothing selected...
+            if (selected == null || selected.length == 0) {
+                defaultHandler(request, response);
+                return;
+            }
+
+            log("User Selected: " + Arrays.deepToString(selected));
+            
+            // Obtain the data for what is selected
+            Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
+            String descriptions = DataReceiver.generateDescriptions(data);
+            String chartjs = DataReceiver.generateChartJS(data);
+            String table = DataReceiver.generateTable(data);
+            StringBuilder categories = new StringBuilder("categories: [");
+            data.getData()
+                    .map(DataValue::getTimestamp)
+                    .distinct()
+                    .sorted()
+                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                    .blockingSubscribe(categories::append);
+            categories.append("]");
+            
+            StringBuilder paramData = new StringBuilder();
+            DataReceiver
+                 .getParameters()
+                 // Display based on lexicographical ordering
+                 .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                 // Generate a checkbox for each parameter.
+                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
+                 .blockingSubscribe(paramData::append);
+
+            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
+            //request.setAttribute("HighChartJS_Categories", categories);
+            //request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
             request.setAttribute("Table", DataReceiver.generateTable(data));
             request.setAttribute("Parameters", paramData.toString());
 
