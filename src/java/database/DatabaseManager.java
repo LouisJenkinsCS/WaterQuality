@@ -29,7 +29,13 @@ public class DatabaseManager
     
     /*
         Creates the data value table
-        *Tested*
+        entryID is the unique id number of the data value
+        dataName is the name of the data type (e.g. Temperature)
+        units is the units associated with the data value
+        sensor is the name of the sensor that recorded the data value
+        timeRecorded is a the time the data was recorded
+        dataValue is the value of the of data recorded
+        delta is the difference between this data value and the last
     */
     public void createDataValueTable()    
     {
@@ -65,7 +71,8 @@ public class DatabaseManager
     
     /*
         Creates the data description table
-        *Tested*
+        dataName is the data type of the data value (e.g. Temperature)
+        description is the description of this data type
     */
     public void createDataDescriptionTable()    
     {
@@ -96,7 +103,11 @@ public class DatabaseManager
     
     /*
         Creates the user table
-        *Tested*
+        userNumber is the unique id number for the user
+        password is encrypted with SHA256
+        locked is whether this user is locked or not
+        AttemptedLoginCount is the number of recent failed logins
+        The rest are self explanitory
     */
     public void createUserTable()
     {
@@ -138,10 +149,17 @@ public class DatabaseManager
     
     /*
         Allows an admin to insert data into the data values table
-        *Tested*
+        @param name the name of the data type
+        @param units the units of this data type
+        @param time the time this piece of data was retrieved
+        @param value the value of this piece of data
+        @param delta the difference between this data value and the last
+        @param u the user who entered this data value
+        @return whether this function was successful or not
     */
-    public void manualInput(String name, String units, LocalDateTime time, float value, float delta, User u)
+    public boolean manualInput(String name, String units, LocalDateTime time, float value, float delta, User u)
     {
+        boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
@@ -161,9 +179,11 @@ public class DatabaseManager
             p.setFloat(6, delta);
             p.executeUpdate();
             conn.commit();
+            status = true;
         }
         catch (Exception ex)//SQLException ex 
         {
+            status = false;
             System.out.println("Error processing request: Manual Data Insertion\n" + ex);
             if(conn!=null)
             {
@@ -192,18 +212,23 @@ public class DatabaseManager
                 System.out.println("Error closing statement or connection");
             }
         }
+        return status;
     }
     
     /*
         Allows an admin to delete data from the data values table
-        *Tested*
+        @param entryID the id of the data to be deleted
+        @param u the user doing the deletion
+        @return whether this function was successful or not
     */
-    public void manualDeletion(int entryID, User u)
+    public boolean manualDeletion(int entryID, User u)
     {
+        boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
+            //throws an error if a user without proper roles somehow invokes this function
             if(u.getUserRole() != common.UserRole.SystemAdmin)
                 throw new Exception("Attempted Data Deletion by Non-Admin");
             conn.setAutoCommit(false);
@@ -213,9 +238,11 @@ public class DatabaseManager
             p.setInt(1, entryID);
             p.executeUpdate();
             conn.commit();
+            status = true;
         }
         catch (Exception ex)//SQLException ex 
         {
+            status = false;
             System.out.println("Error processing request: Manual Data Deletion\n" + ex);
             if(conn!=null)
             {
@@ -244,20 +271,23 @@ public class DatabaseManager
                 System.out.println("Error closing statement or connection");
             }
         }
+        return status;
     }
     
     /*
+        Deletes user with parameter user number
         @param userID the user number of the user being deleted
         @param u the user who is doing the deletion
-        Deletes user with parameter user number
-        *Tested*
+        @return whether this function was successful or not
     */
-    public void deleteUser(int userID, User u)
+    public boolean deleteUser(int userID, User u)
     {
+        boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
+            //throws an error if a user without proper roles somehow invokes this function
             if(u.getUserRole() != common.UserRole.SystemAdmin)
                 throw new Exception("Attempted User Deletion by Non-Admin");
             if(userID == u.getUserNumber())
@@ -269,9 +299,11 @@ public class DatabaseManager
             p.setInt(1, userID);
             p.executeUpdate();
             conn.commit();
+            status = true;
         }
         catch (Exception ex)//SQLException ex 
         {
+            status = false;
             System.out.println("Error processing request: Manual User Deletion\n" + ex);
             if(conn!=null)
             {
@@ -300,8 +332,15 @@ public class DatabaseManager
                 System.out.println("Error closing statement or connection");
             }
         }
+        return status;
     }
     
+    /*
+        Returns a list of data within a certain time range
+        @param name the name of the data type for which data is being requested
+        @param lower the lower range of the time
+        @param upper the upper range of the time
+    */
     public ArrayList<DataValue> getGraphData(String name, LocalDateTime lower, LocalDateTime upper)
     {
         ArrayList<DataValue> graphData = new ArrayList<>();
@@ -355,7 +394,11 @@ public class DatabaseManager
         return graphData;
     }
     
-    
+    /*
+        Unused/unnecessary
+        Was meant for data to be directly inputed from the sensors but instead
+        we decided to just funnel all the data from netronix through JSONs
+    */
     public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value, float delta)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -410,15 +453,22 @@ public class DatabaseManager
     
     /*
         Adds a new user to the user table
-        *Tested*
+        Encrypts the password via SHA256 encryption with salt before storing
+        Last login and attempted login are initiallized to now
+        @return whether this function was successful or not
     */
-    public void addNewUser(String username, String password, String firstName,
-            String lastName, String email, UserRole userRole)
+    public boolean addNewUser(String username, String password, String firstName,
+            String lastName, String email, UserRole userRole, User u)
     {
+        boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
+            //throws an error if a user without proper roles somehow invokes this function
+            if(u.getUserRole() != common.UserRole.SystemAdmin)
+                throw new Exception("Attempted Data Deletion by Non-Admin");
+            
             conn.setAutoCommit(false);
             String insertSQL = "INSERT INTO users (loginName,password,firstName,lastName,"
                     + "emailAddress,userRole,lastLoginTime,loginCount,salt,"
@@ -442,9 +492,11 @@ public class DatabaseManager
             p.setInt(12, 0);//login attempted count
             p.executeUpdate();
             conn.commit();
+            status = true;
         }
         catch (Exception ex)//SQLException ex 
         {
+            status = false;
             System.out.println("Error processing request: Add new user\n" + ex);
             if(conn!=null)
             {
@@ -473,18 +525,26 @@ public class DatabaseManager
                 System.out.println("Error closing statement or connection");
             }
         }
+        return status;
     }
     
     /*
         locks the user with the parameter userID
-        *Tested*
+        @param userID the ID of the user being locked
+        @param u the user doing the locking
+        @return whether this function was successful or not
     */
-    public void lockUser(int userID)
+    public boolean lockUser(int userID, User u)
     {
+        boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
+            //throws an error if a user without proper roles somehow invokes this function
+            if(u.getUserRole() != common.UserRole.SystemAdmin)
+                throw new Exception("Attempted Data Deletion by Non-Admin");
+            
             conn.setAutoCommit(false);
             String modifySQL = "UPDATE users "
                     + "SET locked = 1 "
@@ -495,9 +555,11 @@ public class DatabaseManager
             p.setInt(1, userID);
             p.executeUpdate();
             conn.commit();
+            status = true;
         }
         catch (Exception ex)//SQLException ex 
         {
+            status = false;
             System.out.println("Error processing request: Lock User #" + userID);
             if(conn!=null)
             {
@@ -526,17 +588,26 @@ public class DatabaseManager
                 System.out.println("Error closing statement or connection");
             }
         }
+        return status;
     }
     
     /*
         Unlocks the user with the parameter userID
+        @param userID the ID of the user being unlocked
+        @param u the user doing the unlocking
+        @return whether this function was successful or not
     */
-    public void unlockUser(int userID)
+    public boolean unlockUser(int userID, User u)
     {
+        boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
         {
+            //throws an error if a user without proper roles somehow invokes this function
+            if(u.getUserRole() != common.UserRole.SystemAdmin)
+                throw new Exception("Attempted Data Deletion by Non-Admin");
+            
             conn.setAutoCommit(false);
             String modifySQL = "UPDATE users "
                     + "SET locked = 0 "
@@ -547,9 +618,11 @@ public class DatabaseManager
             p.setInt(1, userID);
             p.executeUpdate();
             conn.commit();
+            status = true;
         }
         catch (Exception ex)//SQLException ex 
         {
+            status = false;
             System.out.println("Error processing request: Lock User #" + userID);
             if(conn!=null)
             {
@@ -578,8 +651,16 @@ public class DatabaseManager
                 System.out.println("Error closing statement or connection");
             }
         }
+        return status;
     }
     
+    /*
+        Inserts a JSONObject into the data table
+        Made primarily for pulling data from netronix and inputing it into our
+        own tables
+    
+        @param j a json object containing data for the data value table
+    */
     public void insertJSON(JSONObject j)
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -636,7 +717,7 @@ public class DatabaseManager
     
     /*
         Gets the user with the parameter login name
-        *Tested*
+        @return the user with this login name (null if none was found)
     */
     public User getUserByLoginName(String username) 
     {
@@ -689,7 +770,7 @@ public class DatabaseManager
 
     /*
         Returns the user info if the username and password are correct
-        *Tested*
+        @return a user with these specs, or null if either are wrong
     */
     public User validateUser(String username, String password) 
     {
@@ -745,7 +826,6 @@ public class DatabaseManager
     /*
         Updates the user's loginCount, attemptedLoginCount, lastLoginTime
         and lastAttemptedLoginTime
-        *Tested*
     */
     public void updateUserLogin(User potentialUser) 
     {
@@ -799,10 +879,11 @@ public class DatabaseManager
     
     /*
         Updates the description with dataName 'name' using the description 'desc'
-        *Tested*
+        @return whether this operation was sucessful or not
     */
-    public void updateDescription(String desc, String name)
+    public boolean updateDescription(String desc, String name)
     {
+        boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement p = null;
         try
@@ -816,9 +897,11 @@ public class DatabaseManager
             p.setString(2, name);
             p.executeUpdate();
             conn.commit();
+            status = true;
         }
         catch(Exception e)
         {
+            status = false;
             System.out.println("Error updating description for " + name);
             if(conn != null)
                 try
@@ -843,11 +926,12 @@ public class DatabaseManager
                 System.out.println("Error closing statement or connection");
             }
         }
+        return status;
     }
     
     /*
         Retrieves the description for the parameter data name
-        *Tested*
+        @param name the name of the data type being requested
     */
     public String getDescription(String name)
     {
@@ -889,7 +973,8 @@ public class DatabaseManager
     
     /*
         Inserts a description into the DataDescriptions table
-        *Tested*
+        @param name the name of the data type that is getting a description
+        @param the description (limit 500 characters)
     */
     public void insertDescription(String name, String desc)
     {
@@ -925,7 +1010,6 @@ public class DatabaseManager
 
     /*
         Retrieves the salt of the user with the parameter login name
-        *Tested*
     */
     public String getSaltByLoginName(String loginName) 
     {
