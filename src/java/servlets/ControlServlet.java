@@ -161,7 +161,7 @@ public class ControlServlet extends HttpServlet {
             request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
             request.setAttribute("HighChartJS_Categories", categories);
             request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
-            //request.setAttribute("Table", DataReceiver.generateTable(data));
+            request.setAttribute("Table", DataReceiver.generateTable(data));
             request.setAttribute("Parameters", paramData.toString());
 
             request.getServletContext()

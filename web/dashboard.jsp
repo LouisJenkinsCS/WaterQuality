@@ -164,10 +164,7 @@
                 var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
                 document.getElementById("enddate").setAttribute("max",dateStr);
                 document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
-                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
-                
-                
-                
+                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value); 
             }
             </script>
 <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
@@ -369,7 +366,6 @@
                 //for the Graph tab and not the Table tab
                 current=tabName;
                 
-                
                 form=document.getElementsByClassName("data_type_form");
                 for(i=0; i<form.length; i++){
                     form[i].style.display="none";
@@ -378,11 +374,11 @@
                 setCookie("id",current,1);  
             }
             
-            function setCookie(cname, cvalue, exdays) {
+            function setCookie(name, value, exdays) {
                 var d = new Date();
                 d.setTime(d.getTime() + (exdays*24*60*60*1000));
                 var expires = "expires="+ d.toUTCString();
-                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
             }
             
             function getCookie(cname) {
