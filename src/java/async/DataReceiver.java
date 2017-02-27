@@ -323,6 +323,15 @@ public class DataReceiver {
                 });                
     }
     
+    public static String getParameterName(long id) {
+        DataParameter param = PARAMETER_MAP.get(id);
+        if (param == null) {
+            return null;
+        }
+        
+        return param.getName();
+    }
+    
     /**
      * Generates an HTML Table for the underlying data source. The HTML table is generated
      * with a column for it's timestamp and one for each of the unique parameters.

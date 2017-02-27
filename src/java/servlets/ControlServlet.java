@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
 import org.javatuples.Triplet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import protocol.JSONProtocol;
 import utilities.TimeStampFormatter;
 
 /**
@@ -50,7 +51,17 @@ public class ControlServlet extends HttpServlet {
                 // Generate a checkbox for each parameter.
                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                 .blockingSubscribe(data::append);
-
+        
+        JSONProtocol proto = new JSONProtocol();
+        JSONObject obj = new JSONObject();
+        obj.put("startTime", Instant.now().minus(Period.ofWeeks(4)).toEpochMilli());
+        obj.put("endTime", Instant.now().toEpochMilli());
+        JSONArray arr = new JSONArray();
+        arr.add(defaultId);
+        obj.put("params", arr);
+        JSONObject resp = proto.process(obj).blockingFirst();
+        System.out.println("JSONProtocol: " + resp.toJSONString());
+        
         StringBuilder categories = new StringBuilder("categories: [");
         source.getData()
                 .map(DataValue::getTimestamp)
@@ -68,6 +79,8 @@ public class ControlServlet extends HttpServlet {
                 + "               <th>(NULL)</th>\n"
                 + "	</tr>\n"
                 + "</table>";
+        
+        request.setAttribute("ChartData", resp);
 
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));

@@ -15,6 +15,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="scripts/chart_helpers.js"></script>
+        <script src="scripts/protocol.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
             <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -224,6 +226,16 @@
             }
         </script>
         <script>
+        // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
+        var data = new DataResponse(${ChartData});
+        var timeStamps = getTimeStamps(data);
+        var timeStampStr = [];
+        
+        // Convert timestamps to string; HighCharts already defines a nice formatting one.
+        for (i = 0; i < timeStamps.length; i++) {
+            timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
+        }
+        
         // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
         Highcharts.theme = {
             chart: {
@@ -305,7 +317,7 @@
                     x: -20
                 },
                 xAxis: {
-                    ${HighChartJS_Categories}
+                    categories: timeStampStr
                 },
                 yAxis: [{
                     title: {
