@@ -335,6 +335,7 @@
                 series: [${HighChartJS_Series}]
             });
          
+         // Limit the X-Axis to display only 5 at a time. Easier to read.
          chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
          </script>
          

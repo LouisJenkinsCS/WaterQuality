@@ -282,6 +282,47 @@ public class DataReceiver {
         return series.toString();
     }
     
+    public static Observable<JSONObject> processQuery(Data source) {
+        return source.getData()
+                .groupBy(DataValue::getId)
+                .flatMap((GroupedObservable<Long, DataValue> group) -> {
+                    JSONObject obj = new JSONObject();
+                    // The key is the actual 'id' for the parameter.
+                    obj.put("param", group.getKey());
+                    obj.put("name", PARAMETER_MAP.get(group.getKey()));
+                    
+                    // Create a JSONArray filled with the DataValues
+                    return group.sorted()
+                            .map((DataValue dv) -> {
+                                JSONObject dataField = new JSONObject();
+                                dataField.put("timestamp", dv.getTimestamp().getEpochSecond() * 1000);
+                                dataField.put("value", dv.value);
+                                return dataField;
+                            })
+                            .buffer(Integer.MAX_VALUE)
+                            .map((List<JSONObject> list) -> {
+                                JSONArray arr = new JSONArray();
+                                arr.addAll(list);
+                                return arr;
+                            })
+                            .map((JSONArray arr) -> {
+                                obj.put("data", arr);
+                                return obj;
+                            });
+                })
+                .buffer(Integer.MAX_VALUE)
+                .map((List<JSONObject> list) -> {
+                    JSONArray arr = new JSONArray();
+                    arr.addAll(list);
+                    return arr;
+                })
+                .map((JSONArray arr) -> {
+                    JSONObject response = new JSONObject();
+                    response.put("resp", arr);
+                    return response;
+                });                
+    }
+    
     /**
      * Generates an HTML Table for the underlying data source. The HTML table is generated
      * with a column for it's timestamp and one for each of the unique parameters.
