@@ -158,7 +158,11 @@ public class DatabaseManager
         @param u the user who entered this data value
         @return whether this function was successful or not
     */
+<<<<<<< HEAD
     public boolean manualInput(String name, String units, LocalDateTime time, float value, float delta, int id, User u)
+=======
+    public boolean manualInput(String name, String units, LocalDateTime time, float value, float delta, User u)
+>>>>>>> origin/tyler-development
     {
         boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -409,7 +413,11 @@ public class DatabaseManager
         Was meant for data to be directly inputed from the sensors but instead
         we decided to just funnel all the data from netronix through JSONs
     */
+<<<<<<< HEAD
     public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value, float delta, int id)
+=======
+    public void sensorDataInput(String name, String units, String sensor, LocalDateTime time, float value, float delta)
+>>>>>>> origin/tyler-development
     {
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement sensorDataInput = null;
