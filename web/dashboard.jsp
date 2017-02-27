@@ -41,8 +41,13 @@
                            id="TableTab">Table</a></li>
                            <li><form><input id="exportbutton" type="submit" value="Export"></form></li>
                 </ul>
+<<<<<<< HEAD
                 
                     <div id="Graph" class="tabcontent"></div>
+=======
+                    <div id="Graph" width=25% height=20% class="tabcontent">
+                    </div>
+>>>>>>> refs/remotes/origin/Group-Development
                     <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
                     ${Table}
                     </div>
@@ -225,7 +230,7 @@
                }
             },
             tooltip: {
-               borderWidth: 5,
+               borderWidth: 0,
                backgroundColor: 'rgba(219,219,216,0.8)',
                shadow: false
             },
@@ -303,9 +308,14 @@
                 legend: {
                     layout: 'vertical',
                     align: 'right',
+<<<<<<< HEAD
                     verticalAlign: 'top',
                     borderWidth: 0,
                     floating:true
+=======
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+>>>>>>> refs/remotes/origin/Group-Development
                 },
                 series: [${HighChartJS_Series}]
             });
