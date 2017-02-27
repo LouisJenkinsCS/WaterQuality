@@ -143,6 +143,7 @@
             setDate(start, "startdate");
             setDate(end, "enddate2");
             setDate(start, "startdate2");
+            
             /**
              * Makes it so the date input fields can not be chosen for furture
              * dates. Also sets makes sure the <code>enddate</code> can not be a
@@ -334,7 +335,6 @@
             else
                 document.getElementById("GraphTab").click();
             
-
             var current;
             /**
              * The <code>openTab</code> function activates a certain event
@@ -379,7 +379,6 @@
                 d.setTime(d.getTime() + (exdays*24*60*60*1000));
                 var expires = "expires="+ d.toUTCString();
                 document.cookie = name + "=" + value + ";" + expires + ";path=/";
-            }
             
             function getCookie(cname) {
                 var name = cname + "=";
