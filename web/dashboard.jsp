@@ -39,16 +39,15 @@
                            id="GraphTab">Graph</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();"
                            id="TableTab">Table</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Export'); hide();"
-                       id="ExportTab">Export</a></li>
+                           <li>
+                               <form><input id="exportbutton" type="submit" value="Export" onclick="exportData('exportbutton')"></form>
+                           </li>
                 </ul>
-                    <div id="Graph" width=25% height=20% class="tabcontent">
-                    </div>
+                    <div id="Graph" class="tabcontent"></div>
                     <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
                     ${Table}
                     </div>
                     <div id="Export" class="tabcontent">
-                        <img id="Excel" src="images/excel.png" onclick="exportData('Excel')">
                     </div>
             </section>
             
@@ -62,34 +61,43 @@
                     the desired data to be outputed into either a table or
                     a graph
                 --%>
-                <form id="data_type_form" action="ControlServlet" method = "POST">
+                <form class="data_type_form" id="Graph_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
-
                     </br>
-                    <div id="dateselectordiv">
+                    <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="2016-01-01" max="">
+                        <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="" max="">
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="2016-01-01" max="">
+                        <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div class="" id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
+                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                            id="select_all_data" value="select_all_data">Select all</div><br>
                     ${Parameters}
-                    <div class="data_type_submit"><input type="submit" name="Get Data" value="Get Data" /></div>
-                    <input type="hidden" name="control" value ="getData">
                     <br>
-                    
-                    <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph" onclick="graphSubmit()"></div>
-                    <div class="data_type_submit" id="Table_submit"><input type="submit" value="Table"></div>
+                    <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph"></div>
+                    <input type="hidden" name="control" value ="getData">
                     
                 </form>
-                    
-                    <form id="submit_query" action="ControlServlet" value="Submit Query">
-                        <input type="hidden" name="control" value="submitQuery">
-                         <div class="data_type_submit" id="Graph_submit" onclick="graphSubmit()"><input type="submit" ></div>
-                        <div class="data_type_submit" id="Table_submit" ><input type="submit" ></div>
-                    </form>
+                    <form class="data_type_form" id="Table_form" action="ControlServlet" method = "POST">
+                    <!--Allows the user to select a range of dates for data viewing-->
+                    </br>
+                    <div id="dateselectordiv" onclick="dateLimits();">
+                        Start Date:
+                        <input class="dateselector" id="startdate2" name="startdate"type="datetime-local" min="" max="">
+                        </BR>to</BR>
+                        End Date:
+                        <input class="dateselector" id="enddate2" name="enddate" type="datetime-local" min="" max="">
+                    </div>
+                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
+                           id="select_all_data" value="select_all_data">Select all</div><br>
+                    ${Parameters}
+                    <br>
+                    <div class="data_type_submit" id="Table_submit">
+                        <input type="submit" value="Table" onclick="">
+                    </div>
+                    <input type="hidden" name="control" value ="Table">   
+                </form>
             </aside><br>
             
             <!--The data description box is defined here. Sample text is shown-->
@@ -133,6 +141,35 @@
             start.setMonth(start.getMonth() - 1);
             setDate(end, "enddate");
             setDate(start, "startdate");
+            setDate(end, "enddate2");
+            setDate(start, "startdate2");
+            
+            /**
+             * Makes it so the date input fields can not be chosen for furture
+             * dates. Also sets makes sure the <code>enddate</code> can not be a
+             * date that is earlier than <code>startdate</code>
+             */
+            function dateLimits(){
+                /*var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth()+1; //January is 0!
+                var yyyy = today.getFullYear();
+                if(dd<10){
+                    dd='0'+dd;
+                } 
+                if(mm<10){
+                    mm='0'+mm;
+                } 
+                today = yyyy+'-'+mm+'-'+dd; */
+                var date=end;
+                var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+                document.getElementById("enddate").setAttribute("max",dateStr);
+                document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
+                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
+                
+                
+                
+            }
             </script>
 <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
                    
@@ -189,13 +226,14 @@
         <script>
         // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
         Highcharts.theme = {
-            colors: ['#7cb5ec', '#f7a35c', '#90ee7e', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee',
-               '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
             chart: {
-               backgroundColor: null,
-               style: {
-                  fontFamily: 'Dosis, sans-serif'
-               }
+                zoomType:'x',
+                backgroundColor:'white',
+                plotBackgroundColor: 'white',
+                width:null,
+                style: {
+                    fontFamily: 'Ariel, Helvetica, san-serif'
+                }
             },
             title: {
                style: {
@@ -210,10 +248,10 @@
                shadow: false
             },
             legend: {
-               itemStyle: {
-                  fontWeight: 'bold',
-                  fontSize: '13px'
-               }
+                itemStyle: {
+                    fontWeight: 'bold',
+                    fontSize: '13px'
+                }
             },
             xAxis: {
                gridLineWidth: 1,
@@ -243,7 +281,7 @@
             },
 
             // General
-            background2: '#F0F0EA'
+            background2: '#FFF2D7'
          };
 
          // Apply the theme
@@ -262,7 +300,7 @@
                 xAxis: {
                     ${HighChartJS_Categories}
                 },
-                yAxis: {
+                yAxis: [{
                     title: {
                         text: 'Values'
                     },
@@ -271,15 +309,21 @@
                         width: 1,
                         color: '#808080'
                     }]
-                },
+                },{ // Secondary yAxis
+                    title: {
+                    text: 'Values',
+                    },
+                    opposite:true
+                }],
                 tooltip: {
                     valueSuffix: ''
                 },
                 legend: {
                     layout: 'vertical',
                     align: 'right',
-                    verticalAlign: 'middle',
-                    borderWidth: 0
+                    verticalAlign: 'top',
+                    borderWidth: 0,
+                    floating:true
                 },
                 series: [${HighChartJS_Series}]
             });
@@ -287,8 +331,12 @@
          </script>
          
         <script type="text/javascript">
-            document.getElementById("GraphTab").click();
-            document.getElementById("dateselectordiv").click();
+            //document.getElementById("GraphTab").click();
+            if(getCookie("id")=="Table")
+                document.getElementById("TableTab").click();
+            else
+                document.getElementById("GraphTab").click();
+            
             var current;
             /**
              * The <code>openTab</code> function activates a certain event
@@ -297,7 +345,7 @@
              * @param {type} tabName the tab that the user is switching to
              */
             function openTab(evt, tabName) {
-                var i, tabcontent, tablinks,submitbutton;
+                var i, tabcontent, tablinks,submitbutton,form;
                 tabcontent = document.getElementsByClassName("tabcontent");
                 
                 
@@ -319,11 +367,37 @@
                 //This is done because we need to limit the number of boxes checked
                 //for the Graph tab and not the Table tab
                 current=tabName;
-                submitbutton=document.getElementsByClassName("data_type_submit");
-                for(i=0; i<submitbutton.length; i++){
-                    submitbutton[i].style.display="none";
+                
+                
+                form=document.getElementsByClassName("data_type_form");
+                for(i=0; i<form.length; i++){
+                    form[i].style.display="none";
                 }
-                document.getElementById(current+"_submit").style.display = "block";
+                document.getElementById(current+"_form").style.display = "block";
+                setCookie("id",current,1);  
+            }
+            
+            function setCookie(cname, cvalue, exdays) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                var expires = "expires="+ d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+            
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i <ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
             }
             
             /**
@@ -373,36 +447,7 @@
                     checkedBoxes--;
             }
             
-            /**
-             * Makes it so the date input fields can not be chosen for furture
-             * dates. Also sets makes sure the <code>enddate</code> can not be a
-             * date that is earlier than <code>startdate</code>
-             */
-            function dateLimits(){
-                var today = new Date();
-                var dd = today.getDate();
-                var mm = today.getMonth()+1; //January is 0!
-                var yyyy = today.getFullYear();
-                if(dd<10){
-                    dd='0'+dd;
-                } 
-                if(mm<10){
-                    mm='0'+mm;
-                } 
-                today = yyyy+'-'+mm+'-'+dd;
-                if(document.getElementById("enddate").value==""
-                        &&document.getElementById("startdate").value==""){
-                    document.getElementById("startdate").value=today;
-                    document.getElementById("enddate").value=today;
-                }
-                
-                document.getElementById("enddate").setAttribute("max",today);
-                document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
-                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value);
-                
-                
-                
-            }
+            
         </script>
     </body>
 </html>
