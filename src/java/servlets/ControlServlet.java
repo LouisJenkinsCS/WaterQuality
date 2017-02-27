@@ -193,7 +193,7 @@ public class ControlServlet extends HttpServlet {
             // Obtain the data for what is selected
             Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
             String descriptions = DataReceiver.generateDescriptions(data);
-            String chartjs = DataReceiver.generateChartJS(data);
+//            String chartjs = DataReceiver.generateChartJS(data);
             String table = DataReceiver.generateTable(data);
             StringBuilder categories = new StringBuilder("categories: [");
             data.getData()
