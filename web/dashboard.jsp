@@ -237,7 +237,6 @@
         }
         
         var values = getDataValues(data);
-        
         // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
         Highcharts.theme = {
             chart: {

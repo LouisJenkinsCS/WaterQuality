@@ -338,6 +338,29 @@ public class DataReceiver {
         return param.getName();
     }
     
+    public static String generateSeries(Data source) {
+        StringBuilder series = new StringBuilder();
+        // Add all data to the dataset for each element
+        source.getData()
+                .groupBy(DataValue::getId)
+                .sorted((GroupedObservable<Long, DataValue> group1, GroupedObservable<Long, DataValue> group2) -> 
+                        group1.getKey().compareTo(group2.getKey())
+                )
+                .flatMap((GroupedObservable<Long, DataValue> group) -> {
+                    return group
+                            .buffer(Integer.MAX_VALUE)
+                            .map((List<DataValue> data) -> "{\n" +
+                                    "      name: '" + PARAMETER_MAP.get(group.getKey()).getName() + "',\n" +
+                                    "      data: [" + data.stream().map(DataValue::getValue).map(Object::toString).collect(Collectors.joining(",")) + "],\n" +
+                                    "},"
+                            );
+                })
+                .blockingSubscribe(series::append);
+        series.delete(series.length()-1, series.length());
+        
+        return series.toString();
+    }
+    
     /**
      * Generates an HTML Table for the underlying data source. The HTML table is generated
      * with a column for it's timestamp and one for each of the unique parameters.

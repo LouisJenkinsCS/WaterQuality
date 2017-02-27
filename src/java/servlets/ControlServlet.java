@@ -55,8 +55,7 @@ public class ControlServlet extends HttpServlet {
         JSONProtocol proto = new JSONProtocol();
         JSONObject resp = proto.processUsing(source).blockingFirst();
         System.out.println("JSONProtocol: " + resp.toJSONString());
-        
-        
+  
         String defaultDescription = "<center><h1>None Selected</h1></center>";
         String defaultTable = "<table border='1'>\n"
                 + "	<tr>\n"
