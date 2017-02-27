@@ -49,3 +49,19 @@ function getTimeStamps(resp) {
     
     return arr;
 }
+
+function getDataValues(resp) {
+    var arr = [];
+    
+    for (i = 0; i < resp.data.length; i++) {
+        var paramData = [];
+        var param = resp.data[i]["data"];
+        
+        for (j = 0; j < param.length; j++) {
+            paramData.push(param[j]["value"]);
+        }
+        arr.push(paramData);
+    }
+    
+    return arr;
+}

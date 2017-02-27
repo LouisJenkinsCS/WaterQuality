@@ -236,6 +236,8 @@
             timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
         }
         
+        var values = getDataValues(data);
+        
         // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
         Highcharts.theme = {
             chart: {
@@ -344,8 +346,15 @@
                     borderWidth: 0,
                     floating:true
                 },
-                series: [${HighChartJS_Series}]
+                series: []
             });
+         
+         for (var i = 0; i < data.data.length; i++) {
+            chart.addSeries({
+                 name: data.data[i]["name"],
+                 data: values[i]
+            }, false);
+         }
          
          // Limit the X-Axis to display only 5 at a time. Easier to read.
          chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});

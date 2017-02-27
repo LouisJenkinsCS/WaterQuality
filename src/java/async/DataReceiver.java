@@ -108,6 +108,9 @@ public class DataReceiver {
                 .filter((JSONObject obj) -> parameters
                         .stream()
                         .map(DataParameter::getName)
+                        // TODO: Fix Protocol so that it does not crash when no data is available. For now
+                        // removing Turbidity.
+                        .filter((String name) -> !name.equals("Turbidity"))
                         .anyMatch((name -> name.equals(obj.get("name"))))
                 )
                 .doOnNext(obj -> System.out.println("Parameter: " + obj.toJSONString()))
@@ -128,6 +131,9 @@ public class DataReceiver {
                     PARAMETER_MAP.put(param.getId(), param);
                     parameters.remove(param);
                 });
+        
+        
+        
     }
     
     /**

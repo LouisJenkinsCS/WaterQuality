@@ -53,23 +53,8 @@ public class ControlServlet extends HttpServlet {
                 .blockingSubscribe(data::append);
         
         JSONProtocol proto = new JSONProtocol();
-        JSONObject obj = new JSONObject();
-        obj.put("startTime", Instant.now().minus(Period.ofWeeks(4)).toEpochMilli());
-        obj.put("endTime", Instant.now().toEpochMilli());
-        JSONArray arr = new JSONArray();
-        arr.add(defaultId);
-        obj.put("params", arr);
-        JSONObject resp = proto.process(obj).blockingFirst();
+        JSONObject resp = proto.processUsing(source).blockingFirst();
         System.out.println("JSONProtocol: " + resp.toJSONString());
-        
-        StringBuilder categories = new StringBuilder("categories: [");
-        source.getData()
-                .map(DataValue::getTimestamp)
-                .distinct()
-                .sorted()
-                .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
-                .blockingSubscribe(categories::append);
-        categories.append("]");
         
         
         String defaultDescription = "<center><h1>None Selected</h1></center>";
@@ -81,11 +66,8 @@ public class ControlServlet extends HttpServlet {
                 + "</table>";
         
         request.setAttribute("ChartData", resp);
-
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-        request.setAttribute("HighChartJS_Categories", categories);
-        request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(source));
         request.setAttribute("Table", DataReceiver.generateTable(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
@@ -151,20 +133,10 @@ public class ControlServlet extends HttpServlet {
             log("User Selected: " + Arrays.deepToString(selected));
             
             // Obtain the data for what is selected
-            Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
-            String descriptions = DataReceiver.generateDescriptions(data);
-            String chartjs = DataReceiver.generateChartJS(data);
-            String table = DataReceiver.generateTable(data);
-            StringBuilder categories = new StringBuilder("categories: [");
-            data.getData()
-                    .map(DataValue::getTimestamp)
-                    .distinct()
-                    .sorted()
-                    .map((Instant ts) -> TimeStampFormatter.formatChart(ts))
-                    .buffer(Integer.MAX_VALUE)
-                    .map((List<String> list) -> list.stream().collect(Collectors.joining(",")))
-                    .blockingSubscribe(categories::append);
-            categories.append("]");
+            Data source = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
+            JSONProtocol proto = new JSONProtocol();
+            JSONObject resp = proto.processUsing(source).blockingFirst();
+            System.out.println("JSONProtocol: " + resp.toJSONString());
             
             StringBuilder paramData = new StringBuilder();
             DataReceiver
@@ -175,10 +147,9 @@ public class ControlServlet extends HttpServlet {
                  .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                  .blockingSubscribe(paramData::append);
 
-            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
-            request.setAttribute("HighChartJS_Categories", categories);
-            request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
-            request.setAttribute("Table", DataReceiver.generateTable(data));
+            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
+            request.setAttribute("ChartData", resp);
+            request.setAttribute("Table", DataReceiver.generateTable(source));
             request.setAttribute("Parameters", paramData.toString());
 
             request.getServletContext()

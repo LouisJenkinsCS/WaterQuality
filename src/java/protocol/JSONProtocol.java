@@ -58,6 +58,48 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
     }
 
     @Override
+    public Observable<JSONObject> processUsing(Data source) {
+        return source.getData()
+                .groupBy(DataValue::getId)
+                .flatMap((GroupedObservable<Long, DataValue> group) -> {
+                    JSONObject obj = new JSONObject();
+                    // The key is the actual 'id' for the parameter.
+                    obj.put("param", group.getKey());
+                    obj.put("name", DataReceiver.getParameterName(group.getKey()));
+
+                    // Create a JSONArray filled with the DataValues
+                    return group.sorted()
+                            .map((DataValue dv) -> {
+                                JSONObject dataField = new JSONObject();
+                                dataField.put("timestamp", dv.getTimestamp().getEpochSecond() * 1000);
+                                dataField.put("value", dv.getValue());
+                                return dataField;
+                            })
+                            .buffer(Integer.MAX_VALUE)
+                            .map((List<JSONObject> list) -> {
+                                JSONArray arr = new JSONArray();
+                                arr.addAll(list);
+                                return arr;
+                            })
+                            .map((JSONArray arr) -> {
+                                obj.put("data", arr);
+                                return obj;
+                            });
+                })
+                .buffer(Integer.MAX_VALUE)
+                .map((List<JSONObject> list) -> {
+                    JSONArray arr = new JSONArray();
+                    arr.addAll(list);
+                    return arr;
+                })
+                .map((JSONArray arr) -> {
+                    JSONObject response = new JSONObject();
+                    response.put("resp", arr);
+                    return response;
+                });
+    }
+
+    @Override
     public Observable<JSONObject> process(JSONObject request) { 
         return Observable.just(request)
                 .map((JSONObject queryData) -> {
@@ -69,46 +111,7 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                     System.out.println("startTime: " + startTime + ", endTime: " + endTime + ", ids: " + Arrays.deepToString(id));
                     return DataReceiver.getData(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(endTime), id);
                 })
-                .flatMap((Data source) -> {
-                    return source.getData()
-                            .groupBy(DataValue::getId)
-                            .flatMap((GroupedObservable<Long, DataValue> group) -> {
-                                JSONObject obj = new JSONObject();
-                                // The key is the actual 'id' for the parameter.
-                                obj.put("param", group.getKey());
-                                obj.put("name", DataReceiver.getParameterName(group.getKey()));
-
-                                // Create a JSONArray filled with the DataValues
-                                return group.sorted()
-                                        .map((DataValue dv) -> {
-                                            JSONObject dataField = new JSONObject();
-                                            dataField.put("timestamp", dv.getTimestamp().getEpochSecond() * 1000);
-                                            dataField.put("value", dv.getValue());
-                                            return dataField;
-                                        })
-                                        .buffer(Integer.MAX_VALUE)
-                                        .map((List<JSONObject> list) -> {
-                                            JSONArray arr = new JSONArray();
-                                            arr.addAll(list);
-                                            return arr;
-                                        })
-                                        .map((JSONArray arr) -> {
-                                            obj.put("data", arr);
-                                            return obj;
-                                        });
-                            })
-                            .buffer(Integer.MAX_VALUE)
-                            .map((List<JSONObject> list) -> {
-                                JSONArray arr = new JSONArray();
-                                arr.addAll(list);
-                                return arr;
-                            })
-                            .map((JSONArray arr) -> {
-                                JSONObject response = new JSONObject();
-                                response.put("resp", arr);
-                                return response;
-                            });
-                });
+                .flatMap(this::processUsing);
     }
     
     

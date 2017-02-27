@@ -30,8 +30,8 @@
  */
 package protocol;
 
+import async.Data;
 import io.reactivex.Observable;
-import java.util.Optional;
 
 /**
  *
@@ -39,4 +39,5 @@ import java.util.Optional;
  */
 public interface Protocol<T, R> {
     Observable<R> process(T t);
+    Observable<R> processUsing(Data source);
 }
