@@ -72,8 +72,6 @@
                         End Date:
                         <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
-                           id="select_all_data" value="select_all_data">Select all</div><br>
                     ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph"></div>
@@ -371,7 +369,7 @@
                     form[i].style.display="none";
                 }
                 document.getElementById(current+"_form").style.display = "block";
-                setCookie("id",current,1);  
+                setCookie("id",current,1);
             }
             
             function setCookie(name, value, exdays) {
