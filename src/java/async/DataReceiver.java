@@ -204,7 +204,6 @@ public class DataReceiver {
         return param.getName();
     }
     
-    
     /**
      * Generates an HTML Table for the underlying data source. The HTML table is generated
      * with a column for it's timestamp and one for each of the unique parameters.
