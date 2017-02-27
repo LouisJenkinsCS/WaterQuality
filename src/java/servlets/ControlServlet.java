@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpSession;
 import org.javatuples.Triplet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import utilities.TimeStampFormatter;
 
 /**
  * <code>ControlServlet</code> is the main servlet that processes most
@@ -145,7 +147,9 @@ public class ControlServlet extends HttpServlet {
                     .map(DataValue::getTimestamp)
                     .distinct()
                     .sorted()
-                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                    .map((Instant ts) -> TimeStampFormatter.formatChart(ts))
+                    .buffer(Integer.MAX_VALUE)
+                    .map((List<String> list) -> list.stream().collect(Collectors.joining(",")))
                     .blockingSubscribe(categories::append);
             categories.append("]");
             
@@ -161,6 +165,74 @@ public class ControlServlet extends HttpServlet {
             request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
             request.setAttribute("HighChartJS_Categories", categories);
             request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
+            request.setAttribute("Table", DataReceiver.generateTable(data));
+            request.setAttribute("Parameters", paramData.toString());
+
+            request.getServletContext()
+                    .getRequestDispatcher("/dashboard.jsp")
+                    .forward(request, response);
+            log("Got Action: " + action);
+            return;
+        }
+        if (action.trim().equalsIgnoreCase("Table")) {
+            String start = request.getParameterValues("startdate")[0];
+            String end = request.getParameterValues("enddate")[0];
+            log("Start: " + start);
+            log("End: " + start);
+            
+            if(!start.endsWith(":00")) {
+                start += ":00";
+            }
+            start += "Z";
+            
+            if (!end.endsWith(":00")) {
+                end += ":00";
+            }
+            end += "Z";
+            
+            Long[] selected = request
+                    .getParameterMap()
+                    .keySet()
+                    .stream()
+                    .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList())
+                    .toArray(new Long[0]);
+
+            // Nothing selected...
+            if (selected == null || selected.length == 0) {
+                defaultHandler(request, response);
+                return;
+            }
+
+            log("User Selected: " + Arrays.deepToString(selected));
+            
+            // Obtain the data for what is selected
+            Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
+            String descriptions = DataReceiver.generateDescriptions(data);
+            String chartjs = DataReceiver.generateChartJS(data);
+            String table = DataReceiver.generateTable(data);
+            StringBuilder categories = new StringBuilder("categories: [");
+            data.getData()
+                    .map(DataValue::getTimestamp)
+                    .distinct()
+                    .sorted()
+                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                    .blockingSubscribe(categories::append);
+            categories.append("]");
+            
+            StringBuilder paramData = new StringBuilder();
+            DataReceiver
+                 .getParameters()
+                 // Display based on lexicographical ordering
+                 .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                 // Generate a checkbox for each parameter.
+                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
+                 .blockingSubscribe(paramData::append);
+
+            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
+            //request.setAttribute("HighChartJS_Categories", categories);
+            //request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
             request.setAttribute("Table", DataReceiver.generateTable(data));
             request.setAttribute("Parameters", paramData.toString());
 
