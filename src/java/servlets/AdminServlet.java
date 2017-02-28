@@ -28,19 +28,19 @@ public class AdminServlet extends HttpServlet
         
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         DatabaseManager d = new DatabaseManager();
-        String action = (String)request.getParameter("action");
         common.User admin = (common.User) session.getAttribute("user");
+        String action = request.getParameter("action");
         
         if (action.trim().equalsIgnoreCase("InputData"))
         {
-            boolean inputStatus = d.manualInput((String)session.getAttribute("dataName"),
-                    (String)session.getAttribute("units"),LocalDateTime.parse((String)session.getAttribute("time")), 
-                    (float)session.getAttribute("value"),(float)session.getAttribute("delta"),
-                    (int)session.getAttribute("id"), admin);
+            boolean inputStatus = d.manualInput((String)request.getParameter("dataName"),
+                    (String)request.getParameter("units"), LocalDateTime.parse((String)request.getParameter("time")), 
+                    Float.parseFloat((String)request.getParameter("value")),Float.parseFloat((String)request.getParameter("delta")),
+                    Integer.parseInt((String)request.getParameter("id")), admin);
             if(inputStatus)
-                session.setAttribute("inputStatus", "Data Input Successful");
+                request.setAttribute("inputStatus", "Data Input Successful");
             else
-                session.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
+                request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
         }
         
         else if(action.trim().equalsIgnoreCase("RemoveData"))

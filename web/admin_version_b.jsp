@@ -13,6 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles/admin_version_b.css" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -55,26 +56,32 @@
                 <!--Admin insertion functionality and GUI are defined here-->
                 <admincontent id="Input_Data" class="tabcontent" style="tabstyle">
 
-                    <form id="csv_upload_form" action="ControlServlet" method="POST">
-                        <h2>Upload .CSV File</h2>
-                        <input type="file" value="Browse..."><br/>
-                        <input type="submit" value="Submit">
-                    </form>
+                    <!--                    <form id="csv_upload_form" action="ControlServlet" method="POST">-->
+                    <h2>Upload .CSV File</h2>
+                    <input type="file" value="Browse..."><br/>
+                    <input type="submit" value="Submit">
+                    <!--                    </form>-->
 
-<!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">
-                        <h2>Enter Data Manually:</h2>
-                        Date: <input type="date" name="data_date"><br/>
-                        Time: <input type="time" name="data_time"><br/>
-                        Parameter: <select id="select_param" width:20px></select><br/>
-                        Value: <input type="text" name="value"><br/>
-                        <input type="submit" value="Submit">
-                    </form>
+                    <!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">-->
 
-                    <button type="button" onclick="createNewInput()">+</button>
-                    <div id="new_input_space"></div>-->
+
+                    <script>
+                        var data = {action: 'InputData', dataName: 'Temperature', 
+                        units: 'C', time: '2007-12-03T10:15:30',
+                        value: '13.0', delta: '2.0', id: '639121399'};
+                        post_get('POST', 'AdminServlet', data, function(){console.log('Input status:' + inputStatus);});</script>
+                    <h2>Enter Data Manually:</h2>
+                    Date: <input id= "manual_date" type="date" name="data_date"><br/>
+                    Time: <input id = "manual_time" type="time" name="data_time"><br/>
+                    Parameter: <select id="select_param" width:20px></select><br/>
+                    Value: <input type="text" name="value"><br/>
+                    <input id="manual_submit" type="submit" value="Submit"><!--
+                </form>
+
+                <button type="button" onclick="createNewInput()">+</button>
+                <div id="new_input_space"></div>-->
 
                     <div id="data_entry"></div>
-                    <script src="data_entry.js"></script>
 
                 </admincontent>
 
