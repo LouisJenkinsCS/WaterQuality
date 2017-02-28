@@ -93,6 +93,8 @@
     min-width: 600px;
     max-width: 800px;
     border-radius: 20px;
+    border: 2px solid;
+    /*border: none;*/
     background: rgba(114,154,154,.75);
     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
@@ -106,6 +108,7 @@
     margin-left: auto;
     margin-right: auto;
     border: 2px solid;
+    /*border: none;*/
     border-radius: 25px; 
     background-color: #FFF2D7;
     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
