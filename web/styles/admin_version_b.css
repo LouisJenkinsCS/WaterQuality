@@ -1,16 +1,8 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : Feb 9, 2017, 9:05:43 PM
-    Author     : Kevin
-*/
-#HeaderText
+
+#banner__text
 {
     display: inline;
-    font-family: "Ariel", Helvetica, san-serif;
+    font-family: "Arial", Helvetica, san-serif;
     font-weight: bold;    
     line-height: 50px;
     color: white;  
@@ -21,22 +13,27 @@ and open the template in the editor.
     margin-bottom: 0px;
 }
 
+/*not currently used on this page*/
 #Table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
 }
 
+/*not currently used on this page*/
 #Table td, #Table th {
     border: 1px solid #ddd;
     padding: 8px;
     align-content: center;
 }
 
+/*not currently used on this page*/
 #Table tr:nth-child(even){background-color: #f2f2f2;}
 
+/*not currently used on this page*/
 #Table tr:hover {background-color: #ddd;}
 
+/*not currently used on this page*/
 #Table th {
     padding-top: 12px;
     padding-bottom: 12px;
@@ -45,7 +42,7 @@ and open the template in the editor.
     color: white;
 }
 
-#backPhoto
+#back_photo
 {
     left: 0px;
     top: 0px;
@@ -60,8 +57,9 @@ and open the template in the editor.
     cursor:pointer;
 }
 
-.title_bar_container{
+.banner{
     width: 100%;
+    min-width: 600px;
     text-align: center;
     height: 50px;
     background-color: #266B6B;
@@ -69,41 +67,40 @@ and open the template in the editor.
     margin-right: 0px;
     margin-left: 0px;
     margin-bottom: 0px;
-     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
-    -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
-}
-.content_title_bar{
-    background-color: #266B6B;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    height:25px;
-}
-
-.title{
-    color:white;
-    margin-left: 15px;
-    margin-bottom: 10px;
-    line-height: 25px;
-    font-family: "Ariel", Helvetica, san-serif;
-    font-weight: bold;
-}
-
-.content_container1{
-    vertical-align: middle;
-    margin-left: auto;
-    margin-right: auto;
-    border: 2px solid;
-    border-radius: 25px;
-    background: rgba(114,154,154,.75);
     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
 }
+.content_box__banner{
+    background-color: #266B6B;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    text-align: center;
+    height:30px;
+}
 
+.content_box__banner__text{
+    color:white;
+    line-height: 30px;
+    font-family: "Arial", Helvetica, san-serif;
+    font-weight: bold;
+}
+
+.content_box{
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 600px;
+    max-width: 800px;
+    border-radius: 20px;
+    background: rgba(114,154,154,.75);
+    -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    font-family: "Arial", Helvetica, san-serif;
+}
+
+/*not currently used on this page*/
 .content_container2{
     vertical-align: middle;
     margin-left: auto;
@@ -117,7 +114,7 @@ and open the template in the editor.
     opacity:1;
 }
 
-
+/*not currently used on this page*/
 #dashboard_container{
     margin-top: 5%;
     margin-left:23.5%;
@@ -126,6 +123,7 @@ and open the template in the editor.
     overflow:auto;
 }
 
+/*not currently used on this page*/
 #dashboard_data_container{
     float:right;
     margin-top:10px;
@@ -135,11 +133,13 @@ and open the template in the editor.
     position:relative;
 }
 
+/*not currently used on this page*/
 #graph_container{
     margin:10px;
     position:relative;
 }
 
+/*not currently used on this page*/
 #dashboard_data_description{
     display:inline-block;
     margin-top:10px;
@@ -148,51 +148,49 @@ and open the template in the editor.
     width:600px;
 }
 
+<!--tabs modified from w3schools.com-->
 /* Style the list */
-ul.tab {
-    height:25px;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    list-style-type: none;
-    margin-top:0;
-    padding: 0;
+.content_box__tab_bar{
+    
+}
+ul.tabs {
+    background-color: #468B8B;
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
     overflow: hidden;
-    background-color: #266B6B;
 }
 
 /* Float the list items side by side */
-ul.tab li {float: left;}
+ul.tabs li {float: left;}
 
 /* Style the links inside the list items */
-ul.tab li a {
+ul.tabs li a {
     display: inline-block;
-    color: black;
     text-align: center;
-    padding: 5px 16px;
+    padding: 5px 7px;
     text-decoration: none;
-    transition: 0.3s;
+    transition: 0.2s;
     font-size: 15px;
-    color:white;
-    font-family: "Ariel", Helvetica, san-serif;
+    font-weight: bold;
+    color: white;
+    font-family: "Arial", Helvetica, san-serif;
 }
 
 /* Change background color of links on hover */
-ul.tab li a:hover {background-color: #5CB05C;}
+ul.tabs li a:hover {background-color: #5CB05C;}
 
 /* Create an active/current tablink class */
-ul.tab li a:focus, .active {background-color: #8CCE8C;}
+ul.tabs li a:focus, .active {background-color: #8CCE8C;}
 
 /* Style the tab content */
-.tabcontent{
+.tab_content{
     display: none;
-    padding: 6px 12px;
-    border-top: none;
+    padding: 25px 20px;
 }
 
 admincontent {
-    margin-left: 10px;
     overflow:auto;
-    height: 600px;
 }
 
 .hide{
@@ -231,4 +229,10 @@ button:hover,input[type = "submit"]:hover {
 
 #dateInstructDiv{
     text-align:left;
+}
+
+.large_text{
+    font-weight: bold;
+    font-size: 18pt;
+    margin-bottom: 7px;
 }
