@@ -188,7 +188,6 @@
                 <div></div>
             </admincontent>
 
-
         </section>
 
             <!--            <aside class = "content_container2" id = "dashboard_data_container">
@@ -217,6 +216,7 @@
             
         </form>
             
+
             <form id="submit_query" action="ControlServlet" value="Submit Query">
                 <input type="hidden" name="control" value="submitQuery">
                  <div class="data_type_submit" id="Graph_submit" onclick="graphSubmit()"><input type="submit" ></div>
@@ -243,7 +243,6 @@
 
 
         </section> 
-
 
         <script>
             function post(path, params, method) {
@@ -307,13 +306,16 @@
              */
             function openTab(evt, tabName) {
                 var i, tabcontent, tablinks, submitbutton;
+
                 tabcontent = document.getElementsByClassName("tab_content");
+
 
                 for (i = 0; i < tabcontent.length; i++) {
                     tabcontent[i].style.display = "none";
                 }
 
                 tablinks = document.getElementsByClassName("tabs");
+
                 for (i = 0; i < tablinks.length; i++) {
                     tablinks[i].className = tablinks[i].className.replace(" active", "");
                 }
@@ -403,7 +405,6 @@
                 if (document.getElementById("enddate").value != null)
                     document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
             }
-
 
         </script>
     </body>

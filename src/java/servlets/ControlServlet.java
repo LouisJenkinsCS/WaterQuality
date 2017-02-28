@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -23,6 +24,8 @@ import javax.servlet.http.HttpSession;
 import org.javatuples.Triplet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import protocol.JSONProtocol;
+import utilities.TimeStampFormatter;
 
 /**
  * <code>ControlServlet</code> is the main servlet that processes most
@@ -48,17 +51,11 @@ public class ControlServlet extends HttpServlet {
                 // Generate a checkbox for each parameter.
                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                 .blockingSubscribe(data::append);
-
-        StringBuilder categories = new StringBuilder("categories: [");
-        source.getData()
-                .map(DataValue::getTimestamp)
-                .distinct()
-                .sorted()
-                .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
-                .blockingSubscribe(categories::append);
-        categories.append("]");
         
-        
+        JSONProtocol proto = new JSONProtocol();
+        JSONObject resp = proto.processUsing(source).blockingFirst();
+        System.out.println("JSONProtocol: " + resp.toJSONString());
+  
         String defaultDescription = "<center><h1>None Selected</h1></center>";
         String defaultTable = "<table border='1'>\n"
                 + "	<tr>\n"
@@ -66,11 +63,10 @@ public class ControlServlet extends HttpServlet {
                 + "               <th>(NULL)</th>\n"
                 + "	</tr>\n"
                 + "</table>";
-
+        
+        request.setAttribute("ChartData", resp);
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-        request.setAttribute("HighChartJS_Categories", categories);
-        request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(source));
         request.setAttribute("Table", DataReceiver.generateTable(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
@@ -100,6 +96,17 @@ public class ControlServlet extends HttpServlet {
             defaultHandler(request, response);
         }
 
+        /*
+        Test case for passing information via an AJAX request
+        defined in AJAX_magic.js, here to ControlServlet.
+        Responds with a simple server log to show success.
+        */
+        if (action.trim().equalsIgnoreCase("test"))
+        {
+            String output = request.getParameter("value");
+            log("Request value: " + output);
+        }
+        
         log("Action is: " + action);
 
         if (action.trim().equalsIgnoreCase("getData")) {
@@ -136,18 +143,10 @@ public class ControlServlet extends HttpServlet {
             log("User Selected: " + Arrays.deepToString(selected));
             
             // Obtain the data for what is selected
-            Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
-            String descriptions = DataReceiver.generateDescriptions(data);
-            String chartjs = DataReceiver.generateChartJS(data);
-            String table = DataReceiver.generateTable(data);
-            StringBuilder categories = new StringBuilder("categories: [");
-            data.getData()
-                    .map(DataValue::getTimestamp)
-                    .distinct()
-                    .sorted()
-                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
-                    .blockingSubscribe(categories::append);
-            categories.append("]");
+            Data source = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
+            JSONProtocol proto = new JSONProtocol();
+            JSONObject resp = proto.processUsing(source).blockingFirst();
+            System.out.println("JSONProtocol: " + resp.toJSONString());
             
             StringBuilder paramData = new StringBuilder();
             DataReceiver
@@ -158,10 +157,9 @@ public class ControlServlet extends HttpServlet {
                  .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                  .blockingSubscribe(paramData::append);
 
-            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
-            request.setAttribute("HighChartJS_Categories", categories);
-            request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
-            //request.setAttribute("Table", DataReceiver.generateTable(data));
+            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
+            request.setAttribute("ChartData", resp);
+            request.setAttribute("Table", DataReceiver.generateTable(source));
             request.setAttribute("Parameters", paramData.toString());
 
             request.getServletContext()
@@ -206,7 +204,6 @@ public class ControlServlet extends HttpServlet {
             // Obtain the data for what is selected
             Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
             String descriptions = DataReceiver.generateDescriptions(data);
-            String chartjs = DataReceiver.generateChartJS(data);
             String table = DataReceiver.generateTable(data);
             StringBuilder categories = new StringBuilder("categories: [");
             data.getData()
