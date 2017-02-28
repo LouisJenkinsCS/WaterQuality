@@ -167,6 +167,7 @@ public class DataReceiver {
                             // We take both the timestamp (X-Axis) and the value (Y-Axis).
                             // This data is what is returned as a DataValue.
                             .map((JSONObject obj) -> new DataValue(key, (String) obj.get("timestamp"), (Double) obj.get("value")))
+                            .distinct(dv -> dv.getTimestamp())
                 // 'replay' is a way to say that we want to take ALL items up to this point (being the DataValues), cache it, and then
                 // resend it each and every time it is subscribed to (pretty much meaning this becomes reusable).
                 ).replay());
@@ -190,8 +191,7 @@ public class DataReceiver {
         
         return descriptions.toString();
     }
-    
-    
+        
     public static String getParameterName(long id) {
         DataParameter param = PARAMETER_MAP.get(id);
         if (param == null) {
