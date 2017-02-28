@@ -217,6 +217,7 @@
             
         </form>
             
+
             <form id="submit_query" action="ControlServlet" value="Submit Query">
                 <input type="hidden" name="control" value="submitQuery">
                  <div class="data_type_submit" id="Graph_submit" onclick="graphSubmit()"><input type="submit" ></div>
