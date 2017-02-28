@@ -35,11 +35,8 @@ public class AdminServlet
             boolean inputStatus = d.manualInput(session.getAttribute("dataName"),
                     session.getAttribute("units"),session.getAttribute("time"), 
                     session.getAttribute("value"),session.getAttribute("delta"),
-<<<<<<< HEAD
                     session.getAttribute("id"), admin);
-=======
                      admin);
->>>>>>> origin/tyler-development
             if(inputStatus)
                 session.setAttribute("inputStatus", "Data Input Successful");
             else
