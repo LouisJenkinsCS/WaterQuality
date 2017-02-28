@@ -15,7 +15,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script src="dashboard_script.js"></script>
+        <script src="scripts/chart_helpers.js"></script>
+        <script src="scripts/protocol.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -224,6 +225,17 @@
             }
         </script>
         <script>
+        // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
+        var data = new DataResponse(${ChartData});
+        var timeStamps = getTimeStamps(data);
+        var timeStampStr = [];
+        
+        // Convert timestamps to string; HighCharts already defines a nice formatting one.
+        for (i = 0; i < timeStamps.length; i++) {
+            timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
+        }
+        
+        var values = getDataValues(data);
         // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
         Highcharts.theme = {
             chart: {
@@ -254,12 +266,19 @@
                 }
             },
             xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    minute: '%b/%e/%Y %H:%M'
+                },
                gridLineWidth: 1,
                labels: {
                   style: {
                      fontSize: '12px'
                   }
-               }
+               },
+               title: {
+                    text: 'Date'
+                }
             },
             yAxis: {
                minorTickInterval: 'auto',
@@ -288,7 +307,7 @@
          Highcharts.setOptions(Highcharts.theme);
          
          // Setup chart, the data will be fed from the servlet through JSP (temporary)
-         Highcharts.chart('Graph', {
+         var chart = Highcharts.chart('Graph', {
                 title: {
                     text: 'Water Creek Parameter Values',
                     x: -20 //center
@@ -298,7 +317,7 @@
                     x: -20
                 },
                 xAxis: {
-                    ${HighChartJS_Categories}
+                    categories: timeStampStr
                 },
                 yAxis: [{
                     title: {
@@ -325,9 +344,18 @@
                     borderWidth: 0,
                     floating:true
                 },
-                series: [${HighChartJS_Series}]
+                series: []
             });
          
+         for (var i = 0; i < data.data.length; i++) {
+            chart.addSeries({
+                 name: data.data[i]["name"],
+                 data: values[i]
+            }, false);
+         }
+         
+         // Limit the X-Axis to display only 5 at a time. Easier to read.
+         chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
          </script>
          
         <script type="text/javascript">
@@ -337,7 +365,6 @@
             else
                 document.getElementById("GraphTab").click();
             
-
             var current;
             /**
              * The <code>openTab</code> function activates a certain event
@@ -383,6 +410,22 @@
                 d.setTime(d.getTime() + (exdays*24*60*60*1000));
                 var expires = "expires="+ d.toUTCString();
                 document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+            
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i <ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
             }
             
             function getCookie(cname) {
