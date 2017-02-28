@@ -33,7 +33,7 @@ public class AdminServlet
         if (action.trim().equalsIgnoreCase("InputData"))
         {
             boolean inputStatus = d.manualInput((String)session.getAttribute("dataName"),
-                    (String)session.getAttribute("units"),(String)session.getAttribute("time"), 
+                    (String)session.getAttribute("units"),LocalDateTime.parse((String)session.getAttribute("time")), 
                     (float)session.getAttribute("value"),(float)session.getAttribute("delta"),
                     (int)session.getAttribute("id"), admin);
             if(inputStatus)
