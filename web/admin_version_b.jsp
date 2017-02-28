@@ -66,10 +66,17 @@
 
 
                     <script>
-                        var data = {action: 'InputData', dataName: 'Temperature', 
-                        units: 'C', time: '2007-12-03T10:15:30',
-                        value: '13.0', delta: '2.0', id: '639121399'};
-                        post_get('POST', 'AdminServlet', data, function(){console.log('Input status:' + inputStatus);});</script>
+                        var data = {action: 'InputData', dataName: 'Temperature',
+                            units: 'C', time: '2007-12-03T10:15:30',
+                            value: '13.0', delta: '2.0', id: '639121399'}
+                    </script>
+
+                    <button onclick="
+                    post_get('POST', 'AdminServlet', data, function(){
+                    console.log('Input status:' + inputStatus);
+                    });">
+                    </button>
+
                     <h2>Enter Data Manually:</h2>
                     Date: <input id= "manual_date" type="date" name="data_date"><br/>
                     Time: <input id = "manual_time" type="time" name="data_time"><br/>

@@ -31,7 +31,7 @@ public class Web_MYSQL_Helper {
     
     public static void initialize(){
       initialized = true;
-      PropertyManager.configure("p:/Desktop/Github/WaterQuality/web/WEB-INF/config/General.properties");
+      PropertyManager.configure("P:/Documents/GitHub/WaterQuality/web/WEB-INF/config/General.properties");
       PropertyManager.setProperty("UseDBPooling", "no");
       USE_DB_POOLING = PropertyManager.getProperty("UseDBPooling").equalsIgnoreCase("yes");
       hostname = PropertyManager.getProperty("MySQLHostName").trim();

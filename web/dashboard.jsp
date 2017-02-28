@@ -44,7 +44,9 @@
                         in this case passing a POST request to ControlServlet. Upon success, the callback function
                         is called, posting a message to the server log.-->
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table'); hide();
-                            post_get('POST', 'ControlServlet', {control: 'test', value: 'Hello, world'}, function () {
+                            post_get('POST', 'ControlServlet',
+                            {control: 'test', value: 'Hello, world'},
+                            function(){
                                 console.log('SUCCESS');
                             });"
                            id="TableTab">Table</a></li>
