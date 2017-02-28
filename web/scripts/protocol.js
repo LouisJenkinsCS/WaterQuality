@@ -1,4 +1,4 @@
-/* BSD 3-Clause License
+/*  BSD 3-Clause License
  *
  * Copyright (c) 2017, Louis Jenkins <LouisJenkinsCS@hotmail.com>
  * All rights reserved.
@@ -28,28 +28,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package utilities;
 
-import io.reactivex.Observable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
-/**
- *
- * @author Louis Jenkins
- * 
- * Helper used for interacting with JSONObject and JSONArray
+/*
+ * This file contains types for the protocol used to communicate between JSP and Servlet.
  */
-public class JSONUtils {
-    
-    /**
-     * Convert a JSONArray to an Observable emitting all of it's elements. This is needed
-     * because the Java compiler cannot infer the type, as the JSONArray contains raw types;
-     * this ensures that the correct type can be passed forward.
-     * @param array JSONArray of data
-     * @return Correctly typed Observables containing the contents of the array.
-     */
-    public static Observable<JSONObject> toData(JSONArray array) {
-        return Observable.fromIterable(array);
-    } 
+
+function DataRequest(startTime, endTime, parameters) {
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.parameters = parameters;
 }
+
+DataRequest.prototype = {
+  toJSON : function() { JSON.stringify(this); }
+};
+
+function DataResponse(json) {
+    console.log(json);
+    // Obtain data from response as JSONArray
+    this.data = json["resp"];
+    console.log(this.toString());
+}
+
+DataResponse.prototype = {
+    
+};

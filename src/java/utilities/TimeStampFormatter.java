@@ -30,26 +30,27 @@
  */
 package utilities;
 
-import io.reactivex.Observable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Louis Jenkins
- * 
- * Helper used for interacting with JSONObject and JSONArray
  */
-public class JSONUtils {
+public class TimeStampFormatter {
+    public static String format(Instant ts) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(Date.from(ts));
+        return calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH)
+                + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR)
+                + ":" + calendar.get(Calendar.MINUTE) + " " 
+                + (calendar.get(Calendar.AM_PM) == 0 ? "AM" : "PM");
+    }
     
-    /**
-     * Convert a JSONArray to an Observable emitting all of it's elements. This is needed
-     * because the Java compiler cannot infer the type, as the JSONArray contains raw types;
-     * this ensures that the correct type can be passed forward.
-     * @param array JSONArray of data
-     * @return Correctly typed Observables containing the contents of the array.
-     */
-    public static Observable<JSONObject> toData(JSONArray array) {
-        return Observable.fromIterable(array);
-    } 
+    public static String formatChart(Instant ts) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(Date.from(ts));
+        return "Highcharts.dateFormat(\"%m/%d/%Y %H:%M %p\", " + ts.getEpochSecond() * 1000 + ", true)";
+    }
 }

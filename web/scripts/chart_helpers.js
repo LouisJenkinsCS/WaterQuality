@@ -1,4 +1,4 @@
-/* BSD 3-Clause License
+/*  BSD 3-Clause License
  *
  * Copyright (c) 2017, Louis Jenkins <LouisJenkinsCS@hotmail.com>
  * All rights reserved.
@@ -28,28 +28,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package utilities;
 
-import io.reactivex.Observable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-/**
- *
- * @author Louis Jenkins
- * 
- * Helper used for interacting with JSONObject and JSONArray
- */
-public class JSONUtils {
+function getTimeStamps(resp) {
+    var arr = [];
     
-    /**
-     * Convert a JSONArray to an Observable emitting all of it's elements. This is needed
-     * because the Java compiler cannot infer the type, as the JSONArray contains raw types;
-     * this ensures that the correct type can be passed forward.
-     * @param array JSONArray of data
-     * @return Correctly typed Observables containing the contents of the array.
-     */
-    public static Observable<JSONObject> toData(JSONArray array) {
-        return Observable.fromIterable(array);
-    } 
+    // We need to generate timestamps for all values, so we need to ensure we make
+    // enough for the maximum.
+    var len = 0;
+    var data;
+    for (i = 0; i < resp.data.length; i++) {
+        if (resp.data[i]["data"].length > len) {
+            data = resp.data[i]["data"];
+        }
+    }
+    
+    // Create X-Axis timestamps enough for all
+    for (i = 0; i < data.length; i++) {
+        arr.push(data[i]["timestamp"]);
+    }
+    
+    return arr;
+}
+
+function getDataValues(resp) {
+    var arr = [];
+    
+    for (i = 0; i < resp.data.length; i++) {
+        var paramData = [];
+        var param = resp.data[i]["data"];
+        
+        for (j = 0; j < param.length; j++) {
+            paramData.push(param[j]["value"]);
+        }
+        arr.push(paramData);
+    }
+    
+    return arr;
 }

@@ -41,7 +41,7 @@ import org.javatuples.Pair;
  * 
  * Represents data values for different parameters.
  */
-public class DataValue {
+public class DataValue implements Comparable<DataValue> {
     long id;
     Instant timestamp; 
     Double value;
@@ -78,6 +78,11 @@ public class DataValue {
 
     public void setValue(Double value) {
         this.value = value;
+    }
+
+    @Override
+    public int compareTo(DataValue o) {
+        return this.timestamp.compareTo(o.timestamp);
     }
     
     
