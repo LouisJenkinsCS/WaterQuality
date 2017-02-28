@@ -318,16 +318,18 @@
                 },
                 yAxis: [{
                     title: {
-                        text: 'Values'
+                        text: '',
+                        style:{color:'#7cb5ec'}
                     },
+                    labels:{style:{color:'#7cb5ec'}},
                     plotLines: [{
                         value: 0,
                         width: 1,
                         color: '#808080'
-                    }]
+                    }],
                 },{ // Secondary yAxis
                     title: {
-                    text: 'Values',
+                        text: ''
                     },
                     opposite:true
                 }],
@@ -346,13 +348,15 @@
          
          for (var i = 0; i < data.data.length; i++) {
             chart.addSeries({
-                 name: data.data[i]["name"],
-                 data: values[i]
+                yAxis:i,
+                name: data.data[i]["name"],
+                data: values[i]
             }, false);
+            chart.yAxis[i].setTitle({ text: data.data[i]["name"] });
          }
          
          // Limit the X-Axis to display only 5 at a time. Easier to read.
-         chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
+         //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
          </script>
          
         <script type="text/javascript">
