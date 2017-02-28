@@ -2,7 +2,7 @@
  *Author : dan0x19b
  */
 
-#backPhoto
+#back_photo
 {
     left: 0px;
     top: 0px;
@@ -12,9 +12,10 @@
     width: 100%;    
     height: 100%;
 }
-.Banner{
+.banner
+{
     width: 100%;
-	min-width: 600px;
+    min-width: 600px;
     text-align: center;
     height: 50px;
     background-color: #266B6B;
@@ -22,11 +23,11 @@
     margin-right: 0px;
     margin-left: 0px;
     margin-bottom: 0px;
-     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
 }
-#Banner_Text
+#banner__text
 {
     display: inline;
     font-family: "Arial", Helvetica, san-serif;
@@ -39,10 +40,10 @@
     text-align: center;
     margin-bottom: 0px;
 }
-.ContentBox{
-	width: 600px;
-	height: 500px;
-	margin-top: 5%;
+.content_box{
+    width: 600px;
+    height: 500px;
+    margin-top: 10px;
     margin-left: auto;
     margin-right: auto;
     border-radius: 20px;
@@ -51,7 +52,7 @@
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
 }
-.ContentBox_Banner{
+.content_box__banner{
     background-color: #266B6B;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
@@ -59,12 +60,12 @@
     height:25px;
 }
 
-.ContentBox_Banner_Text{
+.content_box__banner__text{
     color:white;
     margin-left:15px;
     margin-bottom: 10px;
     line-height: 25px;
-    font-family: "Ariel", Helvetica, san-serif;
+    font-family: "Arial", Helvetica, san-serif;
     font-weight: bold;
 }
 
@@ -99,7 +100,7 @@
 }
 
 /* Style the tab content */
-.TabContent {
+.tab_content {
     display: none;
     padding: 6px 12px;
     border-top: none;
