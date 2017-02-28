@@ -96,6 +96,17 @@ public class ControlServlet extends HttpServlet {
             defaultHandler(request, response);
         }
 
+        /*
+        Test case for passing information via an AJAX request
+        defined in AJAX_magic.js, here to ControlServlet.
+        Responds with a simple server log to show success.
+        */
+        if (action.trim().equalsIgnoreCase("test"))
+        {
+            String output = request.getParameter("value");
+            log("Request value: " + output);
+        }
+        
         log("Action is: " + action);
 
         if (action.trim().equalsIgnoreCase("getData")) {
