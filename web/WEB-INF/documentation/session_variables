@@ -1,5 +1,15 @@
 Keep a track of the session variables and where they are used in this file
 
-No.     Name            Type              Example
-1       user            common.User       session.setAttribute("user", user);
+No.     Name                Type                Description
+1       user                common.User         the user logged in
+2       dataName            String              the name of the data type
+3       units               String              the units of the data type
+4       time                String              the time in LocalDateTime format (ex: 2017-02-07T04:15:00)
+5       value               float               the value of the data type
+6       delta               float               the difference between this data value and the last
+7       id                  int                 the id helps distinguish whether this is a water or air value
+8       inputStatus         String              a string to display to the user whether the input succeeded or not
+9       dataDeletionID      int                 the id of the data to be deleted (ideally set this with a checkbox next to each value of the data value)
+10      dataDeletionStatus  String              a string to display to the user whether the input succeeded or not
+11
 

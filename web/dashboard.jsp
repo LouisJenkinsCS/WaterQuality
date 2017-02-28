@@ -15,6 +15,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="dashboard_script.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
@@ -80,9 +81,7 @@
                         End Date:
                         <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
-                                                       id="select_all_data" value="select_all_data">Select all</div><br>
-                        ${Parameters}
+                    ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph"></div>
                     <input type="hidden" name="control" value ="getData">
@@ -142,8 +141,6 @@
                 document.getElementById(id).value = dateStr;
                 console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
             }
-
-
             var end = new Date();
             end.setSeconds(0);
             var start = new Date();
@@ -173,15 +170,12 @@
                  today = yyyy+'-'+mm+'-'+dd; */
                 var date = end;
                 var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
-                document.getElementById("enddate").setAttribute("max", dateStr);
-                document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
-                document.getElementById("enddate").setAttribute("min", document.getElementById("startdate").value);
-
-
-
+                document.getElementById("enddate").setAttribute("max",dateStr);
+                document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
+                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value); 
             }
-        </script>
-        <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
+            </script>
+<!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
 
         <script>
             function post(path, params, method) {
@@ -329,20 +323,22 @@
                     categories: timeStampStr
                 },
                 yAxis: [{
-                        title: {
-                            text: 'Values'
-                        },
-                        plotLines: [{
-                                value: 0,
-                                width: 1,
-                                color: '#808080'
-                            }]
-                    }, {// Secondary yAxis
-                        title: {
-                            text: 'Values',
-                        },
-                        opposite: true
+                    title: {
+                        text: '',
+                        style:{color:'#7cb5ec'}
+                    },
+                    labels:{style:{color:'#7cb5ec'}},
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
                     }],
+                },{ // Secondary yAxis
+                    title: {
+                        text: ''
+                    },
+                    opposite:true
+                }],
                 tooltip: {
                     valueSuffix: ''
                 },
@@ -355,18 +351,19 @@
                 },
                 series: []
             });
-
-            for (var i = 0; i < data.data.length; i++) {
-                chart.addSeries({
-                    name: data.data[i]["name"],
-                    data: values[i]
-                }, false);
-            }
-
-            // Limit the X-Axis to display only 5 at a time. Easier to read.
-            chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
-        </script>
-
+         for (var i = 0; i < data.data.length; i++) {
+            chart.addSeries({
+                yAxis:i,
+                name: data.data[i]["name"],
+                data: values[i]
+            }, false);
+            chart.yAxis[i].setTitle({ text: data.data[i]["name"] });
+         }
+         
+         // Limit the X-Axis to display only 5 at a time. Easier to read.
+         //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
+         </script>
+         
         <script type="text/javascript">
             //document.getElementById("GraphTab").click();
             if (getCookie("id") == "Table")
@@ -403,22 +400,20 @@
                 //<code>current</code>holds the current <code>tabName</code>
                 //This is done because we need to limit the number of boxes checked
                 //for the Graph tab and not the Table tab
-                current = tabName;
-
-
-                form = document.getElementsByClassName("data_type_form");
-                for (i = 0; i < form.length; i++) {
-                    form[i].style.display = "none";
+                current=tabName;
+                
+                form=document.getElementsByClassName("data_type_form");
+                for(i=0; i<form.length; i++){
+                    form[i].style.display="none";
                 }
                 document.getElementById(current + "_form").style.display = "block";
                 setCookie("id", current, 1);
             }
-
-            function setCookie(cname, cvalue, exdays) {
+            function setCookie(name, value, exdays) {
                 var d = new Date();
-                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-                var expires = "expires=" + d.toUTCString();
-                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+                d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                var expires = "expires="+ d.toUTCString();
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
             }
 
             function getCookie(cname) {
@@ -482,8 +477,5 @@
                 } else
                     checkedBoxes--;
             }
-
-
         </script>
     </body>
-</html>
