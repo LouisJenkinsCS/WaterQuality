@@ -36,7 +36,6 @@ public class AdminServlet
                     session.getAttribute("units"),session.getAttribute("time"), 
                     session.getAttribute("value"),session.getAttribute("delta"),
                     session.getAttribute("id"), admin);
-                     admin);
             if(inputStatus)
                 session.setAttribute("inputStatus", "Data Input Successful");
             else
