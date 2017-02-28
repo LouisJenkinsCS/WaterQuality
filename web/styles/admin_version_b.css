@@ -1,0 +1,234 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Feb 9, 2017, 9:05:43 PM
+    Author     : Kevin
+*/
+#HeaderText
+{
+    display: inline;
+    font-family: "Ariel", Helvetica, san-serif;
+    font-weight: bold;    
+    line-height: 50px;
+    color: white;  
+    font-size: 20px;
+    width: 100%;
+    margin-top: 0px;
+    text-align: center;
+    margin-bottom: 0px;
+}
+
+#Table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#Table td, #Table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    align-content: center;
+}
+
+#Table tr:nth-child(even){background-color: #f2f2f2;}
+
+#Table tr:hover {background-color: #ddd;}
+
+#Table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+}
+
+#backPhoto
+{
+    left: 0px;
+    top: 0px;
+    position: fixed;
+    z-index: -1;
+    opacity: 0.9;
+    width: 100%;    
+    height: 100%;
+}
+
+#Excel:hover{
+    cursor:pointer;
+}
+
+.title_bar_container{
+    width: 100%;
+    text-align: center;
+    height: 50px;
+    background-color: #266B6B;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-left: 0px;
+    margin-bottom: 0px;
+     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+}
+.content_title_bar{
+    background-color: #266B6B;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    height:25px;
+}
+
+.title{
+    color:white;
+    margin-left: 15px;
+    margin-bottom: 10px;
+    line-height: 25px;
+    font-family: "Ariel", Helvetica, san-serif;
+    font-weight: bold;
+}
+
+.content_container1{
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid;
+    border-radius: 25px;
+    background: rgba(114,154,154,.75);
+    -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+}
+
+.content_container2{
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid;
+    border-radius: 25px; 
+    background-color: #FFF2D7;
+    -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    opacity:1;
+}
+
+
+#dashboard_container{
+    margin-top: 5%;
+    margin-left:23.5%;
+    margin-right:23.5%;
+    /*width: 1000px;*/
+    overflow:auto;
+}
+
+#dashboard_data_container{
+    float:right;
+    margin-top:10px;
+    margin-right:10px;
+    margin-bottom: 10px;;
+    width: 350px;
+    position:relative;
+}
+
+#graph_container{
+    margin:10px;
+    position:relative;
+}
+
+#dashboard_data_description{
+    display:inline-block;
+    margin-top:10px;
+    margin-left:10px;
+    margin-bottom:10px;
+    width:600px;
+}
+
+/* Style the list */
+ul.tab {
+    height:25px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    list-style-type: none;
+    margin-top:0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #266B6B;
+}
+
+/* Float the list items side by side */
+ul.tab li {float: left;}
+
+/* Style the links inside the list items */
+ul.tab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 5px 16px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 15px;
+    color:white;
+    font-family: "Ariel", Helvetica, san-serif;
+}
+
+/* Change background color of links on hover */
+ul.tab li a:hover {background-color: #5CB05C;}
+
+/* Create an active/current tablink class */
+ul.tab li a:focus, .active {background-color: #8CCE8C;}
+
+/* Style the tab content */
+.tabcontent{
+    display: none;
+    padding: 6px 12px;
+    border-top: none;
+}
+
+admincontent {
+    margin-left: 10px;
+    overflow:auto;
+    height: 600px;
+}
+
+.hide{
+    display:none;
+}
+
+.unhide{
+    display:inline-block;
+}
+
+input[type="submit"]{
+    border-radius: 5px;
+    border: 0;
+    width: 100px;
+    height:25px;
+    background: #266B6B;
+    margin-left: 100px;
+}
+
+button:hover,input[type = "submit"]:hover {
+    background: #5CB05C;
+}
+
+.data_type_submit{
+    display:none;
+}
+
+#dateselectordiv{
+    text-align:left;
+    margin:5px;
+}
+
+.dateselector{
+    width:130px;
+}
+
+#dateInstructDiv{
+    text-align:left;
+}

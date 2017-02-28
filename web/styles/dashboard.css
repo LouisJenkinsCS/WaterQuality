@@ -51,13 +51,18 @@ and open the template in the editor.
     top: 0px;
     position: fixed;
     z-index: -1;
-    opacity: 0.75;
+    opacity: 0.9;
     width: 100%;    
     height: 100%;
 }
 
+#Excel:hover{
+    cursor:pointer;
+}
+
 .title_bar_container{
     width: 100%;
+    min-width: 1000px;
     text-align: center;
     height: 50px;
     background-color: #266B6B;
@@ -111,34 +116,46 @@ and open the template in the editor.
     opacity:1;
 }
 
-
+/* Styles the large section that contains the graph, data, and 
+description boxes */
 #dashboard_container{
-    margin-top: 5%;
-    width: 1000px;
-    height: 1000px;
+    margin-top: 10px;
+    width: auto;
+    min-width:1000px;
+    overflow:auto;
+    padding-bottom:10px;
 }
 
+/* Styles the section with the data checboxes */
 #dashboard_data_container{
     float:right;
-    margin-top:5%;
+    margin-top:10px;
     margin-right:10px;
-    width: 300px;
-    position:relative;
+    margin-left:5px;
+    margin-bottom: 10px;;
+    min-width: 350px;
+    width:35%;
+    display:inline-block;
 }
 
+/* Styles the section the graph is displayed in */
 #graph_container{
     float:left;
-    margin-top: 5%;
+    margin-top: 10px;
     margin-left:10px;
-    width: 600px;
+    margin-right:5px;
+    min-width: 600px;
+    width:60%;
     position:relative;
 }
 
+/* Styles the description box */
 #dashboard_data_description{
     display:inline-block;
-    margin-top:10px;
-    margin-left:10px;
-    width:600px;
+    margin:10px 10px 0px 10px;
+    min-width:600px;
+    width:60%;
+    font-family: "Ariel", Helvetica, san-serif;
 }
 
 /* Style the list */
@@ -159,13 +176,13 @@ ul.tab li {float: left;}
 /* Style the links inside the list items */
 ul.tab li a {
     display: inline-block;
-    color: black;
     text-align: center;
     padding: 5px 16px;
     text-decoration: none;
     transition: 0.3s;
     font-size: 15px;
     color:white;
+    font-family: "Ariel", Helvetica, san-serif;
 }
 
 /* Change background color of links on hover */
@@ -195,13 +212,58 @@ input[type="submit"]{
     width: 100px;
     height:25px;
     background: #266B6B;
-    margin-left: 100px;
+    margin-bottom:10px;
+    font-family: "Ariel", Helvetica, san-serif;
+    color:white;
 }
 
 button:hover,input[type = "submit"]:hover {
     background: #5CB05C;
 }
 
+
+#exportbutton{
+    border: 0;
+    border-radius:0px;
+    width: 100px;
+    height:25px;
+    background: #266B6B;
+    margin-bottom:10px;
+    font-family: "Ariel", Helvetica, san-serif;
+    font-size:15px;
+    color:white;
+    width:auto;
+    height:25px;   
+}
+
+#exportbutton:hover{
+    background: #5CB05C;
+}
+
 .data_type_submit{
-    display:none;
+    text-align:center;
+}
+
+.data_type_form{
+    font-family: "Ariel", Helvetica, san-serif;
+    font-weight:bold;
+    font-stretch: ultra-expanded;
+}
+
+#dateselectordiv{
+    text-align:center;
+    margin:10px;
+}
+
+.dateselector{
+    width:auto;
+}
+
+#dateInstructDiv{
+    text-align:center;
+}
+
+#Graph{
+    width:auto;
+    min-width: 57.7%;
 }
