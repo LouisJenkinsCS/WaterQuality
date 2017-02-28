@@ -27,15 +27,15 @@ public class AdminServlet
         
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         DatabaseManager d = new DatabaseManager();
-        String action = request.getParameter("action");
+        String action = (String)request.getParameter("action");
         common.User admin = (common.User) session.getAttribute("user");
         
         if (action.trim().equalsIgnoreCase("InputData"))
         {
-            boolean inputStatus = d.manualInput(session.getAttribute("dataName"),
-                    session.getAttribute("units"),session.getAttribute("time"), 
-                    session.getAttribute("value"),session.getAttribute("delta"),
-                    session.getAttribute("id"), admin);
+            boolean inputStatus = d.manualInput((String)session.getAttribute("dataName"),
+                    (String)session.getAttribute("units"),(String)session.getAttribute("time"), 
+                    (float)session.getAttribute("value"),(float)session.getAttribute("delta"),
+                    (int)session.getAttribute("id"), admin);
             if(inputStatus)
                 session.setAttribute("inputStatus", "Data Input Successful");
             else
@@ -44,7 +44,7 @@ public class AdminServlet
         
         else if(action.trim().equalsIgnoreCase("RemoveData"))
         {
-            boolean dataRemovalStatus = d.manualDeletion(session.getAttribute("dataDeletionID"),
+            boolean dataRemovalStatus = d.manualDeletion((int)session.getAttribute("dataDeletionID"),
                     admin);
             if(dataRemovalStatus)
                 session.setAttribute("dataDeletionStatus", "Data Deletion Successful");
@@ -55,10 +55,10 @@ public class AdminServlet
         
         else if(action.trim().equalsIgnoreCase("RegisterUser"))
         {
-            boolean newUserStatus = d.addNewUser(session.getAttribute("username"), 
-                    session.getAttribute("password"), session.getAttribute("firstName"),
-                    session.getAttribute("lastName"), session.getAttribute("email"),
-                    UserRole.getUserRole(session.getAttribute("userRole")),
+            boolean newUserStatus = d.addNewUser((String)session.getAttribute("username"), 
+                    (String)session.getAttribute("password"), (String)session.getAttribute("firstName"),
+                    (String)session.getAttribute("lastName"), (String)session.getAttribute("email"),
+                    UserRole.getUserRole((String)session.getAttribute("userRole")),
                     admin);
             if(newUserStatus)
                 session.setAttribute("Status", "New User Registration Successful");
@@ -67,7 +67,7 @@ public class AdminServlet
         }
         else if(action.trim().equalsIgnoreCase("RemoveUser"))
         {
-            boolean userRemovalStatus = d.deleteUser(session.getAttribute("userDeletionID"),
+            boolean userRemovalStatus = d.deleteUser((int)session.getAttribute("userDeletionID"),
                     admin);
             if(userRemovalStatus)
                 session.setAttribute("userDeletionStatus", "User Deletion Successful");
@@ -77,7 +77,7 @@ public class AdminServlet
         
         else if(action.trim().equalsIgnoreCase("LockUser"))
         {
-            boolean lockStatus = d.deleteUser(session.getAttribute("userLockID"),
+            boolean lockStatus = d.deleteUser((int)session.getAttribute("userLockID"),
                     admin);
             if(lockStatus)
                 session.setAttribute("lockStatus", "User Deletion Successful");
@@ -87,7 +87,7 @@ public class AdminServlet
         
         else if(action.trim().equalsIgnoreCase("UnlockUser"))
         {
-            boolean unlockStatus = d.deleteUser(session.getAttribute("userUnlockID"),
+            boolean unlockStatus = d.deleteUser((int)session.getAttribute("userUnlockID"),
                     admin);
             if(unlockStatus)
                 session.setAttribute("unlockStatus", "User Unlock Successful");
@@ -97,8 +97,8 @@ public class AdminServlet
         
         else if(action.trim().equalsIgnoreCase("EditDesc"))
         {
-            boolean editDescStatus = d.updateDescription(session.getAttribute("description"),
-                    session.getAttribute("dataName"));
+            boolean editDescStatus = d.updateDescription((String)session.getAttribute("description"),
+                    (String)session.getAttribute("dataName"));
             if(editDescStatus)
                 session.setAttribute("editDescStatus", "Description Update Successful");
             else
