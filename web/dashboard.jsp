@@ -15,10 +15,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script src="dashboard_script.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
-        <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -53,8 +51,8 @@
                         <form><input id="exportbutton" type="submit" value="Export" onclick="exportData('exportbutton')"></form>
                     </li>
                 </ul>
-                <div id="Graph" class="tabcontent"></div>
-                <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
+                    <div id="Graph" class="tabcontent"></div>
+                    <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
                     ${Table}
                 </div>
                 <div id="Export" class="tabcontent">
@@ -228,89 +226,89 @@
             }
         </script>
         <script>
-            // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
-            var data = new DataResponse(${ChartData});
-            var timeStamps = getTimeStamps(data);
-            var timeStampStr = [];
+        // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
+        var data = new DataResponse(${ChartData});
+        var timeStamps = getTimeStamps(data);
+        var timeStampStr = [];
+        
+        // Convert timestamps to string; HighCharts already defines a nice formatting one.
+        for (i = 0; i < timeStamps.length; i++) {
+            timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
+        }
+        
+        var values = getDataValues(data);
+        // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
+        Highcharts.theme = {
+            chart: {
+                zoomType:'x',
+                backgroundColor:'white',
+                plotBackgroundColor: 'white',
+                width:null,
+                style: {
+                    fontFamily: 'Ariel, Helvetica, san-serif'
+                }
+            },
+            title: {
+               style: {
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase'
+               }
+            },
+            tooltip: {
+               borderWidth: 0,
+               backgroundColor: 'rgba(219,219,216,0.8)',
+               shadow: false
+            },
+            legend: {
+                itemStyle: {
+                    fontWeight: 'bold',
+                    fontSize: '13px'
+                }
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    minute: '%b/%e/%Y %H:%M'
+                },
+               gridLineWidth: 1,
+               labels: {
+                  style: {
+                     fontSize: '12px'
+                  }
+               },
+               title: {
+                    text: 'Date'
+                }
+            },
+            yAxis: {
+               minorTickInterval: 'auto',
+               title: {
+                  style: {
+                     textTransform: 'uppercase'
+                  }
+               },
+               labels: {
+                  style: {
+                     fontSize: '12px'
+                  }
+               }
+            },
+            plotOptions: {
+               candlestick: {
+                  lineColor: '#404048'
+               }
+            },
 
-            // Convert timestamps to string; HighCharts already defines a nice formatting one.
-            for (i = 0; i < timeStamps.length; i++) {
-                timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
-            }
+            // General
+            background2: '#FFF2D7'
+         };
 
-            var values = getDataValues(data);
-            // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
-            Highcharts.theme = {
-                chart: {
-                    zoomType: 'x',
-                    backgroundColor: 'white',
-                    plotBackgroundColor: 'white',
-                    width: null,
-                    style: {
-                        fontFamily: 'Ariel, Helvetica, san-serif'
-                    }
-                },
-                title: {
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        textTransform: 'uppercase'
-                    }
-                },
-                tooltip: {
-                    borderWidth: 0,
-                    backgroundColor: 'rgba(219,219,216,0.8)',
-                    shadow: false
-                },
-                legend: {
-                    itemStyle: {
-                        fontWeight: 'bold',
-                        fontSize: '13px'
-                    }
-                },
-                xAxis: {
-                    type: 'datetime',
-                    dateTimeLabelFormats: {
-                        minute: '%b/%e/%Y %H:%M'
-                    },
-                    gridLineWidth: 1,
-                    labels: {
-                        style: {
-                            fontSize: '12px'
-                        }
-                    },
-                    title: {
-                        text: 'Date'
-                    }
-                },
-                yAxis: {
-                    minorTickInterval: 'auto',
-                    title: {
-                        style: {
-                            textTransform: 'uppercase'
-                        }
-                    },
-                    labels: {
-                        style: {
-                            fontSize: '12px'
-                        }
-                    }
-                },
-                plotOptions: {
-                    candlestick: {
-                        lineColor: '#404048'
-                    }
-                },
-
-                // General
-                background2: '#FFF2D7'
-            };
-
-            // Apply the theme
-            Highcharts.setOptions(Highcharts.theme);
-
-            // Setup chart, the data will be fed from the servlet through JSP (temporary)
-            var chart = Highcharts.chart('Graph', {
+         // Apply the theme
+         Highcharts.setOptions(Highcharts.theme);
+         
+         // Setup chart, the data will be fed from the servlet through JSP (temporary)
+         var chart = Highcharts.chart('Graph', {
                 title: {
                     text: 'Water Creek Parameter Values',
                     x: -20 //center
@@ -332,7 +330,7 @@
                         value: 0,
                         width: 1,
                         color: '#808080'
-                    }],
+                    }]
                 },{ // Secondary yAxis
                     title: {
                         text: ''
@@ -361,7 +359,7 @@
          }
          
          // Limit the X-Axis to display only 5 at a time. Easier to read.
-         //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
+         chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
          </script>
          
         <script type="text/javascript">
