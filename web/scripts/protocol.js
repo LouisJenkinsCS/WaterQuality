@@ -37,18 +37,24 @@
 function DataRequest(startTime, endTime, parameters) {
     this.startTime = startTime;
     this.endTime = endTime;
-    this.parameters = parameters;
+    this.params = parameters;
 }
 
 DataRequest.prototype = {
-  toJSON : function() { JSON.stringify(this); }
+    
 };
 
 function DataResponse(json) {
+    if (typeof json != "object") {
+        json = JSON.parse(json);
+    } 
     console.log(json);
     // Obtain data from response as JSONArray
     this.data = json["resp"];
-    console.log(this.toString());
+    console.log(this.data);
+    for (var i = 0; i < this.data.length; i++) {
+        console.log("Parsed: " + this.data[i]["name"] + " with " + this.data[i]["data"].length + " items...");
+    }
 }
 
 DataResponse.prototype = {

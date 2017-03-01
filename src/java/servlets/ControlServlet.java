@@ -5,6 +5,7 @@ import async.DataParameter;
 import async.DataReceiver;
 import async.DataValue;
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -14,6 +15,8 @@ import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -24,6 +27,8 @@ import javax.servlet.http.HttpSession;
 import org.javatuples.Triplet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import protocol.JSONProtocol;
 import utilities.TimeStampFormatter;
 
@@ -41,21 +46,25 @@ public class ControlServlet extends HttpServlet {
 
     private void defaultHandler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         StringBuilder data = new StringBuilder();
-        
+
         long defaultId = DataReceiver.getParameters().blockingFirst().getId();
         Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), defaultId);
         DataReceiver
                 .getParameters()
+                .observeOn(Schedulers.computation())
                 // Display based on lexicographical ordering
                 .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
                 // Generate a checkbox for each parameter.
                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
                 .blockingSubscribe(data::append);
         
+        System.out.println("Thread: " + Thread.currentThread().getName());
         JSONProtocol proto = new JSONProtocol();
-        JSONObject resp = proto.processUsing(source).blockingFirst();
-        System.out.println("JSONProtocol: " + resp.toJSONString());
-  
+        proto
+                .processUsing(source)
+                .subscribeOn(Schedulers.computation())
+                .blockingSubscribe((JSONObject resp) -> request.setAttribute("ChartData", resp));
+        
         String defaultDescription = "<center><h1>None Selected</h1></center>";
         String defaultTable = "<table border='1'>\n"
                 + "	<tr>\n"
@@ -63,8 +72,7 @@ public class ControlServlet extends HttpServlet {
                 + "               <th>(NULL)</th>\n"
                 + "	</tr>\n"
                 + "</table>";
-        
-        request.setAttribute("ChartData", resp);
+
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
         request.setAttribute("Table", DataReceiver.generateTable(source));
@@ -89,31 +97,44 @@ public class ControlServlet extends HttpServlet {
         final Object lock = session.getId().intern();//To synchronize the session variable
         database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
         common.User user = (common.User) session.getAttribute("user");
-        String action = request.getParameter("control");
+        String action = request.getParameter("action");
 
         // Nothing was selected, go back to dashboard.
         if (action == null) {
             defaultHandler(request, response);
+            return;
         }
 
         log("Action is: " + action);
-
+        
+        if (action.trim().equalsIgnoreCase("fetchQuery")) {
+            String data = request.getParameter("query");
+            System.out.println("Data Received: " + data);
+            JSONProtocol proto = new JSONProtocol();
+            try {
+                proto.process((JSONObject) new JSONParser().parse(data)).subscribe(obj -> response.getWriter().append(obj.toJSONString()));
+            } catch (ParseException ex) {
+                Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
+        
         if (action.trim().equalsIgnoreCase("getData")) {
             String start = request.getParameterValues("startdate")[0];
             String end = request.getParameterValues("enddate")[0];
             log("Start: " + start);
             log("End: " + start);
-            
-            if(!start.endsWith(":00")) {
+
+            if (!start.endsWith(":00")) {
                 start += ":00";
             }
             start += "Z";
-            
+
             if (!end.endsWith(":00")) {
                 end += ":00";
             }
             end += "Z";
-            
+
             Long[] selected = request
                     .getParameterMap()
                     .keySet()
@@ -130,25 +151,93 @@ public class ControlServlet extends HttpServlet {
             }
 
             log("User Selected: " + Arrays.deepToString(selected));
-            
+
             // Obtain the data for what is selected
             Data source = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
             JSONProtocol proto = new JSONProtocol();
-            JSONObject resp = proto.processUsing(source).blockingFirst();
-            System.out.println("JSONProtocol: " + resp.toJSONString());
-            
+            proto
+                .processUsing(source)
+                .subscribeOn(Schedulers.computation())
+                .blockingSubscribe((JSONObject resp) -> request.setAttribute("ChartData", resp));
+
             StringBuilder paramData = new StringBuilder();
             DataReceiver
-                 .getParameters()
-                 // Display based on lexicographical ordering
-                 .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
-                 // Generate a checkbox for each parameter.
-                 .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
-                 .blockingSubscribe(paramData::append);
+                    .getParameters()
+                    // Display based on lexicographical ordering
+                    .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                    // Generate a checkbox for each parameter.
+                    .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
+                    .blockingSubscribe(paramData::append);
 
             request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-            request.setAttribute("ChartData", resp);
             request.setAttribute("Table", DataReceiver.generateTable(source));
+            request.setAttribute("Parameters", paramData.toString());
+
+            request.getServletContext()
+                    .getRequestDispatcher("/dashboard.jsp")
+                    .forward(request, response);
+            log("Got Action: " + action);
+            return;
+        }
+        if (action.trim().equalsIgnoreCase("Table")) {
+            String start = request.getParameterValues("startdate")[0];
+            String end = request.getParameterValues("enddate")[0];
+            log("Start: " + start);
+            log("End: " + start);
+
+            if (!start.endsWith(":00")) {
+                start += ":00";
+            }
+            start += "Z";
+
+            if (!end.endsWith(":00")) {
+                end += ":00";
+            }
+            end += "Z";
+
+            Long[] selected = request
+                    .getParameterMap()
+                    .keySet()
+                    .stream()
+                    .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList())
+                    .toArray(new Long[0]);
+
+            // Nothing selected...
+            if (selected == null || selected.length == 0) {
+                defaultHandler(request, response);
+                return;
+            }
+
+            log("User Selected: " + Arrays.deepToString(selected));
+
+            // Obtain the data for what is selected
+            Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
+            String descriptions = DataReceiver.generateDescriptions(data);
+            String table = DataReceiver.generateTable(data);
+            StringBuilder categories = new StringBuilder("categories: [");
+            data.getData()
+                    .map(DataValue::getTimestamp)
+                    .distinct()
+                    .sorted()
+                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
+                    .blockingSubscribe(categories::append);
+            categories.append("]");
+
+            StringBuilder paramData = new StringBuilder();
+            DataReceiver
+                    .getParameters()
+                    // Display based on lexicographical ordering
+                    .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
+                    // Generate a checkbox for each parameter.
+                    .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
+                    .blockingSubscribe(paramData::append);
+
+            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
+            //request.setAttribute("HighChartJS_Categories", categories);
+            //request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
+            request.setAttribute("Table", DataReceiver.generateTable(data));
             request.setAttribute("Parameters", paramData.toString());
 
             request.getServletContext()
@@ -183,7 +272,6 @@ public class ControlServlet extends HttpServlet {
 //            user.setAttemptedLoginCount(0);
 //            user.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
 //            um.updateUser(user);
-
             // Always lock a session variable to be thread safe.
             synchronized (lock) {
                 session.setAttribute("user", user);//update information in the session attribute

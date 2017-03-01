@@ -46,6 +46,12 @@ public class DataValue implements Comparable<DataValue> {
     Instant timestamp; 
     Double value;
     
+    public DataValue(long id, Instant timestamp, Double value) {
+        this.value = value;
+        this.id = id;
+        this.timestamp = timestamp;
+    }
+    
     public DataValue(long id, String timestamp, Double value) throws ParseException {
         // Parse the timestamp into an equivalent Instant
         // Example of timestamp can be seen here: 
@@ -83,6 +89,11 @@ public class DataValue implements Comparable<DataValue> {
     @Override
     public int compareTo(DataValue o) {
         return this.timestamp.compareTo(o.timestamp);
+    }
+
+    @Override
+    public String toString() {
+        return "DataValue{" + "id=" + id + ", timestamp=" + timestamp.toEpochMilli() + ", value=" + value + '}';
     }
     
     

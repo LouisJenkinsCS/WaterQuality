@@ -6,7 +6,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="styles/admin.css" type="text/css">
+	<link rel="stylesheet" href="styles/admin_dan_wip.css" type="text/css">
 	<noscript>
 		<meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
 	</noscript>
@@ -14,42 +14,42 @@
 </head>
 
 <body>
-	<img id="backPhoto" src="images/Creek3.JPEG">
-	<header class="Banner"> 
-            <div id="Banner_Text">Water Quality</div>
+	<img id="back_photo" src="images/Creek3.jpeg">
+	<header class="banner"> 
+            <div id="banner__text">Water Quality</div>
 	</header>
-	<section class="ContentBox">
-		<header class="ContentBox_Banner">
-			<div class="ContentBox_Banner_Text">
+	<section class="content_box">
+		<header class="content_box__banner">
+			<div class="content_box__banner__text">
 				User Priviledges
 			</div>
 		</header>
 		<!--tabs modified from w3schools.com-->
 		<div class="tabs">
-			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'InputData')">Input Data</a>
-			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'DeleteData')">Remove Data</a>
-			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'RegisterUser')">Register User</a>
-			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'RemoveUser')">Remove User</a>
-			<a href="javascript:void(0)" class="TabLinks" onclick="clickTab(event, 'EditDesc')">Edit Desc</a>
+			<a href="javascript:void(0)" class="tabs" onclick="clickTab(event, 'InputData')">Input Data</a>
+			<a href="javascript:void(0)" class="tabs" onclick="clickTab(event, 'DeleteData')">Remove Data</a>
+			<a href="javascript:void(0)" class="tabs" onclick="clickTab(event, 'RegisterUser')">Register User</a>
+			<a href="javascript:void(0)" class="tabs" onclick="clickTab(event, 'RemoveUser')">Remove User</a>
+			<a href="javascript:void(0)" class="tabs" onclick="clickTab(event, 'EditDesc')">Edit Desc</a>
 		</div>
 
-		<div id="InputData" class="TabContent">
+		<div id="InputData" class="tab_content">
 			Interface for Inputting Data goes here.  This can be done with an include page for clean html.
 		</div>
 
-		<div id="DeleteData" class="TabContent">
+		<div id="DeleteData" class="tab_content">
 			Interface for Deleting Data goes here.  This can be done with an include page for clean html.
 		</div>
 
-		<div id="RegisterUser" class="TabContent">
+		<div id="RegisterUser" class="tab_content">
 			Interface for Registering Users goes here.  This can be done with an include page for clean html.
 		</div>
 		
-		<div id="RemoveUser" class="TabContent">
+		<div id="RemoveUser" class="tab_content">
 			Interface for Removing Users goes here.  This can be done with an include page for clean html.
 		</div>
 		
-		<div id="EditDesc" class="TabContent">
+		<div id="EditDesc" class="tab_content">
 			Interface for Editing Descriptions goes here.  This can be done with an include page for clean html.
 		</div>
 		
@@ -64,18 +64,18 @@
 		 */
 		function clickTab(event, tabName) {
 			// Declare all variables
-			var i, arrTabContents, arrTabLinks;
+			var i, arrTabContents, arrTabs;
 
 			// Get all elements with class="tabcontent" and hide them
-			arrTabContents = document.getElementsByClassName("TabContent");
+			arrTabContents = document.getElementsByClassName("tab_content");
 			for (i = 0; i < arrTabContents.length; i++) {
 				arrTabContents[i].style.display = "none";
 			}
 
 			// Get all elements with class="TabLink" and remove the class "active"
-			arrTabLinks = document.getElementsByClassName("TabLink");
-			for (i = 0; i < arrTabLinks.length; i++) {
-				arrTabLinks[i].className = arrTabLinks[i].className.replace(" active", "");
+			arrTabs = document.getElementsByClassName("tabs");
+			for (i = 0; i < arrTabs.length; i++) {
+				arrTabs[i].className = arrTabs[i].className.replace(" active", "");
 			}
 
 			// Show the current tab, and add an "active" class to the link that opened the tab

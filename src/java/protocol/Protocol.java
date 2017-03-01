@@ -34,7 +34,10 @@ import async.Data;
 import io.reactivex.Observable;
 
 /**
- *
+ * A generic interface that can be used for processing user requests.
+ * 
+ * TODO: Create a factory method that returns Protocols based on type.
+ * 
  * @author Louis Jenkins
  */
 public interface Protocol<T, R> {
