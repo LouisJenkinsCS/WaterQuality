@@ -22,3 +22,11 @@ function post_get(method, target, data, callback)
         }
     });
 }
+
+function post(target, data, callback) {
+    post_get('POST', target, data, callback);
+}
+
+function get(target, data, callback) {
+    post_get('GET', target, data, callback);
+}
