@@ -15,6 +15,8 @@ import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,6 +27,8 @@ import javax.servlet.http.HttpSession;
 import org.javatuples.Triplet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import protocol.JSONProtocol;
 import utilities.TimeStampFormatter;
 
@@ -93,11 +97,12 @@ public class ControlServlet extends HttpServlet {
         final Object lock = session.getId().intern();//To synchronize the session variable
         database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
         common.User user = (common.User) session.getAttribute("user");
-        String action = request.getParameter("control");
+        String action = request.getParameter("action");
 
         // Nothing was selected, go back to dashboard.
         if (action == null) {
             defaultHandler(request, response);
+            return;
         }
 
         /*
@@ -108,10 +113,23 @@ public class ControlServlet extends HttpServlet {
         if (action.trim().equalsIgnoreCase("test")) {
             String output = request.getParameter("value");
             log("Request value: " + output);
+            return;
         }
 
         log("Action is: " + action);
-
+        
+        if (action.trim().equalsIgnoreCase("fetchQuery")) {
+            String data = request.getParameter("query");
+            System.out.println("Data Received: " + data);
+            JSONProtocol proto = new JSONProtocol();
+            try {
+                proto.process((JSONObject) new JSONParser().parse(data)).subscribe(obj -> System.out.println("Request: " + obj));
+            } catch (ParseException ex) {
+                Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
+        
         if (action.trim().equalsIgnoreCase("getData")) {
             String start = request.getParameterValues("startdate")[0];
             String end = request.getParameterValues("enddate")[0];

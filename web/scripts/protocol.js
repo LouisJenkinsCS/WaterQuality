@@ -37,11 +37,11 @@
 function DataRequest(startTime, endTime, parameters) {
     this.startTime = startTime;
     this.endTime = endTime;
-    this.parameters = parameters;
+    this.params = parameters;
 }
 
 DataRequest.prototype = {
-  toJSON : function() { JSON.stringify(this); }
+    
 };
 
 function DataResponse(json) {

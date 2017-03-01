@@ -177,30 +177,6 @@
 <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
 
         <script>
-            function post(path, params, method) {
-                method = method || "post"; // Set method to post by default if not specified.
-
-                // The rest of this code assumes you are not using a library.
-                // It can be made less wordy if you use one.
-                var form = document.createElement("form");
-                form.setAttribute("method", method);
-                form.setAttribute("action", path);
-
-                for (var key in params) {
-                    if (params.hasOwnProperty(key)) {
-                        var hiddenField = document.createElement("input");
-                        hiddenField.setAttribute("type", "hidden");
-                        hiddenField.setAttribute("name", key);
-                        hiddenField.setAttribute("value", params[key]);
-
-                        form.appendChild(hiddenField);
-                    }
-                }
-
-                document.body.appendChild(form);
-                form.submit();
-            }
-
             function handleClick(cb)
             {
                 if (current == 'Graph') {
@@ -359,6 +335,11 @@
             chart.yAxis[i].setTitle({ text: data.data[i]["name"] });
          }
          
+         function fetchData(json) {
+             var resp = new DataResponse(json);
+             
+         }
+         
          // Limit the X-Axis to display only 5 at a time. Easier to read.
          //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
          </script>
@@ -467,10 +448,19 @@
              */
             function fullCheck(id) {
                 var item = document.getElementById(id);
+                var startTime = new Date(document.getElementById("startdate").value).getTime();
+                var endTime = new Date(document.getElementById("enddate").value).getTime();
+                var selected = [];
+                console.log("Start: " + startTime + " end: " + endTime);
                 if (item.checked == true) {
-                    if (checkedBoxes < 2)
+                    if (checkedBoxes < 2) { 
                         checkedBoxes++;
-                    else {
+                        console.log("Sending data...");
+                        selected.push(Number(item.name));
+                        var request = new DataRequest(startTime, endTime, selected);
+                        post("ControlServlet", { action: "fetchQuery", query: JSON.stringify(request) }, fetchData);
+                        console.log("Sent...");
+                    } else {
                         item.checked = false;
                     }
                 } else
