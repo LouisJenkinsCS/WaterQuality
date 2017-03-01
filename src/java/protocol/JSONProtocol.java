@@ -35,6 +35,7 @@ import async.DataReceiver;
 import async.DataValue;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
+import io.reactivex.schedulers.Schedulers;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +80,8 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
 
                     // Create a JSONArray filled with the DataValues. They are sorted
                     // by timestamp to make it easier on the front-end.
-                    return group.sorted()
+                    return group
+                            .sorted()
                             // DataValue -> JSONObject
                             .map((DataValue dv) -> {
                                 JSONObject dataField = new JSONObject();

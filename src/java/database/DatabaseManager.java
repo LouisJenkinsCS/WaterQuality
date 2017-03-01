@@ -166,7 +166,7 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta,id) "
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta,entryID) "
                     + "values(?,?,?,?,?,?,?)";
             String sensor = u.getFirstName()+u.getLastName();
             if(sensor.length() > 20)
@@ -185,6 +185,7 @@ public class DatabaseManager
             insertData.setFloat(5, value);
             insertData.setFloat(6, delta);
             insertData.setInt(7, id);
+            System.out.println("Query:     " + insertData);
             insertData.executeUpdate();
             conn.commit();
             status = true;
