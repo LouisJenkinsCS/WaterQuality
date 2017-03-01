@@ -1,5 +1,6 @@
 package database;
 
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import utilities.WebErrorLogger;
 import utilities.PropertyManager;
 
@@ -31,7 +33,17 @@ public class Web_MYSQL_Helper {
     
     public static void initialize(){
       initialized = true;
-      PropertyManager.configure("p:/Desktop/Github/WaterQuality/web/WEB-INF/config/General.properties");
+      String dir = null;
+        try {
+            dir = Web_MYSQL_Helper.class.getResource("../../config/General.properties").toURI().toString();
+            dir = dir.substring(6);
+            System.out.println("dir: " + dir);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      
+      
+      PropertyManager.configure(dir);
       PropertyManager.setProperty("UseDBPooling", "no");
       USE_DB_POOLING = PropertyManager.getProperty("UseDBPooling").equalsIgnoreCase("yes");
       hostname = PropertyManager.getProperty("MySQLHostName").trim();
