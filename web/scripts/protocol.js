@@ -45,10 +45,16 @@ DataRequest.prototype = {
 };
 
 function DataResponse(json) {
+    if (typeof json != "object") {
+        json = JSON.parse(json);
+    } 
     console.log(json);
     // Obtain data from response as JSONArray
     this.data = json["resp"];
-    console.log(this.toString());
+    console.log(this.data);
+    for (var i = 0; i < this.data.length; i++) {
+        console.log("Parsed: " + this.data[i]["name"] + " with " + this.data[i]["data"].length + " items...");
+    }
 }
 
 DataResponse.prototype = {
