@@ -119,11 +119,11 @@ and open the template in the editor.
 /* Styles the large section that contains the graph, data, and 
 description boxes */
 #dashboard_container{
-    margin-top: 10px;
+    margin-top:10px;
     width: auto;
     min-width:1000px;
     overflow:auto;
-    padding-bottom:10px;
+    padding-bottom:10px;   
 }
 
 /* Styles the section with the data checboxes */

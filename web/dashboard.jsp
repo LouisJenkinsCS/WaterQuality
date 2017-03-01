@@ -173,8 +173,8 @@
                 document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
                 document.getElementById("enddate").setAttribute("min", document.getElementById("startdate").value);
             }
-        </script>
-        <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
+            </script>
+<!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
 
         <script>
             function handleClick(cb)
