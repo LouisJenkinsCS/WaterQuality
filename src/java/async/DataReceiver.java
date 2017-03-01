@@ -32,6 +32,7 @@ package async;
 
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
+import io.reactivex.schedulers.Schedulers;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -157,6 +158,7 @@ public class DataReceiver {
                 .fromArray(keys)
                 .flatMap((Long key) ->
                     getData(getParameterURL(start, end, key))
+//                            .observeOn(Schedulers.computation())
                             // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
                             // We need to obtain the "data" parameter, which a JSONArray.
                             .map((JSONObject obj) -> (JSONArray) obj.get("data"))
@@ -167,6 +169,8 @@ public class DataReceiver {
                             // We take both the timestamp (X-Axis) and the value (Y-Axis).
                             // This data is what is returned as a DataValue.
                             .map((JSONObject obj) -> new DataValue(key, (String) obj.get("timestamp"), (Double) obj.get("value")))
+                            // The server sometimes sends duplicate data values for timestamps, so we filter them here.
+                            .distinct(dv -> dv.getTimestamp())
                 // 'replay' is a way to say that we want to take ALL items up to this point (being the DataValues), cache it, and then
                 // resend it each and every time it is subscribed to (pretty much meaning this becomes reusable).
                 ).replay());

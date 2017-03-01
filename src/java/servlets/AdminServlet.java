@@ -21,93 +21,92 @@ import javax.servlet.http.HttpSession;
  * @author Tyler Mutzek
  */
 @WebServlet(name = "AdminServlet", urlPatterns = {"/AdminServlet"})
-public class AdminServlet extends HttpServlet
-{
+public class AdminServlet extends HttpServlet {
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
+        final Object lock = session.getId().intern();
         DatabaseManager d = new DatabaseManager();
-        String action = (String)request.getParameter("action");
+        session.setAttribute("user", new common.User());
         common.User admin = (common.User) session.getAttribute("user");
-        
-        if (action.trim().equalsIgnoreCase("InputData"))
-        {
-            boolean inputStatus = d.manualInput((String)session.getAttribute("dataName"),
-                    (String)session.getAttribute("units"),LocalDateTime.parse((String)session.getAttribute("time")), 
-                    (float)session.getAttribute("value"),(float)session.getAttribute("delta"),
-                    (int)session.getAttribute("id"), admin);
-            if(inputStatus)
-                session.setAttribute("inputStatus", "Data Input Successful");
-            else
-                session.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
-        }
-        
-        else if(action.trim().equalsIgnoreCase("RemoveData"))
-        {
-            boolean dataRemovalStatus = d.manualDeletion((int)session.getAttribute("dataDeletionID"),
+        String action = request.getParameter("action");
+
+        if (action.trim().equalsIgnoreCase("InputData")) {
+            System.out.println(request.getParameter("dataName"));
+            System.out.println(request.getParameter("units"));
+            System.out.println(request.getParameter("value"));
+            System.out.println(request.getParameter("id"));
+            System.out.println(request.getParameter("time"));
+            System.out.println(request.getParameter("delta"));
+            System.out.println(admin.getFirstName());
+            System.out.println(admin.getLastName());
+            boolean inputStatus = d.manualInput((String) request.getParameter("dataName"),
+                    (String) request.getParameter("units"), LocalDateTime.parse((String) request.getParameter("time")),
+                    Float.parseFloat((String) request.getParameter("value")), Float.parseFloat((String) request.getParameter("delta")),
+                    Integer.parseInt((String) request.getParameter("id")), admin);
+            if (inputStatus) {
+                request.setAttribute("inputStatus", "Data Input Successful");
+            } else {
+                request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
+            }
+        } else if (action.trim().equalsIgnoreCase("RemoveData")) {
+            boolean dataRemovalStatus = d.manualDeletion((int) session.getAttribute("dataDeletionID"),
                     admin);
-            if(dataRemovalStatus)
+            if (dataRemovalStatus) {
                 session.setAttribute("dataDeletionStatus", "Data Deletion Successful");
-            else
+            } else {
                 session.setAttribute("dataDeletionStatus", "Data Deletion Unsuccessful");
-            
-        }
-        
-        else if(action.trim().equalsIgnoreCase("RegisterUser"))
-        {
-            boolean newUserStatus = d.addNewUser((String)session.getAttribute("username"), 
-                    (String)session.getAttribute("password"), (String)session.getAttribute("firstName"),
-                    (String)session.getAttribute("lastName"), (String)session.getAttribute("email"),
-                    UserRole.getUserRole((String)session.getAttribute("userRole")),
+            }
+
+        } else if (action.trim().equalsIgnoreCase("RegisterUser")) {
+            boolean newUserStatus = d.addNewUser((String) session.getAttribute("username"),
+                    (String) session.getAttribute("password"), (String) session.getAttribute("firstName"),
+                    (String) session.getAttribute("lastName"), (String) session.getAttribute("email"),
+                    UserRole.getUserRole((String) session.getAttribute("userRole")),
                     admin);
-            if(newUserStatus)
+            if (newUserStatus) {
                 session.setAttribute("Status", "New User Registration Successful");
-            else
+            } else {
                 session.setAttribute("inputStatus", "New User Registration *Unsuccessful. Check your syntax");
-        }
-        else if(action.trim().equalsIgnoreCase("RemoveUser"))
-        {
-            boolean userRemovalStatus = d.deleteUser((int)session.getAttribute("userDeletionID"),
+            }
+        } else if (action.trim().equalsIgnoreCase("RemoveUser")) {
+            boolean userRemovalStatus = d.deleteUser((int) session.getAttribute("userDeletionID"),
                     admin);
-            if(userRemovalStatus)
+            if (userRemovalStatus) {
                 session.setAttribute("userDeletionStatus", "User Deletion Successful");
-            else
+            } else {
                 session.setAttribute("userDeletionStatus", "User Deletion Unsuccessful");
-        }
-        
-        else if(action.trim().equalsIgnoreCase("LockUser"))
-        {
-            boolean lockStatus = d.deleteUser((int)session.getAttribute("userLockID"),
+            }
+        } else if (action.trim().equalsIgnoreCase("LockUser")) {
+            boolean lockStatus = d.deleteUser((int) session.getAttribute("userLockID"),
                     admin);
-            if(lockStatus)
+            if (lockStatus) {
                 session.setAttribute("lockStatus", "User Deletion Successful");
-            else
+            } else {
                 session.setAttribute("lockStatus", "User Deletion Unsuccessful");
-        }
-        
-        else if(action.trim().equalsIgnoreCase("UnlockUser"))
-        {
-            boolean unlockStatus = d.deleteUser((int)session.getAttribute("userUnlockID"),
+            }
+        } else if (action.trim().equalsIgnoreCase("UnlockUser")) {
+            boolean unlockStatus = d.deleteUser((int) session.getAttribute("userUnlockID"),
                     admin);
-            if(unlockStatus)
+            if (unlockStatus) {
                 session.setAttribute("unlockStatus", "User Unlock Successful");
-            else
+            } else {
                 session.setAttribute("unlockStatus", "User Unlock Unsuccessful");
-        }
-        
-        else if(action.trim().equalsIgnoreCase("EditDesc"))
-        {
-            boolean editDescStatus = d.updateDescription((String)session.getAttribute("description"),
-                    (String)session.getAttribute("dataName"));
-            if(editDescStatus)
+            }
+        } else if (action.trim().equalsIgnoreCase("EditDesc")) {
+            boolean editDescStatus = d.updateDescription((String) session.getAttribute("description"),
+                    (String) session.getAttribute("dataName"));
+            if (editDescStatus) {
                 session.setAttribute("editDescStatus", "Description Update Successful");
-            else
+            } else {
                 session.setAttribute("editDescStatus", "Description Update Unsuccessful");
+            }
         }
-        
+
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

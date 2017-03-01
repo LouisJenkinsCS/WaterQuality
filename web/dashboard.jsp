@@ -15,7 +15,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script src="dashboard_script.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
@@ -25,7 +24,7 @@
         </noscript>
         <title>Dashboard</title>
     </head>
-    <body>
+    <body onload=>
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container"> 
             <div id="HeaderText">Water Quality</div>
