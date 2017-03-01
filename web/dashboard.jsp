@@ -15,7 +15,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script src="dashboard_script.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -326,7 +325,7 @@
                         value: 0,
                         width: 1,
                         color: '#808080'
-                    }],
+                    }]
                 },{ // Secondary yAxis
                     title: {
                         text: ''
@@ -356,7 +355,7 @@
          }
          
          // Limit the X-Axis to display only 5 at a time. Easier to read.
-         //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
+         chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
          </script>
          
         <script type="text/javascript">
