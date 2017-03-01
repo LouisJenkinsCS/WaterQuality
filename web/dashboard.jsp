@@ -202,19 +202,6 @@
 
             }
 
-            function graphSubmit() {
-                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                var data = "{ data: [";
-                for (var i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i].checked == true) {
-                        data += checkbox[i].id.toString();
-                    }
-                }
-                data += "] }";
-
-                post("ControlServlet", {key: 'control', control: 'getData ' + data});
-            }
-
             function exportData(id) {
                 document.write(id);
             }
@@ -224,13 +211,13 @@
             var data = new DataResponse(${ChartData});
             var timeStamps = getTimeStamps(data);
             var timeStampStr = [];
-
+            var values = getDataValues(data);
             // Convert timestamps to string; HighCharts already defines a nice formatting one.
             for (i = 0; i < timeStamps.length; i++) {
-                timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
+                timeStampStr.push([new Date(timeStamps[i]), values[0][i]]);
             }
 
-            var values = getDataValues(data);
+            
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
                 chart: {
@@ -311,7 +298,20 @@
                     x: -20
                 },
                 xAxis: {
-                    categories: timeStampStr
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                            millisecond: '%H:%M:%S.%L',
+                            second: '%H:%M:%S',
+                            minute: '%H:%M',
+                            hour: '%H:%M',
+                            day: '%m/%e',
+                            week: '%m/%b',
+                            month: '%b \'%Y',
+                            year: '%Y'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
                 },
                 yAxis: [{
                         title: {
@@ -346,7 +346,7 @@
                 chart.addSeries({
                     yAxis: i,
                     name: data.data[i]["name"],
-                    data: values[i]
+                    data: timeStampStr
                 }, false);
                 chart.yAxis[i].setTitle({text: data.data[i]["name"]});
             }
@@ -357,14 +357,17 @@
                 var data = new DataResponse(json);
                 var timeStamps = getTimeStamps(data);
                 var timeStampStr = [];
-
-                // Convert timestamps to string; HighCharts already defines a nice formatting one.
-                for (i = 0; i < timeStamps.length; i++) {
-                    timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
-                }
-
                 var values = getDataValues(data);
-                chart.xAxis[0].setCategories(timeStampStr);
+                // Convert timestamps to string; HighCharts already defines a nice formatting one.
+                for (var i = 0; i < values.length; i++) {
+                    var arr = [];
+                    for (var j = 0; j < timeStamps.length; j++) {
+                        arr.push([new Date(timeStamps[j]), values[i][j]]);
+                        console.log("Pushed: " +  values[i][j]);
+                    }
+                    timeStampStr.push(arr);
+                    console.log("Pushed: " + arr);
+                }
                 
                 // Remove all series data
                 while(chart.series.length > 0)
@@ -374,7 +377,7 @@
                     chart.addSeries({
                         yAxis: i,
                         name: data.data[i]["name"],
-                        data: values[i]
+                        data: timeStampStr[i]
                     }, false);
                     chart.yAxis[i].setTitle({text: data.data[i]["name"]});
                 }
