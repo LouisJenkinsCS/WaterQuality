@@ -68,12 +68,16 @@
                     <script>                        
                         var data = {action: 'InputData', dataName: 'Temperature',
                             units: 'C', time: '2007-12-03T10:15:30',
-                            value: '13.0', delta: '2.0', id: '126'}
+                            value: '13.0', delta: '2.0', id: '126',
+                            inputStatus: ''}
                     </script>
 
-                    <button onclick="
-                    post_get('POST', 'AdminServlet', data, function(inputStatus){
-                    console.log('Input status:' + inputStatus);
+                    <a id="thisarea"></a>
+                    
+                    <button id="thisbutton" onclick="
+                    post_get('POST', 'AdminServlet', data, function(responseText){
+                        //console.log(responseText);
+                    $(#thisarea).append(inputStatus);
                     });">
                     </button>
 
