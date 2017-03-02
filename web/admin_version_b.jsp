@@ -13,6 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles/admin_version_b.css" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -55,82 +56,79 @@
             <!--Admin insertion functionality and GUI are defined here-->
             <admincontent id="Input_Data" class="tab_content">
 
-                <form id="csv_upload_form" action="ControlServlet" method="POST">
-                    <div class="large_text">Upload .CSV File</div>
+                    <!--                    <form id="csv_upload_form" action="ControlServlet" method="POST">-->
+                    <h2>Upload .CSV File</h2>
                     <input type="file" value="Browse..."><br/>
                     <input type="submit" value="Submit">
-                </form>
+                    <!--                    </form>-->
 
-<!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">
+                    <!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">-->
+
+
+                    <script>
+                        var data = {action: 'InputData', dataName: 'Temperature',
+                            units: 'C', time: '2007-12-03T10:15:30',
+                            value: '13.0', delta: '2.0', id: '639121399'}
+                    </script>
+
+                    <button onclick="
+                    post_get('POST', 'AdminServlet', data, function(){
+                    console.log('Input status:' + inputStatus);
+                    });">
+                    </button>
+
                     <h2>Enter Data Manually:</h2>
-                    Date: <input type="date" name="data_date"><br/>
-                    Time: <input type="time" name="data_time"><br/>
+                    Date: <input id= "manual_date" type="date" name="data_date"><br/>
+                    Time: <input id = "manual_time" type="time" name="data_time"><br/>
                     Parameter: <select id="select_param" width:20px></select><br/>
                     Value: <input type="text" name="value"><br/>
-                    <input type="submit" value="Submit">
+                    <input id="manual_submit" type="submit" value="Submit"><!--
                 </form>
 
                 <button type="button" onclick="createNewInput()">+</button>
                 <div id="new_input_space"></div>-->
 
-                <div id="data_entry"></div>
-                <script src="data_entry.js"></script>
+                    <div id="data_entry"></div>
 
-            </admincontent>
+                </admincontent>
 
-            <!--Admin deletion functionality and GUI are defined here-->
-            <admincontent id="Delete_Data" class="tab_content">
-                <form action="ControlServlet" method="POST">
-                    <div class="large_text">Time Frame:</div>
-                    <div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-dd)</div>
-                    <div id="dateselectordiv" onclick="dateLimits();">
-                        <input class="dateselector" id="startdate" type="date" min="2016-01-01" max="" value="2017-02-18"> to
-                        <input class="dateselector" id="enddate" type="date" min="2016-01-01" max="" value=""></div>
-                    <div class="large_text">Parameter to delete:</div>
-                    <select>
-                        <!--populate with parameters-->
-                        <option>Air Temp</option>
-                        <option>Water Temp</option>
-                    </select>
-                    <div class="large_text">Please select the data entry from below:</div>
-                    <table border="2">
-                        <!--populate with data within specifications-->
-                        <tr><td>paramname</td><td>value</td></tr>
-                        <tr><td>Air Temp</td><td>5</td><td><input type="checkbox"></td></tr>
-                        <tr><td>Water Temp</td><td>6</td><td><input type="checkbox"></td></tr>
-                    </table><br/>
-                    <input type="submit" value="Delete">
-                </form>
-            </admincontent>
+                <!--Admin deletion functionality and GUI are defined here-->
+                <admincontent id="Delete_Data" class="tabcontent">
+                    <form action="ControlServlet" method="POST">
+                        <h2>Time Frame:</h2>
+                        <div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-dd)</div>
+                        <div id="dateselectordiv" onclick="dateLimits();">
+                            <input class="dateselector" id="startdate" type="date" min="2016-01-01" max="" value="2017-02-18"> to
+                            <input class="dateselector" id="enddate" type="date" min="2016-01-01" max="" value=""></div>
+                        <h2>Parameter to delete:</h2>
+                        <select>
+                            <!--populate with parameters-->
+                            <option>Air Temp</option>
+                            <option>Water Temp</option>
+                        </select>
+                        <h2>Please select the data entry from below:</h2>
+                        <table border="2">
+                            <!--populate with data within specifications-->
+                            <tr><td>paramname</td><td>value</td></tr>
+                            <tr><td>Air Temp</td><td>5</td><td><input type="checkbox"></td></tr>
+                            <tr><td>Water Temp</td><td>6</td><td><input type="checkbox"></td></tr>
+                        </table><br/>
+                        <input type="submit" value="Delete">
+                    </form>
+                </admincontent>
 
 
-            <admincontent id="Register_User" class="tab_content">
-                <ul id="friends">
-                </ul>
+                <admincontent id="Register_User" class="tabcontent">
+                    <ul id="friends">
+                    </ul>
 
-                <p>Name: <input type="text" id = "name"></p>
-                <button id="add-friend">Add a friend</button>
+                    <p>Name: <input type="text" id = "name"></p>
+                    <button id="add-friend">Add a friend</button>
 
-                <script>
-                    //$friends has a dollar sign to denote it holds a jQuery object
-                    var $friends = $('#friends'); //selector puts the ul with id=friends into variable $friends
-                    var $name = $('#name'); //selector puts the object with id='name' into $name
-
-                    $.ajax({
-                        type: 'GET', //Gets a collection objects and passes them to $friends
-                        url: 'http://rest.learncode.academy/api/Brandons/friends',
-                        success: function (friends) {
-                            $.each(friends, function (friend) {
-                                addFriend(friend);
-                            });
-                        }
-                    });
-
-                    $('#add-friend').on('click', function () {
-
-                        var friend = {
-                            name: $name.val(),
-                        };
+                    <script>
+                        //$friends has a dollar sign to denote it holds a jQuery object
+                        var $friends = $('#friends'); //selector puts the ul with id=friends into variable $friends
+                        var $name = $('#name'); //selector puts the object with id='name' into $name
 
                         $.ajax({
                             type: 'POST',
