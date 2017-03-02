@@ -81,7 +81,7 @@ var current;
  * @param {type} tabName the tab that the user is switching to
  */
 function openTab(evt, tabName) {
-    var i, tabcontent, tablinks, submitbutton, form;
+    var i, tabcontent, tablinks, form;
     tabcontent = document.getElementsByClassName("tabcontent");
 
 
@@ -116,6 +116,7 @@ function fetchData(json) {
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
     var values = getDataValues(data);
+    fillTable(resp);
     // Convert timestamps to string; HighCharts already defines a nice formatting one.
     for (var i = 0; i < values.length; i++) {
         var arr = [];
@@ -193,3 +194,36 @@ function pad(num, size) {
     return s;
 }
 
+function fillTable(dataResp) {
+    var table = document.getElementById("dataTable");
+    table.innerHTML = "";
+    var row, cell;
+    var html = [];
+    html.push("<table><tr><th>TimeStamp</th>");
+
+    for (var i = 0; i < dataResp.data.length; i++) {
+        html.push("<th>" + dataResp.data[i]["name"] + "</th>");
+    }
+    html.push("</tr>");
+    var d = dataResp.data[0]["data"];
+    console.log(d);
+    for (var i = 0; i < d.length; i++) {
+        html.push("<tr>");
+        var ts_val = d[i];
+        console.log("Date: " + new Date(ts_val["timestamp"]));
+        html.push("<td>" + new Date(ts_val["timestamp"]).toUTCString() + "</td>");
+        for (var j = 0; j < dataResp.data.length; j++) {
+            
+            html.push("<td>" + ts_val["value"] + "</td>");
+        }
+        html.push("</tr>");
+    }
+    var finalHtml = "";
+    for (i = 0; i < html.length; i++) {
+        var str = html[i];
+        console.log(str);
+        finalHtml += str;
+    }
+    console.log(finalHtml);
+    table.innerHTML = finalHtml;
+}

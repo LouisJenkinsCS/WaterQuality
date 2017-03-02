@@ -39,13 +39,12 @@
 
             <section class = "content_container2" id = "graph_container">    
                 <ul class="tab">
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph'); hide();"
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph');"
                            id="GraphTab">Graph</a></li>
                     <!--The table tab is used as the test event to pass information via a generic AJAX function
                         in this case passing a POST request to ControlServlet. Upon success, the callback function
                         is called, posting a message to the server log.-->
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table');
-                            hide();
                             post_get('POST', 'ControlServlet', {control: 'test', value: 'Hello, world'}, function () {
                                 console.log('SUCCESS');
                             });"
@@ -157,18 +156,7 @@
             for (i = 0; i < timeStamps.length; i++) {
                 timeStampStr.push([new Date(timeStamps[i]), values[0][i]]);
             }
-            
-            function fillTable(){
-                var table=document.getElementById("dataTable");
-                table.innerHTML = "";
-                var row,cell;
-                for (var i = 0; i < data.data.length; i++) {
-                    row=table.insertRow(i);
-                    cell=row.insertCell(i);
-                    cell.innerHTML=data.data[i]["name"];
-                }
-            }
-            
+               
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
                 chart: {
