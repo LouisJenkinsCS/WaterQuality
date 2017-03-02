@@ -51,6 +51,8 @@ function DataResponse(json) {
     console.log(json);
     // Obtain data from response as JSONArray
     this.data = json["resp"];
+    this.description = json["descriptions"];
+    this.table = json["table"];
     console.log(this.data);
     for (var i = 0; i < this.data.length; i++) {
         console.log("Parsed: " + this.data[i]["name"] + " with " + this.data[i]["data"].length + " items...");
