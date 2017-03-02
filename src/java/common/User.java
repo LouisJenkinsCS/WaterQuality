@@ -36,7 +36,7 @@ public class User implements Comparable<User>, Serializable {
         this.lastName = "default";
         this.firstName = "default";
         this.emailAddress = "default";
-        this.userRole = this.getUserRole();
+        this.userRole = UserRole.Guest;
         this.lastLoginTime = LocalDateTime.now();
         this.lastAttemptedLoginTime = LocalDateTime.now();
         this.loginCount = 0;
