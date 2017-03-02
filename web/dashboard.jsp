@@ -27,17 +27,17 @@
     </head>
     <body onload=>
         <img id="backPhoto" src="images/Creek3.jpeg">
-        <header class="title_bar_container"> 
+        <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
         </header>
         <section class = "content_container1" id = "dashboard_container">
-            <header class = "content_title_bar" id="login_header"> 
+            <header class = "content_title_bar" id="login_header">
                 <div class = "title" >
                     Dashboard
-                </div> 
+                </div>
             </header>
 
-            <section class = "content_container2" id = "graph_container">    
+            <section class = "content_container2" id = "graph_container">
                 <ul class="tab">
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph');"
                            id="GraphTab">Graph</a></li>
@@ -65,11 +65,11 @@
             </section>
 
             <aside class = "content_container2" id = "dashboard_data_container">
-                <header class = "content_title_bar" id="login_header"> 
+                <header class = "content_title_bar" id="login_header">
                     <div class = "title" >
                         Data Type
                     </div>
-                </header> 
+                </header>
                 <%--The <code>data_type_form</code> allows the user to select
                     the desired data to be outputed into either a table or
                     a graph
@@ -101,14 +101,14 @@
                         End Date:
                         <input class="dateselector" id="enddate2" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
+                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);"
                                                        id="select_all_data" value="select_all_data">Select all</div><br>
                         ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Table_submit">
                         <input type="button" value="Table" onclick="fillTable()">
                     </div>
-                    <input type="hidden" name="control" value ="Table">   
+                    <input type="hidden" name="control" value ="Table">
                 </form>
             </aside><br>
 
@@ -125,9 +125,16 @@
 
                 <p id="tmp"> </p>
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
-                <p>${Descriptions}</p>
+                <div id="description">${Descriptions}</div>
             </section>
+<<<<<<< HEAD
         </section> 
+=======
+
+
+
+        </section>
+>>>>>>> refs/remotes/origin/Louis-Development
 
         <script>
             var end = new Date();
@@ -149,6 +156,7 @@
         <script>
             // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
             var data = new DataResponse(${ChartData});
+
             var timeStamps = getTimeStamps(data);
             var timeStampStr = [];
             var values = getDataValues(data);
@@ -156,7 +164,7 @@
             for (i = 0; i < timeStamps.length; i++) {
                 timeStampStr.push([new Date(timeStamps[i]), values[0][i]]);
             }
-               
+
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
                 chart: {

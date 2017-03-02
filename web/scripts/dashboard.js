@@ -111,12 +111,16 @@ function openTab(evt, tabName) {
 
 function fetchData(json) {
     var resp = new DataResponse(json);
+
+    var table = resp.table;
+    var description = resp.description;
+    document.getElementById("Table").innerHTML = table;
+    document.getElementById("description").innerHTML = description;
     // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
     var data = new DataResponse(json);
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
     var values = getDataValues(data);
-    fillTable(resp);
     // Convert timestamps to string; HighCharts already defines a nice formatting one.
     for (var i = 0; i < values.length; i++) {
         var arr = [];
@@ -213,7 +217,7 @@ function fillTable(dataResp) {
         console.log("Date: " + new Date(ts_val["timestamp"]));
         html.push("<td>" + new Date(ts_val["timestamp"]).toUTCString() + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
-            
+
             html.push("<td>" + ts_val["value"] + "</td>");
         }
         html.push("</tr>");
