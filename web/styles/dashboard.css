@@ -209,7 +209,7 @@ ul.tab li a:focus, .active {background-color: #8CCE8C;}
     display:inline-block;
 }
 
-input[type="submit"]{
+input[type="button"]{
     border-radius: 5px;
     border: 0;
     width: 100px;
@@ -220,7 +220,7 @@ input[type="submit"]{
     color:white;
 }
 
-button:hover,input[type = "submit"]:hover {
+button:hover,input[type = "button"]:hover {
     background: #5CB05C;
 }
 
