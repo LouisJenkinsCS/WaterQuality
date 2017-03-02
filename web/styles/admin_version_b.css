@@ -106,7 +106,8 @@
     margin-left: auto;
     margin-right: auto;
     border: 2px solid;
-    border-radius: 25px; 
+    /*border: none;*/
+    border-radius: 20px; 
     background-color: #FFF2D7;
     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
@@ -151,8 +152,9 @@
 <!--tabs modified from w3schools.com-->
 /* Style the list */
 .content_box__tab_bar{
-    
+    /*for some reason, removing this causes display issues with the tabs*/
 }
+
 ul.tabs {
     background-color: #468B8B;
     margin: 0px;

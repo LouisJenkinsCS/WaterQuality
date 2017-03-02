@@ -1,3 +1,17 @@
+<%@page import="java.util.stream.Collectors"%>
+<%@page import="java.time.Period"%>
+<%@page import="java.time.Instant"%>
+<%@page import="async.DataReceiver"%>
+<%@page import="java.util.List"%>
+<%@page import="org.javatuples.Pair"%>
+<%@page import="java.util.ArrayList"%>
+
+<%--
+Currenly known issues and bugs:
+    -can double highlight tabs if clicking and dragging.
+--%>
+
+</script>
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252">
