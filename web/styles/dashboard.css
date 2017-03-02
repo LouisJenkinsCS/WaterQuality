@@ -25,6 +25,9 @@ and open the template in the editor.
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    text-align:center;
+    height:400px;
+    overflow:auto;
 }
 
 #Table td, #Table th {

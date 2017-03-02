@@ -159,7 +159,14 @@
             }
             
             function fillTable(){
-                
+                var table=document.getElementById("dataTable");
+                table.innerHTML = "";
+                var row,cell;
+                for (var i = 0; i < data.data.length; i++) {
+                    row=table.insertRow(i);
+                    cell=row.insertCell(i);
+                    cell.innerHTML=data.data[i]["name"];
+                }
             }
             
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
