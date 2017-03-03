@@ -151,7 +151,7 @@
 <!--tabs modified from w3schools.com-->
 /* Style the list */
 .content_box__tab_bar{
-    
+    /*without this empty class, the tabs have styling issues for some reason.*/
 }
 ul.tabs {
     background-color: #468B8B;
