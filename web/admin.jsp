@@ -5,7 +5,10 @@
 <%@page import="java.util.List"%>
 <%@page import="org.javatuples.Pair"%>
 <%@page import="java.util.ArrayList"%>
-
+<%--
+Current bugs:
+    -Can double highlight tabs when clicking dragging
+--%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -13,7 +16,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles/admin.css" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-        <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -27,183 +29,170 @@
                 console.log("Page loaded!");
             }
         </script>
-        <img id="backPhoto" src="images/Creek3.jpeg">
-        <header class="title_bar_container"> 
-            <div id="HeaderText">Water Quality - Admin</div>
+        <img id="back_photo" src="images/Creek3.jpeg">
+        <header class="banner"> 
+            <div id="banner__text">Water Quality</div>
         </header>
-        <section class = "content_container1" id = "dashboard_container">
-            <header class = "content_title_bar" id="login_header"> 
-                <div class = "title" >
+        <section class = "content_box">
+            <header class = "content_box__banner"> 
+                <div class = "content_box__banner__text" >
                     Administrative Functions
-                </div> 
+                </div>
             </header>
-
-            <section class = "content_container2" id = "graph_container">    
-                <ul class="tab">
+            <div class="content_box__tab_bar"><!--this div is needed to make the ul into a bar-->
+                <ul class="tabs">
                     <!--href="javascript:void(0) allows the associated
                     javascript to run without redirecting to another page-->
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Input_Data'); hide();"
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Input_Data'); hide();"
                            id="InputTab">Input Data</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Delete_Data'); hide();"
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Delete_Data'); hide();"
                            id="DeleteTab">Delete Data</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Register_User'); hide();"
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Register_User'); hide();"
                            id="RegisterTab">Register User</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Remove_User'); hide();"
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Remove_User'); hide();"
                            id="RemoveTab">Remove User</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Edit_Description'); hide();"
-                           id="EditTab">Edit Description</a></li>
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Edit_Description'); hide();"
+                           id="EditTab">Edit Desc</a></li>
                 </ul>
-                <!--Admin insertion functionality and GUI are defined here-->
-                <admincontent id="Input_Data" class="tabcontent" style="tabstyle">
+            </div>
+            <!--Admin insertion functionality and GUI are defined here-->
+            <admincontent id="Input_Data" class="tab_content">
 
-                    <!--                    <form id="csv_upload_form" action="ControlServlet" method="POST">-->
-                    <h2>Upload .CSV File</h2>
+                <form id="csv_upload_form" action="ControlServlet" method="POST">
+                    <div class="large_text">Upload .CSV File</div>
                     <input type="file" value="Browse..."><br/>
                     <input type="submit" value="Submit">
-                    <!--                    </form>-->
+                </form>
 
-                    <!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">-->
-
-
-                    <script>                        
-                        var data = {action: 'InputData', dataName: 'Temperature',
-                            units: 'C', time: '2007-12-03T10:15:30',
-                            value: '13.0', delta: '2.0', id: '126'}
-                    </script>
-
-                    <button onclick="
-                    post_get('POST', 'AdminServlet', data, function(inputStatus){
-                    console.log('Input status:' + inputStatus);
-                    });">
-                    </button>
-
+<!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">
                     <h2>Enter Data Manually:</h2>
-                    Date: <input id= "manual_date" type="date" name="data_date"><br/>
-                    Time: <input id = "manual_time" type="time" name="data_time"><br/>
+                    Date: <input type="date" name="data_date"><br/>
+                    Time: <input type="time" name="data_time"><br/>
                     Parameter: <select id="select_param" width:20px></select><br/>
                     Value: <input type="text" name="value"><br/>
-                    <input id="manual_submit" type="submit" value="Submit"><!--
+                    <input type="submit" value="Submit">
                 </form>
 
                 <button type="button" onclick="createNewInput()">+</button>
                 <div id="new_input_space"></div>-->
 
-                    <div id="data_entry"></div>
+                <div id="data_entry"></div>
+                <script src="data_entry.js"></script>
 
-                </admincontent>
+            </admincontent>
 
-                <!--Admin deletion functionality and GUI are defined here-->
-                <admincontent id="Delete_Data" class="tabcontent">
-                    <form action="ControlServlet" method="POST">
-                        <h2>Time Frame:</h2>
-                        <div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-dd)</div>
-                        <div id="dateselectordiv" onclick="dateLimits();">
-                            <input class="dateselector" id="startdate" type="date" min="2016-01-01" max="" value="2017-02-18"> to
-                            <input class="dateselector" id="enddate" type="date" min="2016-01-01" max="" value=""></div>
-                        <h2>Parameter to delete:</h2>
-                        <select>
-                            <!--populate with parameters-->
-                            <option>Air Temp</option>
-                            <option>Water Temp</option>
-                        </select>
-                        <h2>Please select the data entry from below:</h2>
-                        <table border="2">
-                            <!--populate with data within specifications-->
-                            <tr><td>paramname</td><td>value</td></tr>
-                            <tr><td>Air Temp</td><td>5</td><td><input type="checkbox"></td></tr>
-                            <tr><td>Water Temp</td><td>6</td><td><input type="checkbox"></td></tr>
-                        </table><br/>
-                        <input type="submit" value="Delete">
-                    </form>
-                </admincontent>
+            <!--Admin deletion functionality and GUI are defined here-->
+            <admincontent id="Delete_Data" class="tab_content">
+                <form action="ControlServlet" method="POST">
+                    <div class="large_text">Time Frame:</div>
+                    <div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-dd)</div>
+                    <div id="dateselectordiv" onclick="dateLimits();">
+                        <input class="dateselector" id="startdate" type="date" min="2016-01-01" max="" value="2017-02-18"> to
+                        <input class="dateselector" id="enddate" type="date" min="2016-01-01" max="" value=""></div>
+                    <div class="large_text">Parameter to delete:</div>
+                    <select>
+                        <!--populate with parameters-->
+                        <option>Air Temp</option>
+                        <option>Water Temp</option>
+                    </select>
+                    <div class="large_text">Please select the data entry from below:</div>
+                    <table border="2">
+                        <!--populate with data within specifications-->
+                        <tr><td>paramname</td><td>value</td></tr>
+                        <tr><td>Air Temp</td><td>5</td><td><input type="checkbox"></td></tr>
+                        <tr><td>Water Temp</td><td>6</td><td><input type="checkbox"></td></tr>
+                    </table><br/>
+                    <input type="submit" value="Delete">
+                </form>
+            </admincontent>
 
 
-                <admincontent id="Register_User" class="tabcontent">
-                    <ul id="friends">
-                    </ul>
+            <admincontent id="Register_User" class="tab_content">
+                <ul id="friends">
+                </ul>
 
-                    <p>Name: <input type="text" id = "name"></p>
-                    <button id="add-friend">Add a friend</button>
+                <p>Name: <input type="text" id = "name"></p>
+                <button id="add-friend">Add a friend</button>
 
-                    <script>
-                        //$friends has a dollar sign to denote it holds a jQuery object
-                        var $friends = $('#friends'); //selector puts the ul with id=friends into variable $friends
-                        var $name = $('#name'); //selector puts the object with id='name' into $name
+                <script>
+                    //$friends has a dollar sign to denote it holds a jQuery object
+                    var $friends = $('#friends'); //selector puts the ul with id=friends into variable $friends
+                    var $name = $('#name'); //selector puts the object with id='name' into $name
+
+                    $.ajax({
+                        type: 'GET', //Gets a collection objects and passes them to $friends
+                        url: 'http://rest.learncode.academy/api/Brandons/friends',
+                        success: function (friends) {
+                            $.each(friends, function (friend) {
+                                addFriend(friend);
+                            });
+                        }
+                    });
+
+                    $('#add-friend').on('click', function () {
+
+                        var friend = {
+                            name: $name.val(),
+                        };
 
                         $.ajax({
-                            type: 'GET', //Gets a collection objects and passes them to $friends
+                            type: 'POST',
                             url: 'http://rest.learncode.academy/api/Brandons/friends',
-                            success: function (friends) {
-                                $.each(friends, function (friend) {
-                                    addFriend(friend);
-                                });
+                            data: friend,
+                            success: function (newFriend) {
+                                addFriend(newFriend);
+                            },
+                            error: function () {
+                                alert('error making friend');
                             }
                         });
 
-                        $('#add-friend').on('click', function () {
+                    });
 
-                            var friend = {
-                                name: $name.val(),
-                            };
+                    $friends.delegate('.remove', 'click', function () {
+                        var $li = $(this).closest('li');
 
-                            $.ajax({
-                                type: 'POST',
-                                url: 'http://rest.learncode.academy/api/Brandons/friends',
-                                data: friend,
-                                success: function (newFriend) {
-                                    addFriend(newFriend);
-                                },
-                                error: function () {
-                                    alert('error making friend');
-                                }
-                            });
-
+                        $.ajax({
+                            type: 'DELETE',
+                            url: 'http://rest.learncode.academy/api/Brandons/friends/' +
+                                    $(this).attr('data-id'),
+                            success: function () {
+                                $li.fadeOut(600, function () {
+                                    $li.remove();
+                                    console.log('Friend deleted successfully :(');
+                                });
+                            },
+                            failure: function () {
+                                console.log('Error, id: ' + $li.data("id"));
+                            }
                         });
+                    });
 
-                        $friends.delegate('.remove', 'click', function () {
-                            var $li = $(this).closest('li');
-
-                            $.ajax({
-                                type: 'DELETE',
-                                url: 'http://rest.learncode.academy/api/Brandons/friends/' +
-                                        $(this).attr('data-id'),
-                                success: function () {
-                                    $li.fadeOut(600, function () {
-                                        $li.remove();
-                                        console.log('Friend deleted successfully :(');
-                                    });
-                                },
-                                failure: function () {
-                                    console.log('Error, id: ' + $li.data("id"));
-                                }
-                            });
-                        });
-
-                        function addFriend(friend)
-                        {
-                            $friends.append('<li><p>Friend: ' + friend.name + '</p>'
-                                    + '<button data-id="' + friend.id + '" class = "remove">X</button></li>');
-                        }
+                    function addFriend(friend)
+                    {
+                        $friends.append('<li><p>Friend: ' + friend.name + '</p>'
+                                + '<button data-id="' + friend.id + '" class = "remove">X</button></li>');
+                    }
 
 
 
-                    </script>
-                </admincontent>
+                </script>
+            </admincontent>
 
 
-                <admincontent id="Remove_User" class="tabcontent">
-                    <div>
-
-                    </div>
-                </admincontent>
-
-
-                <admincontent id="Edit_Description" class="tabcontent">
-                    <div></div>
-                </admincontent>
+            <admincontent id="Remove_User" class="tab_content">
+                <div>
+                    
+                </div>
+            </admincontent>
 
 
-            </section>
+            <admincontent id="Edit_Description" class="tab_content">
+                <div></div>
+            </admincontent>
+
+
+        </section>
 
             <!--            <aside class = "content_container2" id = "dashboard_data_container">
                         <header class = "content_title_bar" id="login_header"> 
@@ -321,13 +310,13 @@
              */
             function openTab(evt, tabName) {
                 var i, tabcontent, tablinks, submitbutton;
-                tabcontent = document.getElementsByClassName("tabcontent");
+                tabcontent = document.getElementsByClassName("tab_content");
 
                 for (i = 0; i < tabcontent.length; i++) {
                     tabcontent[i].style.display = "none";
                 }
 
-                tablinks = document.getElementsByClassName("tablinks");
+                tablinks = document.getElementsByClassName("tabs");
                 for (i = 0; i < tablinks.length; i++) {
                     tablinks[i].className = tablinks[i].className.replace(" active", "");
                 }

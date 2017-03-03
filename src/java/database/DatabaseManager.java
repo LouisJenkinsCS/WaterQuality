@@ -185,6 +185,7 @@ public class DatabaseManager
             insertData.setFloat(5, value);
             insertData.setFloat(6, delta);
             insertData.setInt(7, id);
+            System.out.println("Query:     " + insertData);
             insertData.executeUpdate();
             conn.commit();
             status = true;

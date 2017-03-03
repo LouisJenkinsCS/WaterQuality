@@ -47,11 +47,8 @@ public class AdminServlet extends HttpServlet {
                     Float.parseFloat((String) request.getParameter("value")), Float.parseFloat((String) request.getParameter("delta")),
                     Integer.parseInt((String) request.getParameter("id")), admin);
             if (inputStatus) {
-                response.getWriter().append("Data Input Successful");
                 request.setAttribute("inputStatus", "Data Input Successful");
-                
             } else {
-                response.getWriter().append("Data Input Unsuccessful. Check your syntax");
                 request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
             }
         } else if (action.trim().equalsIgnoreCase("RemoveData")) {

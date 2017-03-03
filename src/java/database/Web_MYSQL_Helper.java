@@ -37,10 +37,11 @@ public class Web_MYSQL_Helper {
         try {
             dir = Web_MYSQL_Helper.class.getResource("../../config/General.properties").toURI().toString();
             dir = dir.substring(6);
+            System.out.println("dir: " + dir);
         } catch (URISyntaxException ex) {
             Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex);
         }
-      System.out.println("dir: " + dir);
+      
       PropertyManager.configure(dir);
       PropertyManager.setProperty("UseDBPooling", "no");
       USE_DB_POOLING = PropertyManager.getProperty("UseDBPooling").equalsIgnoreCase("yes");

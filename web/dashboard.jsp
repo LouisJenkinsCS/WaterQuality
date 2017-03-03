@@ -84,8 +84,7 @@
                     </div>
                     ${Parameters}
                     <br>
-                    <div class="data_type_submit" id="Graph_submit"><input type="submit" value="Graph"></div>
-                    <input type="hidden" name="control" value ="getData">
+                    <div class="data_type_submit" id="Graph_submit"><input type="button" value="Graph" onclick="fetch()"></div>
 
                 </form>
                 <form class="data_type_form" id="Table_form" action="ControlServlet" method = "POST">
@@ -171,38 +170,14 @@
                  today = yyyy+'-'+mm+'-'+dd; */
                 var date = end;
                 var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
-                document.getElementById("enddate").setAttribute("max",dateStr);
-                document.getElementById("startdate").setAttribute("max",document.getElementById("enddate").value);
-                document.getElementById("enddate").setAttribute("min",document.getElementById("startdate").value); 
+                document.getElementById("enddate").setAttribute("max", dateStr);
+                document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
+                document.getElementById("enddate").setAttribute("min", document.getElementById("startdate").value);
             }
-            </script>
-<!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
+        </script>
+        <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
 
         <script>
-            function post(path, params, method) {
-                method = method || "post"; // Set method to post by default if not specified.
-
-                // The rest of this code assumes you are not using a library.
-                // It can be made less wordy if you use one.
-                var form = document.createElement("form");
-                form.setAttribute("method", method);
-                form.setAttribute("action", path);
-
-                for (var key in params) {
-                    if (params.hasOwnProperty(key)) {
-                        var hiddenField = document.createElement("input");
-                        hiddenField.setAttribute("type", "hidden");
-                        hiddenField.setAttribute("name", key);
-                        hiddenField.setAttribute("value", params[key]);
-
-                        form.appendChild(hiddenField);
-                    }
-                }
-
-                document.body.appendChild(form);
-                form.submit();
-            }
-
             function handleClick(cb)
             {
                 if (current == 'Graph') {
@@ -211,17 +186,21 @@
 //                post("ControlServlet", {key: 'control', control: 'getDesc'});
             }
 
-            function graphSubmit() {
-                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                var data = "{ data: [";
+            function fetch() {
+                var startTime = new Date(document.getElementById("startdate").value).getTime();
+                var endTime = new Date(document.getElementById("enddate").value).getTime();
+                var selected = [];
+                var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
+                console.log("Start: " + startTime + " end: " + endTime);
                 for (var i = 0; i < checkboxes.length; i++) {
                     if (checkboxes[i].checked == true) {
-                        data += checkbox[i].id.toString();
+                        selected.push(Number(checkboxes[i].name));
                     }
                 }
-                data += "] }";
 
-                post("ControlServlet", {key: 'control', control: 'getData ' + data});
+                var request = new DataRequest(startTime, endTime, selected);
+                post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
+
             }
 
             function exportData(id) {
@@ -233,13 +212,13 @@
             var data = new DataResponse(${ChartData});
             var timeStamps = getTimeStamps(data);
             var timeStampStr = [];
-
+            var values = getDataValues(data);
             // Convert timestamps to string; HighCharts already defines a nice formatting one.
             for (i = 0; i < timeStamps.length; i++) {
-                timeStampStr.push(Highcharts.dateFormat("%m/%d/%Y %H:%M %p", timeStamps[i], true));
+                timeStampStr.push([new Date(timeStamps[i]), values[0][i]]);
             }
 
-            var values = getDataValues(data);
+            
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
                 chart: {
@@ -302,7 +281,6 @@
                         lineColor: '#404048'
                     }
                 },
-
                 // General
                 background2: '#FFF2D7'
             };
@@ -321,25 +299,38 @@
                     x: -20
                 },
                 xAxis: {
-                    categories: timeStampStr
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                            millisecond: '%H:%M:%S.%L',
+                            second: '%H:%M:%S',
+                            minute: '%H:%M',
+                            hour: '%H:%M',
+                            day: '%m/%e',
+                            week: '%m/%b',
+                            month: '%b \'%Y',
+                            year: '%Y'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
                 },
                 yAxis: [{
-                    title: {
-                        text: '',
-                        style:{color:'#7cb5ec'}
-                    },
-                    labels:{style:{color:'#7cb5ec'}},
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
+                        title: {
+                            text: '',
+                            style: {color: '#7cb5ec'}
+                        },
+                        labels: {style: {color: '#7cb5ec'}},
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }],
+                    }, {// Secondary yAxis
+                        title: {
+                            text: ''
+                        },
+                        opposite: true
                     }],
-                },{ // Secondary yAxis
-                    title: {
-                        text: ''
-                    },
-                    opposite:true
-                }],
                 tooltip: {
                     valueSuffix: ''
                 },
@@ -352,19 +343,52 @@
                 },
                 series: []
             });
-         for (var i = 0; i < data.data.length; i++) {
-            chart.addSeries({
-                yAxis:i,
-                name: data.data[i]["name"],
-                data: values[i]
-            }, false);
-            chart.yAxis[i].setTitle({ text: data.data[i]["name"] });
-         }
-         
-         // Limit the X-Axis to display only 5 at a time. Easier to read.
-         //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
-         </script>
-         
+            for (var i = 0; i < data.data.length; i++) {
+                chart.addSeries({
+                    yAxis: i,
+                    name: data.data[i]["name"],
+                    data: timeStampStr
+                }, false);
+                chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+            }
+
+            function fetchData(json) {
+                var resp = new DataResponse(json);
+                // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
+                var data = new DataResponse(json);
+                var timeStamps = getTimeStamps(data);
+                var timeStampStr = [];
+                var values = getDataValues(data);
+                // Convert timestamps to string; HighCharts already defines a nice formatting one.
+                for (var i = 0; i < values.length; i++) {
+                    var arr = [];
+                    for (var j = 0; j < timeStamps.length; j++) {
+                        arr.push([new Date(timeStamps[j]), values[i][j]]);
+                        console.log("Pushed: " +  values[i][j]);
+                    }
+                    timeStampStr.push(arr);
+                    console.log("Pushed: " + arr);
+                }
+                
+                // Remove all series data
+                while(chart.series.length > 0)
+                    chart.series[0].remove(true);
+                
+                for (var i = 0; i < data.data.length; i++) {
+                    chart.addSeries({
+                        yAxis: i,
+                        name: data.data[i]["name"],
+                        data: timeStampStr[i]
+                    }, false);
+                    chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+                }
+                chart.redraw();
+            }
+
+            // Limit the X-Axis to display only 5 at a time. Easier to read.
+            //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
+        </script>
+
         <script type="text/javascript">
             //document.getElementById("GraphTab").click();
             if (getCookie("id") == "Table")
@@ -401,19 +425,19 @@
                 //<code>current</code>holds the current <code>tabName</code>
                 //This is done because we need to limit the number of boxes checked
                 //for the Graph tab and not the Table tab
-                current=tabName;
-                
-                form=document.getElementsByClassName("data_type_form");
-                for(i=0; i<form.length; i++){
-                    form[i].style.display="none";
+                current = tabName;
+
+                form = document.getElementsByClassName("data_type_form");
+                for (i = 0; i < form.length; i++) {
+                    form[i].style.display = "none";
                 }
                 document.getElementById(current + "_form").style.display = "block";
                 setCookie("id", current, 1);
             }
             function setCookie(name, value, exdays) {
                 var d = new Date();
-                d.setTime(d.getTime() + (exdays*24*60*60*1000));
-                var expires = "expires="+ d.toUTCString();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                var expires = "expires=" + d.toUTCString();
                 document.cookie = name + "=" + value + ";" + expires + ";path=/";
             }
 
@@ -469,10 +493,14 @@
              */
             function fullCheck(id) {
                 var item = document.getElementById(id);
+                var startTime = new Date(document.getElementById("startdate").value).getTime();
+                var endTime = new Date(document.getElementById("enddate").value).getTime();
+                var selected = [];
+                console.log("Start: " + startTime + " end: " + endTime);
                 if (item.checked == true) {
-                    if (checkedBoxes < 2)
+                    if (checkedBoxes < 2) {
                         checkedBoxes++;
-                    else {
+                    } else {
                         item.checked = false;
                     }
                 } else
