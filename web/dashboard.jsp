@@ -55,7 +55,6 @@
                 </ul>
                 <div id="Graph" class="tabcontent"></div>
                 <div id="Table" class="tabcontent">
-                    <!--${Table}-->
                     <table id="dataTable">
                         
                     </table>
@@ -106,7 +105,7 @@
                         ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Table_submit">
-                        <input type="button" value="Table" onclick="fillTable()">
+                        <input type="button" value="Table" onclick="fetch()">
                     </div>
                     <input type="hidden" name="control" value ="Table">
                 </form>
@@ -127,14 +126,7 @@
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
                 <div id="description">${Descriptions}</div>
             </section>
-<<<<<<< HEAD
         </section> 
-=======
-
-
-
-        </section>
->>>>>>> refs/remotes/origin/Louis-Development
 
         <script>
             var end = new Date();

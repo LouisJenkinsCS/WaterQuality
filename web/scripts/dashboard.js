@@ -114,7 +114,6 @@ function fetchData(json) {
 
     var table = resp.table;
     var description = resp.description;
-    document.getElementById("Table").innerHTML = table;
     document.getElementById("description").innerHTML = description;
     // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
     var data = new DataResponse(json);
@@ -131,7 +130,10 @@ function fetchData(json) {
         timeStampStr.push(arr);
         console.log("Pushed: " + arr);
     }
-
+    if(getCookie("id") == "Table")
+        document.getElementById("Table").innerHTML = table;
+        //fillTable(resp);
+    else{
     // Remove all series data
     while (chart.series.length > 0)
         chart.series[0].remove(true);
@@ -145,6 +147,7 @@ function fetchData(json) {
         chart.yAxis[i].setTitle({text: data.data[i]["name"]});
     }
     chart.redraw();
+    }
 }
 
 function handleClick(cb)
@@ -159,7 +162,10 @@ function fetch() {
     var startTime = new Date(document.getElementById("startdate").value).getTime();
     var endTime = new Date(document.getElementById("enddate").value).getTime();
     var selected = [];
-    var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
+    if(current=="Graph")
+        var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
+    else
+        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
     console.log("Start: " + startTime + " end: " + endTime);
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked == true) {
@@ -217,8 +223,12 @@ function fillTable(dataResp) {
         console.log("Date: " + new Date(ts_val["timestamp"]));
         html.push("<td>" + new Date(ts_val["timestamp"]).toUTCString() + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
-
-            html.push("<td>" + ts_val["value"] + "</td>");
+            var dl=dataResp.data[j]["data"];
+            ts_val=dl[i];
+            if(ts_val["value"]==null)
+                html.push("<td> N/A </td>");
+            else
+                html.push("<td>" + ts_val["value"] + "</td>");
         }
         html.push("</tr>");
     }
