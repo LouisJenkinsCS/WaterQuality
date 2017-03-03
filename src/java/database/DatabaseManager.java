@@ -1,3 +1,4 @@
+
 /*
  * Includes various database managing 
  */
@@ -166,7 +167,7 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta,id) "
+            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta,entryID) "
                     + "values(?,?,?,?,?,?,?)";
             String sensor = u.getFirstName()+u.getLastName();
             if(sensor.length() > 20)
