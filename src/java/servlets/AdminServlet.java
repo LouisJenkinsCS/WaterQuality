@@ -46,14 +46,8 @@ public class AdminServlet extends HttpServlet {
                     (String) request.getParameter("units"), LocalDateTime.parse((String) request.getParameter("time")),
                     Float.parseFloat((String) request.getParameter("value")), Float.parseFloat((String) request.getParameter("delta")),
                     Integer.parseInt((String) request.getParameter("id")), admin);
-
             if (inputStatus) {
-
-                //System.out.println(inputStatus);
-                //System.out.println(response.getStatus());
-                response.getWriter().append("inputStatus: " + inputStatus);
-                //request.setAttribute("inputStatus", "Data Input Successful");
-
+                request.setAttribute("inputStatus", "Data Input Successful");
             } else {
                 request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
             }
@@ -110,10 +104,6 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("editDescStatus", "Description Update Unsuccessful");
             }
         }
-
-        request.getServletContext()
-                .getRequestDispatcher("/admin.jsp")
-                .forward(request, response);
 
     }
 

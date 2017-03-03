@@ -57,7 +57,6 @@
     cursor:pointer;
 }
 
-
 .banner{
     width: 100%;
     min-width: 600px;
@@ -72,7 +71,6 @@
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
 }
-
 .content_box__banner{
     background-color: #266B6B;
     border-top-left-radius: 20px;
@@ -135,7 +133,6 @@
     position:relative;
 }
 
-
 /*not currently used on this page*/
 #graph_container{
     margin:10px;
@@ -150,7 +147,6 @@
     margin-bottom:10px;
     width:600px;
 }
-
 
 <!--tabs modified from w3schools.com-->
 /* Style the list */

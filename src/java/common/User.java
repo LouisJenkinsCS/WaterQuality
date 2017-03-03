@@ -29,19 +29,8 @@ public class User implements Comparable<User>, Serializable {
      * Constructs an empty user.
      */
     public User() {
-        this.userNumber = 777;
-        this.loginName = "default";
-        this.userPassword = "default";
-        this.salt = "default";
-        this.lastName = "default";
-        this.firstName = "default";
-        this.emailAddress = "default";
-        this.userRole = UserRole.Guest;
-        this.lastLoginTime = LocalDateTime.now();
-        this.lastAttemptedLoginTime = LocalDateTime.now();
-        this.loginCount = 0;
-        this.attemptedLoginCount = 0;
-        this.locked = false;
+        firstName = "Brett";
+        lastName = "Logan";
     }
 
     /**
@@ -83,7 +72,7 @@ public class User implements Comparable<User>, Serializable {
      * @param locked Boolean that represents whether a user is locked out or
      * not.
      */
-    public User(int userNumber, String loginName, String password, String salt, String lastName, String firstName, String emailAddress,
+    public User(int userNumber, String loginName, String password, String salt, String lastName, String firstName, String emailAddress, 
             UserRole userRole, LocalDateTime lastLogin, LocalDateTime lastAttemptedLogin, int loginCount, int attemptedLoginCount, boolean locked) {
         this.userNumber = userNumber;
         this.loginName = loginName;
@@ -419,8 +408,8 @@ public class User implements Comparable<User>, Serializable {
                 + ", userPassword=" + userPassword + ", salt=" + salt
                 + ", lastName=" + lastName
                 + ", firstName=" + firstName + ", emailAddress=" + emailAddress
-                + ", userRole=" + userRole + ", lastLogin=" + lastLoginTime
-                + ", attemptedLogin=" + lastAttemptedLoginTime + ", loginCount="
+                + ", userRole="  + userRole + ", lastLogin=" + lastLoginTime 
+                + ", attemptedLogin=" + lastAttemptedLoginTime + ", loginCount=" 
                 + loginCount + ", locked=" + locked + '}';
     }
 
