@@ -1,4 +1,3 @@
-
 /*
  * Includes various database managing 
  */

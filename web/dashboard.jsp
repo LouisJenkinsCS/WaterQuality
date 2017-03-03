@@ -44,7 +44,6 @@
                     <!--The table tab is used as the test event to pass information via a generic AJAX function
                         in this case passing a POST request to ControlServlet. Upon success, the callback function
                         is called, posting a message to the server log.-->
-
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table');
                             post_get('POST', 'ControlServlet', {control: 'test', value: 'Hello, world'}, function () {
                                 console.log('SUCCESS');
