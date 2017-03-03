@@ -18,7 +18,6 @@
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
-        <script src="scripts/dashboard.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -27,24 +26,25 @@
     </head>
     <body onload=>
         <img id="backPhoto" src="images/Creek3.jpeg">
-        <header class="title_bar_container">
+        <header class="title_bar_container"> 
             <div id="HeaderText">Water Quality</div>
         </header>
         <section class = "content_container1" id = "dashboard_container">
-            <header class = "content_title_bar" id="login_header">
+            <header class = "content_title_bar" id="login_header"> 
                 <div class = "title" >
                     Dashboard
-                </div>
+                </div> 
             </header>
 
-            <section class = "content_container2" id = "graph_container">
+            <section class = "content_container2" id = "graph_container">    
                 <ul class="tab">
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph');"
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph'); hide();"
                            id="GraphTab">Graph</a></li>
                     <!--The table tab is used as the test event to pass information via a generic AJAX function
                         in this case passing a POST request to ControlServlet. Upon success, the callback function
                         is called, posting a message to the server log.-->
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table');
+                            hide();
                             post_get('POST', 'ControlServlet', {control: 'test', value: 'Hello, world'}, function () {
                                 console.log('SUCCESS');
                             });"
@@ -54,21 +54,19 @@
                     </li>
                 </ul>
                 <div id="Graph" class="tabcontent"></div>
-                <div id="Table" class="tabcontent">
-                    <table id="dataTable">
-                        
-                    </table>
+                <div id="Table" class="tabcontent" style="height:400px;overflow:auto;">
+                    ${Table}
                 </div>
                 <div id="Export" class="tabcontent">
                 </div>
             </section>
 
             <aside class = "content_container2" id = "dashboard_data_container">
-                <header class = "content_title_bar" id="login_header">
+                <header class = "content_title_bar" id="login_header"> 
                     <div class = "title" >
                         Data Type
                     </div>
-                </header>
+                </header> 
                 <%--The <code>data_type_form</code> allows the user to select
                     the desired data to be outputed into either a table or
                     a graph
@@ -85,9 +83,7 @@
                     </div>
                     ${Parameters}
                     <br>
-                    <div class="data_type_submit" id="Graph_submit">
-                        <input type="button" value="Graph" onclick="fetch()">
-                    </div>
+                    <div class="data_type_submit" id="Graph_submit"><input type="button" value="Graph" onclick="fetch()"></div>
 
                 </form>
                 <form class="data_type_form" id="Table_form" action="ControlServlet" method = "POST">
@@ -100,14 +96,14 @@
                         End Date:
                         <input class="dateselector" id="enddate2" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);"
+                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);" 
                                                        id="select_all_data" value="select_all_data">Select all</div><br>
                         ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Table_submit">
-                        <input type="button" value="Table" onclick="fetch()">
+                        <input type="submit" value="Table" onclick="">
                     </div>
-                    <input type="hidden" name="control" value ="Table">
+                    <input type="hidden" name="control" value ="Table">   
                 </form>
             </aside><br>
 
@@ -124,31 +120,95 @@
 
                 <p id="tmp"> </p>
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
-                <div id="description">${Descriptions}</div>
+                <p>${Descriptions}</p>
             </section>
+
+
+
         </section> 
 
         <script>
+            function pad(num, size) {
+                var s = num + "";
+                while (s.length < size)
+                    s = "0" + s;
+                return s;
+            }
+
+            function setDate(date, id) {
+                var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+                document.getElementById(id).value = dateStr;
+                console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
+            }
             var end = new Date();
-            var start = new Date();
             end.setSeconds(0);
+            var start = new Date();
             start.setSeconds(0);
             start.setMonth(start.getMonth() - 1);
             setDate(end, "enddate");
             setDate(start, "startdate");
             setDate(end, "enddate2");
-            setDate(start, "startdate2");            
+            setDate(start, "startdate2");
+
+            /**
+             * Makes it so the date input fields can not be chosen for furture
+             * dates. Also sets makes sure the <code>enddate</code> can not be a
+             * date that is earlier than <code>startdate</code>
+             */
+            function dateLimits() {
+                /*var today = new Date();
+                 var dd = today.getDate();
+                 var mm = today.getMonth()+1; //January is 0!
+                 var yyyy = today.getFullYear();
+                 if(dd<10){
+                 dd='0'+dd;
+                 } 
+                 if(mm<10){
+                 mm='0'+mm;
+                 } 
+                 today = yyyy+'-'+mm+'-'+dd; */
+                var date = end;
+                var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+                document.getElementById("enddate").setAttribute("max", dateStr);
+                document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
+                document.getElementById("enddate").setAttribute("min", document.getElementById("startdate").value);
+            }
         </script>
-            
+        <!--            <script>var d = new Date(); d.setMonth(d.getMonth() - 1); document.getElementById('startdate').valueAsDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toGMTString();</script>-->
+
         <script>
-            function exportData(id){
+            function handleClick(cb)
+            {
+                if (current == 'Graph') {
+                    fullCheck(cb.id);
+                }
+//                post("ControlServlet", {key: 'control', control: 'getDesc'});
+            }
+
+            function fetch() {
+                var startTime = new Date(document.getElementById("startdate").value).getTime();
+                var endTime = new Date(document.getElementById("enddate").value).getTime();
+                var selected = [];
+                var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
+                console.log("Start: " + startTime + " end: " + endTime);
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked == true) {
+                        selected.push(Number(checkboxes[i].name));
+                    }
+                }
+
+                var request = new DataRequest(startTime, endTime, selected);
+                post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
+
+            }
+
+            function exportData(id) {
                 document.write(id);
             }
         </script>
         <script>
             // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
             var data = new DataResponse(${ChartData});
-
             var timeStamps = getTimeStamps(data);
             var timeStampStr = [];
             var values = getDataValues(data);
@@ -157,6 +217,7 @@
                 timeStampStr.push([new Date(timeStamps[i]), values[0][i]]);
             }
 
+            
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
                 chart: {
@@ -289,6 +350,42 @@
                 }, false);
                 chart.yAxis[i].setTitle({text: data.data[i]["name"]});
             }
+
+            function fetchData(json) {
+                var resp = new DataResponse(json);
+                // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
+                var data = new DataResponse(json);
+                var timeStamps = getTimeStamps(data);
+                var timeStampStr = [];
+                var values = getDataValues(data);
+                // Convert timestamps to string; HighCharts already defines a nice formatting one.
+                for (var i = 0; i < values.length; i++) {
+                    var arr = [];
+                    for (var j = 0; j < timeStamps.length; j++) {
+                        arr.push([new Date(timeStamps[j]), values[i][j]]);
+                        console.log("Pushed: " +  values[i][j]);
+                    }
+                    timeStampStr.push(arr);
+                    console.log("Pushed: " + arr);
+                }
+                
+                // Remove all series data
+                while(chart.series.length > 0)
+                    chart.series[0].remove(true);
+                
+                for (var i = 0; i < data.data.length; i++) {
+                    chart.addSeries({
+                        yAxis: i,
+                        name: data.data[i]["name"],
+                        data: timeStampStr[i]
+                    }, false);
+                    chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+                }
+                chart.redraw();
+            }
+
+            // Limit the X-Axis to display only 5 at a time. Easier to read.
+            //chart.xAxis[0].update({tickInterval: chart.xAxis[0].categories.length / 5});
         </script>
 
         <script type="text/javascript">
@@ -296,6 +393,117 @@
             if (getCookie("id") == "Table")
                 document.getElementById("TableTab").click();
             else
-                document.getElementById("GraphTab").click();    
+                document.getElementById("GraphTab").click();
+
+            var current;
+            /**
+             * The <code>openTab</code> function activates a certain event
+             * based on the provided <code>tabName</code> parameter
+             * @param {type} evt
+             * @param {type} tabName the tab that the user is switching to
+             */
+            function openTab(evt, tabName) {
+                var i, tabcontent, tablinks, submitbutton, form;
+                tabcontent = document.getElementsByClassName("tabcontent");
+
+
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
+
+                //unchecks all of the checkboxes
+                toggle(this);
+                checkedBoxes = 0;
+                //<code>current</code>holds the current <code>tabName</code>
+                //This is done because we need to limit the number of boxes checked
+                //for the Graph tab and not the Table tab
+                current = tabName;
+
+                form = document.getElementsByClassName("data_type_form");
+                for (i = 0; i < form.length; i++) {
+                    form[i].style.display = "none";
+                }
+                document.getElementById(current + "_form").style.display = "block";
+                setCookie("id", current, 1);
+            }
+            function setCookie(name, value, exdays) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            }
+
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            /**
+             * The <code>toggle</code> function checks or unchecks
+             * all of the checkboxes in the given <code>source</code> 
+             * @param {type} source
+             */
+            function toggle(source) {
+                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i] != source)
+                        checkboxes[i].checked = source.checked;
+                }
+            }
+
+            /**
+             * The <code>hide</code> function hides the
+             * <code>select_all_toggle</code> checkbox when the Graph tab
+             * is selected and reveals the checkbox when the table
+             * tab is selected
+             */
+            function hide() {
+                var item = document.getElementById("select_all_toggle");
+                if (current == 'Table')
+                    item.className = 'unhide';
+                else
+                    item.className = 'hide';
+            }
+
+            var checkedBoxes = 0;
+            /**
+             * The <code>fullCheck</code> function limits the number of data
+             * checkboxes checked at a time to 3 by unchecking <coe>id</code>
+             * if <code>checkedBoxes</code> equals 3
+             * @param {type} id the current data type the user is trying to check
+             */
+            function fullCheck(id) {
+                var item = document.getElementById(id);
+                var startTime = new Date(document.getElementById("startdate").value).getTime();
+                var endTime = new Date(document.getElementById("enddate").value).getTime();
+                var selected = [];
+                console.log("Start: " + startTime + " end: " + endTime);
+                if (item.checked == true) {
+                    if (checkedBoxes < 2) {
+                        checkedBoxes++;
+                    } else {
+                        item.checked = false;
+                    }
+                } else
+                    checkedBoxes--;
+            }
         </script>
     </body>
