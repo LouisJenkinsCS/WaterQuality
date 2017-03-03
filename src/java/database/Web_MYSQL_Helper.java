@@ -42,7 +42,6 @@ public class Web_MYSQL_Helper {
             Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex);
         }
       
-      
       PropertyManager.configure(dir);
       PropertyManager.setProperty("UseDBPooling", "no");
       USE_DB_POOLING = PropertyManager.getProperty("UseDBPooling").equalsIgnoreCase("yes");

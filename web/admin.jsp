@@ -62,7 +62,27 @@ Current bugs:
                     <div class="large_text">Upload .CSV File</div>
                     <input type="file" value="Browse..."><br/>
                     <input type="submit" value="Submit">
-                </form>
+
+                    <!--                    </form>-->
+
+                    <!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">-->
+
+
+                    <script>                        
+                        var data = {action: 'InputData', dataName: 'Temperature',
+                            units: 'C', time: '2007-12-03T10:15:30',
+                            value: '13.0', delta: '2.0', id: '126',
+                            inputStatus: ''}
+                    </script>
+
+                    <a id="thisarea"></a>
+                    
+                    <button id="thisbutton" onclick="
+                    post_get('POST', 'AdminServlet', data, function(responseText){
+                        //console.log(responseText);
+                    $(#thisarea).append(inputStatus);
+                    });">
+                    </button>
 
 <!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">
                     <h2>Enter Data Manually:</h2>
