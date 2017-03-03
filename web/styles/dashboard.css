@@ -25,6 +25,9 @@ and open the template in the editor.
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    text-align:center;
+    height:400px;
+    overflow:auto;
 }
 
 #Table td, #Table th {
@@ -119,11 +122,11 @@ and open the template in the editor.
 /* Styles the large section that contains the graph, data, and 
 description boxes */
 #dashboard_container{
-    margin-top: 10px;
+    margin-top:10px;
     width: auto;
     min-width:1000px;
     overflow:auto;
-    padding-bottom:10px;
+    padding-bottom:10px;   
 }
 
 /* Styles the section with the data checboxes */
@@ -206,7 +209,7 @@ ul.tab li a:focus, .active {background-color: #8CCE8C;}
     display:inline-block;
 }
 
-input[type="submit"]{
+input[type="button"]{
     border-radius: 5px;
     border: 0;
     width: 100px;
@@ -217,7 +220,7 @@ input[type="submit"]{
     color:white;
 }
 
-button:hover,input[type = "submit"]:hover {
+button:hover,input[type = "button"]:hover {
     background: #5CB05C;
 }
 
