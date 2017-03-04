@@ -131,8 +131,8 @@ function fetchData(json) {
         console.log("Pushed: " + arr);
     }
     if(getCookie("id") == "Table")
-        document.getElementById("Table").innerHTML = table;
-        //fillTable(resp);
+        //document.getElementById("Table").innerHTML = table;
+        fillTable(resp);
     else{
     // Remove all series data
     while (chart.series.length > 0)
@@ -221,14 +221,30 @@ function fillTable(dataResp) {
         html.push("<tr>");
         var ts_val = d[i];
         console.log("Date: " + new Date(ts_val["timestamp"]));
-        html.push("<td>" + new Date(ts_val["timestamp"]).toUTCString() + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
             var dl=dataResp.data[j]["data"];
-            ts_val=dl[i];
-            if(ts_val["value"]==null)
+            var ts_val2=dl[i];
+            if(ts_val["timestamp"].length==ts_val2["timestamp"].length)
+                var isOk=true;
+        }
+        if(isOk)
+            html.push("<td>" + new Date(ts_val["timestamp"]).toUTCString() + "</td>");
+        else{
+            for (var j = 0; j < dataResp.data.length; j++) {
+                var dl=dataResp.data[j]["data"];
+                var ts_val2=dl[i];
+                if(ts_val["timestamp"].length==ts_val2["timestamp"].length){
+                
+                }
+            }
+        }
+        for (var j = 0; j < dataResp.data.length; j++) {
+            var dl=dataResp.data[j]["data"];
+            var ts_val2=dl[i];
+            /*if(ts_val2["timestmp"]!=ts_val["timestamp"])
                 html.push("<td> N/A </td>");
-            else
-                html.push("<td>" + ts_val["value"] + "</td>");
+            else*/
+                html.push("<td>" + ts_val2["value"] + "</td>");
         }
         html.push("</tr>");
     }
