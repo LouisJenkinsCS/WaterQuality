@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import protocol.JSONProtocol;
 
 /**
  *
@@ -105,9 +110,12 @@ public class AdminServlet extends HttpServlet {
             }
         }
         //This will be the servlet's case for getting the json?
-//        else if (action.trim().equalsIgnoreCase("getManualItems")) {
-//        string json = JSON.parse(get("resources/manual_entry_items.json", {}, function(data){console.log("Successful parse", data);}));
-//        }
+        else if (action.trim().equalsIgnoreCase("getManualItems")) {
+            System.out.println("Test got here");
+            response.getWriter().append("Response");
+            //proto.process((JSONObject) new JSONParser().parse());
+         //json = JSON.parse(get("resources/manual_entry_items.json", {}, function(data){console.log("Successful parse", data);}));
+        }
 
     }
 

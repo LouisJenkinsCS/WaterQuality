@@ -6,16 +6,20 @@ var $insertionid = 0;
 var $parameterlist;
 
 //Sample of successful data format for input into the database - tested and approved
-//var data = {action: 'InputData', dataName: 'Temperature',
-//    units: 'C', time: '2007-12-03T10:15:30',
-//    value: '13.0', delta: '2.0', id: '126',
-//    inputStatus: ''};
+var sampledata = {action: 'getManualItems', dataName: 'Temperature',
+    units: 'C', time: '2007-12-03T10:15:30',
+    value: '13.0', delta: '2.0', id: '126',
+    inputStatus: ''};
 
+$.getScript("scripts/AJAX_magic.js", function(){
+
+});
 
 function doTheThing()
 {
     //This will hold the array of names? Maybe?
-//    var $entryNames = 
+    post("AdminServlet", sampledata, function(response)
+    {alert("Connection made! response: " + response);});
 
 //This creates the browse area, then fires off the function createNewInput,
 //then puts a button below for adding more data entry areas
