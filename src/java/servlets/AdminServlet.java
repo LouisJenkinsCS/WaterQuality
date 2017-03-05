@@ -104,6 +104,10 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("editDescStatus", "Description Update Unsuccessful");
             }
         }
+        //This will be the servlet's case for getting the json?
+//        else if (action.trim().equalsIgnoreCase("getManualItems")) {
+//        string json = JSON.parse(get("resources/manual_entry_items.json", {}, function(data){console.log("Successful parse", data);}));
+//        }
 
     }
 

@@ -16,6 +16,8 @@ Current bugs:
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles/admin.css" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="scripts/admin_insertion.js"></script>
+        <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -55,31 +57,12 @@ Current bugs:
                            id="EditTab">Edit Desc</a></li>
                 </ul>
             </div>
-            <!--Admin insertion functionality and GUI are defined here-->
+            <!--Admin insertion-->
             <admincontent id="Input_Data" class="tab_content">
-
-                <form id="csv_upload_form" action="ControlServlet" method="POST">
-                    <div class="large_text">Upload .CSV File</div>
-                    <input type="file" value="Browse..."><br/>
-                    <input type="submit" value="Submit">
-                </form>
-
-<!--                    <form id="manual_data_entry_form" action="ControlServlet" method="POST">
-                    <h2>Enter Data Manually:</h2>
-                    Date: <input type="date" name="data_date"><br/>
-                    Time: <input type="time" name="data_time"><br/>
-                    Parameter: <select id="select_param" width:20px></select><br/>
-                    Value: <input type="text" name="value"><br/>
-                    <input type="submit" value="Submit">
-                </form>
-
-                <button type="button" onclick="createNewInput()">+</button>
-                <div id="new_input_space"></div>-->
-
-                <div id="data_entry"></div>
-                <script src="data_entry.js"></script>
-
+                <!--defined in admin_insertion.js-->
+                <script>doTheThing();</script>
             </admincontent>
+            
 
             <!--Admin deletion functionality and GUI are defined here-->
             <admincontent id="Delete_Data" class="tab_content">
