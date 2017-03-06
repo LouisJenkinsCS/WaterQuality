@@ -17,9 +17,25 @@ $.getScript("scripts/AJAX_magic.js", function(){
 
 function doTheThing()
 {
+    var options = "";
     //This will hold the array of names? Maybe?
-    post("AdminServlet", sampledata, function(response)
-    {alert("Connection made! response: " + response);});
+    get("AdminServlet", sampledata, function(response)
+    {
+        console.log("Connection made!" + response);
+        var thing = response; //JSON.parse(response);
+        for(var i = 0; i < thing.length; i++)
+        {
+            options += '<option>';
+            var subthing = thing[i];
+            options += subthing["name"];
+            options += '</option>';
+        }
+        
+        console.log("Thing: " + thing);
+        console.log("Subthing: " + subthing);
+        
+        
+    });
 
 //This creates the browse area, then fires off the function createNewInput,
 //then puts a button below for adding more data entry areas
@@ -28,12 +44,12 @@ function doTheThing()
             '<input type="file" value="Browse..."><br/>' +
             '<input type="submit" value="Submit">' +
             '<a id="input_space"></a>');
-    createNewInput();
+    createNewInput(options);
     $('#Input_Data').append(
             '<button type="button" onclick="createNewInput()">+</button>');
 };
 
-function createNewInput()
+function createNewInput(options)
 {
     $('#input_space').append(
             '<span data-insertion_id = ' + $insertionid++ +
@@ -41,11 +57,14 @@ function createNewInput()
             '<h3>Enter Data Manually:</h3>' +
             'Date: <input type="date" name="data_date"><br/>' +
             'Time: <input type="time" name="data_time"><br/>' +
-            'Parameter: <select id="select_param" width:20px></select><br/>' +
+            'Parameter: <select id="select_param">' +
+            options +
+            '</select><br/>' +
             'Value: <input type="text" name="value"><br/>' +
             // The following line is to show the unique value
             // of each set of data to be inserted...doesn't need to be displayed
             // on launch, only for testing
             /*'Insertion ID: ' + $insertionid + '*/'<br/></span>'
             );
+    
 };

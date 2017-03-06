@@ -7,8 +7,10 @@ package servlets;
 
 import common.UserRole;
 import database.DatabaseManager;
+import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -112,9 +114,20 @@ public class AdminServlet extends HttpServlet {
         //This will be the servlet's case for getting the json?
         else if (action.trim().equalsIgnoreCase("getManualItems")) {
             System.out.println("Test got here");
-            response.getWriter().append("Response");
-            //proto.process((JSONObject) new JSONParser().parse());
-         //json = JSON.parse(get("resources/manual_entry_items.json", {}, function(data){console.log("Successful parse", data);}));
+            JSONParser parser = new JSONParser();
+            try{
+                Object obj = parser.parse(new FileReader("P:/Documents/GitHub/WaterQuality/src/java/resources/manual_entry_items.json"));
+                JSONObject jObj = (JSONObject)obj;
+                JSONArray jarray = (JSONArray)jObj.get("data");
+                response.getWriter().append(jarray.toJSONString());
+//                Iterator<JSONObject> iterator = jarray.iterator();
+//                while(iterator.hasNext())
+//                    response.getWriter().append(iterator.next().get("name").toString());
+            }
+            catch(Exception e)
+            {
+                System.out.println("Something went wrong..." + e.toString());
+            }
         }
 
     }
