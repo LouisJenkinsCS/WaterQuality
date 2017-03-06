@@ -11,20 +11,23 @@ var sampledata = {action: 'getManualItems', dataName: 'Temperature',
     value: '13.0', delta: '2.0', id: '126',
     inputStatus: ''};
 
-$.getScript("scripts/AJAX_magic.js", function(){
-
-});
+//This function simply pulls the AJAX_magic.js script
+//to allow the current script to use AJAX functions
+$.getScript("scripts/AJAX_magic.js", function () {});
 
 function doTheThing()
 {
     var options = "";
     //This will hold the array of names? Maybe?
-    get("AdminServlet", sampledata, function(response)
+    get("AdminServlet", sampledata, function (response)
     {
         console.log(response);
         console.log("Connection made!" + response);
         var thing = JSON.parse(response)["data"];
-        for(var i = 0; i < thing.length; i++)
+
+        //Constructs the options to be selected from
+        //in the parameters drop down list
+        for (var i = 0; i < thing.length; i++)
         {
             options += '<option>';
             var subthing = thing[i];
@@ -32,25 +35,24 @@ function doTheThing()
             options += subthing["name"];
             options += '</option>';
         }
-        
+
         console.log("Thing: " + thing);
         console.log("Subthing: " + subthing["name"]);
-        
-        createNewInput(options);
-        $('#Input_Data').append(
-            '<button type="button" onclick="createNewInput()">+</button>');
-        
-    });
 
+        createNewInput(options);
+//        $('#Input_Data').append(
+//                '<button type="button" onclick="doTheThing()">+</button>');
+
+    });
+}
 //This creates the browse area, then fires off the function createNewInput,
 //then puts a button below for adding more data entry areas
-    $('#Input_Data').append(
-            '<div class="large_text">Upload .CSV File</div>' +
-            '<input type="file" value="Browse..."><br/>' +
-            '<input type="submit" value="Submit">' +
-            '<a id="input_space"></a>');
-    
-};
+//$('#Input_Data').append(
+//        '<div class="large_text">Upload .CSV File</div>' +
+//        '<input type="file" value="Browse..."><br/>' +
+//        '<input type="submit" value="Submit">' +
+//        '<a id="input_space"></a>');
+//};
 
 function createNewInput(options)
 {
@@ -69,5 +71,6 @@ function createNewInput(options)
             // on launch, only for testing
             /*'Insertion ID: ' + $insertionid + '*/'<br/></span>'
             );
-    
-};
+
+}
+;
