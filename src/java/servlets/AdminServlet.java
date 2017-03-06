@@ -22,6 +22,7 @@ import org.json.simple.parser.ParseException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import protocol.JSONProtocol;
+import utilities.FileUtils;
 
 /**
  *
@@ -116,10 +117,10 @@ public class AdminServlet extends HttpServlet {
             System.out.println("Test got here");
             JSONParser parser = new JSONParser();
             try{
-                Object obj = parser.parse(new FileReader("P:/Documents/GitHub/WaterQuality/src/java/resources/manual_entry_items.json"));
+                Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
                 JSONObject jObj = (JSONObject)obj;
-                JSONArray jarray = (JSONArray)jObj.get("data");
-                response.getWriter().append(jarray.toJSONString());
+                //JSONArray jarray = (JSONArray)jObj.get("data");
+                response.getWriter().append(jObj.toJSONString());
 //                Iterator<JSONObject> iterator = jarray.iterator();
 //                while(iterator.hasNext())
 //                    response.getWriter().append(iterator.next().get("name").toString());

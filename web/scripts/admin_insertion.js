@@ -21,19 +21,24 @@ function doTheThing()
     //This will hold the array of names? Maybe?
     get("AdminServlet", sampledata, function(response)
     {
+        console.log(response);
         console.log("Connection made!" + response);
-        var thing = response; //JSON.parse(response);
+        var thing = JSON.parse(response)["data"];
         for(var i = 0; i < thing.length; i++)
         {
             options += '<option>';
             var subthing = thing[i];
+            console.log(subthing["name"]);
             options += subthing["name"];
             options += '</option>';
         }
         
         console.log("Thing: " + thing);
-        console.log("Subthing: " + subthing);
+        console.log("Subthing: " + subthing["name"]);
         
+        createNewInput(options);
+        $('#Input_Data').append(
+            '<button type="button" onclick="createNewInput()">+</button>');
         
     });
 
@@ -44,9 +49,7 @@ function doTheThing()
             '<input type="file" value="Browse..."><br/>' +
             '<input type="submit" value="Submit">' +
             '<a id="input_space"></a>');
-    createNewInput(options);
-    $('#Input_Data').append(
-            '<button type="button" onclick="createNewInput()">+</button>');
+    
 };
 
 function createNewInput(options)
