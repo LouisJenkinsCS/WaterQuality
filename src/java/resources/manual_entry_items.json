@@ -1,0 +1,89 @@
+{
+    "data": [
+        {
+            "name": "Soluble Reactive Phosphorus",
+            "units": "ug P/L",
+            "description": "Measure of phosphate in filtered water sample."
+        },
+        {
+            "name": "Nitrate+nitrite-nitrogen",
+            "units": "ug N/L",
+            "description": "Nitrate and nitrite in filtered water sample."
+        },
+        {
+            "name": "Ammonium-nitrogen",
+            "units": "ug N/L",
+            "description": "Ammonium in filtered water sample."
+        },
+        {
+            "name": "Total Phosphorus",
+            "units": "ug P/L",
+            "description": "All inorganic and organic phosphorus in whole water sample."
+        },
+        {
+            "name": "Total Nitrogen",
+            "units": "ug P/L",
+            "description": "All inorganic and organic nitrogen in whole water sample."
+        },
+        {
+            "name": "Chloride",
+            "units": "mg/L",
+            "description": "Chloride content of filtered water sample."
+        },
+        {
+            "name": "Algal Biomass (Chlorophyll a)",
+            "units": "mg/cm^2",
+            "description": "Estimate of algal growth on the stream bottom."
+        },
+        {
+            "name": "Thin Biofilm Cover",
+            "units": "%",
+            "description": "Percent of rock coverage by slimy but not visible algal accumulation."
+        },
+        {
+            "name": "Moderately Thick Diatom Cover",
+            "units": "%",
+            "description": "Percent of rock coverage by golden brown diatom mat <5 mm thick."
+        },
+        {
+            "name": "Thick Diatom Cover",
+            "units": "%",
+            "description": "Percent of rock coverage by golden brown diatom mat >5 mm thick."
+        },
+        {
+            "name": "Phormidium Cover",
+            "units": "%",
+            "description": "Percent of rock coverage by cyanobacterium, Phormidium sp."
+        },
+        {
+            "name": "Ulothrix Cover",
+            "units": "%",
+            "description": "Percent of rock coverage by green alga, Ulothrix sp."
+        },
+        {
+            "name": "Oedogonium Cover",
+            "units": "%",
+            "description": "Percent of rock coverage by green alga, Oedogonium sp."
+        },
+        {
+            "name": "Hydrurus Cover",
+            "units": "%",
+            "description": "Percent of rock coverage by Chrysophyte, Hydrurus foetidus."
+        },
+        {
+            "name": "Coverage by Other Algal Taxon",
+            "units": "%",
+            "description": ""
+        },
+        {
+            "name": "Gross Primary Productivity",
+            "units": "g O2/m^2/day",
+            "description": "Total photosynthesis by algae and other plants in the immediate upstream research.  Estimated from changes in dissolved oxygen, photosynthetically active radiation, barometric pressure, depth and water temperature."
+        },
+        {
+            "name": "Ecosystem Respiration",
+            "units": "g O2/m^2/day",
+            "description": "Total respiration of all organisms in the immediate upstream research.  Estimated from changes in dissolved oxygen, photosynthetically active radiation, barometric pressure, depth and water temperature."
+        }
+    ]
+}
