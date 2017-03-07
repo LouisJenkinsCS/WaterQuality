@@ -37,17 +37,22 @@ function fullCheck(id) {
     }
 }
 
+//<code>doCheck</code> tells the checkboxes if they need to check or uncheck
+//The default value is set to true so that first time it is clicked it resets
+var doCheck=true;
 /**
  * The <code>toggle</code> function checks or unchecks
- * all of the checkboxes in the given <code>source</code> 
- * @param {type} source
+ * all of the checkboxes in the table tab depending on the state of <code>doCheck</code>
  */
-function toggle(source) {
+function toggle() {
     var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
     for (var i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i] != source)
-            checkboxes[i].checked = source.checked;
+            checkboxes[i].checked = doCheck;
     }
+    //Sets to the opposite of itself so that the next click will be the revers
+    doCheck=!doCheck;
+    //makes sure the <code>select_all_box</code>
+    document.getElementById("select_all_box").checked=false;
 }
 
 function setCookie(name, value, exdays) {
@@ -178,6 +183,10 @@ function fetch() {
 
 }
 
+/**Sets the default dates for the date selectors
+ * @param {type} date
+ * @param {type} id
+ */
 function setDate(date, id) {
     var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1)%60, 2) + ":" + pad(0, 2);
     document.getElementById(id).value = dateStr;
@@ -204,50 +213,53 @@ function pad(num, size) {
     return s;
 }
 
+/**The <code>fillTable</code> function recieves the selected data and
+ * outputs the corresponding table within the table tab of the webpage
+ * @param {type} dataResp
+ */
 function fillTable(dataResp) {
     var table = document.getElementById("dataTable");
     table.innerHTML = "";
-    var row, cell;
-    var html = [];
+    var html = [];//Holds the table that will be created 
+    var dates=[];//holds the array of all dates from all parameters 
     html.push("<table><tr><th>TimeStamp</th>");
-
+    //Adds the names to the header of the table 
     for (var i = 0; i < dataResp.data.length; i++) {
         html.push("<th>" + dataResp.data[i]["name"] + "</th>");
     }
     html.push("</tr>");
-    var d = dataResp.data[0]["data"];
-    console.log(d);
-    for (var i = 0; i < d.length; i++) {
-        html.push("<tr>");
-        var ts_val = d[i];
-        console.log("Date: " + new Date(ts_val["timestamp"]));
-        for (var j = 0; j < dataResp.data.length; j++) {
-            var dl=dataResp.data[j]["data"];
-            var ts_val2=dl[i];
-            if(ts_val["timestamp"].length==ts_val2["timestamp"].length)
-                var isOk=true;
-        }
-        if(isOk)
-            html.push("<td>" + new Date(ts_val["timestamp"]).toUTCString() + "</td>");
-        else{
-            for (var j = 0; j < dataResp.data.length; j++) {
-                var dl=dataResp.data[j]["data"];
-                var ts_val2=dl[i];
-                if(ts_val["timestamp"].length==ts_val2["timestamp"].length){
-                
-                }
+    //adds one of every date to the <code>dates</code> array
+    //This ensures that every date that is used can be accounted for
+    //also allows the handling of missing data
+    for (var j = 0; j < dataResp.data.length; j++) {
+        var d = dataResp.data[j]["data"];
+        for(var i=0; i<d.length; i++){
+            var ts_val = d[i];
+            if(dates.indexOf(ts_val["timestamp"])==-1){
+               dates.push(ts_val["timestamp"]);
             }
         }
+    }
+    //since the dates are stored as epoch miliseconds this make sure the dates
+    //are in the correct order
+    dates.sort(function(a, b){return a - b});
+    //Adds all the values to the <code>html</code> array for the table
+    for (var i = 0; i < dates.length; i++) {
+        html.push("<tr>");
+        html.push("<td>" + new Date(dates[i]).toUTCString() + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
-            var dl=dataResp.data[j]["data"];
-            var ts_val2=dl[i];
-            /*if(ts_val2["timestmp"]!=ts_val["timestamp"])
+            var d=dataResp.data[j]["data"];
+            var ts_val=d[i];
+            if(ts_val["timestamp"]!=dates[i]){
                 html.push("<td> N/A </td>");
-            else*/
-                html.push("<td>" + ts_val2["value"] + "</td>");
+                    d.splice(i,0,null);
+            }
+            else
+                html.push("<td>" + ts_val["value"] + "</td>");
         }
         html.push("</tr>");
     }
+    //setting the innerHTML allows the table to be visible on the page
     var finalHtml = "";
     for (i = 0; i < html.length; i++) {
         var str = html[i];
