@@ -249,6 +249,10 @@ function fillTable(dataResp) {
         html.push("<td>" + new Date(dates[i]).toUTCString() + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
             var d=dataResp.data[j]["data"];
+            if(i>=d.length){
+                html.push("<td> N/A </td>");
+                continue;
+            }
             var ts_val=d[i];
             if(ts_val["timestamp"]!=dates[i]){
                 html.push("<td> N/A </td>");
