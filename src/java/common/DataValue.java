@@ -20,14 +20,11 @@ public class DataValue implements Serializable
     private float value;//the value the sensor detected
     private float delta;
     
-    private int id; //the id distinguishes what sensor got it if there is no sensor name
-    //(useful for determining whether it is water or air data)
-    
     public DataValue()
     {
         
     }
-    public DataValue(int entryID, String name, String units, String sensor, LocalDateTime time, float value, float delta, int id)
+    public DataValue(int entryID, String name, String units, String sensor, LocalDateTime time, float value, float delta)
     {
         this.entryID = entryID;
         this.name = name;
@@ -36,7 +33,6 @@ public class DataValue implements Serializable
         this.time = time;
         this.value = value;
         this.delta = delta;
-        this.id = id;
     }
     /**
      * @return the entryID
@@ -135,21 +131,6 @@ public class DataValue implements Serializable
     public void setDelta(float delta) {
         this.delta = delta;
     }
-    
-    /**
-     * @return the id
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * @param id the value to set
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
-    
     
     public String toString()
     {

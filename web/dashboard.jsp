@@ -100,8 +100,10 @@
                         End Date:
                         <input class="dateselector" id="enddate2" name="enddate" type="datetime-local" min="" max="">
                     </div>
-                    <div id="select_all_toggle"><input type="checkbox" onclick="toggle(this);"
-                                                       id="select_all_data" value="select_all_data">Select all</div><br>
+                    <div id="select_all_div">
+                        <input type="checkbox" onclick="toggle();"id="select_all_box" value="select_all_data">
+                        Select all
+                    </div><br>
                         ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Table_submit">

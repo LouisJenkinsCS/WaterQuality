@@ -19,15 +19,12 @@ function doTheThing()
 {
     var options = "";
     //This will hold the array of names? Maybe?
-    get("AdminServlet", sampledata, function (response)
+    get("AdminServlet", sampledata, function(response)
     {
         console.log(response);
         console.log("Connection made!" + response);
         var thing = JSON.parse(response)["data"];
-
-        //Constructs the options to be selected from
-        //in the parameters drop down list
-        for (var i = 0; i < thing.length; i++)
+        for(var i = 0; i < thing.length; i++)
         {
             options += '<option>';
             var subthing = thing[i];
@@ -61,17 +58,5 @@ function createNewInput(options)
             // on launch, only for testing
             /*'Insertion ID: ' + $insertionid + '*/'<br/></span>'
             );
-
-};
-
-function getRidOfIt()
-{
-    if($insertionid != 1)
-    {
-        var $closest = $("span").closest(".datainsertion");
-        $closest.remove();
-        console.log($closest);
-        //$(".datainsertion").remove();
-        $insertionid--;
-    }
+    
 };
