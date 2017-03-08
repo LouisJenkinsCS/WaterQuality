@@ -65,6 +65,7 @@ Current bugs:
                 <a id="input_space"></a>
                 <script>doTheThing();</script>
                 <button type="button" onclick="doTheThing()">+</button>
+                <button type="button" onclick="getRidOfIt()">x</button>
             </admincontent>
 
 

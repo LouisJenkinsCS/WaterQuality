@@ -40,19 +40,9 @@ function doTheThing()
         console.log("Subthing: " + subthing["name"]);
 
         createNewInput(options);
-//        $('#Input_Data').append(
-//                '<button type="button" onclick="doTheThing()">+</button>');
 
     });
-}
-//This creates the browse area, then fires off the function createNewInput,
-//then puts a button below for adding more data entry areas
-//$('#Input_Data').append(
-//        '<div class="large_text">Upload .CSV File</div>' +
-//        '<input type="file" value="Browse..."><br/>' +
-//        '<input type="submit" value="Submit">' +
-//        '<a id="input_space"></a>');
-//};
+};
 
 function createNewInput(options)
 {
@@ -72,5 +62,16 @@ function createNewInput(options)
             /*'Insertion ID: ' + $insertionid + '*/'<br/></span>'
             );
 
-}
-;
+};
+
+function getRidOfIt()
+{
+    if($insertionid != 1)
+    {
+        var $closest = $("span").closest(".datainsertion");
+        $closest.remove();
+        console.log($closest);
+        //$(".datainsertion").remove();
+        $insertionid--;
+    }
+};
