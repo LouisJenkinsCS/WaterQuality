@@ -38,16 +38,11 @@ function doTheThing()
         
         console.log("Thing: " + thing);
         console.log("Subthing: " + subthing["name"]);
-        
-        createNewInput(options);
-        $('#Input_Data').append(
-            '<button type="button" onclick="createNewInput()">+</button>');
     });
 
 //This creates the browse area, then fires off the function createNewInput,
 //then puts a button below for adding more data entry areas
     $('#Input_Data').append(
-<<<<<<< HEAD
             '<div class="large_text">Upload .CSV File</div>'
             + '<input type="file" value="Browse..."><br/>'
             + '<input type="submit" value="Submit"><br/>'
@@ -93,31 +88,3 @@ function removeLastInput()
 {
     $('#input_space tr:last').remove();
 };
-=======
-            '<div class="large_text">Upload .CSV File</div>' +
-            '<input type="file" value="Browse..."><br/>' +
-            '<input type="submit" value="Submit">' +
-            '<a id="input_space"></a>');
-    
-};
-
-function createNewInput(options)
-{
-    $('#input_space').append(
-            '<span data-insertion_id = ' + $insertionid++ +
-            ' class = datainsertion>' +
-            '<h3>Enter Data Manually:</h3>' +
-            'Date: <input type="date" name="data_date"><br/>' +
-            'Time: <input type="time" name="data_time"><br/>' +
-            'Parameter: <select id="select_param">' +
-            options +
-            '</select><br/>' +
-            'Value: <input type="text" name="value"><br/>' +
-            // The following line is to show the unique value
-            // of each set of data to be inserted...doesn't need to be displayed
-            // on launch, only for testing
-            /*'Insertion ID: ' + $insertionid + '*/'<br/></span>'
-            );
-    
-};
->>>>>>> refs/remotes/origin/Development
