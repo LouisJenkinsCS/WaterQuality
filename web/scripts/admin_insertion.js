@@ -6,7 +6,7 @@ var $insertionid = 0;
 var $parameterlist;
 
 //remember the list for the parameter dropdown
-var options="";
+var options_params="";
 
 //Sample of successful data format for input into the database - tested and approved
 var sampledata = {action: 'getManualItems', dataName: 'Temperature',
@@ -20,7 +20,7 @@ $.getScript("scripts/AJAX_magic.js", function () {});
 
 function doTheThing()
 {
-    //var options = "";
+    //var options_params = "";
     //This will hold the array of names? Maybe?
     get("AdminServlet", sampledata, function(response)
     {
@@ -29,11 +29,11 @@ function doTheThing()
         var thing = JSON.parse(response)["data"];
         for(var i = 0; i < thing.length; i++)
         {
-            options += '<option>';
+            options_params += '<option>';
             var subthing = thing[i];
             console.log(subthing["name"]);
-            options += subthing["name"];
-            options += '</option>';
+            options_params += subthing["name"];
+            options_params += '</option>';
         }
 
         console.log("Thing: " + thing);
@@ -41,7 +41,7 @@ function doTheThing()
         
         createNewInput();//get() is non-blocking, so moving createNewInput()
             //outside of this block {} of code will cause it to display before
-            //options has been initialilzed.
+            //options_params has been initialilzed.
     });
 
 //This creates the browse area, then fires off the function createNewInput,
@@ -60,7 +60,7 @@ function doTheThing()
 };
 
 /**
- * relies on global variable options.
+ * relies on global variable options_params.
  */
 function createNewInput()
 {
@@ -68,7 +68,7 @@ function createNewInput()
               '  <tr data-insertion_id='+$insertionid++ +' class=datainsertion>'
             + '     <td><input type="date" name="data_date"></td>'
             + '     <td><input type="time" name="data_time"></td>'
-            + '     <td><select id="select_param">'+options+'</select></td>'
+            + '     <td><select id="select_param">'+options_params+'</select></td>'
             + '     <td><input type="text" name="value"></td>'
             + '  </tr>'
             );   

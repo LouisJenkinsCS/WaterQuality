@@ -17,6 +17,7 @@ Current bugs:
         <link rel="stylesheet" href="styles/admin.css" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="scripts/admin_insertion.js"></script>
+        <script src="scripts/admin_register.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
@@ -91,8 +92,13 @@ Current bugs:
 
 
             <admincontent id="Register_User" class="tab_content">
-
-
+                <!--Register User Tab defined in admin_insertion.js-->
+                 <script>fillPageRegisterUser();</script>
+                <%--option 2 would have been
+                    <%@include file="jsp/admin_register.jsp"%>
+                    however, this causes issues with admin_register.jsp 
+                    accessing directories outside of /jsp.
+                --%>
             </admincontent>
 
 
