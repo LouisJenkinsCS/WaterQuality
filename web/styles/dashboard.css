@@ -122,7 +122,7 @@ and open the template in the editor.
 /* Styles the large section that contains the graph, data, and 
 description boxes */
 #dashboard_container{
-    margin-top:10px;
+    margin-top:5%;
     width: auto;
     min-width:1000px;
     overflow:auto;
@@ -159,6 +159,13 @@ description boxes */
     min-width:600px;
     width:60%;
     font-family: "Ariel", Helvetica, san-serif;
+}
+
+#description{
+    text-align:justify;
+    padding-bottom:10px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 /* Style the list */
