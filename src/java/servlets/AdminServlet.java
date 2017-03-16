@@ -119,11 +119,7 @@ public class AdminServlet extends HttpServlet {
             try{
                 Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
                 JSONObject jObj = (JSONObject)obj;
-                //JSONArray jarray = (JSONArray)jObj.get("data");
                 response.getWriter().append(jObj.toJSONString());
-//                Iterator<JSONObject> iterator = jarray.iterator();
-//                while(iterator.hasNext())
-//                    response.getWriter().append(iterator.next().get("name").toString());
             }
             catch(Exception e)
             {

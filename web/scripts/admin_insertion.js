@@ -14,9 +14,9 @@ var sampledata = {action: 'getManualItems', dataName: 'Temperature',
     value: '13.0', delta: '2.0', id: '126',
     inputStatus: ''};
 
-$.getScript("scripts/AJAX_magic.js", function(){
-
-});
+//This function simply pulls the AJAX_magic.js script
+//to allow the current script to use AJAX functions
+$.getScript("scripts/AJAX_magic.js", function () {});
 
 function doTheThing()
 {
@@ -35,9 +35,10 @@ function doTheThing()
             options += subthing["name"];
             options += '</option>';
         }
-        
+
         console.log("Thing: " + thing);
         console.log("Subthing: " + subthing["name"]);
+<<<<<<< HEAD
     });
 
 //This creates the browse area, then fires off the function createNewInput,
@@ -54,6 +55,12 @@ function doTheThing()
             + '<button type="button" onclick="createNewInput()">+</button>'
             + '<button type="button" onclick="removeLastInput()">x</button>\n');
     createNewInput();
+=======
+
+        createNewInput(options);
+
+    });
+>>>>>>> refs/remotes/origin/Development
 };
 
 function createNewInput()

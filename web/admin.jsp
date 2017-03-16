@@ -59,10 +59,15 @@ Current bugs:
             </div>
             <!--Admin insertion-->
             <admincontent id="Input_Data" class="tab_content">
-                <!--defined in admin_insertion.js-->
+                <div class="large_text">Upload .CSV File</div>
+                <input type="file" value="Browse..."><br/>
+                <input type="submit" value="Submit">
+                <a id="input_space"></a>
                 <script>doTheThing();</script>
+                <button type="button" onclick="doTheThing()">+</button>
+                <button type="button" onclick="getRidOfIt()">x</button>
             </admincontent>
-            
+
 
             <!--Admin deletion functionality and GUI are defined here-->
             <admincontent id="Delete_Data" class="tab_content">
@@ -91,13 +96,15 @@ Current bugs:
 
 
             <admincontent id="Register_User" class="tab_content">
-                
+
+
             </admincontent>
 
 
             <admincontent id="Remove_User" class="tab_content">
                 <div>
-                    
+
+
                 </div>
             </admincontent>
 
