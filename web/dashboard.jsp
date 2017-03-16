@@ -19,6 +19,7 @@
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <script src="scripts/dashboard.js"></script>
+        <link rel="stylesheet" type="text/css" href="styles/popup.css">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -36,7 +37,7 @@
                     Dashboard
                 </div>
             </header>
-
+            
             <section class = "content_container2" id = "graph_container">
                 <ul class="tab">
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph');"
@@ -55,7 +56,7 @@
                 </ul>
                 <div id="Graph" class="tabcontent"></div>
                 <div id="Table" class="tabcontent">
-                    <table id="dataTable">
+                    <table align="center" id="dataTable" onclick="openPop()">
                         
                     </table>
                 </div>
@@ -128,8 +129,20 @@
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
                 <div id="description">${Descriptions}</div>
             </section>
+            <!-- The Modal -->
+            <div id="myModal" class="modal">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="close">&times;</span>
+                        <h2>Table Data</h2>
+                    </div>
+                    <div class="modal-body">
+                        <table id="popup" align="center"></table>
+                </div>
+            </div>
         </section> 
-
+            
         <script>
             var end = new Date();
             var start = new Date();
@@ -299,5 +312,19 @@
                 document.getElementById("TableTab").click();
             else
                 document.getElementById("GraphTab").click();    
+            
+            function openPop(){
+                var modal=document.getElementById("myModal");
+                var span = document.getElementsByClassName("close")[0];
+                var table=document.getElementById("dataTable");
+                var popup=document.getElementById("popup");
+                
+        
+                popup.innerHTML=table.innerHTML;
+                modal.style.display = "block";
+                span.onclick = function() {
+                    modal.style.display = "none";
+                }
+            }
         </script>
     </body>
