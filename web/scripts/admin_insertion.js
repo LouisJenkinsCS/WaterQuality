@@ -38,7 +38,10 @@ function doTheThing()
 
         console.log("Thing: " + thing);
         console.log("Subthing: " + subthing["name"]);
-<<<<<<< HEAD
+        
+        createNewInput();//get() is non-blocking, so moving createNewInput()
+            //outside of this block {} of code will cause it to display before
+            //options has been initialilzed.
     });
 
 //This creates the browse area, then fires off the function createNewInput,
@@ -50,19 +53,15 @@ function doTheThing()
             + '<br>'
             + '<div class="large_text">Enter Data Manually</div>'
             + '<table id="input_space">'
-            + '<tr><th>Date:</th><th>Time</th><th>Parameter</th><th>Value</th></tr>'
+            + '<tr><th>Date</th><th>Time</th><th>Parameter</th><th>Value</th></tr>'
             + '</table>'
             + '<button type="button" onclick="createNewInput()">+</button>'
             + '<button type="button" onclick="removeLastInput()">x</button>\n');
-    createNewInput();
-=======
-
-        createNewInput(options);
-
-    });
->>>>>>> refs/remotes/origin/Development
 };
 
+/**
+ * relies on global variable options.
+ */
 function createNewInput()
 {
     $('#input_space').append(
@@ -93,5 +92,6 @@ function createNewInput()
 
 function removeLastInput()
 {
+    if((document.getElementById("input_space")).rows.length>2)
     $('#input_space tr:last').remove();
 };

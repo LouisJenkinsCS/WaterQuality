@@ -59,13 +59,8 @@ Current bugs:
             </div>
             <!--Admin insertion-->
             <admincontent id="Input_Data" class="tab_content">
-                <div class="large_text">Upload .CSV File</div>
-                <input type="file" value="Browse..."><br/>
-                <input type="submit" value="Submit">
-                <a id="input_space"></a>
                 <script>doTheThing();</script>
-                <button type="button" onclick="doTheThing()">+</button>
-                <button type="button" onclick="getRidOfIt()">x</button>
+                <!--Input Tab defined in admin_insertion.j-->
             </admincontent>
 
 
