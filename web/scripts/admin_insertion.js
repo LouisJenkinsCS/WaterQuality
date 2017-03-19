@@ -80,7 +80,8 @@ function removeLastInput()
 {
     if ((document.getElementById("input_space")).rows.length > 2)
     {
-        $('#input_space tr:last').remove();
+        //Gettin fancy, fadeout looks nicer :thumbsup:
+        $('#input_space tr:last').fadeOut(500, function(){$(this).remove();});
         $insertionid--;
     }
 }
