@@ -113,6 +113,7 @@ function submitInput()
                 inputData['value'] = $(this).val();
 
         });
+        console.log("Entry: " + JSON.stringify(inputData));
         post("AdminServlet", inputData, function (resp) {
             console.log("Entry: " + JSON.stringify(inputData));
             
