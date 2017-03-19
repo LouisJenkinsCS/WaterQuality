@@ -18,6 +18,8 @@ Current bugs:
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="scripts/admin_insertion.js"></script>
         <script src="scripts/admin_register.js"></script>
+        <script src="scripts/admin_removeuser.js"></script>
+        <script src="scripts/admin_editdesc.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
@@ -103,15 +105,14 @@ Current bugs:
 
 
             <admincontent id="Remove_User" class="tab_content">
-                <div>
-
-
-                </div>
+                <!--Remove User Tab defined in admin_removeuser.js-->
+                <script>fillPageRemoveUser();</script>
             </admincontent>
 
 
             <admincontent id="Edit_Description" class="tab_content">
-                <div></div>
+                <!--Edit Desc Tab defined in admin_editdesc.js-->
+                <script>fillPageEditDesc();</script>
             </admincontent>
 
 

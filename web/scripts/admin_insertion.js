@@ -20,7 +20,6 @@ $.getScript("scripts/AJAX_magic.js", function () {});
 
 function doTheThing()
 {
-    //var options_params = "";
     //This will hold the array of names? Maybe?
     get("AdminServlet", sampledata, function(response)
     {
@@ -72,22 +71,6 @@ function createNewInput()
             + '     <td><input type="text" name="value"></td>'
             + '  </tr>'
             );   
-//    $('#input_space').append(
-//            '<span data-insertion_id = ' + $insertionid++ +
-//            ' class = datainsertion>' +
-//            '<h3>Enter Data Manually:</h3>' +
-//            'Date: <input type="date" name="data_date"><br/>' +
-//            'Time: <input type="time" name="data_time"><br/>' +
-//            'Parameter: <select id="select_param">' +
-//            options +
-//            '</select><br/>' +
-//            'Value: <input type="text" name="value"><br/>' +
-//            // The following line is to show the unique value
-//            // of each set of data to be inserted...doesn't need to be displayed
-//            // on launch, only for testing
-//            /*'Insertion ID: ' + $insertionid + '*/'<br/></span>'
-//            );
-    
 };
 
 function removeLastInput()
