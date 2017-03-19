@@ -6,10 +6,10 @@ var $insertionid = 0;
 var $parameterlist;
 
 //remember the list for the parameter dropdown
-var options_params="";
+var options_params = "";
 
 //Sample of successful data format for input into the database - tested and approved
-var sampledata = {action: 'getManualItems', dataName: 'Temperature',
+var inputData = {action: 'getManualItems', dataName: 'Temperature',
     units: 'C', time: '2007-12-03T10:15:30',
     value: '13.0', delta: '2.0', id: '126',
     inputStatus: ''};
@@ -21,12 +21,12 @@ $.getScript("scripts/AJAX_magic.js", function () {});
 function doTheThing()
 {
     //This will hold the array of names? Maybe?
-    get("AdminServlet", sampledata, function(response)
+    get("AdminServlet", inputData, function (response)
     {
         console.log(response);
         console.log("Connection made!" + response);
         var thing = JSON.parse(response)["data"];
-        for(var i = 0; i < thing.length; i++)
+        for (var i = 0; i < thing.length; i++)
         {
             options_params += '<option>';
             var subthing = thing[i];
@@ -37,10 +37,10 @@ function doTheThing()
 
         console.log("Thing: " + thing);
         console.log("Subthing: " + subthing["name"]);
-        
+
         createNewInput();//get() is non-blocking, so moving createNewInput()
-            //outside of this block {} of code will cause it to display before
-            //options_params has been initialilzed.
+        //outside of this block {} of code will cause it to display before
+        //options_params has been initialilzed.
     });
 
 //This creates the browse area, then fires off the function createNewInput,
@@ -55,8 +55,10 @@ function doTheThing()
             + '<tr><th>Date</th><th>Time</th><th>Parameter</th><th>Value</th></tr>'
             + '</table>'
             + '<button type="button" onclick="createNewInput()">+</button>'
-            + '<button type="button" onclick="removeLastInput()">x</button>\n');
-};
+            + '<button type="button" onclick="removeLastInput()">x</button>'
+            + '<button type="button" onclick="submitInput()">Submit</button>\n');
+}
+;
 
 /**
  * relies on global variable options_params.
@@ -64,17 +66,59 @@ function doTheThing()
 function createNewInput()
 {
     $('#input_space').append(
-              '  <tr data-insertion_id='+$insertionid++ +' class=datainsertion>'
-            + '     <td><input type="date" name="data_date"></td>'
-            + '     <td><input type="time" name="data_time"></td>'
-            + '     <td><select id="select_param">'+options_params+'</select></td>'
-            + '     <td><input type="text" name="value"></td>'
+            '  <tr data-insertion_id=' + $insertionid++ + ' class=datainsertion>'
+            + '     <td><input type="date" name="data_date" id = "date" value=2007-12-03></td>'
+            + '     <td><input type="time" name="data_time" id = "time" value=10:15:30></td>'
+            + '     <td><select id="select_param">' + options_params + '</select></td>'
+            + '     <td><input type="text" name="value" id = "value" value=3.0></td>'
             + '  </tr>'
-            );   
-};
+            );
+}
+;
 
 function removeLastInput()
 {
-    if((document.getElementById("input_space")).rows.length>2)
-    $('#input_space tr:last').remove();
-};
+    if ((document.getElementById("input_space")).rows.length > 2)
+    {
+        $('#input_space tr:last').remove();
+        $insertionid--;
+    }
+}
+;
+
+function submitInput()
+{
+    $('#input_space .datainsertion').each(function () {
+
+        var inputData = {action: 'InputData', dataName: 'Temperature',
+            units: 'C', time: '2007-12-03T10:15:30',
+            value: '13.0', delta: '2.0', id: '126',
+            inputStatus: ''};
+
+        var $dataName = $(this).find("select").val();
+        inputData['dataName'] = $dataName;
+
+        var $items = $(this).find("input");
+
+        $.each($items, function () {
+            //console.log($(this).attr("name"));
+            //console.log("value: " + $(this).val());
+            var name = $(this).attr("name");
+
+            if (name == "data_date")
+                inputData['time'] = $(this).val();
+            else if (name == "data_time")
+                inputData['time'] += 'T' + $(this).val();
+            else
+                inputData['value'] = $(this).val();
+
+        });
+        post("AdminServlet", inputData, function (resp) {
+            console.log("Entry: " + JSON.stringify(inputData));
+            
+        });
+
+    });
+
+    alert("(" + ($insertionid) + ") Successful data entry/entries!");
+}
