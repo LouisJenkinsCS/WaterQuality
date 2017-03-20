@@ -15,10 +15,13 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="http://code.highcharts.com/modules/exporting.js"></script>
+        <script src="http://code.highcharts.com/modules/offline-exporting.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <script src="scripts/dashboard.js"></script>
+        <link rel="stylesheet" type="text/css" href="styles/popup.css">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -36,7 +39,7 @@
                     Dashboard
                 </div>
             </header>
-
+            
             <section class = "content_container2" id = "graph_container">
                 <ul class="tab">
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph');"
@@ -50,12 +53,15 @@
                             });"
                            id="TableTab">Table</a></li>
                     <li>
-                        <form><input id="exportbutton" type="submit" value="Export" onclick="exportData('exportbutton')"></form>
+                        <form><input id="exportbutton" type="button" value="Export" 
+                                     onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}
+                                     if(getCookie('id') == 'Graph'){exportGraph();}"></form>
                     </li>
                 </ul>
-                <div id="Graph" class="tabcontent"></div>
+                <div id="Graph" class="tabcontent">
+                </div>
                 <div id="Table" class="tabcontent">
-                    <table id="dataTable">
+                    <table align="center" id="dataTable" onclick="openPopup()">
                         
                     </table>
                 </div>
@@ -128,8 +134,20 @@
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
                 <div id="description">${Descriptions}</div>
             </section>
+            <!--The modal aka the popup for the table-->
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="close">&times;</span>
+                        <h2>Table Data</h2>
+                    </div>
+                    <div class="modal-body">
+                        <table id="popup" align="center"></table>
+                    </div>
+                </div>
+            </div>
         </section> 
-
+            
         <script>
             var end = new Date();
             var start = new Date();
@@ -230,6 +248,19 @@
 
             // Setup chart, the data will be fed from the servlet through JSP (temporary)
             var chart = Highcharts.chart('Graph', {
+                exporting: {
+                    enabled:false,
+                    /*chartOptions: { // specific options for the exported image
+                        plotOptions: {
+                            series: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        }
+                    },*/
+                    //fallbackToExportServer: false
+                },
                 title: {
                     text: 'Water Creek Parameter Values',
                     x: -20 //center
@@ -292,12 +323,12 @@
                 chart.yAxis[i].setTitle({text: data.data[i]["name"]});
             }
         </script>
-
+        
         <script type="text/javascript">
             //document.getElementById("GraphTab").click();
             if (getCookie("id") == "Table")
                 document.getElementById("TableTab").click();
             else
-                document.getElementById("GraphTab").click();    
+                document.getElementById("GraphTab").click();
         </script>
     </body>

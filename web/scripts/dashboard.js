@@ -37,29 +37,30 @@ function fullCheck(id) {
     }
 }
 
-//<code>doCheck</code> tells the checkboxes if they need to check or uncheck
-//The default value is set to true so that first time it is clicked it resets
-var doCheck=true;
 /**
  * The <code>toggle</code> function checks or unchecks
- * all of the checkboxes in the table tab depending on the state of <code>doCheck</code>
+ * all of the checkboxes in the given <code>source</code> 
+ * @param {type} source
  */
-function toggle() {
+function toggle(source) {
     var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
     for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = doCheck;
+        if (checkboxes[i] != source)
+            checkboxes[i].checked = source.checked;
     }
-    //Sets to the opposite of itself so that the next click will be the revers
-    doCheck=!doCheck;
-    //makes sure the <code>select_all_box</code>
-    document.getElementById("select_all_box").checked=false;
 }
 
-function setCookie(name, value, exdays) {
+/**Sets a cookie so that the current tab name can remembered for reloading the page
+ * 
+ * @param {type} CookieName the name of the cookie 
+ * @param {type} tab is the current tab that is being loaded into the cookie
+ * @param {type} exdays the number of days till the cookie expires
+ */
+function setCookie(CookieName, tab, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
     var expires = "expires=" + d.toUTCString();
-    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    document.cookie = CookieName + "=" + tab + ";" + expires + ";path=/";
 }
 
 function getCookie(cname) {
@@ -89,11 +90,12 @@ function openTab(evt, tabName) {
     var i, tabcontent, tablinks, form;
     tabcontent = document.getElementsByClassName("tabcontent");
 
-
+    //Makes all tabs not display anything
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
 
+    
     tablinks = document.getElementsByClassName("tablinks");
     for (i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
@@ -106,11 +108,13 @@ function openTab(evt, tabName) {
     //for the Graph tab and not the Table tab
     current = tabName;
 
+    //Switches between the forms depending on which tab is open
     form = document.getElementsByClassName("data_type_form");
     for (i = 0; i < form.length; i++) {
         form[i].style.display = "none";
     }
     document.getElementById(current + "_form").style.display = "block";
+    //Sets a cookie so that the current tab can be remembered
     setCookie("id", current, 1);
 }
 
@@ -136,8 +140,8 @@ function fetchData(json) {
         console.log("Pushed: " + arr);
     }
     if(getCookie("id") == "Table")
-        //document.getElementById("Table").innerHTML = table;
-        fillTable(resp);
+        document.getElementById("Table").innerHTML = table;
+        //fillTable(resp);
     else{
     // Remove all series data
     while (chart.series.length > 0)
@@ -155,8 +159,15 @@ function fetchData(json) {
     }
 }
 
+/**The <code>handleClick</code> function handles any and hall actions that need
+ * to be done upon clicking of checkbox <code>cb</code>
+ * 
+ * @param {type} cb
+ * @returns {undefined}
+ */
 function handleClick(cb)
 {
+    //If the current tab is the graph then it limits the number of boxes checked
     if (current == 'Graph') {
         fullCheck(cb.id);
     }
@@ -183,10 +194,6 @@ function fetch() {
 
 }
 
-/**Sets the default dates for the date selectors
- * @param {type} date
- * @param {type} id
- */
 function setDate(date, id) {
     var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1)%60, 2) + ":" + pad(0, 2);
     document.getElementById(id).value = dateStr;
@@ -213,57 +220,39 @@ function pad(num, size) {
     return s;
 }
 
-/**The <code>fillTable</code> function recieves the selected data and
- * outputs the corresponding table within the table tab of the webpage
- * @param {type} dataResp
- */
 function fillTable(dataResp) {
     var table = document.getElementById("dataTable");
     table.innerHTML = "";
-    var html = [];//Holds the table that will be created 
-    var dates=[];//holds the array of all dates from all parameters 
+    var row, cell;
+    var html = [];
     html.push("<table><tr><th>TimeStamp</th>");
-    //Adds the names to the header of the table 
+
     for (var i = 0; i < dataResp.data.length; i++) {
         html.push("<th>" + dataResp.data[i]["name"] + "</th>");
     }
     html.push("</tr>");
-    //adds one of every date to the <code>dates</code> array
-    //This ensures that every date that is used can be accounted for
-    //also allows the handling of missing data
-    for (var j = 0; j < dataResp.data.length; j++) {
-        var d = dataResp.data[j]["data"];
-        for(var i=0; i<d.length; i++){
-            var ts_val = d[i];
-            if(dates.indexOf(ts_val["timestamp"])==-1){
-               dates.push(ts_val["timestamp"]);
-            }
-        }
-    }
-    //since the dates are stored as epoch miliseconds this make sure the dates
-    //are in the correct order
-    dates.sort(function(a, b){return a - b});
-    //Adds all the values to the <code>html</code> array for the table
-    for (var i = 0; i < dates.length; i++) {
+    var d = dataResp.data[0]["data"];
+    console.log(d);
+    for (var i = 0; i < d.length; i++) {
         html.push("<tr>");
-        html.push("<td>" + new Date(dates[i]).toUTCString() + "</td>");
+        var ts_val = d[i];
+        console.log("Date: " + new Date(ts_val["timestamp"]));
+        html.push("<td>" + new Date(ts_val["timestamp"]).toUTCString() + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
+
             var d=dataResp.data[j]["data"];
             if(i>=d.length){
                 html.push("<td> N/A </td>");
                 continue;
             }
             var ts_val=d[i];
-            if(ts_val["timestamp"]!=dates[i]){
+            if(ts_val["timestamp"]!=dates[i])
                 html.push("<td> N/A </td>");
-                    d.splice(i,0,null);
-            }
             else
                 html.push("<td>" + ts_val["value"] + "</td>");
         }
         html.push("</tr>");
     }
-    //setting the innerHTML allows the table to be visible on the page
     var finalHtml = "";
     for (i = 0; i < html.length; i++) {
         var str = html[i];
@@ -272,4 +261,49 @@ function fillTable(dataResp) {
     }
     console.log(finalHtml);
     table.innerHTML = finalHtml;
+}
+
+/**The <code>openPoppup()</code> function simply opens a popped up
+ * version of the data table when <code>dataTable</code> is clicked 
+ * so that the user can more easily see the data 
+ */
+function openPopup() {
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    var table = document.getElementById("dataTable");
+    var popup = document.getElementById("popup");
+
+
+    popup.innerHTML = table.innerHTML;
+    modal.style.display = "block";
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+}
+
+/**The <code>exportTable()</function> taakes the innerHTML from the given 
+ * <code>tableId</code> paramter and converts it to csv format. Then initiates
+ * a download of a csv file
+ * @param {type} tableId the id of the table being exported
+ */
+function exportTable(tableId) {
+    var table = document.getElementById(tableId).innerHTML;
+    //converts the innerHTML of table into csv format
+    var data = table.replace(/<thead>/g, '').replace(/<\/thead>/g, '')
+            .replace(/<tbody>/g, '').replace(/<\/tbody>/g, '')
+            .replace(/<tr>/g, '').replace(/<\/tr>/g, '\r\n')
+            .replace(/,/g, '')
+            .replace(/<th>/g, '').replace(/<\/th>/g, ',')
+            .replace(/<td>/g, '').replace(/<\/td>/g, ',')
+            .replace(/\t/g, '')
+            .replace(/\n/g, '');
+    //creates a link to initiate a download of the csv formated data in a csv file
+    var downloadLink = document.createElement("a");
+    downloadLink.download = "tabledata.csv";
+    downloadLink.href = "data:application/csv," + escape(data);
+    downloadLink.click();
+}
+
+function exportGraph() {
+    chart.exportChartLocal();
 }

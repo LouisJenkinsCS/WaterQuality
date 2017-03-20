@@ -4,6 +4,8 @@
 package database;
 
 import common.DataValue;
+import common.ErrorMessage;
+import common.ManualDataValue;
 import common.User;
 import common.UserRole;
 import java.io.FileReader;
@@ -274,6 +276,38 @@ public class DatabaseManager
     }
     
     /*
+        Same purpose as DataNames table except for manual data
+    */
+    public static void createManualDataNamesTable()    
+    {
+        Statement createTable = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            createTable = conn.createStatement();
+            String createSQL = "Create Table IF NOT EXISTS ManualDataNames("
+                    + "dataName varchar(100) primary key"
+                    + ");";
+            createTable.execute(createSQL);
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error creating ManualDataNames Table: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(createTable != null)
+                    createTable.close();
+            }
+            catch(SQLException e)
+            {
+                LogError("Error closing statement: " + e);
+            }
+        }
+    }
+    
+    /*
         Allows an admin to insert data into the data values table
         @param name the name of the data type
         @param units the units of this data type
@@ -283,7 +317,7 @@ public class DatabaseManager
         @param u the user who entered this data value
         @return whether this function was successful or not
     */
-    
+    //If this is static, admin_insertion.js can't use it...
     public static boolean manualInput(String name, String units, LocalDateTime time, float value, float delta, int id, User u)
     {
         boolean status;
@@ -579,6 +613,65 @@ public class DatabaseManager
     }
     
     /*
+        Returns a list of data within a certain time range
+        @param name the name of the data type for which data is being requested
+        @param lower the lower range of the time
+        @param upper the upper range of the time
+    */
+    public static ArrayList<ManualDataValue> getManualData(String name, LocalDateTime lower, LocalDateTime upper)
+    {
+        ArrayList<ManualDataValue> graphData = new ArrayList<>();
+        PreparedStatement selectData = null;
+        ResultSet dataRange = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from ManualDataValues Where dataName = ?"
+                + " AND timeRecorded >= ? AND timeRecorded <= ?;";
+            selectData = conn.prepareStatement(query);
+            selectData.setString(1, name);
+            selectData.setString(2, lower+"");
+            selectData.setString(3, upper+"");
+            dataRange = selectData.executeQuery();
+            
+            int entryID;
+            String units;
+            LocalDateTime time;
+            float value;
+            String submittedBy;
+            while(dataRange.next())
+            {
+                entryID = dataRange.getInt(1);
+                name = dataRange.getString(2);
+                units = dataRange.getString(3);
+                submittedBy = dataRange.getString(4);
+                time = LocalDateTime.parse(dataRange.getString(5));
+                value = dataRange.getFloat(6);
+                ManualDataValue dV = new ManualDataValue(entryID,name,units,submittedBy,time,value);
+                graphData.add(dV);
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error Retrieving Graph Data: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectData != null)
+                    selectData.close();
+                if(dataRange != null)
+                    dataRange.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return graphData;
+    }
+    
+    /*
         Adds a new user to the user table
         Encrypts the password via SHA256 encryption with salt before storing
         Last login and attempted login are initiallized to now
@@ -821,6 +914,10 @@ public class DatabaseManager
                 name = "Turbidity";
             units = units.replace("μ","u");//special chars not allowed
             
+            String time = ((String)j.get("timestamp")).substring(0,19);
+            if(dataExistsAtTime(name,time))
+            {return;}//This tells us if the data is a duplicate. Don't insert it if so
+            
             if(!dataNameExists(name))//updates the table of unique data names should any new ones appear
                 insertDataName(name);
             
@@ -828,7 +925,7 @@ public class DatabaseManager
             insertData.setString(1, name);
             insertData.setString(2, units);
             insertData.setString(3, (String)j.get("sensor_name"));
-            insertData.setString(4, ((String)j.get("timestamp")).substring(0,19));
+            insertData.setString(4, time);
             insertData.setFloat(5, (float)(double)j.get("value"));
             insertData.setFloat(6, (float)(double)j.get("delta"));
             insertData.executeUpdate();
@@ -1328,7 +1425,6 @@ public class DatabaseManager
         }
         catch (Exception ex)//SQLException ex 
         {
-            System.out.println("Logging Error");
             LogError("Error retrieving data names: " + ex);
         }
         finally
@@ -1348,9 +1444,256 @@ public class DatabaseManager
         return dataNameList;
     }
     
+    /*
+        Returns whether the parameter data name is already in the list of all
+        unique manual data names or not
+    */
+    private static boolean manualDataNameExists(String name)
+    {
+        Statement selectManualDataNames = null;
+        ResultSet dataNames = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from DataNames";
+            selectManualDataNames = conn.createStatement();
+            dataNames = selectManualDataNames.executeQuery(query);
+            
+            while(dataNames.next())
+                if(dataNames.getString(1).equals(name))
+                    return true;
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error checking data names: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectManualDataNames != null)
+                    selectManualDataNames.close();
+                if(dataNames != null)
+                    dataNames.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return false;
+    }
+
+    /*
+        Inserts the data name into the table of manual data names
+        This should only be called if it is known in advance that the 
+        parameter name is not already in the table (ex: through the manualDataNameExists
+        function)
+    */
+    private static void insertManualDataName(String name)
+    {
+        PreparedStatement insertDataName = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String insertSQL = "INSERT INTO ManualDataNames values (?)";
+            insertDataName = conn.prepareStatement(insertSQL);
+            insertDataName.setString(1, name);
+            insertDataName.executeUpdate();
+        }
+        catch(SQLException e)
+        {
+            LogError("Error inserting Data Name:" + e);
+        }
+        finally
+        {
+            try
+            {
+                if(insertDataName != null)
+                    insertDataName.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set:" + excep);
+            }
+        }
+    }
+    
+    
+    
+    /*
+        Returns an arraylist of all manual data names
+    */
+    private static ArrayList<String> getManualDataNames()
+    {
+        ArrayList<String> dataNameList= new ArrayList<>();
+        Statement selectDataNames = null;
+        ResultSet dataNames = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from ManualDataNames";
+            selectDataNames = conn.createStatement();
+            dataNames = selectDataNames.executeQuery(query);
+            
+            while(dataNames.next())
+                    dataNameList.add(dataNames.getString(1));
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error retrieving data names: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectDataNames != null)
+                    selectDataNames.close();
+                if(dataNames != null)
+                    dataNames.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return dataNameList;
+    }
+    
+    /*
+        Checks if data with the parameter dataName exists at the parameter time.
+        Since it doesn't make sense for there to be 2 different values for a
+        data type at the same time, this function is useful for preventing data
+        duplicates from being pulled from netronix.
+    
+        time is in LocalDateTime.toString format (it's pointless to convert it
+        to LocalDateTime just to pass it here, then convert it back as it is 
+        pulled from the JSON as a string and it is needed as a string here).
+    */
+    public static boolean dataExistsAtTime(String dataName, String time)
+    {
+        PreparedStatement selectDataAtTime = null;
+        ResultSet dataAtTime = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from DataValues Where dataName = ? AND timeRecorded = ?";
+            selectDataAtTime = conn.prepareStatement(query);
+            selectDataAtTime.setString(1, dataName);
+            selectDataAtTime.setString(2, time.toString());
+            dataAtTime = selectDataAtTime.executeQuery();
+            
+            if(!dataAtTime.next())
+                return false;//if there is no data, it doesn't exist at that time
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error checking if data exists at time: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectDataAtTime != null)
+                    selectDataAtTime.close();
+                if(dataAtTime != null)
+                    dataAtTime.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return true;//else there is data at that time
+    }
+    
+    /*
+        Returns an arraylist of all errors
+    */
+    private static ArrayList<ErrorMessage> getErrors()
+    {
+        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        Statement selectErrors = null;
+        ResultSet selectedErrors = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from ErrorLogs";
+            selectErrors = conn.createStatement();
+            selectedErrors = selectErrors.executeQuery(query);
+            
+            while(selectedErrors.next())
+            {
+                errorList.add(
+                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
+                        selectedErrors.getString(2))
+                );
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error retrieving data names: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectErrors != null)
+                    selectErrors.close();
+                if(selectedErrors != null)
+                    selectedErrors.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return errorList;
+    }
+    
+    /*
+        Returns an arraylist of all errors within the parameter time range
+    */
+    private static ArrayList<ErrorMessage> getErrorsInRange(LocalDateTime lower, LocalDateTime upper)
+    {
+        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        PreparedStatement selectErrors = null;
+        ResultSet selectedErrors = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from ErrorLogs where timeOccured >= ? AND timeOccured <= ?";
+            selectErrors = conn.prepareStatement(query);
+            selectErrors.setString(1, lower.toString());
+            selectErrors.setString(2, upper.toString());
+            selectedErrors = selectErrors.executeQuery();
+            
+            while(selectedErrors.next())
+            {
+                errorList.add(
+                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
+                        selectedErrors.getString(2))
+                );
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error retrieving data names: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectErrors != null)
+                    selectErrors.close();
+                if(selectedErrors != null)
+                    selectedErrors.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return errorList;
+    }
+    
     public static void main(String[] args)
     {
-        //DatabaseManager.createDataNamesTable();
+        //DatabaseManager.createManualDataNamesTable();
         /*
         JSONParser parser = new JSONParser();
         try{
