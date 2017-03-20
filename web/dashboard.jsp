@@ -15,6 +15,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="http://code.highcharts.com/modules/exporting.js"></script>
+        <script src="http://code.highcharts.com/modules/offline-exporting.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
@@ -52,10 +54,12 @@
                            id="TableTab">Table</a></li>
                     <li>
                         <form><input id="exportbutton" type="button" value="Export" 
-                                     onclick="if(getCookie('id') == 'Table')exportTable('dataTable');"></form>
+                                     onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}
+                                     if(getCookie('id') == 'Graph'){exportGraph();}"></form>
                     </li>
                 </ul>
-                <div id="Graph" class="tabcontent"></div>
+                <div id="Graph" class="tabcontent">
+                </div>
                 <div id="Table" class="tabcontent">
                     <table align="center" id="dataTable" onclick="openPopup()">
                         
@@ -244,6 +248,19 @@
 
             // Setup chart, the data will be fed from the servlet through JSP (temporary)
             var chart = Highcharts.chart('Graph', {
+                exporting: {
+                    enabled:false,
+                    /*chartOptions: { // specific options for the exported image
+                        plotOptions: {
+                            series: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        }
+                    },*/
+                    //fallbackToExportServer: false
+                },
                 title: {
                     text: 'Water Creek Parameter Values',
                     x: -20 //center
@@ -306,12 +323,12 @@
                 chart.yAxis[i].setTitle({text: data.data[i]["name"]});
             }
         </script>
-
+        
         <script type="text/javascript">
             //document.getElementById("GraphTab").click();
             if (getCookie("id") == "Table")
                 document.getElementById("TableTab").click();
             else
-                document.getElementById("GraphTab").click();    
+                document.getElementById("GraphTab").click();
         </script>
     </body>

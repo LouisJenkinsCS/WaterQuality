@@ -330,3 +330,7 @@ function exportTable(tableId) {
     downloadLink.href = "data:application/csv," + escape(data);
     downloadLink.click();
 }
+
+function exportGraph() {
+    chart.exportChartLocal();
+}
