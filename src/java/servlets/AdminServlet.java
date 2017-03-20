@@ -114,11 +114,25 @@ public class AdminServlet extends HttpServlet {
         }
         //This will be the servlet's case for getting the json?
         else if (action.trim().equalsIgnoreCase("getManualItems")) {
-            System.out.println("Test got here");
             JSONParser parser = new JSONParser();
             try{
                 Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
                 JSONObject jObj = (JSONObject)obj;
+                response.getWriter().append(jObj.toJSONString());
+            }
+            catch(Exception e)
+            {
+                System.out.println("Something went wrong..." + e.toString());
+            }
+        }
+        
+        else if (action.trim().equalsIgnoreCase("getFilteredData")) {
+            JSONParser parser = new JSONParser();
+            try{
+                Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
+                
+                JSONObject jObj = (JSONObject)obj;
+                
                 response.getWriter().append(jObj.toJSONString());
             }
             catch(Exception e)

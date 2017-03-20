@@ -2,17 +2,11 @@
 //for unique entries
 var $insertionid = 0;
 
-//Possible variable to hold the response from a GET request?
-var $parameterlist;
-
 //remember the list for the parameter dropdown
 var options_params = "";
 
 //Sample of successful data format for input into the database - tested and approved
-var inputData = {action: 'getManualItems', dataName: 'Temperature',
-    units: 'C', time: '2007-12-03T10:15:30',
-    value: '13.0', delta: '2.0', id: '126',
-    inputStatus: ''};
+var inputData = {action: 'getManualItems'};
 
 //This function simply pulls the AJAX_magic.js script
 //to allow the current script to use AJAX functions
