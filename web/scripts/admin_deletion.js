@@ -60,7 +60,17 @@ function filterData()
         parameter: '$paramName',
         startTime: '$deleteStart',
         endTime: '$deleteEnd'};
-
+    
+    /*
+     * Sample JSON response from our JSON file 
+     * data: [
+     *  {
+     *      name : "Soluble Reactive Phosphorus",
+     *      description : "Measure of phosphate...",
+     *      units : "ug P/L"
+     *  }
+     * ]
+     */
     post("AdminServlet", filterRequest, function (resp) {
         var items = JSON.parse(resp)["data"];
         var filteredItems = $(items).filter(function (index) {
@@ -68,17 +78,15 @@ function filterData()
         });
         console.log(JSON.stringify(filteredItems));
     });
-
-    filteredItems.forEach(function() {
-        
-    });
+    
+    /*
     $('#deletion_space').append(
             '<tr id = deletion_row class = datadeletion>'
             + '<td><input type="date" name="data_date" id = "date" value=2007-12-03></td>'
             + '<td><input type="time" name="data_time" id = "time" value=10:15:30></td>'
             + '<td><select id="select_param">' + options_params + '</select></td>'
             + '<td><input type="text" name="value" id = "value" value=3.0></td>'
-            + '</tr>')
+            + '</tr>')*/
 
     console.log("Filtered Data: " + $paramName + " from " + $deleteStart + " to " + $deleteEnd);
 }
