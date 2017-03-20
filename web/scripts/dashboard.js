@@ -289,3 +289,44 @@ function fillTable(dataResp) {
     console.log(finalHtml);
     table.innerHTML = finalHtml;
 }
+
+/**The <code>openPoppup()</code> function simply opens a popped up
+ * version of the data table when <code>dataTable</code> is clicked 
+ * so that the user can more easily see the data 
+ */
+function openPopup() {
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    var table = document.getElementById("dataTable");
+    var popup = document.getElementById("popup");
+
+
+    popup.innerHTML = table.innerHTML;
+    modal.style.display = "block";
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+}
+
+/**The <code>exportTable()</function> taakes the innerHTML from the given 
+ * <code>tableId</code> paramter and converts it to csv format. Then initiates
+ * a download of a csv file
+ * @param {type} tableId the id of the table being exported
+ */
+function exportTable(tableId) {
+    var table = document.getElementById(tableId).innerHTML;
+    //converts the innerHTML of table into csv format
+    var data = table.replace(/<thead>/g, '').replace(/<\/thead>/g, '')
+            .replace(/<tbody>/g, '').replace(/<\/tbody>/g, '')
+            .replace(/<tr>/g, '').replace(/<\/tr>/g, '\r\n')
+            .replace(/,/g, '')
+            .replace(/<th>/g, '').replace(/<\/th>/g, ',')
+            .replace(/<td>/g, '').replace(/<\/td>/g, ',')
+            .replace(/\t/g, '')
+            .replace(/\n/g, '');
+    //creates a link to initiate a download of the csv formated data in a csv file
+    var downloadLink = document.createElement("a");
+    downloadLink.download = "tabledata.csv";
+    downloadLink.href = "data:application/csv," + escape(data);
+    downloadLink.click();
+}

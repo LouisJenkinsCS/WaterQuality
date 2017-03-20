@@ -51,12 +51,13 @@
                             });"
                            id="TableTab">Table</a></li>
                     <li>
-                        <form><input id="exportbutton" type="submit" value="Export" onclick="exportData('exportbutton')"></form>
+                        <form><input id="exportbutton" type="button" value="Export" 
+                                     onclick="if(getCookie('id') == 'Table')exportTable('dataTable');"></form>
                     </li>
                 </ul>
                 <div id="Graph" class="tabcontent"></div>
                 <div id="Table" class="tabcontent">
-                    <table align="center" id="dataTable" onclick="openPop()">
+                    <table align="center" id="dataTable" onclick="openPopup()">
                         
                     </table>
                 </div>
@@ -129,9 +130,8 @@
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
                 <div id="description">${Descriptions}</div>
             </section>
-            <!-- The Modal -->
+            <!--The modal aka the popup for the table-->
             <div id="myModal" class="modal">
-                <!-- Modal content -->
                 <div class="modal-content">
                     <div class="modal-header">
                         <span class="close">&times;</span>
@@ -139,6 +139,7 @@
                     </div>
                     <div class="modal-body">
                         <table id="popup" align="center"></table>
+                    </div>
                 </div>
             </div>
         </section> 
@@ -312,19 +313,5 @@
                 document.getElementById("TableTab").click();
             else
                 document.getElementById("GraphTab").click();    
-            
-            function openPop(){
-                var modal=document.getElementById("myModal");
-                var span = document.getElementsByClassName("close")[0];
-                var table=document.getElementById("dataTable");
-                var popup=document.getElementById("popup");
-                
-        
-                popup.innerHTML=table.innerHTML;
-                modal.style.display = "block";
-                span.onclick = function() {
-                    modal.style.display = "none";
-                }
-            }
         </script>
     </body>
