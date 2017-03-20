@@ -34,10 +34,10 @@ function deleteTheStuff()
 
         $('#Delete_Data').append(
                 '<div class="large_text">Time Frame:</div>' +
-                '<div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-dd)</div>' +
+                '<div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-ddThh:mm:ss)</div>' +
                 '<div id="dateselectordiv" onclick="dateLimits();">' +
-                '<input class="dateselector" id="delete_startdate" type="date" min="2016-01-01" max="" value="2017-03-15"> to ' +
-                '<input class="dateselector" id="delete_enddate" type="date" min="2016-01-01" max="" value="2017-03-20"></div>' +
+                '<input class="dateselector" id="delete_startdate" type="date" min="2016-01-01" max="" value="2017-03-15T08:15:00"> to ' +
+                '<input class="dateselector" id="delete_enddate" type="date" min="2016-01-01" max="" value="2017-03-20T08:15:00"></div>' +
                 '<div class="large_text">Parameter to delete:</div>' +
                 '<select id="delete_param">' + options_params +
                 '</select><br/><br/>' +
@@ -69,6 +69,9 @@ function filterData()
         console.log(JSON.stringify(filteredItems));
     });
 
+    filteredItems.forEach(function() {
+        
+    });
     $('#deletion_space').append(
             '<tr id = deletion_row class = datadeletion>'
             + '<td><input type="date" name="data_date" id = "date" value=2007-12-03></td>'

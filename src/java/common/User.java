@@ -29,8 +29,8 @@ public class User implements Comparable<User>, Serializable {
      * Constructs an empty user.
      */
     public User() {
-        firstName = "Brett";
-        lastName = "Logan";
+        firstName = "";
+        lastName = "";
     }
 
     /**

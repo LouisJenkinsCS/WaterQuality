@@ -284,7 +284,7 @@ public class DatabaseManager
         @return whether this function was successful or not
     */
     //If this is static, admin_insertion.js can't use it...
-    public /*static*/ boolean manualInput(String name, String units, LocalDateTime time, float value, float delta, int id, User u)
+    public static boolean manualInput(String name, String units, LocalDateTime time, float value, float delta, int id, User u)
     {
         boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();

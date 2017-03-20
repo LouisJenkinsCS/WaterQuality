@@ -36,7 +36,6 @@ public class AdminServlet extends HttpServlet {
 
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         final Object lock = session.getId().intern();
-        DatabaseManager d = new DatabaseManager();
         session.setAttribute("user", new common.User());
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
@@ -50,7 +49,7 @@ public class AdminServlet extends HttpServlet {
             System.out.println(request.getParameter("delta"));
             System.out.println(admin.getFirstName());
             System.out.println(admin.getLastName());
-            boolean inputStatus = d.manualInput((String) request.getParameter("dataName"),
+            boolean inputStatus = DatabaseManager.manualInput((String) request.getParameter("dataName"),
                     (String) request.getParameter("units"), LocalDateTime.parse((String) request.getParameter("time")),
                     Float.parseFloat((String) request.getParameter("value")), Float.parseFloat((String) request.getParameter("delta")),
                     Integer.parseInt((String) request.getParameter("id")), admin);
@@ -60,7 +59,7 @@ public class AdminServlet extends HttpServlet {
                 request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
             }
         } else if (action.trim().equalsIgnoreCase("RemoveData")) {
-            boolean dataRemovalStatus = d.manualDeletion((int) session.getAttribute("dataDeletionID"),
+            boolean dataRemovalStatus = DatabaseManager.manualDeletion((int) session.getAttribute("dataDeletionID"),
                     admin);
             if (dataRemovalStatus) {
                 session.setAttribute("dataDeletionStatus", "Data Deletion Successful");
@@ -69,7 +68,7 @@ public class AdminServlet extends HttpServlet {
             }
 
         } else if (action.trim().equalsIgnoreCase("RegisterUser")) {
-            boolean newUserStatus = d.addNewUser((String) session.getAttribute("username"),
+            boolean newUserStatus = DatabaseManager.addNewUser((String) session.getAttribute("username"),
                     (String) session.getAttribute("password"), (String) session.getAttribute("firstName"),
                     (String) session.getAttribute("lastName"), (String) session.getAttribute("email"),
                     UserRole.getUserRole((String) session.getAttribute("userRole")),
@@ -80,7 +79,7 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("inputStatus", "New User Registration *Unsuccessful. Check your syntax");
             }
         } else if (action.trim().equalsIgnoreCase("RemoveUser")) {
-            boolean userRemovalStatus = d.deleteUser((int) session.getAttribute("userDeletionID"),
+            boolean userRemovalStatus = DatabaseManager.deleteUser((int) session.getAttribute("userDeletionID"),
                     admin);
             if (userRemovalStatus) {
                 session.setAttribute("userDeletionStatus", "User Deletion Successful");
@@ -88,7 +87,7 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("userDeletionStatus", "User Deletion Unsuccessful");
             }
         } else if (action.trim().equalsIgnoreCase("LockUser")) {
-            boolean lockStatus = d.deleteUser((int) session.getAttribute("userLockID"),
+            boolean lockStatus = DatabaseManager.deleteUser((int) session.getAttribute("userLockID"),
                     admin);
             if (lockStatus) {
                 session.setAttribute("lockStatus", "User Deletion Successful");
@@ -96,7 +95,7 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("lockStatus", "User Deletion Unsuccessful");
             }
         } else if (action.trim().equalsIgnoreCase("UnlockUser")) {
-            boolean unlockStatus = d.deleteUser((int) session.getAttribute("userUnlockID"),
+            boolean unlockStatus = DatabaseManager.deleteUser((int) session.getAttribute("userUnlockID"),
                     admin);
             if (unlockStatus) {
                 session.setAttribute("unlockStatus", "User Unlock Successful");
@@ -104,7 +103,7 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("unlockStatus", "User Unlock Unsuccessful");
             }
         } else if (action.trim().equalsIgnoreCase("EditDesc")) {
-            boolean editDescStatus = d.updateDescription((String) session.getAttribute("description"),
+            boolean editDescStatus = DatabaseManager.updateDescription((String) session.getAttribute("description"),
                     (String) session.getAttribute("dataName"));
             if (editDescStatus) {
                 session.setAttribute("editDescStatus", "Description Update Successful");
