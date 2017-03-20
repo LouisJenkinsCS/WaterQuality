@@ -10,7 +10,7 @@ var deleteRequest = {action: 'RemoveData',
     startTime: '2007-12-03T10:15:30',
     endTime: '2017-03-19T09:15:00'};
 
-var options_params = "";
+var del_options = "";
 var dataRequest = {action: 'getManualItems'};
 
 function deleteTheStuff()
@@ -22,11 +22,11 @@ function deleteTheStuff()
         var thing = JSON.parse(response)["data"];
         for (var i = 0; i < thing.length; i++)
         {
-            options_params += '<option>';
+            del_options += '<option>';
             var subthing = thing[i];
             console.log(subthing["name"]);
-            options_params += subthing["name"];
-            options_params += '</option>';
+            del_options += subthing["name"];
+            del_options += '</option>';
         }
 
         console.log("Thing: " + thing);
@@ -39,12 +39,12 @@ function deleteTheStuff()
                 '<input class="dateselector" id="delete_startdate" type="date" min="2016-01-01" max="" value="2017-03-15T08:15:00"> to ' +
                 '<input class="dateselector" id="delete_enddate" type="date" min="2016-01-01" max="" value="2017-03-20T08:15:00"></div>' +
                 '<div class="large_text">Parameter to delete:</div>' +
-                '<select id="delete_param">' + options_params +
+                '<select id="delete_param">' + del_options +
                 '</select><br/><br/>' +
                 '<button type="button" onclick="filterData()">Filter</button><br/><br/>' +
                 '<div class="large_text">Please select the data entry from below:</div>' +
                 '<table id="deletion_space">' +
-                '<tr><th>Date</th><th>Time</th><th>Parameter</th><th>Value</th></tr>' +
+                '<tr><th>Parameter Name</th><th>Date/Time</th><th>Value</th></tr>' +
                 '</table>'
                 );
     });
@@ -60,7 +60,8 @@ function filterData()
         parameter: '$paramName',
         startTime: '$deleteStart',
         endTime: '$deleteEnd'};
-    
+    var filteredItems;
+
     /*
      * Sample JSON response from our JSON file 
      * data: [
@@ -73,20 +74,22 @@ function filterData()
      */
     post("AdminServlet", filterRequest, function (resp) {
         var items = JSON.parse(resp)["data"];
-        var filteredItems = $(items).filter(function (index) {
+        filteredItems = $(items).filter(function (index) {
             return items[index].name === $paramName;
         });
-        console.log(JSON.stringify(filteredItems));
+        console.log('Stringified' + JSON.stringify(filteredItems));
     });
+    debugger
+    var filteredArray = JSON.parse(filteredItems);
+    filteredArray.forEach(function(item){
     
-    /*
-    $('#deletion_space').append(
-            '<tr id = deletion_row class = datadeletion>'
-            + '<td><input type="date" name="data_date" id = "date" value=2007-12-03></td>'
-            + '<td><input type="time" name="data_time" id = "time" value=10:15:30></td>'
-            + '<td><select id="select_param">' + options_params + '</select></td>'
-            + '<td><input type="text" name="value" id = "value" value=3.0></td>'
-            + '</tr>')*/
+        $('#deletion_space').append(
+                '<tr id = deletion_row class = datadeletion>'
+                + '<td><input type="text" name="data_name" id = "date" value=' + item["name"] + '></td>'
+                + '<td><input type="time" name="data_time" id = "time" value=10:15:30></td>'
+                + '<td><input type="text" name="value" id = "value" value=3.0></td>'
+                + '</tr>');
 
-    console.log("Filtered Data: " + $paramName + " from " + $deleteStart + " to " + $deleteEnd);
+        console.log('Filtered Data: ' + $paramName + ' from ' + $deleteStart + ' to ' + $deleteEnd);
+    });
 }

@@ -62,27 +62,3 @@ function DataResponse(json) {
 DataResponse.prototype = {
     
 };
-
-function AdminInsertRequest(dataName, units, submittedBy, time, value) {
-    this.dataName = dataName;
-    this.units = units;
-    this.submittedBy = submittedBy;
-    this.time = time;
-    this.value = value;
-}
-
-AdminInsertRequest.prototype = {
-    
-};
-
-function AdminInsertResponse(json){
-    if (typeof json != "object") {
-        json = JSON.parse(json);
-    }
-    console.log(json);
-    
-}
-
-
-//TODO function AdminDeleteRequest
-//TODO function AdminDeleteResponse
