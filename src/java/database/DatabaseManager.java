@@ -1337,7 +1337,7 @@ public class DatabaseManager
         Returns whether the parameter data name is already in the list of all
         unique data names or not
     */
-    private static boolean dataNameExists(String name)
+    public static boolean dataNameExists(String name)
     {
         Statement selectDataNames = null;
         ResultSet dataNames = null;
@@ -1378,7 +1378,7 @@ public class DatabaseManager
         parameter name is not already in the table (ex: through the dataNameExists
         function)
     */
-    private static void insertDataName(String name)
+    public static void insertDataName(String name)
     {
         PreparedStatement insertDataName = null;
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
@@ -1409,7 +1409,7 @@ public class DatabaseManager
     /*
         Returns an arraylist of all unique data names
     */
-    private static ArrayList<String> getDataNames()
+    public static ArrayList<String> getDataNames()
     {
         ArrayList<String> dataNameList= new ArrayList<>();
         Statement selectDataNames = null;
@@ -1448,7 +1448,7 @@ public class DatabaseManager
         Returns whether the parameter data name is already in the list of all
         unique manual data names or not
     */
-    private static boolean manualDataNameExists(String name)
+    public static boolean manualDataNameExists(String name)
     {
         Statement selectManualDataNames = null;
         ResultSet dataNames = null;
@@ -1489,7 +1489,7 @@ public class DatabaseManager
         parameter name is not already in the table (ex: through the manualDataNameExists
         function)
     */
-    private static void insertManualDataName(String name)
+    public static void insertManualDataName(String name)
     {
         PreparedStatement insertDataName = null;
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
@@ -1522,7 +1522,7 @@ public class DatabaseManager
     /*
         Returns an arraylist of all manual data names
     */
-    private static ArrayList<String> getManualDataNames()
+    public static ArrayList<String> getManualDataNames()
     {
         ArrayList<String> dataNameList= new ArrayList<>();
         Statement selectDataNames = null;
