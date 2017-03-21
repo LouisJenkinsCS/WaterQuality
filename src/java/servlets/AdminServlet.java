@@ -7,6 +7,7 @@ package servlets;
 
 import common.UserRole;
 import database.DatabaseManager;
+import static database.DatabaseManager.LogError;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -262,7 +263,7 @@ public class AdminServlet extends HttpServlet {
             which manual data type to insert or view for deletion.
         */
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
-        {
+
             JSONParser parser = new JSONParser();
             try
             {
