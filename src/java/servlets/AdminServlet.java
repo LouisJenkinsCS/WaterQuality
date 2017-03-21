@@ -7,6 +7,7 @@ package servlets;
 
 import common.UserRole;
 import database.DatabaseManager;
+import static database.DatabaseManager.LogError;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -111,7 +112,7 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("editDescStatus", "Description Update Unsuccessful");
             }
         }
-        //This will be the servlet's case for getting the json?
+        //This case needs to be changed to grab the names from the table ManualDataNames
         else if (action.trim().equalsIgnoreCase("getManualItems")) {
             JSONParser parser = new JSONParser();
             try{
@@ -124,19 +125,21 @@ public class AdminServlet extends HttpServlet {
                 System.out.println("Something went wrong..." + e.toString());
             }
         }
-        
+        //This case handles passing time-filtered data of one parameter to
+        //admin_deletion.js to be displayed to the user
         else if (action.trim().equalsIgnoreCase("getFilteredData")) {
-            JSONParser parser = new JSONParser();
+            //JSONParser parser = new JSONParser();
             try{
-                Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
-                
-                JSONObject jObj = (JSONObject)obj;
-                
-                response.getWriter().append(jObj.toJSONString());
+//            Object obj = DatabaseManager.getManualData((String) request.getParameter("dataName"),
+//                    LocalDateTime.parse((String) request.getParameter("startTime")),
+//                    LocalDateTime.parse((String) request.getParameter("endTime")));
+//            JSONObject jObj = (JSONObject)obj;
+//            response.getWriter().append(jObj.toJSONString());
             }
             catch(Exception e)
             {
-                System.out.println("Something went wrong..." + e.toString());
+                System.out.println("Got here, something went wrong");
+                LogError("Something went wrong..." + e);
             }
         }
 
