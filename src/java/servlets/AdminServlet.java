@@ -7,6 +7,7 @@ package servlets;
 
 import common.UserRole;
 import database.DatabaseManager;
+import static database.DatabaseManager.LogError;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
