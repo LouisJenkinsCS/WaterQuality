@@ -78,6 +78,25 @@ function filterData() {
      *      value : "4.0"
      *  }
      * ]
+     * 
+     * GET: DataRequest/DataResponse
+     * DELETE Request:
+     * data: [
+     *  {
+     *      entryID : "1",
+     *      time : "2017-03-20T09:15:00",
+     *  }
+     * ]
+     * INSERT Request:
+     * data: [
+     *  {
+     *      entryID : "1",
+     *      time : "2017-03-20T09:15:00",
+     *      value: 0.0
+     *  }
+     * ]
+     * 
+     * getAllData(data -> filter(data).delete());
      */
     post("AdminServlet", filterRequest, function(resp) {
         var data = JSON.parse(resp)["data"];
