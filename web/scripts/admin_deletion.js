@@ -13,7 +13,7 @@ var del_options = "";
 var dataRequest = {action: 'getManualItems'};
 
 //Called in admin.jsp to load this script
-function deleteTheStuff()
+function loadDelete()
 {
     get("AdminServlet", dataRequest, function (response)
     {
