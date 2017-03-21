@@ -318,7 +318,7 @@ public class DatabaseManager
         @return whether this function was successful or not
     */
     //If this is static, admin_insertion.js can't use it...
-    public static boolean manualInput(String name, String units, LocalDateTime time, float value, float delta, int id, User u)
+    public static boolean manualInput(String name, String units, LocalDateTime time, float value, int id, User u)
     {
         boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -1606,7 +1606,7 @@ public class DatabaseManager
     /*
         Returns an arraylist of all errors
     */
-    private static ArrayList<ErrorMessage> getErrors()
+    public static ArrayList<ErrorMessage> getErrors()
     {
         ArrayList<ErrorMessage> errorList= new ArrayList<>();
         Statement selectErrors = null;
@@ -1649,7 +1649,7 @@ public class DatabaseManager
     /*
         Returns an arraylist of all errors within the parameter time range
     */
-    private static ArrayList<ErrorMessage> getErrorsInRange(LocalDateTime lower, LocalDateTime upper)
+    public static ArrayList<ErrorMessage> getErrorsInRange(LocalDateTime lower, LocalDateTime upper)
     {
         ArrayList<ErrorMessage> errorList= new ArrayList<>();
         PreparedStatement selectErrors = null;
