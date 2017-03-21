@@ -93,7 +93,7 @@ public class AdminServlet extends HttpServlet {
         {
             try
             {
-                boolean dataRemovalStatus = DatabaseManager.manualDeletion((int) request.getParameter("dataDeletionID"),
+                boolean dataRemovalStatus = DatabaseManager.manualDeletion(Integer.parseInt((String) request.getParameter("dataDeletionID")),
                     admin);
                 if (dataRemovalStatus) 
                 {
@@ -153,7 +153,7 @@ public class AdminServlet extends HttpServlet {
         {
             try
             {
-                boolean userRemovalStatus = DatabaseManager.deleteUser((int) request.getParameter("userDeletionID"),
+                boolean userRemovalStatus = DatabaseManager.deleteUser(Integer.parseInt((String) request.getParameter("userDeletionID")),
                     admin);
                 if (userRemovalStatus) 
                 {
@@ -181,7 +181,7 @@ public class AdminServlet extends HttpServlet {
         {
             try
             {
-                boolean lockStatus = DatabaseManager.deleteUser((int) request.getParameter("userLockID"),
+                boolean lockStatus = DatabaseManager.deleteUser(Integer.parseInt((String) request.getParameter("userLockID")),
                     admin);
                 if (lockStatus) 
                 {
@@ -209,7 +209,7 @@ public class AdminServlet extends HttpServlet {
         {
             try
             {
-                boolean unlockStatus = DatabaseManager.deleteUser((int) request.getParameter("userUnlockID"),
+                boolean unlockStatus = DatabaseManager.deleteUser(Integer.parseInt((String) request.getParameter("userUnlockID")),
                     admin);
                 if (unlockStatus) 
                 {
