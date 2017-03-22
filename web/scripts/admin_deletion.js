@@ -1,8 +1,10 @@
-/*
- * Deletion requests are handled here.
- * 
+/* TODO: Change hardcoded times to the current time / whatever makes sense
+ *       Change the filter date format to date and time
+ *       Handle loop in deleteData()
  */
 
+//This function simply pulls the AJAX_magic.js script
+//to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
 
 //del_options will hold the retrieved data names from
@@ -13,8 +15,26 @@ var del_options = "";
 var dataRequest = {action: 'getManualItems'};
 
 //Called in admin.jsp to load this script
-function deleteTheStuff()
+function loadDelete()
 {
+    //A request to the servlet is made to retrieve all parameter names
+
+    /*
+     * GET request: {action : 'getManualItems'} (as seen on line 10)
+     * GET response:
+     *  
+     * data: [
+     *  {
+     *      name : 'parameter name'
+     *  },
+     *  {
+     *      name : 'parameter name'
+     *  },
+     *  ...
+     * ]
+     * 
+     */
+
     get("AdminServlet", dataRequest, function (response)
     {
         console.log(response);
@@ -32,6 +52,11 @@ function deleteTheStuff()
         console.log("Parameter names: " + param_names);
         console.log("Entry name: " + entry_name["name"]);
 
+        //This contains the bulk of the HTML which will be shown to the user,
+        //providing the inputs for the user to fill which will filter the data
+        //shown to them, from which they can choose to delete.
+        //Uses the global variable del_options to show the user which parameters
+        //they may choose from.
         $('#Delete_Data').append(
                 '<div class="large_text">Time Frame:</div>' +
                 '<div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-ddThh:mm:ss)</div>' +
@@ -51,73 +76,111 @@ function deleteTheStuff()
     });
 }
 
+/**
+ * Input declaring the range of time to be filtered from, and which
+ * parameter(s) the user wishes to see data from is stored here to be sent
+ * in a POST request. After retrieving the data, it is displayed in a
+ * table where the user may select individual pieces of data to be deleted.
+ */
 function filterData() {
-    
+
     //To store the string to append to the document
     var htmlstring = "";
-    
+
     //The entered/selected parameters are stored
     var $paramName = $('#delete_param').val();
-    var $deleteStart = $('#delete_startdate').val();
-    var $deleteEnd = $('#delete_enddate').val();
+    var $deleteStartDate = $('#delete_startdate').val();
+    var $deleteEndDate = $('#delete_enddate').val();
+    var $deleteStartTime = $('#delete_starttime').val();
+    var $deleteEndTime = $('#delete_endtime').val();
 
     var filterRequest = {action: 'getFilteredData',
         parameter: '$paramName',
-        startTime: '$deleteStart',
-        endTime: '$deleteEnd'};
+        startDate: '$deleteStartDate',
+        endDate: '$deleteEndDate',
+        startTime: '$deleteStartTime',
+        endTime: '$deleteEndTime'};
 
     /*
-     * Sample desired JSON response
+     * Dr. Jones has requested that the user be shown the date and time
+     * in a format more user-friendly than our LocalDateTime format, so
+     * that is reflected in the sample response.
+     * 
+     * POST request:
+     * {
+     *  action: 'getFilteredData',
+     *  parameter : 'Soluble Reactive Phosphorus',
+     *  startDate : '3/19/2017',
+     *  endDate : '3/20/2017',
+     *  startTime : '08:00',
+     *  endTime : '18:00'
+     * }
+     * 
+     * POST response:
      * data: [
      *  {
-     *      entryID : "1",
-     *      name : "Soluble Reactive Phosphorus",
-     *      units : "ug P/L",
-     *      submittedBy : "Test User",
-     *      time : "2017-03-20T09:15:00",
-     *      value : "4.0"
+     *      entryID : '1',
+     *      name : 'Soluble Reactive Phosphorus',
+     *      submittedBy : 'Test User',
+     *      date : '3/20/2017',
+     *      time : '08:30'
+     *      value : '4.0'
      *  }
      * ]
+     * 
      */
-    post("AdminServlet", filterRequest, function(resp) {
+    post("AdminServlet", filterRequest, function (resp) {
         var data = JSON.parse(resp)["data"];
-        for(var i = 0; i < data.length; i++)
+        for (var i = 0; i < data.length; i++)
         {
             var item = data[i];
             htmlstring += '<tr id = deletion_row class = datadeletion>';
+            htmlstring += '<td><input type="text" name="data_date" id="time" value=' + item["date"] + '></td>';
             htmlstring += '<td><input type="text" name="data_time" id="time" value=' + item["time"] + '></td>';
             htmlstring += '<td><input type="text" name="data_name" id="name" value=' + item["name"] + '></td>';
             htmlstring += '<td><input type="text" name="data_value" id="value" value=' + item["value"] + '></td>';
             htmlstring += '<td><input type="text" name="data_author" id="author" value=' + item["submittedBy"] + '></td>';
-            htmlstring += '<td><input type="checkbox" name="data_select" id="checkbox" value=' + item["entryID"] + '></td>';
+            htmlstring += '<td><input type="checkbox" name="data_select" id=' + item["entryID"] + '></td>';
             htmlstring += '</tr>';
-            htmlstring += '<br/>';
         }
-        
+
         console.log('Stringified' + JSON.stringify(items));
     });
-    
+
     $('#deletion_space').append(htmlstring);
 }
 
+/**
+ * Upon submission, the user is prompted to confirm their selection. If
+ * confirmation is received, the POST request to delete the data is sent.
+ * 
+ * POST request:
+ * {
+ *  action: 'RemoveData',
+ *  entryIDs : {'3', '4', '6'}
+ * }
+ * 
+ * 
+ */
 function deleteData() {
-    
-    //TODO loop through listed entries, pass entryID of each selected
-    //entry to a POST that calls the DatabaseManager method manualDeletion
-    alert("Beep boop bop it's gonna happen!");
-    
-    var $idList;// = Array? of IDs
-    
+
+    var $idList;// = Array of IDs
+
+    //TODO loop through listed entries, pass $(#entryID) of each selected
+    //entry to variable entryIDs
+
     var deleteRequest = {
-        action : "RemoveData",
-        idList : $idList
+        action: "RemoveData",
+        entryIDs: $idList
     };
     
+    //TODO confirm with the user that they're sure the selections
+    //are correct - on OK, continue to POST request below
+
     //Not much needed in terms of feedback, except a confirmation
     //before firing off the request for sure
-    post("AdminServlet", deleteRequest, function(resp) {
+    post("AdminServlet", deleteRequest, function (resp) {
         alert("Successful deletion of data");
     });
-    
-    alert("It happened. Beep beep boop.");
+
 }
