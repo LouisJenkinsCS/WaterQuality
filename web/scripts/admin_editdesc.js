@@ -9,7 +9,6 @@ function fillPageEditDesc(){
     //<form> tag might be removed when implementing AJAX (unsure).
     $('#Edit_Description').append(
             '<form method="POST" id="form_edit_desc"></form>'
-            +'<content_edit_desc>'
             //left side
             +'<section class="section_edit_desc">'
             +'  <div class=large_text>Parameter List</div><br>'
@@ -25,7 +24,6 @@ function fillPageEditDesc(){
             +'  </textarea><br><br>'
             +'  <input type="submit" value="Save Changes" form="form_edit_desc">'
             +'</section>'
-            +'</content_edit_desc>'
             
 //            +'<table id="table_edit_desc">'
 //            //headers

@@ -259,11 +259,6 @@ button:hover,input[type = "submit"]:hover {
     padding-right: 15px;
 }
 
-content_edit_desc{
-/*    display: inline;
-    text-align: center;*/
-}
-
 .section_edit_desc{
     float: left;
     width: 40%;
@@ -276,7 +271,6 @@ content_edit_desc{
     resize: none;
     width: 100%;
     height: 20em;
-/*    margin: auto;*/
 /*    box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;  */
