@@ -121,6 +121,10 @@ function openTab(evt, tabName) {
     document.getElementById(current + "_form").style.display = "block";
     //Sets a cookie so that the current tab can be remembered
     setCookie("id", current, 1);
+    if(current == "Table")
+        document.getElementById("exportbutton").style.display="block";
+    if(current == "Graph")
+        document.getElementById("exportbutton").style.display="none";
 }
 
 function fetchData(json) {
@@ -327,10 +331,7 @@ function exportTable(tableId) {
     //creates a link to initiate a download of the csv formated data in a csv file
     var downloadLink = document.createElement("a");
     downloadLink.download = "tabledata.csv";
-    downloadLink.href = "data:application/csv," + escape(data);
+    downloadLink.href = "data:application/csv,"+encodeURI(data);
     downloadLink.click();
-}
-
-function exportGraph() {
-    chart.exportChartLocal();
+    location.reload();
 }

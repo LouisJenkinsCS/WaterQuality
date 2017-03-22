@@ -237,6 +237,7 @@ button:hover,input[type = "button"]:hover {
     color:white;
     width:auto;
     height:25px;   
+    display:none;
 }
 
 #exportbutton:hover{

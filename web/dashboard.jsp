@@ -53,9 +53,9 @@
                             });"
                            id="TableTab">Table</a></li>
                     <li>
-                        <form><input id="exportbutton" type="button" value="Export" 
-                                     onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}
-                                     if(getCookie('id') == 'Graph'){exportGraph();}"></form>
+                        <button id="exportbutton"
+                            onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}">
+                            Export</button>
                     </li>
                 </ul>
                 <div id="Graph" class="tabcontent">
@@ -64,8 +64,6 @@
                     <table align="center" id="dataTable" onclick="openPopup()">
                         
                     </table>
-                </div>
-                <div id="Export" class="tabcontent">
                 </div>
             </section>
 
@@ -89,7 +87,9 @@
                         End Date:
                         <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
                     </div>
+                    <div onclick="fetch();">
                     ${Parameters}
+                    </div>
                     <br>
                     <div class="data_type_submit" id="Graph_submit">
                         <input type="button" value="Graph" onclick="fetch()">
@@ -249,8 +249,9 @@
             // Setup chart, the data will be fed from the servlet through JSP (temporary)
             var chart = Highcharts.chart('Graph', {
                 exporting: {
-                    enabled:false,
-                    /*chartOptions: { // specific options for the exported image
+                    enabled:true,
+                    buttons:{contextButton:{align:"left"}},
+                    chartOptions: { // specific options for the exported image
                         plotOptions: {
                             series: {
                                 dataLabels: {
@@ -258,8 +259,8 @@
                                 }
                             }
                         }
-                    },*/
-                    //fallbackToExportServer: false
+                    },
+                    fallbackToExportServer: false
                 },
                 title: {
                     text: 'Water Creek Parameter Values',
