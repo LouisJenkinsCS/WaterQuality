@@ -30,6 +30,7 @@ Current bugs:
     </head>
     <body onload="onLoad();">
         <script>
+            debugger
             function onLoad()
             {
                 console.log("Page loaded!");
@@ -63,14 +64,14 @@ Current bugs:
             </div>
             <!--Admin insertion-->
             <admincontent id="Input_Data" class="tab_content">
-                <script>doTheThing();</script>
+                <script>loadInsert();</script>
                 <!--Input Tab defined in admin_insertion.js-->
             </admincontent>
 
 
             <!--Admin deletion functionality and GUI are defined here-->
             <admincontent id="Delete_Data" class="tab_content">
-                <script>deleteTheStuff();</script>
+                <script>loadDelete();</script>
             </admincontent>
 
 

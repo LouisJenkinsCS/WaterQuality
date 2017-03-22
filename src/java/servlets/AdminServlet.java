@@ -263,7 +263,7 @@ public class AdminServlet extends HttpServlet {
             which manual data type to insert or view for deletion.
         */
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
-        {
+        {/*
             JSONParser parser = new JSONParser();
             try
             {
@@ -275,10 +275,10 @@ public class AdminServlet extends HttpServlet {
             {
                 DatabaseManager.LogError("Something went wrong..." + e.toString());
             }
-            /*
+           */
             //We'll change to use this next group meeting
-            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
-            */
+            request.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            
         }
         
         /*
