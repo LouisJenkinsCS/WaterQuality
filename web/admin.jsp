@@ -30,6 +30,7 @@ Current bugs:
     </head>
     <body onload="onLoad();">
         <script>
+            debugger
             function onLoad()
             {
                 console.log("Page loaded!");

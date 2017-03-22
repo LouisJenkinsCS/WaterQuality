@@ -1,4 +1,8 @@
-//insertionid changes with each new field created
+//This function simply pulls the AJAX_magic.js script
+//to allow the current script to use AJAX functions
+$.getScript("scripts/AJAX_magic.js", function () {});
+
+////insertionid changes with each new field created
 //for unique entries
 var $insertionid = 0;
 
@@ -7,10 +11,6 @@ var options_params = "";
 
 //defines the request action to be read by AdminServlet
 var getRequest = {action: 'getManualItems'};
-
-//This function simply pulls the AJAX_magic.js script
-//to allow the current script to use AJAX functions
-$.getScript("scripts/AJAX_magic.js", function () {});
 
 /**
  * The actions to be performed are defined here. This method is called
@@ -23,7 +23,6 @@ function loadInsert()
     /*
      * GET request: {action : 'getManualItems'} (as seen on line 9)
      * GET response:
-     *  
      * data: [
      *  {
      *      name : 'parameter name'
