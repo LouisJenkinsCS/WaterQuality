@@ -60,6 +60,8 @@ Current bugs:
                            id="RemoveTab">Remove User</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Edit_Description'); hide();"
                            id="EditTab">Edit Desc</a></li>
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Errors'); hide();"
+                           id="EditTab">Errors</a></li>
                 </ul>
             </div>
             <!--Admin insertion-->
@@ -95,6 +97,10 @@ Current bugs:
             <admincontent id="Edit_Description" class="tab_content">
                 <!--Edit Desc Tab defined in admin_editdesc.js-->
                 <script>fillPageEditDesc();</script>
+            </admincontent>
+            
+            <admincontent id="Errors" class="tab_content">
+                <script>fillPageErrors();</script>
             </admincontent>
 
 
