@@ -3,6 +3,8 @@
  */
 package database;
 
+import async.DataParameter;
+import async.DataReceiver;
 import common.DataValue;
 import common.ErrorMessage;
 import common.ManualDataValue;
@@ -1414,8 +1416,10 @@ public class DatabaseManager
         ArrayList<String> dataNameList= new ArrayList<>();
         Statement selectDataNames = null;
         ResultSet dataNames = null;
+        System.out.println("Getting Data Names...");
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
+            System.out.println("Made connection...");
             String query = "Select * from DataNames";
             selectDataNames = conn.createStatement();
             dataNames = selectDataNames.executeQuery(query);
@@ -1441,6 +1445,8 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
+        
+        System.out.println("Returning...");
         return dataNameList;
     }
     
@@ -1693,28 +1699,9 @@ public class DatabaseManager
     
     public static void main(String[] args)
     {
-        //DatabaseManager.createManualDataNamesTable();
-        /*
-        JSONParser parser = new JSONParser();
-        try{
-            Object obj = parser.parse(new FileReader("P:/Compsci480/environet_api_data.json"));
-            JSONObject jsonObject = (JSONObject)obj;
-            JSONArray jarray = (JSONArray)jsonObject.get("data");
-            Iterator<JSONObject> iterator = jarray.iterator();
-            while(iterator.hasNext())
-                DatabaseManager.insertJSON(iterator.next());
-        }
-        catch(Exception e)
-        {}
-
-        /*
-        LocalDateTime l = LocalDateTime.parse("2017-02-06T04:15:00");
-        LocalDateTime u = LocalDateTime.parse("2017-02-08T04:15:00");
-        ArrayList<DataValue> a = d.getGraphData("Temperature", l, u);
-        for(DataValue data: a)
-        {
-            System.out.println(data);
-        }
-        */
+        DatabaseManager.createManualDataNamesTable();
+        DatabaseManager.createDataNamesTable();
+        DataReceiver.getParameters().map(DataParameter::getName).blockingSubscribe(DatabaseManager::insertDataName);
+        
     }
 }
