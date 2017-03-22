@@ -70,15 +70,15 @@ public class AdminServlet extends HttpServlet {
             }
             catch(DateTimeParseException e)
             {
-                request.setAttribute("dateStatus","Invalid Format on Time");
+                request.setAttribute("inputStatus","Invalid Format on Time");
             }
             catch(NumberFormatException e)
             {
-                request.setAttribute("numberStatus","Value or ID is not a valid number");
+                request.setAttribute("inputStatus","Value or ID is not a valid number");
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Extraneous Error: Are all the text fields not empty?");
+                request.setAttribute("inputStatus","Extraneous Error: Are all the text fields not empty?");
             }
             
         } 
@@ -107,7 +107,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error: Did you not check any boxes for deletion?");
+                request.setAttribute("dataDeletionStatus","Error: Did you not check any boxes for deletion?");
             }
         } 
         
@@ -139,7 +139,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error registering user: " + e);
+                request.setAttribute("inputStatus","Error registering user: " + e);
             }
         } 
         
@@ -167,7 +167,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error: Did you not check any boxes for deletion?");
+                request.setAttribute("userDeletionStatus","Error: Did you not check any boxes for deletion?");
             }
         } 
         
@@ -195,7 +195,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error: Did you not check any boxes for locking?");
+                request.setAttribute("lockStatus","Error: Did you not check any boxes for locking?");
             }
         } 
         
@@ -223,7 +223,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error: Did you not check any boxes for unlocking?");
+                request.setAttribute("unlockStatus","Error: Did you not check any boxes for unlocking?");
             }
         } 
         
@@ -252,7 +252,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error editing description: " + e);
+                request.setAttribute("editDescStatus","Error editing description: " + e);
             }
         }
         
@@ -263,7 +263,7 @@ public class AdminServlet extends HttpServlet {
             which manual data type to insert or view for deletion.
         */
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
-        {/*
+        {
             JSONParser parser = new JSONParser();
             try
             {
@@ -275,10 +275,10 @@ public class AdminServlet extends HttpServlet {
             {
                 DatabaseManager.LogError("Something went wrong..." + e.toString());
             }
-           */
+            /*
             //We'll change to use this next group meeting
-            request.setAttribute("manualItems", DatabaseManager.getManualDataNames());
-            
+            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            */
         }
         
         /*
@@ -340,7 +340,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error: Did you not check any boxes for deletion?");
+                request.setAttribute("manualDeleteStatus","Error: Did you not check any boxes for deletion?");
             }
         }
         
@@ -359,7 +359,7 @@ public class AdminServlet extends HttpServlet {
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error getting error list: " + e);
+                request.setAttribute("errorListStatus","Error getting error list: " + e);
             }
         }
         
@@ -385,11 +385,11 @@ public class AdminServlet extends HttpServlet {
             }
             catch(DateTimeParseException e)
             {
-                request.setAttribute("dateStatus","Invalid Format on Time");
+                request.setAttribute("filteredErrorStatus","Invalid Format on Time");
             }
             catch(Exception e)
             {
-                request.setAttribute("etcStatus","Error getting error list: " + e);
+                request.setAttribute("filteredErrorStatus","Error getting error list: " + e);
             }
         }
 
