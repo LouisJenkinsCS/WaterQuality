@@ -613,6 +613,62 @@ public class DatabaseManager
     }
     
     /*
+        Returns a list of all data
+        @param name the name of the data type for which data is being requested
+    */
+    public static ArrayList<DataValue> getAllGraphData(String name)
+    {
+        ArrayList<DataValue> graphData = new ArrayList<>();
+        PreparedStatement selectData = null;
+        ResultSet dataRange = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from DataValues Where dataName = ?;";
+            selectData = conn.prepareStatement(query);
+            selectData.setString(1, name);
+            dataRange = selectData.executeQuery();
+            
+            int entryID;
+            String units;
+            LocalDateTime time;
+            float value;
+            float delta;
+            String sensor;
+            while(dataRange.next())
+            {
+                entryID = dataRange.getInt(1);
+                name = dataRange.getString(2);
+                units = dataRange.getString(3);
+                sensor = dataRange.getString(4);
+                time = LocalDateTime.parse(dataRange.getString(5));
+                value = dataRange.getFloat(6);
+                delta = dataRange.getFloat(7);
+                DataValue dV = new DataValue(entryID,name,units,sensor,time,value,delta);
+                graphData.add(dV);
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error Retrieving Graph Data: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectData != null)
+                    selectData.close();
+                if(dataRange != null)
+                    dataRange.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return graphData;
+    }
+    
+    /*
         Returns a list of data within a certain time range
         @param name the name of the data type for which data is being requested
         @param lower the lower range of the time
@@ -631,6 +687,60 @@ public class DatabaseManager
             selectData.setString(1, name);
             selectData.setString(2, lower+"");
             selectData.setString(3, upper+"");
+            dataRange = selectData.executeQuery();
+            
+            int entryID;
+            String units;
+            LocalDateTime time;
+            float value;
+            String submittedBy;
+            while(dataRange.next())
+            {
+                entryID = dataRange.getInt(1);
+                name = dataRange.getString(2);
+                units = dataRange.getString(3);
+                submittedBy = dataRange.getString(4);
+                time = LocalDateTime.parse(dataRange.getString(5));
+                value = dataRange.getFloat(6);
+                ManualDataValue dV = new ManualDataValue(entryID,name,units,submittedBy,time,value);
+                graphData.add(dV);
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error Retrieving Graph Data: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectData != null)
+                    selectData.close();
+                if(dataRange != null)
+                    dataRange.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return graphData;
+    }
+    
+    /*
+        Returns a list of all manual data
+        @param name the name of the data type for which data is being requested
+    */
+    public static ArrayList<ManualDataValue> getAllManualData(String name)
+    {
+        ArrayList<ManualDataValue> graphData = new ArrayList<>();
+        PreparedStatement selectData = null;
+        ResultSet dataRange = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from ManualDataValues Where dataName = ?;";
+            selectData = conn.prepareStatement(query);
+            selectData.setString(1, name);
             dataRange = selectData.executeQuery();
             
             int entryID;
