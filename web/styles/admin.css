@@ -278,3 +278,8 @@ button:hover,input[type = "submit"]:hover {
     For Firefox
     For Safari*/
 }
+#textarea_errors{
+    resize: none;
+    width: 100%;
+    height: 30em;
+}

@@ -1,11 +1,12 @@
-/*things to add:
-    add a pop-up warning when changing params with unsaved text edits.
-    add a confirmation once the server successfully changes the desc.
- */
+
+var errors="No errors have been loaded from the server.";
 
 function fillPageErrors(){
     //<form> tag might be removed when implementing AJAX (unsure).
-    $('#Edit_Description').append(
-            ''//html goes here
+    $('#Errors').append(
+             '  <div class=large_text>Error History</div>'
+            +'  <textarea readonly name="errors" id="textarea_errors">'
+                +errors
+            +'  </textarea>'
     );
 };
