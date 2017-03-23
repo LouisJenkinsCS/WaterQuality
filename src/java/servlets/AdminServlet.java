@@ -38,7 +38,11 @@ import utilities.FileUtils;
  */
 @WebServlet(name = "AdminServlet", urlPatterns = {"/AdminServlet"})
 public class AdminServlet extends HttpServlet {
-
+    
+private static final JSONObject BAD_REQUEST = new JSONObject();
+static {
+    BAD_REQUEST.put("status", "Generic Error...");
+}
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -271,7 +275,7 @@ public class AdminServlet extends HttpServlet {
         {
             Observable.just(0)
                     .subscribeOn(Schedulers.io())
-                    .map(_ignored -> DatabaseManager.getDataNames())
+                    .map(_ignored -> DatabaseManager.getManualDataNames())
                     .observeOn(Schedulers.computation())
                     .flatMap(Observable::fromIterable)
                     .map((String name) -> {
@@ -317,7 +321,37 @@ public class AdminServlet extends HttpServlet {
             String startTime = request.getParameter("startTime");
             String endTime = request.getParameter("endTime");
             
-            // TODO: Waiting on Tyler's Database Changes.
+            Observable.just(parameter)
+                    .subscribeOn(Schedulers.io())
+                    .map(param -> DatabaseManager.getAllGraphData(param))
+                    .flatMap(Observable::fromIterable)
+                    .observeOn(Schedulers.computation())
+                    .map(param -> {
+                        JSONObject wrappedParam = new JSONObject();
+                        wrappedParam.put("entryID", param.getEntryID());
+                        wrappedParam.put("name", param.getName());
+                        wrappedParam.put("submittedBy", param.getSensor());
+                        wrappedParam.put("date", param.getTime().toLocalDate());
+                        wrappedParam.put("time", param.getTime().toLocalTime());
+                        wrappedParam.put("value", param.getValue());
+                        return wrappedParam;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map(list -> {
+                        JSONArray arr = new JSONArray();
+                        arr.addAll(list);
+                        return arr;
+                    })
+                    .map(arr -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("data", arr);
+                        return obj;
+                    })
+                    .defaultIfEmpty(BAD_REQUEST)
+                    .blockingSubscribe(resp -> {
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
             /*
             //We'll change to use this next group meeting
             //Gets a list of data values within a time range for display on a chart so the user can select which ones to delete

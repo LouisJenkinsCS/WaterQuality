@@ -30,7 +30,14 @@ import security.SecurityCode;
  */
 public class DatabaseManager 
 {
-    
+    static {
+        createDataValueTable();
+        createManualDataValueTable();
+        DatabaseManager.createDataValueTable();
+        DatabaseManager.createErrorLogsTable();
+        DatabaseManager.createManualDataNamesTable();
+        DatabaseManager.createUserTable();
+    }
     /*
         Creates the data value table
         entryID is the unique id number of the data value
