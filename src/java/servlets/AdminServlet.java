@@ -8,12 +8,17 @@ package servlets;
 import common.UserRole;
 import database.DatabaseManager;
 import static database.DatabaseManager.LogError;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -33,7 +38,11 @@ import utilities.FileUtils;
  */
 @WebServlet(name = "AdminServlet", urlPatterns = {"/AdminServlet"})
 public class AdminServlet extends HttpServlet {
-
+    
+private static final JSONObject BAD_REQUEST = new JSONObject();
+static {
+    BAD_REQUEST.put("status", "Generic Error...");
+}
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -264,17 +273,32 @@ public class AdminServlet extends HttpServlet {
         */
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
         {
-            JSONParser parser = new JSONParser();
-            try
-            {
-                Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
-                JSONObject jObj = (JSONObject)obj;
-                response.getWriter().append(jObj.toJSONString());
-            }
-            catch(Exception e)
-            {
-                DatabaseManager.LogError("Something went wrong..." + e.toString());
-            }
+            Observable.just(0)
+                    .subscribeOn(Schedulers.io())
+                    .map(_ignored -> DatabaseManager.getManualDataNames())
+                    .observeOn(Schedulers.computation())
+                    .flatMap(Observable::fromIterable)
+                    .map((String name) -> {
+                        JSONObject wrappedName = new JSONObject();
+                        wrappedName.put("name", name);
+                        return wrappedName;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map((List<JSONObject> data) -> {
+                        JSONArray wrappedData = new JSONArray();
+                        wrappedData.addAll(data);
+                        return wrappedData;
+                    })
+                    .map((JSONArray data) -> {
+                        JSONObject root = new JSONObject();
+                        root.put("data", data);
+                        return root;
+                    })
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+                                        
             /*
             //We'll change to use this next group meeting
             session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
@@ -291,19 +315,43 @@ public class AdminServlet extends HttpServlet {
         */
         else if (action.trim().equalsIgnoreCase("getFilteredData")) 
         {
-            JSONParser parser = new JSONParser();
-            try
-            {
-                Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
-                
-                JSONObject jObj = (JSONObject)obj;
-                
-                response.getWriter().append(jObj.toJSONString());
-            }
-            catch(Exception e)
-            {
-                DatabaseManager.LogError("Something went wrong..." + e.toString());
-            }
+            String parameter = request.getParameter("parameter");
+            String startDate = request.getParameter("startDate");
+            String endDate = request.getParameter("endDate");
+            String startTime = request.getParameter("startTime");
+            String endTime = request.getParameter("endTime");
+            
+            Observable.just(parameter)
+                    .subscribeOn(Schedulers.io())
+                    .map(param -> DatabaseManager.getAllGraphData(param))
+                    .flatMap(Observable::fromIterable)
+                    .observeOn(Schedulers.computation())
+                    .map(param -> {
+                        JSONObject wrappedParam = new JSONObject();
+                        wrappedParam.put("entryID", param.getEntryID());
+                        wrappedParam.put("name", param.getName());
+                        wrappedParam.put("submittedBy", param.getSensor());
+                        wrappedParam.put("date", param.getTime().toLocalDate());
+                        wrappedParam.put("time", param.getTime().toLocalTime());
+                        wrappedParam.put("value", param.getValue());
+                        return wrappedParam;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map(list -> {
+                        JSONArray arr = new JSONArray();
+                        arr.addAll(list);
+                        return arr;
+                    })
+                    .map(arr -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("data", arr);
+                        return obj;
+                    })
+                    .defaultIfEmpty(BAD_REQUEST)
+                    .blockingSubscribe(resp -> {
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
             /*
             //We'll change to use this next group meeting
             //Gets a list of data values within a time range for display on a chart so the user can select which ones to delete
