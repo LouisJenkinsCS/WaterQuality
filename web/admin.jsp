@@ -21,6 +21,7 @@ Current bugs:
         <script src="scripts/admin_removeuser.js"></script>
         <script src="scripts/admin_editdesc.js"></script>
         <script src="scripts/admin_deletion.js"></script>
+        <script src="scripts/admin_errors.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
@@ -60,6 +61,8 @@ Current bugs:
                            id="RemoveTab">Remove User</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Edit_Description'); hide();"
                            id="EditTab">Edit Desc</a></li>
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Errors'); hide();"
+                           id="ErrorsTab">Errors</a></li>
                 </ul>
             </div>
             <!--Admin insertion-->
@@ -95,6 +98,11 @@ Current bugs:
             <admincontent id="Edit_Description" class="tab_content">
                 <!--Edit Desc Tab defined in admin_editdesc.js-->
                 <script>fillPageEditDesc();</script>
+            </admincontent>
+            
+            <admincontent id="Errors" class="tab_content">
+                <!--Errors Tab defined in admin_errors.js-->
+                <script>fillPageErrors();</script>
             </admincontent>
 
 
