@@ -10,6 +10,7 @@ import common.ErrorMessage;
 import common.ManualDataValue;
 import common.User;
 import common.UserRole;
+import io.reactivex.schedulers.Schedulers;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,6 +38,7 @@ public class DatabaseManager
         DatabaseManager.createErrorLogsTable();
         DatabaseManager.createManualDataNamesTable();
         DatabaseManager.createUserTable();
+        DataReceiver.getParameters().map(DataParameter::getName).subscribeOn(Schedulers.io()).blockingSubscribe(DatabaseManager::insertDataName);
     }
     /*
         Creates the data value table
@@ -1814,11 +1816,4 @@ public class DatabaseManager
         return errorList;
     }
     
-    public static void main(String[] args)
-    {
-        DatabaseManager.createManualDataNamesTable();
-        DatabaseManager.createDataNamesTable();
-        DataReceiver.getParameters().map(DataParameter::getName).blockingSubscribe(DatabaseManager::insertDataName);
-        
-    }
 }
