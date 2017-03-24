@@ -188,9 +188,10 @@ public class resultLoader {
     
     public void Str2JS(String strValue, String csvName, String varName){
         try {
-            String varContent = "var " + varName + " = [";
+            System.out.println("Converting :" + strValue);
+            String varContent = "var " + varName + " = ";
             FileWriter jsfile = new FileWriter(this.path + "/jsdata/" + csvName + "_" + varName + ".js");  
-            varContent += strValue + "];\n";
+            varContent += strValue + ";\n";
             jsfile.write(varContent);
             jsfile.close();
         } catch (IOException e) {
