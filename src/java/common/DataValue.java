@@ -6,11 +6,12 @@ package common;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import org.json.simple.JSONObject;
 /**
  *
  * @author Tyler Mutzek
  */
-public class DataValue implements Serializable
+public class DataValue implements Serializable, DataInt
 {
     private int entryID; //id number distinguishing this data entry (auto incremented)
     private String name;//name of this data type (e.g. temperature, pressure)
@@ -135,6 +136,19 @@ public class DataValue implements Serializable
     public String toString()
     {
         return name + ", " + units + ", " + sensor + ", " + value + ", " + delta + ", " + time;
+    }
+
+    public JSONObject toJSON() 
+    {
+        JSONObject jO = new JSONObject();
+        jO.put("entryID", entryID);
+        jO.put("name", name);
+        jO.put("units", units);
+        jO.put("sensor", sensor);
+        jO.put("value", value);
+        jO.put("delta", delta);
+        jO.put("time",time.toString());
+        return jO;
     }
     
 }

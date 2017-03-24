@@ -3,6 +3,7 @@
  */
 package database;
 
+import common.DataInt;
 import common.DataValue;
 import common.ErrorMessage;
 import common.ManualDataValue;
@@ -1019,7 +1020,12 @@ public class DatabaseManager
             //HDO refers to a method of checking dissolved oxygen
             //We only care that is it dissolved oxygen
             if(name.equals("HDO"))
-                name = "DO";
+            {
+                if(units.equals("mg/l"))//DO mg/l
+                    name = "DO";
+                else //DO %Sat 
+                    name = "DO %";
+            }
             else if(name.equals("Turbidity Dig"))//dig only refers to digital, not something meaningful
                 name = "Turbidity";
             units = units.replace("μ","u");//special chars not allowed
@@ -1803,7 +1809,13 @@ public class DatabaseManager
     
     public static void main(String[] args)
     {
-        //DatabaseManager.createManualDataNamesTable();
+        /*
+        ArrayList<ManualDataValue> data = DatabaseManager.getAllManualData("Algal Biomass (Chlorophyll a)");
+        for(DataInt d: data)
+        {
+            System.out.println(d.toJSON());
+        }
+        //DatabaseManager.createDataValueTable();
         /*
         JSONParser parser = new JSONParser();
         try{

@@ -47,9 +47,8 @@ public class AdminServlet extends HttpServlet {
             Admin is manually inputting data into the ManualDataValues table
         
             If data is parsed and the input succeeds or fails, inputstatus is set
-            If the data fails to parse, input status will remain null so check
-            if dateStatus, numberStatus, and etcStatus if they are not null and
-            print whatever isn't null so the user can see what they did wrong.
+            If the data fails to parse, inputstatus will be set with various
+            possible things that could go wrong
         */
         if (action.trim().equalsIgnoreCase("InputData")) 
         {
@@ -88,9 +87,9 @@ public class AdminServlet extends HttpServlet {
             
             If the deletion succeeds or fails without causing an error, 
             dataDeletionStatus is set.
-            If an error arises, etcStatus is set with a suggested cause
+            If an error arises, dataDeletionStatus is set with a suggested cause
         */
-        else if (action.trim().equalsIgnoreCase("RemoveData")) 
+        else if (action.trim().equalsIgnoreCase("DeleteData")) 
         {
             try
             {
@@ -112,11 +111,85 @@ public class AdminServlet extends HttpServlet {
         } 
         
         /*
+            Deletes a number of data values from the DataValues table
+            with ids specified by an ArrayList of Integer IDs
+        
+            If it succeeds the data is deleted with no message displayed.
+            If it fails, dataDeletionStatus is set with a possible cause.
+        */
+        else if (action.trim().equalsIgnoreCase("DeleteDataBulk")) 
+        {
+            try
+            {
+                ArrayList<Integer> deletionIDs = (ArrayList) session.getAttribute("deletionIDs");
+                deletionIDs.forEach((i) -> 
+                {
+                    DatabaseManager.manualDeletion(i, admin);
+                });
+            }
+            catch(Exception e)
+            {
+                request.setAttribute("dataDeletionStatus","Error: Did you not check any boxes for deletion?");
+            }
+        }
+        
+        /*
+            Admin is deleting single pieces of data from the ManualDataValues table
+            
+            If the deletion succeeds or fails without causing an error, 
+            manualDeletionStatus is set.
+            If an error arises, manualDeletionStatus is set with a suggested cause
+        */
+        else if (action.trim().equalsIgnoreCase("DeleteManualData")) 
+        {
+            try
+            {
+                boolean dataRemovalStatus = DatabaseManager.manualDeletionM(Integer.parseInt((String) request.getParameter("dataDeletionID")),
+                    admin);
+                if (dataRemovalStatus) 
+                {
+                    session.setAttribute("manualDeletionStatus", "Data Deletion Successful");
+                } 
+                else 
+                {
+                    session.setAttribute("manualDeletionStatus", "Data Deletion Unsuccessful");
+                }
+            }
+            catch(Exception e)
+            {
+                request.setAttribute("manualDeletionStatus","Error: Did you not check any boxes for deletion?");
+            }
+        } 
+        
+        /*
+            Deletes a number of data values from the ManualDataValues table
+            with ids specified by an ArrayList of Integer IDs
+        
+            If it succeeds the data is deleted with no message displayed.
+            If it fails, manualDeletionStatus is set with a possible cause.
+        */
+        else if (action.trim().equalsIgnoreCase("DeleteManualDataBulk")) 
+        {
+            try
+            {
+                ArrayList<Integer> deletionIDs = (ArrayList) session.getAttribute("deletionIDs");
+                deletionIDs.forEach((i) -> 
+                {
+                    DatabaseManager.manualDeletionM(i, admin);
+                });
+            }
+            catch(Exception e)
+            {
+                request.setAttribute("manualDeletionStatus","Error: Did you not check any boxes for deletion?");
+            }
+        }
+        
+        /*
             Admin is registering a new user to the Users table
             
             If registering the user succeeds or fails without an error, 
             inputStatus is set.
-            If an error arises, etcStatus is set with the exception message as
+            If an error arises, inputStatus is set with the exception message as
             there are no obvious reasons for it to fail.
         */
         else if (action.trim().equalsIgnoreCase("RegisterUser")) 
@@ -148,7 +221,7 @@ public class AdminServlet extends HttpServlet {
             
             If the deletion succeeds or fails with no error, userDeletionStatus
             is set.
-            If an error arises, etcStatus is set with a suggested cause.
+            If an error arises, userDeletionStatus is set with a suggested cause.
         */
         else if (action.trim().equalsIgnoreCase("RemoveUser")) 
         {
@@ -176,7 +249,7 @@ public class AdminServlet extends HttpServlet {
         
             If locking the user was successful or failed without an error,
             lockStatus is set.
-            If an error arises, etcStatus is set with a suggested cause.
+            If an error arises, lockStatus is set with a suggested cause.
         */
         else if (action.trim().equalsIgnoreCase("LockUser")) 
         {
@@ -203,8 +276,8 @@ public class AdminServlet extends HttpServlet {
             Admin is unlocking a user, allowing them to log in once again
         
             If unlocking the user was successful or failed without an error,
-            lockStatus is set.
-            If an error arises, etcStatus is set with a suggested cause.
+            unlockStatus is set.
+            If an error arises, unlockStatus is set with a suggested cause.
         */
         else if (action.trim().equalsIgnoreCase("UnlockUser")) 
         {
@@ -232,7 +305,7 @@ public class AdminServlet extends HttpServlet {
             
             If editing the description succeeded or failed without error,
             editDescStatus is set. 
-            If an error arises, etcStatus is set with the exception message as
+            If an error arises, editDescStatus is set with the exception message as
             there are no obvious reasons for it to fail.
         */
         else if (action.trim().equalsIgnoreCase("EditDesc")) 
@@ -286,7 +359,7 @@ public class AdminServlet extends HttpServlet {
             
             If the list retrieval succeeded, filteredData will be set.
             
-            If it failed due to invalid LocalDateTime format, dateStatus is
+            If it failed due to invalid LocalDateTime format, filterStatus is
             set.
         */
         else if (action.trim().equalsIgnoreCase("getFilteredData")) 
@@ -316,39 +389,16 @@ public class AdminServlet extends HttpServlet {
             }
             catch(DateTimeParseException e)
             {
-                session.setAttribute("dateStatus", "Invalid Format on Lower or Upper Time Bound.");
+                session.setAttribute("filterStatus", "Invalid Format on Lower or Upper Time Bound.");
             }
             */
-        }
-        
-        /*
-            Deletes a number of data values from the ManualDataValues table
-            with ids specified by an ArrayList of Integer IDs
-        
-            If it succeeds the data is deleted with no message displayed.
-            If it fails, etcStatus is set with a possible cause.
-        */
-        else if (action.trim().equalsIgnoreCase("deleteManualData")) 
-        {
-            try
-            {
-                ArrayList<Integer> deletionIDs = (ArrayList) session.getAttribute("deletionIDs");
-                for(Integer i: deletionIDs)
-                {
-                    DatabaseManager.manualDeletionM(i.intValue(), admin);
-                }
-            }
-            catch(Exception e)
-            {
-                request.setAttribute("manualDeleteStatus","Error: Did you not check any boxes for deletion?");
-            }
         }
         
         /*
             Retrieves a list of all Errors
         
             If it succeeds, errorList is set with an ArrayList of ErrorMessages
-            If it fails, etcStatus is set with the exception message as there 
+            If it fails, errorListStatus is set with the exception message as there 
             are no obvious reasons for failure.
         */
         else if (action.trim().equalsIgnoreCase("getAllErrors")) 
@@ -368,10 +418,10 @@ public class AdminServlet extends HttpServlet {
         
             If it succeeds, errorList is set with an ArrayList of ErrorMessages
         
-            If it fails and a DateTimeParseException is caught, dateStatus is
+            If it fails and a DateTimeParseException is caught, filteredErrorStatus is
             set to inform the user that their datetime format is incorrect.
             
-            If it fails with any other error, etcStatus is set with the exception 
+            If it fails with any other error, filteredErrorStatus is set with the exception 
             message as there are no other obvious reasons for failure.
         */
         else if (action.trim().equalsIgnoreCase("getFilteredErrors")) 
