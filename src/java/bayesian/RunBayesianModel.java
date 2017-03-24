@@ -13,8 +13,12 @@ import async.DataValue;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.*;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -54,56 +58,29 @@ public class RunBayesianModel {
         
         FileOperation fo = new FileOperation();
         
-        Data data = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now().minus(Period.ofWeeks(4)).plus(Period.ofDays(1)), PAR, HDO, Temp, Pressure);
+        Data data = DataReceiver.getData(Instant.now().truncatedTo(ChronoUnit.DAYS).minus(Period.ofWeeks(5)), Instant.now().truncatedTo(ChronoUnit.DAYS).minus(Period.ofWeeks(5)).plus(Period.ofDays(1)), PAR, HDO, Temp, Pressure);
         ForkJoinPool.commonPool().execute(() -> runJJAGSForCSV(fo, data));
         
-        EXAMPLE = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now().minus(Period.ofWeeks(4)).plus(Period.ofDays(1)), PAR, HDO, Temp, Pressure)
-                .getData()
-                .groupBy(dv -> dv.getId())
-                .flatMap(group -> {
-                    String header;
-                    if (group.getKey() == PAR) {
-                        return group.sorted()
-                                .map(dv -> dv.getValue())
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("PAR Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
-                                .map("PAR <- c("::concat);
-                    } else if (group.getKey() == HDO) {
-                        return group.sorted()
-                                .map(dv -> dv.getValue())
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("HDO Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
-                                .map("DO.meas <- c("::concat);
-                    } else if (group.getKey() == Temp) {
-                        return group.sorted()
-                                .map(dv -> dv.getValue())
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("Temp Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
-                                .map("tempC <- c("::concat);
-                    } else if (group.getKey() == Pressure) {
-                        return group.sorted()
-                                .map(dv -> dv.getValue() * ATMOSPHERIC_CONVERSION_FACTOR)
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("Pressure Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
-                                .map("atmo.pressure <- c("::concat);
-                    } else {
-                        throw new RuntimeException("Bad Key: " + group.getKey());
-                    }
-                })
-                .map(str -> str + ")")
-                .reduce("", (str1, str2) -> str1 + str2 + "\n")
-                .map(str -> str + "\nsalinity <- c(" + IntStream.range(0, 96).map(x -> 0).mapToObj(Integer::toString).collect(Collectors.joining(",")) + ")")
-                .blockingGet();
-        
-        // For each CSV file
-//        for (File f : fo.fileFilter(input_dir, "csv")) {
-//        }
-        
         ForkJoinPool.commonPool().awaitQuiescence(Integer.MAX_VALUE, TimeUnit.DAYS);
+    }
+    
+    public static String formatForDay(List<DataValue> values) {
+        // Already sorted by timestamp in ascending order.
+        Instant time = values.get(0).getTimestamp().truncatedTo(ChronoUnit.DAYS);
+        Instant endTime = values.get(0).getTimestamp().truncatedTo(ChronoUnit.DAYS).plus(Period.ofDays(1));
+        double lastValue = 0;
+        List<Double> graphData = new ArrayList<>();
+        for (DataValue value : values) {
+            while(value.getTimestamp().compareTo(time) != 0 && time.compareTo(endTime) <= 0) {
+                graphData.add(value.getValue());
+                time = time.plus(Duration.ofMinutes(15));
+            }
+            
+            graphData.add(value.getValue());
+            lastValue = value.getValue();
+        }
+        
+        return graphData.stream().map(Object::toString).collect(Collectors.joining(","));
     }
     
     
@@ -128,31 +105,28 @@ public class RunBayesianModel {
                     String header;
                     if (group.getKey() == PAR) {
                         return group.sorted()
-                                .map(dv -> dv.getValue())
                                 .buffer(Integer.MAX_VALUE)
                                 .doOnNext(list -> System.out.println("PAR Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
+                                .map(RunBayesianModel::formatForDay)
                                 .map("PAR <- c("::concat);
                     } else if (group.getKey() == HDO) {
                         return group.sorted()
-                                .map(dv -> dv.getValue())
                                 .buffer(Integer.MAX_VALUE)
                                 .doOnNext(list -> System.out.println("HDO Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
+                                .map(RunBayesianModel::formatForDay)
                                 .map("DO.meas <- c("::concat);
                     } else if (group.getKey() == Temp) {
                         return group.sorted()
-                                .map(dv -> dv.getValue())
                                 .buffer(Integer.MAX_VALUE)
                                 .doOnNext(list -> System.out.println("Temp Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
+                                .map(RunBayesianModel::formatForDay)
                                 .map("tempC <- c("::concat);
                     } else if (group.getKey() == Pressure) {
                         return group.sorted()
-                                .map(dv -> dv.getValue() * ATMOSPHERIC_CONVERSION_FACTOR)
+                                .map(dv -> new DataValue(dv.getId(), dv.getTimestamp(), dv.getValue() * ATMOSPHERIC_CONVERSION_FACTOR))
                                 .buffer(Integer.MAX_VALUE)
                                 .doOnNext(list -> System.out.println("Pressure Count: " + list.size()))
-                                .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
+                                .map(RunBayesianModel::formatForDay)
                                 .map("atmo.pressure <- c("::concat);
                     } else {
                         throw new RuntimeException("Bad Key: " + group.getKey());
@@ -160,7 +134,7 @@ public class RunBayesianModel {
                 })
                 .map(str -> str + ")")
                 .reduce("", (str1, str2) -> str1 + str2 + "\n")
-                .map(str -> str + "\nsalinity <- c(" + IntStream.range(0, 96).map(x -> 0).mapToObj(Integer::toString).collect(Collectors.joining(",")) + ")")
+                .map(str -> str + "salinity <- c(" + IntStream.range(0, 96).map(x -> 0).mapToObj(Integer::toString).collect(Collectors.joining(",")) + ")")
                 .blockingGet();;
         
         content.nRow = 92;
@@ -238,37 +212,18 @@ public class RunBayesianModel {
                 .subscribeOn(Schedulers.computation())
                 .filter(dv -> dv.getId() == PAR)
                 .sorted()
-                .map(DataValue::getValue)
-                .map(Object::toString)
                 .buffer(Integer.MAX_VALUE)
-                .reduce("", (str1, str2) -> str1 + str2 + "\n")
-                .subscribe(val -> rl.Str2JS(val, fname, "PAR"));
-//        int offset = 6;
-//        String tmp = content.read(input_dir + fname, 3, 3);
-//        String currentVarName = "PAR";
-//        tmp = tmp.substring(offset + currentVarName.length(), tmp.length()-2);
-//        System.out.println(tmp);
-//        rl.Str2JS(tmp, fname, currentVarName);
+                .map(RunBayesianModel::formatForDay)
+                .blockingSubscribe(plotData -> rl.Str2JS(plotData, fname, "PAR"));
         
         data
                 .getData()
                 .subscribeOn(Schedulers.computation())
                 .filter(dv -> dv.getId() == Temp)
                 .sorted()
-                .map(DataValue::getValue)
-                .map(Object::toString)
                 .buffer(Integer.MAX_VALUE)
-                .reduce("", (str1, str2) -> str1 + str2 + "\n")
-                .subscribe(val -> rl.Str2JS(val, fname, "tempC"));
-//        tmp = content.read(input_dir + fname, 4, 4);
-//        currentVarName = "tempC";
-//        tmp = tmp.substring(offset + currentVarName.length(), tmp.length()-2);
-//        rl.Str2JS(tmp, fname, "tempC");
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(RunBayesianModel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+                .map(RunBayesianModel::formatForDay)
+                .blockingSubscribe(plotData -> rl.Str2JS(plotData, fname, "tempC"));
     }
     
 }
