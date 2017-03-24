@@ -75,7 +75,6 @@ public class ControlServlet extends HttpServlet {
 
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-        request.setAttribute("Table", DataReceiver.generateTable(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
                 .forward(request, response);
