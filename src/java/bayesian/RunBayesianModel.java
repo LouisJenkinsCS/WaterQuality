@@ -11,6 +11,7 @@ import async.Data;
 import async.DataReceiver;
 import async.DataValue;
 import io.reactivex.Observable;
+import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.*;
 import java.time.Duration;
@@ -94,43 +95,29 @@ public class RunBayesianModel {
         // Create the output folder for current CSV calculation inside output/
         fo.newFolder(output_dir + fname);
 
-        // Prepare the data
         csvReader content = new csvReader();
-//        String cnt = content.read(input_dir + f.getName(), 3);
         String cnt = data.getData()
-                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
-                .groupBy(dv -> dv.getId())
-                .flatMap(group -> {
+                .groupBy((DataValue dv) -> dv.getId())
+                .flatMap((GroupedObservable<Long, DataValue> group) -> {
                     String header;
                     if (group.getKey() == PAR) {
-                        return group.sorted()
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("PAR Count: " + list.size()))
-                                .map(RunBayesianModel::formatForDay)
-                                .map("PAR <- c("::concat);
+                        header = "PAR <- c(";
                     } else if (group.getKey() == HDO) {
-                        return group.sorted()
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("HDO Count: " + list.size()))
-                                .map(RunBayesianModel::formatForDay)
-                                .map("DO.meas <- c("::concat);
+                        header = "DO.meas <- c(";
                     } else if (group.getKey() == Temp) {
-                        return group.sorted()
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("Temp Count: " + list.size()))
-                                .map(RunBayesianModel::formatForDay)
-                                .map("tempC <- c("::concat);
+                        header = "tempC <- c(";
                     } else if (group.getKey() == Pressure) {
-                        return group.sorted()
-                                .map(dv -> new DataValue(dv.getId(), dv.getTimestamp(), dv.getValue() * ATMOSPHERIC_CONVERSION_FACTOR))
-                                .buffer(Integer.MAX_VALUE)
-                                .doOnNext(list -> System.out.println("Pressure Count: " + list.size()))
-                                .map(RunBayesianModel::formatForDay)
-                                .map("atmo.pressure <- c("::concat);
+                        header = "atmo.pressure <- c(";
                     } else {
                         throw new RuntimeException("Bad Key: " + group.getKey());
                     }
+                    
+                    return group.sorted()
+                                .map(dv -> dv.getId() == Pressure ? new DataValue(dv.getId(), dv.getTimestamp(), dv.getValue() * ATMOSPHERIC_CONVERSION_FACTOR) : dv)
+                                .buffer(Integer.MAX_VALUE)
+                                .map(RunBayesianModel::formatForDay)
+                                .map(header::concat);
                 })
                 .map(str -> str + ")")
                 .reduce("", (str1, str2) -> str1 + str2 + "\n")
@@ -138,8 +125,6 @@ public class RunBayesianModel {
                 .blockingGet();;
         
         content.nRow = 92;
-        System.out.println("Row: " + content.nRow);
-        System.out.println(cnt);
         // String cnt = content.read(input_dir + f.getName(), 3, 4);
         String datafile = "num.measurements <- c(" + content.nRow + ")\n"
                 + "interval <- c(" + interval + ")\n"
