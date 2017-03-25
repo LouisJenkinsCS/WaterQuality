@@ -51,7 +51,7 @@ public class ControlServlet extends HttpServlet {
         Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), defaultId);
         DataReceiver
                 .getParameters()
-                .observeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.computation())
                 // Display based on lexicographical ordering
                 .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
                 // Generate a checkbox for each parameter.
@@ -75,7 +75,6 @@ public class ControlServlet extends HttpServlet {
 
         request.setAttribute("Parameters", data.toString());
         request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-        request.setAttribute("Table", DataReceiver.generateTable(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
                 .forward(request, response);
@@ -112,210 +111,14 @@ public class ControlServlet extends HttpServlet {
             System.out.println("Data Received: " + data);
             JSONProtocol proto = new JSONProtocol();
             try {
-                proto.process((JSONObject) new JSONParser().parse(data)).subscribe(obj -> response.getWriter().append(obj.toJSONString()));
+                proto.process((JSONObject) new JSONParser().parse(data))
+                        .subscribeOn(Schedulers.computation())
+                        .blockingSubscribe(obj -> response.getWriter().append(obj.toJSONString()));
             } catch (ParseException ex) {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
             return;
         }
-        
-        if (action.trim().equalsIgnoreCase("getData")) {
-            String start = request.getParameterValues("startdate")[0];
-            String end = request.getParameterValues("enddate")[0];
-            log("Start: " + start);
-            log("End: " + start);
-
-            if (!start.endsWith(":00")) {
-                start += ":00";
-            }
-            start += "Z";
-
-            if (!end.endsWith(":00")) {
-                end += ":00";
-            }
-            end += "Z";
-
-            Long[] selected = request
-                    .getParameterMap()
-                    .keySet()
-                    .stream()
-                    .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList())
-                    .toArray(new Long[0]);
-
-            // Nothing selected...
-            if (selected == null || selected.length == 0) {
-                defaultHandler(request, response);
-                return;
-            }
-
-            log("User Selected: " + Arrays.deepToString(selected));
-
-            // Obtain the data for what is selected
-            Data source = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
-            JSONProtocol proto = new JSONProtocol();
-            proto
-                .processUsing(source)
-                .subscribeOn(Schedulers.computation())
-                .blockingSubscribe((JSONObject resp) -> request.setAttribute("ChartData", resp));
-
-            StringBuilder paramData = new StringBuilder();
-            DataReceiver
-                    .getParameters()
-                    // Display based on lexicographical ordering
-                    .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
-                    // Generate a checkbox for each parameter.
-                    .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
-                    .blockingSubscribe(paramData::append);
-
-            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
-            request.setAttribute("Table", DataReceiver.generateTable(source));
-            request.setAttribute("Parameters", paramData.toString());
-
-            request.getServletContext()
-                    .getRequestDispatcher("/dashboard.jsp")
-                    .forward(request, response);
-            log("Got Action: " + action);
-            return;
-        }
-        if (action.trim().equalsIgnoreCase("Table")) {
-            String start = request.getParameterValues("startdate")[0];
-            String end = request.getParameterValues("enddate")[0];
-            log("Start: " + start);
-            log("End: " + start);
-
-            if (!start.endsWith(":00")) {
-                start += ":00";
-            }
-            start += "Z";
-
-            if (!end.endsWith(":00")) {
-                end += ":00";
-            }
-            end += "Z";
-
-            Long[] selected = request
-                    .getParameterMap()
-                    .keySet()
-                    .stream()
-                    .filter(k -> !k.equals("startdate") && !k.equals("enddate") && !k.equals("Get Data") && !k.equals("control"))
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList())
-                    .toArray(new Long[0]);
-
-            // Nothing selected...
-            if (selected == null || selected.length == 0) {
-                defaultHandler(request, response);
-                return;
-            }
-
-            log("User Selected: " + Arrays.deepToString(selected));
-
-            // Obtain the data for what is selected
-            Data data = DataReceiver.getData(Instant.parse(start), Instant.parse(end), selected);
-            String descriptions = DataReceiver.generateDescriptions(data);
-            String table = DataReceiver.generateTable(data);
-            StringBuilder categories = new StringBuilder("categories: [");
-            data.getData()
-                    .map(DataValue::getTimestamp)
-                    .distinct()
-                    .sorted()
-                    .map((Instant ts) -> "\"" + ts.toString().replace("T", " ").replace("Z", "") + "\",")
-                    .blockingSubscribe(categories::append);
-            categories.append("]");
-
-            StringBuilder paramData = new StringBuilder();
-            DataReceiver
-                    .getParameters()
-                    // Display based on lexicographical ordering
-                    .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
-                    // Generate a checkbox for each parameter.
-                    .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this)\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
-                    .blockingSubscribe(paramData::append);
-
-            request.setAttribute("Descriptions", DataReceiver.generateDescriptions(data));
-            //request.setAttribute("HighChartJS_Categories", categories);
-            //request.setAttribute("HighChartJS_Series", DataReceiver.generateSeries(data));
-            request.setAttribute("Table", DataReceiver.generateTable(data));
-            request.setAttribute("Parameters", paramData.toString());
-
-            request.getServletContext()
-                    .getRequestDispatcher("/dashboard.jsp")
-                    .forward(request, response);
-            log("Got Action: " + action);
-            return;
-        }
-
-        //I modeled this after the above case ^^
-        if (action.trim().equalsIgnoreCase("getDesc")) {
-            StringBuilder description = new StringBuilder();
-            description.append("Test Dummy\n");
-            request.setAttribute("datadesc", description.toString());
-
-            //I don't understand this part, but I assume it's necessary?
-            request.getServletContext()
-                    .getRequestDispatcher("/dashboard.jsp")
-                    .forward(request, response);
-            return;
-        }
-
-        // Fix the login data for the user
-        if (action.trim().equalsIgnoreCase("login")) {
-            //all this code should be in the login servlet
-
-            boolean firstLogin = user.getLoginCount() == 0;
-            user.setLoginCount(user.getLoginCount() + 1);
-            LocalDateTime now = LocalDateTime.now();
-
-//            user.setLastLoginTime(Timestamp.valueOf(LocalDateTime.now()));
-//            user.setAttemptedLoginCount(0);
-//            user.setLastAttemptedLoginTime(Timestamp.valueOf(LocalDateTime.now()));
-//            um.updateUser(user);
-            // Always lock a session variable to be thread safe.
-            synchronized (lock) {
-                session.setAttribute("user", user);//update information in the session attribute
-            }
-
-            if (firstLogin) {//Force the user to reset the password
-                response.sendRedirect(request.getContextPath() + "/html/ResetPassword.html");
-                return; //return statement is needed
-            }
-
-            request.getServletContext()
-                    .getRequestDispatcher("/index.html") //page we want after successful login. 
-                    .forward(request, response);
-            //return; //should not be needed
-        } //end of  code for login action
-        // The next code we will write is for the resetpassword action
-        if (action.trim().equalsIgnoreCase("resetpassword")) {
-            user = um.getUserByID(Integer.parseInt(request.getParameter("UID")));
-            synchronized (lock) {
-                session.setAttribute("user", user);//update information in the session attribute
-            }
-            if (user.getUserPassword() != request.getParameter("token")) {
-                //We have a problem, the url does not have the correct token, reject the attempt
-                //The approve should contact an admin to state what happened
-                log(user.getLoginName() + " tried to reset a password using the wrong token in the url");
-                log("user id was " + request.getParameter("UID"));
-                response.sendRedirect(request.getContextPath() + "/loginScreen.jsp");
-
-            } else {
-                response.sendRedirect(request.getContextPath() + "/html/ResetPassword.html");
-            }
-            return;    // return is needed
-            //The difference between a redrect and a forward is important
-            //Look at the URL in the browswer bar and notice a redirect changes it
-        }
-        if (action.trim().equalsIgnoreCase("add")) {
-            //response.sendRedirect(request.getContextPath() + "/html/javascriptDisabled.html");
-            request.getServletContext()
-                    .getRequestDispatcher("/html/javascriptDisabled.html")
-                    .forward(request, response);
-            return;    // return is needed
-
-        }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

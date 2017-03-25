@@ -119,7 +119,6 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                     
                     // TODO: Refactor .jsp to generate table and descriptions.
                     response.put("descriptions", DataReceiver.generateDescriptions(source));
-                    response.put("table", DataReceiver.generateTable(source));
                     response.put("resp", arr);
                     return response;
                 });

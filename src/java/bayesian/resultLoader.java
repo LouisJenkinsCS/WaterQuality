@@ -188,6 +188,7 @@ public class resultLoader {
     
     public void Str2JS(String strValue, String csvName, String varName){
         try {
+            System.out.println("Converting : " + strValue);
             String varContent = "var " + varName + " = [";
             FileWriter jsfile = new FileWriter(this.path + "/jsdata/" + csvName + "_" + varName + ".js");  
             varContent += strValue + "];\n";
