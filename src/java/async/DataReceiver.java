@@ -205,47 +205,6 @@ public class DataReceiver {
     }
     
     /**
-     * Generates an HTML Table for the underlying data source. The HTML table is generated
-     * with a column for it's timestamp and one for each of the unique parameters.
-     * @param source Data.
-     * @return Generated HTML table.
-     */
-    public static String generateTable(Data source) {
-        StringBuilder table = new StringBuilder("<table border='1'>\n\t<tr>\n\t\t<th>Timestamp</th>");
-        
-        // Generate the headers first
-        source.getData()
-                .map(DataValue::getId)
-                .distinct()
-                .sorted()
-                .map(PARAMETER_MAP::get)
-                .map((DataParameter parameter) -> "\n\t\t<th>\n\t\t" + parameter.getName() + "\n\t\t</th>")
-                .blockingSubscribe(table::append);
-        
-        // Generate the body next
-        source.getData()
-                .groupBy(DataValue::getTimestamp)
-                .sorted((GroupedObservable<Instant, DataValue> group1, GroupedObservable<Instant, DataValue> group2) -> 
-                        group1.getKey().compareTo(group2.getKey())
-                )
-                .flatMap((GroupedObservable<Instant, DataValue> group) -> {
-                    return Observable
-                            .just("\n\t<tr>\n\t\t<td>" + group.getKey().toString().replace("T", " ").replace("Z", "") + "</td>")
-                            .flatMap(str -> group.map((DataValue dv) -> "\n\t\t<td>" + dv.getValue() + "</td>")
-                                    .buffer(Integer.MAX_VALUE)
-                                    .map(list -> str + list
-                                            .stream()
-                                            .collect(Collectors.joining())
-                                    )
-                            )
-                            .map(str -> str + "\n\t</tr>");
-                }).blockingSubscribe(table::append);
-        table.append("</table>");
-        
-        return table.toString();
-    }
-    
-    /**
      * Obtain the API URL from the given time frame and parameter ID.
      * @param start Start.
      * @param end End.

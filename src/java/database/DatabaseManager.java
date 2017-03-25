@@ -3,11 +3,14 @@
  */
 package database;
 
+import async.DataParameter;
+import async.DataReceiver;
 import common.DataValue;
 import common.ErrorMessage;
 import common.ManualDataValue;
 import common.User;
 import common.UserRole;
+import io.reactivex.schedulers.Schedulers;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +31,15 @@ import security.SecurityCode;
  */
 public class DatabaseManager 
 {
-    
+    static {
+        createDataValueTable();
+        createManualDataValueTable();
+        DatabaseManager.createDataValueTable();
+        DatabaseManager.createErrorLogsTable();
+        DatabaseManager.createManualDataNamesTable();
+        DatabaseManager.createUserTable();
+        DataReceiver.getParameters().map(DataParameter::getName).subscribeOn(Schedulers.io()).blockingSubscribe(DatabaseManager::insertDataName);
+    }
     /*
         Creates the data value table
         entryID is the unique id number of the data value
@@ -613,6 +624,62 @@ public class DatabaseManager
     }
     
     /*
+        Returns a list of all data
+        @param name the name of the data type for which data is being requested
+    */
+    public static ArrayList<DataValue> getAllGraphData(String name)
+    {
+        ArrayList<DataValue> graphData = new ArrayList<>();
+        PreparedStatement selectData = null;
+        ResultSet dataRange = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from DataValues Where dataName = ?;";
+            selectData = conn.prepareStatement(query);
+            selectData.setString(1, name);
+            dataRange = selectData.executeQuery();
+            
+            int entryID;
+            String units;
+            LocalDateTime time;
+            float value;
+            float delta;
+            String sensor;
+            while(dataRange.next())
+            {
+                entryID = dataRange.getInt(1);
+                name = dataRange.getString(2);
+                units = dataRange.getString(3);
+                sensor = dataRange.getString(4);
+                time = LocalDateTime.parse(dataRange.getString(5));
+                value = dataRange.getFloat(6);
+                delta = dataRange.getFloat(7);
+                DataValue dV = new DataValue(entryID,name,units,sensor,time,value,delta);
+                graphData.add(dV);
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error Retrieving Graph Data: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectData != null)
+                    selectData.close();
+                if(dataRange != null)
+                    dataRange.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return graphData;
+    }
+    
+    /*
         Returns a list of data within a certain time range
         @param name the name of the data type for which data is being requested
         @param lower the lower range of the time
@@ -631,6 +698,60 @@ public class DatabaseManager
             selectData.setString(1, name);
             selectData.setString(2, lower+"");
             selectData.setString(3, upper+"");
+            dataRange = selectData.executeQuery();
+            
+            int entryID;
+            String units;
+            LocalDateTime time;
+            float value;
+            String submittedBy;
+            while(dataRange.next())
+            {
+                entryID = dataRange.getInt(1);
+                name = dataRange.getString(2);
+                units = dataRange.getString(3);
+                submittedBy = dataRange.getString(4);
+                time = LocalDateTime.parse(dataRange.getString(5));
+                value = dataRange.getFloat(6);
+                ManualDataValue dV = new ManualDataValue(entryID,name,units,submittedBy,time,value);
+                graphData.add(dV);
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error Retrieving Graph Data: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectData != null)
+                    selectData.close();
+                if(dataRange != null)
+                    dataRange.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return graphData;
+    }
+    
+    /*
+        Returns a list of all manual data
+        @param name the name of the data type for which data is being requested
+    */
+    public static ArrayList<ManualDataValue> getAllManualData(String name)
+    {
+        ArrayList<ManualDataValue> graphData = new ArrayList<>();
+        PreparedStatement selectData = null;
+        ResultSet dataRange = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from ManualDataValues Where dataName = ?;";
+            selectData = conn.prepareStatement(query);
+            selectData.setString(1, name);
             dataRange = selectData.executeQuery();
             
             int entryID;
@@ -1337,7 +1458,7 @@ public class DatabaseManager
         Returns whether the parameter data name is already in the list of all
         unique data names or not
     */
-    private static boolean dataNameExists(String name)
+    public static boolean dataNameExists(String name)
     {
         Statement selectDataNames = null;
         ResultSet dataNames = null;
@@ -1378,7 +1499,7 @@ public class DatabaseManager
         parameter name is not already in the table (ex: through the dataNameExists
         function)
     */
-    private static void insertDataName(String name)
+    public static void insertDataName(String name)
     {
         PreparedStatement insertDataName = null;
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
@@ -1409,13 +1530,15 @@ public class DatabaseManager
     /*
         Returns an arraylist of all unique data names
     */
-    private static ArrayList<String> getDataNames()
+    public static ArrayList<String> getDataNames()
     {
         ArrayList<String> dataNameList= new ArrayList<>();
         Statement selectDataNames = null;
         ResultSet dataNames = null;
+        System.out.println("Getting Data Names...");
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
         {
+            System.out.println("Made connection...");
             String query = "Select * from DataNames";
             selectDataNames = conn.createStatement();
             dataNames = selectDataNames.executeQuery(query);
@@ -1441,6 +1564,8 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
+        
+        System.out.println("Returning...");
         return dataNameList;
     }
     
@@ -1448,7 +1573,7 @@ public class DatabaseManager
         Returns whether the parameter data name is already in the list of all
         unique manual data names or not
     */
-    private static boolean manualDataNameExists(String name)
+    public static boolean manualDataNameExists(String name)
     {
         Statement selectManualDataNames = null;
         ResultSet dataNames = null;
@@ -1489,7 +1614,7 @@ public class DatabaseManager
         parameter name is not already in the table (ex: through the manualDataNameExists
         function)
     */
-    private static void insertManualDataName(String name)
+    public static void insertManualDataName(String name)
     {
         PreparedStatement insertDataName = null;
         try(Connection conn = Web_MYSQL_Helper.getConnection();)
@@ -1522,7 +1647,7 @@ public class DatabaseManager
     /*
         Returns an arraylist of all manual data names
     */
-    private static ArrayList<String> getManualDataNames()
+    public static ArrayList<String> getManualDataNames()
     {
         ArrayList<String> dataNameList= new ArrayList<>();
         Statement selectDataNames = null;
@@ -1691,30 +1816,4 @@ public class DatabaseManager
         return errorList;
     }
     
-    public static void main(String[] args)
-    {
-        //DatabaseManager.createManualDataNamesTable();
-        /*
-        JSONParser parser = new JSONParser();
-        try{
-            Object obj = parser.parse(new FileReader("P:/Compsci480/environet_api_data.json"));
-            JSONObject jsonObject = (JSONObject)obj;
-            JSONArray jarray = (JSONArray)jsonObject.get("data");
-            Iterator<JSONObject> iterator = jarray.iterator();
-            while(iterator.hasNext())
-                DatabaseManager.insertJSON(iterator.next());
-        }
-        catch(Exception e)
-        {}
-
-        /*
-        LocalDateTime l = LocalDateTime.parse("2017-02-06T04:15:00");
-        LocalDateTime u = LocalDateTime.parse("2017-02-08T04:15:00");
-        ArrayList<DataValue> a = d.getGraphData("Temperature", l, u);
-        for(DataValue data: a)
-        {
-            System.out.println(data);
-        }
-        */
-    }
 }
