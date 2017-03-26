@@ -12,7 +12,7 @@ $.getScript("scripts/AJAX_magic.js", function () {});
 var del_options = "";
 
 //Defines how AdminServlet responds
-var dataRequest = {action: 'getManualItems'};
+var dataRequest = {action: "getManualItems"};
 
 //Called in admin.jsp to load this script
 function loadDelete()
@@ -52,28 +52,40 @@ function loadDelete()
         console.log("Parameter names: " + param_names);
         console.log("Entry name: " + entry_name["name"]);
 
-        //This contains the bulk of the HTML which will be shown to the user,
-        //providing the inputs for the user to fill which will filter the data
-        //shown to them, from which they can choose to delete.
-        //Uses the global variable del_options to show the user which parameters
-        //they may choose from.
-        $('#Delete_Data').append(
-                '<div class="large_text">Time Frame:</div>' +
-                '<div id="dateInstructDiv">Start Date to End Date (Format: yyyy-mm-ddThh:mm:ss)</div>' +
-                '<div id="dateselectordiv" onclick="dateLimits();">' +
-                '<input class="dateselector" id="delete_startdate" type="date" min="2016-01-01" max="" value="2017-03-15T08:15:00"> to ' +
-                '<input class="dateselector" id="delete_enddate" type="date" min="2016-01-01" max="" value="2017-03-20T08:15:00"></div>' +
-                '<div class="large_text">Parameter to delete:</div>' +
-                '<select id="delete_param">' + del_options +
-                '</select><br/><br/>' +
-                '<button type="button" onclick="filterData()">Filter</button><br/><br/>' +
-                '<div class="large_text">Please select the data entry from below:</div>' +
-                '<table id="deletion_space">' +
-                '<tr><th>Date/Time</th><th>Name</th><th>Value</th><th>Author</th></tr>' +
-                '</table><br/>' +
-                '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
-                );
+
+
+
     });
+
+    var today = new Date();
+    var date = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
+    var time = today.toLocaleTimeString();
+    //This contains the bulk of the HTML which will be shown to the user,
+    //providing the inputs for the user to fill which will filter the data
+    //shown to them, from which they can choose to delete.
+    //Uses the global variable del_options to show the user which parameters
+    //they may choose from.
+    //
+    //Placed outside of the GET call to run without successful server connection
+    //for testing.
+    $('#Delete_Data').append(
+            '<div class="large_text">Time Frame:</div>' +
+            '<div id="dateInstructDiv">Date Range:</div>' +
+            '<input class="dateselector" id="delete_startdate" placeholder="' + date + '"> to ' +
+            '<input class="dateselector" id="delete_enddate" placeholder="' + date + '"></div>' +
+            '<div id="dateInstructDiv">Time Range:</div>' +
+            '<input class="dateselector" id="delete_starttime" placeholder="' + time + '"> to ' +
+            '<input class="dateselector" id="delete_endtime" placeholder="' + time + '"></div>' +
+            '<div class="large_text">Parameter to delete:</div>' +
+            '<select id="delete_param">' + del_options +
+            '</select><br/><br/>' +
+            '<button type="button" onclick="filterData()">Filter</button><br/><br/>' +
+            '<div class="large_text">Please select the data entry from below:</div>' +
+            '<table id="deletion_space">' +
+            '<tr><th>Date/Time</th><th>Name</th><th>Value</th><th>Author</th></tr>' +
+            '</table><br/>' +
+            '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
+            );
 }
 
 /**
@@ -173,7 +185,7 @@ function deleteData() {
         action: "RemoveData",
         entryIDs: $idList
     };
-    
+
     //TODO confirm with the user that they're sure the selections
     //are correct - on OK, continue to POST request below
 
