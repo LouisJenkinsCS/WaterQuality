@@ -145,23 +145,45 @@ function fetchData(json) {
         timeStampStr.push(arr);
         console.log("Pushed: " + arr);
     }
-    if(getCookie("id") == "Table")
-        //document.getElementById("Table").innerHTML = table;
+    if (load == true) {
+        load = false;
         fillTable(resp);
-    else{
-    // Remove all series data
-    while (chart.series.length > 0)
-        chart.series[0].remove(true);
 
-    for (var i = 0; i < data.data.length; i++) {
-        chart.addSeries({
-            yAxis: i,
-            name: data.data[i]["name"],
-            data: timeStampStr[i]
-        }, false);
-        chart.yAxis[i].setTitle({text: data.data[i]["name"]});
-    }
-    chart.redraw();
+        while (chart.series.length > 0)
+            chart.series[0].remove(true);
+
+        for (var i = 0; i < data.data.length; i++) {
+            chart.addSeries({
+                yAxis: i,
+                name: data.data[i]["name"],
+                data: timeStampStr[i]
+            }, false);
+            chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+        }
+        if (data.data.length == 1)
+            chart.yAxis[i].setTitle({text: ""});
+        chart.redraw();
+    } else {
+        if (getCookie("id") == "Table")
+            //document.getElementById("Table").innerHTML = table;
+            fillTable(resp);
+        else {
+            // Remove all series data
+            while (chart.series.length > 0)
+                chart.series[0].remove(true);
+
+            for (var i = 0; i < data.data.length; i++) {
+                chart.addSeries({
+                    yAxis: i,
+                    name: data.data[i]["name"],
+                    data: timeStampStr[i]
+                }, false);
+                chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+            }
+            if (data.data.length == 1)
+                chart.yAxis[i].setTitle({text: ""});
+            chart.redraw();
+        }
     }
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor="default";
@@ -355,4 +377,20 @@ function exportTable(tableId) {
     downloadLink.download = "tabledata.csv";
     downloadLink.href = "data:application/csv,"+encodeURI(data);
     downloadLink.click();
+}
+var load=true;
+var startingNumber;
+function startingData(){
+    current="Graph";
+    var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
+    startingNumber=Math.floor((Math.random() * graphcheckboxes.length));
+    graphcheckboxes[startingNumber].click();
+    
+    var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
+    tablecheckboxes[startingNumber+1].checked=true;
+    current=getCookie("id");
+    if (getCookie("id") == "Table")
+                document.getElementById("TableTab").click();
+            else
+                document.getElementById("GraphTab").click();        
 }

@@ -28,7 +28,7 @@
         </noscript>
         <title>Dashboard</title>
     </head>
-    <body id="loader">
+    <body id="loader" onload="startingData();">
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
@@ -321,21 +321,21 @@
                 },
                 series: []
             });
-            for (var i = 0; i < data.data.length; i++) {
+            /*for (var i = 0; i < data.data.length; i++) {
                 chart.addSeries({
                     yAxis: i,
                     name: data.data[i]["name"],
                     data: timeStampStr
                 }, false);
                 chart.yAxis[i].setTitle({text: data.data[i]["name"]});
-            }
+            }*/
         </script>
         
         <script type="text/javascript">
             //document.getElementById("GraphTab").click();
-            if (getCookie("id") == "Table")
+            /*if (getCookie("id") == "Table")
                 document.getElementById("TableTab").click();
             else
-                document.getElementById("GraphTab").click();
+                document.getElementById("GraphTab").click();*/
         </script>
     </body>
