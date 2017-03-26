@@ -180,7 +180,7 @@
             var values = getDataValues(data);
             // Convert timestamps to string; HighCharts already defines a nice formatting one.
             for (i = 0; i < timeStamps.length; i++) {
-                timeStampStr.push([new Date(timeStamps[i]), values[0][i]]);
+                timeStampStr.push([timeStamps[i], values[0][i]]);
             }
 
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style

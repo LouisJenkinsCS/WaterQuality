@@ -139,7 +139,7 @@ function fetchData(json) {
     for (var i = 0; i < values.length; i++) {
         var arr = [];
         for (var j = 0; j < timeStamps.length; j++) {
-            arr.push([new Date(timeStamps[j]), values[i][j]]);
+            arr.push([timeStamps[j], values[i][j]]);
             console.log("Pushed: " + values[i][j]);
         }
         timeStampStr.push(arr);
