@@ -15,9 +15,6 @@ var selected = [];
 function fullCheck(id) {
     var item = document.getElementById(id);
     var it;
-    var startTime = new Date(document.getElementById("startdate").value).getTime();
-    var endTime = new Date(document.getElementById("enddate").value).getTime();
-    console.log("Start: " + startTime + " end: " + endTime);
     if (item.checked == true) {
         if (checkedBoxes < 2) {
             checkedBoxes++;
@@ -121,6 +118,10 @@ function openTab(evt, tabName) {
     document.getElementById(current + "_form").style.display = "block";
     //Sets a cookie so that the current tab can be remembered
     setCookie("id", current, 1);
+    if(current == "Table")
+        document.getElementById("exportbutton").style.display="block";
+    if(current == "Graph")
+        document.getElementById("exportbutton").style.display="none";
 }
 
 function fetchData(json) {
@@ -138,30 +139,54 @@ function fetchData(json) {
     for (var i = 0; i < values.length; i++) {
         var arr = [];
         for (var j = 0; j < timeStamps.length; j++) {
-            arr.push([new Date(timeStamps[j]), values[i][j]]);
+            arr.push([timeStamps[j], values[i][j]]);
             console.log("Pushed: " + values[i][j]);
         }
         timeStampStr.push(arr);
         console.log("Pushed: " + arr);
     }
-    if(getCookie("id") == "Table")
-        //document.getElementById("Table").innerHTML = table;
+    if (load == true) {
+        load = false;
         fillTable(resp);
-    else{
-    // Remove all series data
-    while (chart.series.length > 0)
-        chart.series[0].remove(true);
 
-    for (var i = 0; i < data.data.length; i++) {
-        chart.addSeries({
-            yAxis: i,
-            name: data.data[i]["name"],
-            data: timeStampStr[i]
-        }, false);
-        chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+        while (chart.series.length > 0)
+            chart.series[0].remove(true);
+
+        for (var i = 0; i < data.data.length; i++) {
+            chart.addSeries({
+                yAxis: i,
+                name: data.data[i]["name"],
+                data: timeStampStr[i]
+            }, false);
+            chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+        }
+        if (data.data.length == 1)
+            chart.yAxis[i].setTitle({text: ""});
+        chart.redraw();
+    } else {
+        if (getCookie("id") == "Table")
+            //document.getElementById("Table").innerHTML = table;
+            fillTable(resp);
+        else {
+            // Remove all series data
+            while (chart.series.length > 0)
+                chart.series[0].remove(true);
+
+            for (var i = 0; i < data.data.length; i++) {
+                chart.addSeries({
+                    yAxis: i,
+                    name: data.data[i]["name"],
+                    data: timeStampStr[i]
+                }, false);
+                chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+            }
+            if (data.data.length == 1)
+                chart.yAxis[i].setTitle({text: ""});
+            chart.redraw();
+        }
     }
-    chart.redraw();
-    }
+    //sets the cursor back to default after the graph/table is done being generated
+    document.getElementById("loader").style.cursor="default";
 }
 
 /**The <code>handleClick</code> function handles any and hall actions that need
@@ -180,23 +205,43 @@ function handleClick(cb)
 }
 
 function fetch() {
-    var startTime = new Date(document.getElementById("startdate").value).getTime();
-    var endTime = new Date(document.getElementById("enddate").value).getTime();
+    //makes the cursor show loading when graph/table is being generated 
+    document.getElementById("loader").style.cursor="progress";
+    if(current=="Graph"){
+        var startTime = new Date(document.getElementById("graph_start_date").value).getTime();
+        var endTime = new Date(document.getElementById("graph_end_date").value).getTime();
+    }
+    if(current=="Table"){
+        var startTime = new Date(document.getElementById("table_start_date").value).getTime();
+        var endTime = new Date(document.getElementById("table_end_date").value).getTime();
+    }
     var selected = [];
     if(current=="Graph")
         var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
-    else
+    if(current=="Table")
         var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
     console.log("Start: " + startTime + " end: " + endTime);
+    var numChecked=0;
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked == true) {
+            numChecked++;
             selected.push(Number(checkboxes[i].name));
         }
     }
-
+    
+    //checks if there are no data points selected
+    if(numChecked==0){
+        //if in the table tab the table will be set to null
+        if(current=="Table")
+            document.getElementById("dataTable").innerHTML=null;
+        //Returns the cursor to default so it doesnt get stuck on loading
+        document.getElementById("loader").style.cursor="default";
+        return;
+    }
+    
     var request = new DataRequest(startTime, endTime, selected);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
-
+    //document.getElementById("loader").style.cursor="default";
 }
 
 /**Sets the default dates for the date selectors
@@ -211,15 +256,18 @@ function setDate(date, id) {
 
 /**
  * Makes it so the date input fields can not be chosen for furture
- * dates. Also sets makes sure the <code>enddate</code> can not be a
- * date that is earlier than <code>startdate</code>
+ * dates. Also sets makes sure the ending dates can not be a
+ * date that is earlier than ending dates
  */
 function dateLimits() {
     var date = new Date();
     var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
-    document.getElementById("enddate").setAttribute("max", dateStr);
-    document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
-    document.getElementById("enddate").setAttribute("min", document.getElementById("startdate").value);
+    document.getElementById("graph_end_date").setAttribute("max", dateStr);
+    document.getElementById("graph_start_date").setAttribute("max", document.getElementById("graph_end_date").value);
+    document.getElementById("graph_end_date").setAttribute("min", document.getElementById("graph_start_date").value);
+    document.getElementById("table_end_date").setAttribute("max", dateStr);
+    document.getElementById("table_start_date").setAttribute("max", document.getElementById("table_end_date").value);
+    document.getElementById("table_end_date").setAttribute("min", document.getElementById("table_start_date").value);
 }
 
 function pad(num, size) {
@@ -327,10 +375,22 @@ function exportTable(tableId) {
     //creates a link to initiate a download of the csv formated data in a csv file
     var downloadLink = document.createElement("a");
     downloadLink.download = "tabledata.csv";
-    downloadLink.href = "data:application/csv," + escape(data);
+    downloadLink.href = "data:application/csv,"+encodeURI(data);
     downloadLink.click();
 }
-
-function exportGraph() {
-    chart.exportChartLocal();
+var load=true;
+var startingNumber;
+function startingData(){
+    current="Graph";
+    var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
+    startingNumber=Math.floor((Math.random() * graphcheckboxes.length));
+    graphcheckboxes[startingNumber].click();
+    
+    var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
+    tablecheckboxes[startingNumber+1].checked=true;
+    current=getCookie("id");
+    if (getCookie("id") == "Table")
+                document.getElementById("TableTab").click();
+            else
+                document.getElementById("GraphTab").click();        
 }

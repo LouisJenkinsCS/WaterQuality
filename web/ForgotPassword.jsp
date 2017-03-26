@@ -6,16 +6,16 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<link rel="stylesheet" href="./styles/generalStyles.css" type="text/css">
+	<link rel="stylesheet" href="./styles/loginScreen.css" type="text/css">
     </head>
     <body>
 	    
         <header class="title_bar_container">
             <div id="HeaderText">Reset Password Page</div>
         </header>
-        <img id="backPhoto" src="./images/backgroundImage.JPG"> <%--Sets the background--%>
+        <img id="backPhoto" src="./images/Creek3.jpeg"> <%--Sets the background--%>
            
-        <section class = "content_container" id = "small_container">
+        <section class = "content_container" id = "login_container">
 
             <header class = "content_title_bar" id="login_header"> 
                 <div class = "title" >
@@ -32,9 +32,9 @@
                 
                 Email Address: <input type="email" name="emailAddress"> 
                 <br>
-                <button type="submit" id="resetSubmit" value="Submit" class ="btn btn-4 btn-4d icon-submit" 
+                <button type="submit" id="resetSubmit" value="Submit" 
                         name="submit">Submit</button>
-                <button type="button" id="resetGoBack" class ="btn btn-4 btn-4d icon-arrow-left" name="goback" 
+                <button type="button" id="resetGoBack" name="goback" 
                         onclick="location.href='/WaterQuality/';">Cancel</button>
                 </div>
             </form>

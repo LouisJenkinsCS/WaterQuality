@@ -8,8 +8,8 @@ and open the template in the editor.
     Author     : Kevin
 */
 #HeaderText
-{
-    display: inline;
+{   
+    position:absolute;
     font-family: "Ariel", Helvetica, san-serif;
     font-weight: bold;    
     line-height: 50px;
@@ -59,16 +59,13 @@ th {
     height: 100%;
 }
 
-#Excel:hover{
-    cursor:pointer;
-}
-
 .title_bar_container{
     width: 100%;
     min-width: 1000px;
     text-align: center;
     height: 50px;
     background-color: #266B6B;
+    border-radius: 25px;
     margin-top: 0px;
     margin-right: 0px;
     margin-left: 0px;
@@ -154,8 +151,10 @@ description boxes */
 
 /* Styles the description box */
 #dashboard_data_description{
+    text-align:center;
     display:inline-block;
     margin:10px 10px 0px 10px;
+    padding-bottom:10px;
     min-width:600px;
     width:60%;
     font-family: "Ariel", Helvetica, san-serif;
@@ -221,7 +220,8 @@ input[type="button"]{
 }
 
 button:hover,input[type = "button"]:hover {
-    background: #5CB05C;
+    background-color: #5CB05C;
+    cursor:pointer;
 }
 
 
@@ -237,10 +237,7 @@ button:hover,input[type = "button"]:hover {
     color:white;
     width:auto;
     height:25px;   
-}
-
-#exportbutton:hover{
-    background: #5CB05C;
+    display:none;
 }
 
 .data_type_submit{
@@ -269,4 +266,31 @@ button:hover,input[type = "button"]:hover {
 #Graph{
     width:auto;
     min-width: 57.7%;
+}
+
+#Login_Button{
+    float:right;
+    margin-right: 25px;
+    position:relative;
+    border: 0;
+    width: 100px;
+    height:50px;
+    background-color: #266B6B;
+    margin-bottom:10px;
+    font-family: "Ariel", Helvetica, san-serif;
+    font-size: 100%;
+    font-weight: bold;
+    color:white;
+}
+
+#Login_Button:hover{
+    background-color:#5CB05C;
+}
+
+input[type="checkbox"]:hover, input[type="datetime-local"]:hover{
+    cursor:pointer;
+}
+
+#loader{
+    cursor:default;
 }

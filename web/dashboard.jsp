@@ -28,10 +28,13 @@
         </noscript>
         <title>Dashboard</title>
     </head>
-    <body onload=>
+    <body id="loader" onload="startingData();">
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
+            <a href="loginScreen.jsp">
+            <button id="Login_Button">Login</button>
+            </a>
         </header>
         <section class = "content_container1" id = "dashboard_container">
             <header class = "content_title_bar" id="login_header">
@@ -52,10 +55,12 @@
                                 console.log('SUCCESS');
                             });"
                            id="TableTab">Table</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Bayesian');"
+                           id="BayesianTab">Bayesian</a></li>
                     <li>
-                        <form><input id="exportbutton" type="button" value="Export" 
-                                     onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}
-                                     if(getCookie('id') == 'Graph'){exportGraph();}"></form>
+                        <button id="exportbutton"
+                            onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}">
+                            Export</button>
                     </li>
                 </ul>
                 <div id="Graph" class="tabcontent">
@@ -65,7 +70,7 @@
                         
                     </table>
                 </div>
-                <div id="Export" class="tabcontent">
+                <div id="Bayesian" class="tabcontent">
                 </div>
             </section>
 
@@ -84,10 +89,10 @@
                     </br>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="startdate" name="startdate"type="datetime-local" min="" max="">
+                        <input class="dateselector" id="graph_start_date" name="graph_start_date"type="datetime-local" min="" max="">
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="enddate" name="enddate" type="datetime-local" min="" max="">
+                        <input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">
                     </div>
                     ${Parameters}
                     <br>
@@ -101,18 +106,24 @@
                     </br>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="startdate2" name="startdate"type="datetime-local" min="" max="">
+                        <input class="dateselector" id="table_start_date" name="table_start_date"type="datetime-local" min="" max="">
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="enddate2" name="enddate" type="datetime-local" min="" max="">
+                        <input class="dateselector" id="table_end_date" name="table_start_date" type="datetime-local" min="" max="">
                     </div>
                     <div id="select_all_div">
-                        <input type="checkbox" onclick="toggle();"id="select_all_box" value="select_all_data">
+                        <input type="checkbox" onclick="toggle(); fetch();"id="select_all_box" value="select_all_data">
                         Select all
                     </div><br>
                         ${Parameters}
                     <br>
                     <div class="data_type_submit" id="Table_submit">
+                        <input type="button" value="Table" onclick="fetch()">
+                    </div>
+                    <input type="hidden" name="control" value ="Table">
+                </form>
+                <form class="data_type_form" id="BayesianForm">
+                    div class="data_type_submit" id="Table_submit">
                         <input type="button" value="Table" onclick="fetch()">
                     </div>
                     <input type="hidden" name="control" value ="Table">
@@ -154,17 +165,12 @@
             end.setSeconds(0);
             start.setSeconds(0);
             start.setMonth(start.getMonth() - 1);
-            setDate(end, "enddate");
-            setDate(start, "startdate");
-            setDate(end, "enddate2");
-            setDate(start, "startdate2");            
+            setDate(end, "graph_end_date");
+            setDate(start, "graph_start_date");
+            setDate(end, "table_end_date");
+            setDate(start, "table_start_date");            
         </script>
             
-        <script>
-            function exportData(id){
-                document.write(id);
-            }
-        </script>
         <script>
             // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
             var data = new DataResponse(${ChartData});
@@ -174,7 +180,7 @@
             var values = getDataValues(data);
             // Convert timestamps to string; HighCharts already defines a nice formatting one.
             for (i = 0; i < timeStamps.length; i++) {
-                timeStampStr.push([new Date(timeStamps[i]), values[0][i]]);
+                timeStampStr.push([timeStamps[i], values[0][i]]);
             }
 
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
@@ -249,8 +255,9 @@
             // Setup chart, the data will be fed from the servlet through JSP (temporary)
             var chart = Highcharts.chart('Graph', {
                 exporting: {
-                    enabled:false,
-                    /*chartOptions: { // specific options for the exported image
+                    enabled:true,
+                    buttons:{contextButton:{align:"left"}},
+                    chartOptions: { // specific options for the exported image
                         plotOptions: {
                             series: {
                                 dataLabels: {
@@ -258,8 +265,8 @@
                                 }
                             }
                         }
-                    },*/
-                    //fallbackToExportServer: false
+                    },
+                    fallbackToExportServer: false
                 },
                 title: {
                     text: 'Water Creek Parameter Values',
@@ -314,21 +321,21 @@
                 },
                 series: []
             });
-            for (var i = 0; i < data.data.length; i++) {
+            /*for (var i = 0; i < data.data.length; i++) {
                 chart.addSeries({
                     yAxis: i,
                     name: data.data[i]["name"],
                     data: timeStampStr
                 }, false);
                 chart.yAxis[i].setTitle({text: data.data[i]["name"]});
-            }
+            }*/
         </script>
         
         <script type="text/javascript">
             //document.getElementById("GraphTab").click();
-            if (getCookie("id") == "Table")
+            /*if (getCookie("id") == "Table")
                 document.getElementById("TableTab").click();
             else
-                document.getElementById("GraphTab").click();
+                document.getElementById("GraphTab").click();*/
         </script>
     </body>
