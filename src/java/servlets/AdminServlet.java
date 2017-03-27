@@ -346,8 +346,8 @@ static {
                         wrappedParam.put("entryID", param.getEntryID());
                         wrappedParam.put("name", param.getName());
                         wrappedParam.put("submittedBy", param.getSensor());
-                        wrappedParam.put("date", param.getTime().toLocalDate());
-                        wrappedParam.put("time", param.getTime().toLocalTime());
+                        wrappedParam.put("date", param.getTime().toLocalDate() + "");
+                        wrappedParam.put("time", param.getTime().toLocalTime() + "");
                         wrappedParam.put("value", param.getValue());
                         return wrappedParam;
                     })
