@@ -72,10 +72,11 @@ index d4d0ed2..daae634 100644
          }
          catch (Exception ex)//SQLException ex 
 -        {
--            LogError("Error creating Error Logs Table: " + ex);
+-            LogError("Error creating Error Logs Table: " + ex.printStackTrace());
 +        {   
 +            // L.J: Changed as you can't use LogError if the log table isn't setup
-+            System.out.println("Error creating Error Logs Table: " + ex.getMessage());
++            System.out.println("Error creating Error Logs Table: " + ex);
+             ex.printStackTrace();
          }
          finally
          {

@@ -279,7 +279,8 @@ public class DatabaseManager
         catch (Exception ex)//SQLException ex 
         {   
             // L.J: Changed as you can't use LogError if the log table isn't setup
-            System.out.println("Error creating Error Logs Table: " + ex.getMessage());
+            System.out.println("Error creating Error Logs Table: " + ex);
+            ex.printStackTrace();
         }
         finally
         {
