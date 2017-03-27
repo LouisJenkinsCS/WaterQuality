@@ -55,6 +55,7 @@ static {
         session.setAttribute("user", new common.User());
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
+        log("Action is: " + action);
         
         DatabaseManager.init();
         /*

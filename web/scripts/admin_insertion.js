@@ -37,6 +37,7 @@ function loadInsert()
 
     get("AdminServlet", getRequest, function (response)
     {
+        debugger
         console.log(response);
         console.log("Connection made!" + response);
         var parameter_names = JSON.parse(response)["data"];
@@ -52,7 +53,7 @@ function loadInsert()
         console.log("Parameter names: " + parameter_names);
         console.log("Item: " + item["name"]);
 
-        createNewInput();//get() is non-blocking, so moving createNewInput()
+        //createNewInput();//get() is non-blocking, so moving createNewInput()
         //outside of this block {} of code will cause it to display before
         //options_params has been initialilzed.
     });

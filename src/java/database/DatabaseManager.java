@@ -56,12 +56,11 @@ public class DatabaseManager
             // A weak compare and swap is used to help with potential memory contention in the case it is not initialized.
             if (status == DATABASE_UNINITIALIZED && INIT_STATE.weakCompareAndSet(DATABASE_UNINITIALIZED, DATABASE_INITIALIZING)) {
                 DatabaseManager.createErrorLogsTable();
+                DatabaseManager.createDataDescriptionTable();
                 DatabaseManager.createDataValueTable();
                 DatabaseManager.createManualDataValueTable();
-                DatabaseManager.createDataValueTable();
                 DatabaseManager.createManualDataNamesTable();
                 DatabaseManager.createUserTable();
-                
                 // Need to fill parameter table as this is potentially first time running
                 // At least on the actual server...
                 DataReceiver.getParameters().map(DataParameter::getName).subscribeOn(Schedulers.io()).blockingSubscribe(DatabaseManager::insertDataName);
