@@ -120,7 +120,7 @@ function openTab(evt, tabName) {
     setCookie("id", current, 1);
     if(current == "Table")
         document.getElementById("exportbutton").style.display="block";
-    if(current == "Graph")
+    else
         document.getElementById("exportbutton").style.display="none";
 }
 
@@ -145,8 +145,11 @@ function fetchData(json) {
         timeStampStr.push(arr);
         console.log("Pushed: " + arr);
     }
+    
+    //If this page is being loaded/refreshed it will run through the if
+    //otherwise it goes to the else for normal page operation
     if (load == true) {
-        load = false;
+        load = false;//Sets <code>load</code> to false to continue normal operations
         fillTable(resp);
 
         while (chart.series.length > 0)
@@ -270,6 +273,18 @@ function dateLimits() {
     document.getElementById("table_end_date").setAttribute("min", document.getElementById("table_start_date").value);
 }
 
+function setBayesianDate(date,id){
+    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate()-1, 2);
+    document.getElementById(id).value = dateStr;
+}
+
+function bayesianDateLimits(){
+    var date = new Date();
+    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate()-1, 2);
+    
+    document.getElementById("bayesian_day").setAttribute("max",dateStr);
+}
+
 function pad(num, size) {
     var s = num + "";
     while (s.length < size)
@@ -378,19 +393,29 @@ function exportTable(tableId) {
     downloadLink.href = "data:application/csv,"+encodeURI(data);
     downloadLink.click();
 }
+
+//<code>load</code> makes sure that when the page is newly loaded it will do a
+//special action in the <code>fetchDataFunction</code> allowing it to generate
+//botht he table and the graph
 var load=true;
-var startingNumber;
+/**The <code>startingData()</code> function generates both the table and the graph
+ * on load/refresh of a page by using the same randomly generated data type
+ */
 function startingData(){
     current="Graph";
     var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
-    startingNumber=Math.floor((Math.random() * graphcheckboxes.length));
+    var startingNumber=Math.floor((Math.random() * graphcheckboxes.length));
     graphcheckboxes[startingNumber].click();
     
     var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
     tablecheckboxes[startingNumber+1].checked=true;
     current=getCookie("id");
     if (getCookie("id") == "Table")
-                document.getElementById("TableTab").click();
-            else
-                document.getElementById("GraphTab").click();        
+        document.getElementById("TableTab").click();
+    else{
+        if(getCookie("id") == "Bayesian")
+            document.getElementById("BayesianTab").click();
+        else
+            document.getElementById("GraphTab").click();
+    }
 }
