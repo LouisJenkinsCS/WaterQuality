@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -40,18 +41,23 @@ import utilities.FileUtils;
 public class AdminServlet extends HttpServlet {
     
 private static final JSONObject BAD_REQUEST = new JSONObject();
+
 static {
     BAD_REQUEST.put("status", "Generic Error...");
 }
+
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         final Object lock = session.getId().intern();
         session.setAttribute("user", new common.User());
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
+        log("Action is: " + action);
         
+        DatabaseManager.init();
         /*
             Admin is manually inputting data into the ManualDataValues table
         
@@ -294,6 +300,7 @@ static {
                         root.put("data", data);
                         return root;
                     })
+                    .defaultIfEmpty(BAD_REQUEST)
                     .blockingSubscribe((JSONObject resp) -> { 
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -481,4 +488,6 @@ static {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+    
+    
 }

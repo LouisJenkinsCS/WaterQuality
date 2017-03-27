@@ -20,6 +20,9 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,14 +34,58 @@ import security.SecurityCode;
  */
 public class DatabaseManager 
 {
-    static {
-        createDataValueTable();
-        createManualDataValueTable();
-        DatabaseManager.createDataValueTable();
-        DatabaseManager.createErrorLogsTable();
-        DatabaseManager.createManualDataNamesTable();
-        DatabaseManager.createUserTable();
-        DataReceiver.getParameters().map(DataParameter::getName).subscribeOn(Schedulers.io()).blockingSubscribe(DatabaseManager::insertDataName);
+    // TODO: Make this more elegant. Database needs to be initialized when first setup, 
+    // but we cannot setup the database until AFTER the servlet has begun running ore we get
+    // an 'Allocate' exception. So we need to have a Test-and-Test-and-Set type of initializer
+    // loop. This MUST be refactored before production. - L.J
+    // TYLER: DO NOT DELETE THIS, PLEASE ACTUALLY CHECK WHAT NEEDS TO BE MERGED AND DO NOT DISCARD
+    // CHANGES TO THIS FILE THAT ARE NOT YOUR OWN.
+    private static final int DATABASE_UNINITIALIZED = 2;
+    private static final int DATABASE_INITIALIZING = 1;
+    private static final int DATABASE_INITIALIZED = 0; 
+    private static AtomicInteger INIT_STATE = new AtomicInteger(DATABASE_UNINITIALIZED); 
+    
+    /**
+     * Initialization function that ensures it is initialized only once and that any
+     * race conditions are satisfied by checking the INIT_STATE; if it it currently being
+     * initialized it is not safe to proceed, so they spin and wait anyway. 
+     */
+    public static void init() {
+        int status;
+        // Database is not initialized yet
+        while ((status = INIT_STATE.get()) != DATABASE_INITIALIZED) {
+            // If we're the lucky thread to be selected, initialize.
+            // A weak compare and swap is used to help with potential memory contention in the case it is not initialized.
+            if (status == DATABASE_UNINITIALIZED && INIT_STATE.weakCompareAndSet(DATABASE_UNINITIALIZED, DATABASE_INITIALIZING)) {
+                System.out.println("Setting up Database...");
+                DatabaseManager.createErrorLogsTable();
+                DatabaseManager.createDataDescriptionTable();
+                DatabaseManager.createDataValueTable();
+                DatabaseManager.createManualDataValueTable();
+                DatabaseManager.createManualDataNamesTable();
+                DatabaseManager.createUserTable();
+                // Need to fill parameter table as this is potentially first time running
+                // At least on the actual server...
+                DataReceiver.getParameters().map(DataParameter::getName).blockingSubscribe(DatabaseManager::insertDataName);
+                
+                System.out.println("Setting up...");
+                // Alert spinning threads...
+                INIT_STATE.set(DATABASE_INITIALIZED);
+            } else if (status == DATABASE_INITIALIZING) { // We are spinning waiting for initialization
+                // Spin becuase we have to wait anyway...
+                int spins = 0;
+                while (INIT_STATE.get() != DATABASE_INITIALIZED) { 
+                    spins++;
+                    System.out.println(Thread.currentThread().getName() + ": " + spins + " spins..."); 
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+}
+            }
+        }
+        
     }
     /*
         Creates the data value table
@@ -145,7 +192,7 @@ public class DatabaseManager
                     + ");";
             createTable.executeUpdate(createSQL);
         }
-        catch (Exception ex)//SQLException ex 
+        catch (SQLException ex)//SQLException ex 
         {
             LogError("Error creating Data Description Table: " + ex);
         }
@@ -230,8 +277,10 @@ public class DatabaseManager
             createTable.execute(createSQL);
         }
         catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error creating Error Logs Table: " + ex);
+        {   
+            // L.J: Changed as you can't use LogError if the log table isn't setup
+            System.out.println("Error creating Error Logs Table: " + ex);
+            ex.printStackTrace();
         }
         finally
         {
@@ -242,6 +291,7 @@ public class DatabaseManager
             }
             catch(SQLException e)
             {
+                // L.J: Changed as you can't use LogError if the log table isn't setup
                 LogError("Error closing statement: " + e);
             }
         }
