@@ -37,23 +37,22 @@ function loadInsert()
 
     get("AdminServlet", getRequest, function (response)
     {
-        debugger
-        console.log(response);
-        console.log("Connection made!" + response);
+        //console.log(response);
+        //console.log("Connection made!" + response);
         var parameter_names = JSON.parse(response)["data"];
         for (var i = 0; i < parameter_names.length; i++)
         {
             options_params += '<option>';
             var item = parameter_names[i];
-            console.log(item["name"]);
+            //console.log(item["name"]);
             options_params += item["name"];
             options_params += '</option>';
         }
 
-        console.log("Parameter names: " + parameter_names);
-        console.log("Item: " + item["name"]);
+        //console.log("Parameter names: " + parameter_names);
+        //console.log("Item: " + item["name"]);
         
-            console.log("Parameter names: " + options_params);
+        //console.log("Parameter names: " + options_params);
 
         //createNewInput();//get() is non-blocking, so moving createNewInput()
         //outside of this block {} of code will cause it to display before
@@ -143,8 +142,8 @@ function submitInput()
         var time = "";
 
         var inputRequest = {action: 'InputData', dataName: '',
-            units: '', time: '',
-            value: '', id: '126',
+            units: 'test', time: '',
+            value: '', id: '789',
             inputStatus: ''};
 
         var $dataName = $(this).find("select").val();
@@ -174,8 +173,8 @@ function submitInput()
         inputRequest['time'] = ms;
         
         post("AdminServlet", inputRequest, function (resp) {
-            console.log("Entry: " + JSON.stringify(inputRequest));
-            alert(inputRequest['inputStatus']);
+            //console.log("Entry: " + JSON.stringify(inputRequest));
+            //console.log("inputStatus: " + inputRequest['inputStatus']);
         });
 
     });

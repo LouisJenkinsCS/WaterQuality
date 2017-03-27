@@ -76,23 +76,28 @@ static {
                     admin);
                 if (inputStatus) 
                 {
+                    System.out.println("GOT HERE 1");
                     request.setAttribute("inputStatus", "Data Input Successful");
                 } 
                 else 
                 {
+                    System.out.println("GOT HERE 2");
                     request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
                 }
             }
             catch(DateTimeParseException e)
             {
+                System.out.println("GOT HERE 3");
                 request.setAttribute("inputStatus","Invalid Format on Time");
             }
             catch(NumberFormatException e)
             {
+                System.out.println("GOT HERE 4");
                 request.setAttribute("inputStatus","Value or ID is not a valid number");
             }
             catch(Exception e)
             {
+                System.out.println("GOT HERE 5");
                 request.setAttribute("inputStatus","Extraneous Error: Are all the text fields not empty?");
             }
             
@@ -282,6 +287,40 @@ static {
             Observable.just(0)
                     .subscribeOn(Schedulers.io())
                     .map(_ignored -> DatabaseManager.getManualDataNames())
+                    .observeOn(Schedulers.computation())
+                    .flatMap(Observable::fromIterable)
+                    .map((String name) -> {
+                        JSONObject wrappedName = new JSONObject();
+                        wrappedName.put("name", name);
+                        return wrappedName;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map((List<JSONObject> data) -> {
+                        JSONArray wrappedData = new JSONArray();
+                        wrappedData.addAll(data);
+                        return wrappedData;
+                    })
+                    .map((JSONArray data) -> {
+                        JSONObject root = new JSONObject();
+                        root.put("data", data);
+                        return root;
+                    })
+                    .defaultIfEmpty(BAD_REQUEST)
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+                                        
+            /*
+            //We'll change to use this next group meeting
+            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            */
+        }
+        else if (action.trim().equalsIgnoreCase("getSensorItems")) 
+        {
+            Observable.just(0)
+                    .subscribeOn(Schedulers.io())
+                    .map(_ignored -> DatabaseManager.getDataNames())
                     .observeOn(Schedulers.computation())
                     .flatMap(Observable::fromIterable)
                     .map((String name) -> {
