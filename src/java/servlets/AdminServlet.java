@@ -300,6 +300,7 @@ static {
                         root.put("data", data);
                         return root;
                     })
+                    .defaultIfEmpty(BAD_REQUEST)
                     .blockingSubscribe((JSONObject resp) -> { 
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");

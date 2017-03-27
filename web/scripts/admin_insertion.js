@@ -52,12 +52,14 @@ function loadInsert()
 
         console.log("Parameter names: " + parameter_names);
         console.log("Item: " + item["name"]);
+        
+            console.log("Parameter names: " + options_params);
 
         //createNewInput();//get() is non-blocking, so moving createNewInput()
         //outside of this block {} of code will cause it to display before
         //options_params has been initialilzed.
     });
-    
+
 
 //This creates the browse area, then fires off the function createNewInput,
 //then puts a button below for adding more data entry areas

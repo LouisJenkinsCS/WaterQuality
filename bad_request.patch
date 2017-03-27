@@ -1,0 +1,68 @@
+diff --git a/src/java/database/DatabaseManager.java b/src/java/database/DatabaseManager.java
+index 43bd57a..3bc5685 100644
+--- a/src/java/database/DatabaseManager.java
++++ b/src/java/database/DatabaseManager.java
+@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ import java.util.concurrent.atomic.AtomicInteger;
++import java.util.logging.Level;
++import java.util.logging.Logger;
+ import org.json.simple.JSONArray;
+ import org.json.simple.JSONObject;
+ import org.json.simple.parser.JSONParser;
+@@ -55,6 +57,7 @@ public class DatabaseManager
+             // If we're the lucky thread to be selected, initialize.
+             // A weak compare and swap is used to help with potential memory contention in the case it is not initialized.
+             if (status == DATABASE_UNINITIALIZED && INIT_STATE.weakCompareAndSet(DATABASE_UNINITIALIZED, DATABASE_INITIALIZING)) {
++                System.out.println("Setting up Database...");
+                 DatabaseManager.createErrorLogsTable();
+                 DatabaseManager.createDataDescriptionTable();
+                 DatabaseManager.createDataValueTable();
+@@ -63,13 +66,23 @@ public class DatabaseManager
+                 DatabaseManager.createUserTable();
+                 // Need to fill parameter table as this is potentially first time running
+                 // At least on the actual server...
+-                DataReceiver.getParameters().map(DataParameter::getName).subscribeOn(Schedulers.io()).blockingSubscribe(DatabaseManager::insertDataName);
++                DataReceiver.getParameters().map(DataParameter::getName).blockingSubscribe(DatabaseManager::insertDataName);
+                 
++                System.out.println("Setting up...");
+                 // Alert spinning threads...
+                 INIT_STATE.set(DATABASE_INITIALIZED);
+             } else if (status == DATABASE_INITIALIZING) { // We are spinning waiting for initialization
+                 // Spin becuase we have to wait anyway...
+-                while (INIT_STATE.get() != DATABASE_INITIALIZED) { }
++                int spins = 0;
++                while (INIT_STATE.get() != DATABASE_INITIALIZED) { 
++                    spins++;
++                    System.out.println(Thread.currentThread().getName() + ": " + spins + " spins..."); 
++                    try {
++                        Thread.sleep(1000);
++                    } catch (InterruptedException ex) {
++                        Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
++                    }
++}
+             }
+         }
+         
+@@ -179,7 +192,7 @@ public class DatabaseManager
+                     + ");";
+             createTable.executeUpdate(createSQL);
+         }
+-        catch (Exception ex)//SQLException ex 
++        catch (SQLException ex)//SQLException ex 
+         {
+             LogError("Error creating Data Description Table: " + ex);
+         }
+diff --git a/src/java/servlets/AdminServlet.java b/src/java/servlets/AdminServlet.java
+index 6b8e112..cb04055 100644
+--- a/src/java/servlets/AdminServlet.java
++++ b/src/java/servlets/AdminServlet.java
+@@ -300,6 +300,7 @@ static {
+                         root.put("data", data);
+                         return root;
+                     })
++                    .defaultIfEmpty(BAD_REQUEST)
+                     .blockingSubscribe((JSONObject resp) -> { 
+                         response.getWriter().append(resp.toJSONString());
+                         System.out.println("Sent response...");

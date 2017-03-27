@@ -67,7 +67,8 @@ Current bugs:
             <!--Admin insertion-->
             <admincontent id="Input_Data" class="tab_content">
                 <script>loadInsert();
-                $().ready(createNewInput());</script>
+                //$().ready(createNewInput());
+            </script>
                 <!--Input Tab defined in admin_insertion.js-->
             </admincontent>
 
