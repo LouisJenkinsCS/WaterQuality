@@ -6,6 +6,7 @@
 //This function simply pulls the AJAX_magic.js script
 //to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
+$.getScript("scripts/general.js", function () {});
 
 //del_options will hold the retrieved data names from
 //the table ManualDataNames
@@ -68,7 +69,8 @@ function loadDelete()
         //console.log("Parameter names: " + param_names);
         //console.log("Entry name: " + entry_name["name"]);
         console.log("del_options" + del_options);
-
+        
+        
         var today = new Date();
         var date = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
         var time = today.toLocaleTimeString();
@@ -80,11 +82,9 @@ function loadDelete()
         $('#Delete_Data').append(
                 '<div class="large_text">Time Frame:</div>' +
                 '<div id="dateInstructDiv">Date Range:</div>' +
-                '<input class="dateselector" id="delete_startdate" placeholder="' + date + '"> to ' +
-                '<input class="dateselector" id="delete_enddate" placeholder="' + date + '"></div>' +
+                '<input class="dateselector" id="delete_startdate" type="datetime-local" placeholder="' + date + '"> to ' +
+                '<input class="dateselector" id="delete_enddate" type="datetime-local" placeholder="' + date + '"></div>' +
                 '<div id="dateInstructDiv">Time Range:</div>' +
-                '<input class="dateselector" id="delete_starttime" placeholder="' + time + '"> to ' +
-                '<input class="dateselector" id="delete_endtime" placeholder="' + time + '"></div>' +
                 '<div class="large_text">Parameter to delete:</div>' +
                 '<select id="delete_param">' + del_options +
                 '</select><br/><br/>' +
@@ -95,6 +95,15 @@ function loadDelete()
                 '</table><br/>' +
                 '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
                 );
+        
+        
+        var end = new Date();
+        var start = new Date();
+        end.setSeconds(0);
+        start.setSeconds(0);
+        start.setMonth(start.getMonth() - 1);
+        setDate(end, "delete_enddate");
+        setDate(start, "delete_startdate");
     });});
 }
 
@@ -111,17 +120,18 @@ function filterData() {
 
     //The entered/selected parameters are stored
     var $paramName = $('#delete_param').val();
-    var $deleteStartDate = $('#delete_startdate').val();
-    var $deleteEndDate = $('#delete_enddate').val();
+    var $deleteStartDate = new Date($('#delete_startdate').val()).getTime();
+    var $deleteEndDate = new Date($('#delete_enddate').val()).getTime();
     var $deleteStartTime = $('#delete_starttime').val();
     var $deleteEndTime = $('#delete_endtime').val();
+    
 
     var filterRequest = {action: 'getFilteredData',
-        parameter: '$paramName',
-        startDate: '$deleteStartDate',
-        endDate: '$deleteEndDate',
-        startTime: '$deleteStartTime',
-        endTime: '$deleteEndTime'};
+        parameter: $paramName,
+        startDate: $deleteStartDate,
+        endDate: $deleteEndDate,
+        startTime: $deleteStartTime,
+        endTime: $deleteEndTime};
 
     /*
      * Dr. Jones has requested that the user be shown the date and time
