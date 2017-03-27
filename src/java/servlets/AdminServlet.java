@@ -68,38 +68,7 @@ static {
         */
         if (action.trim().equalsIgnoreCase("InputData")) 
         {
-            try
-            { 
-                boolean inputStatus = DatabaseManager.manualInput((String) request.getParameter("dataName"),
-                    (String) request.getParameter("units"), LocalDateTime.parse((String) request.getParameter("time")),
-                    Float.parseFloat((String) request.getParameter("value")), Integer.parseInt((String) request.getParameter("id")), 
-                    admin);
-                if (inputStatus) 
-                {
-                    System.out.println("GOT HERE 1");
-                    request.setAttribute("inputStatus", "Data Input Successful");
-                } 
-                else 
-                {
-                    System.out.println("GOT HERE 2");
-                    request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
-                }
-            }
-            catch(DateTimeParseException e)
-            {
-                System.out.println("GOT HERE 3");
-                request.setAttribute("inputStatus","Invalid Format on Time");
-            }
-            catch(NumberFormatException e)
-            {
-                System.out.println("GOT HERE 4");
-                request.setAttribute("inputStatus","Value or ID is not a valid number");
-            }
-            catch(Exception e)
-            {
-                System.out.println("GOT HERE 5");
-                request.setAttribute("inputStatus","Extraneous Error: Are all the text fields not empty?");
-            }
+            String dataName = request.getParameter("dataName");
             
         } 
         
