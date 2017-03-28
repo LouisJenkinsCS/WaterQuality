@@ -7,6 +7,7 @@
 //to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
 $.getScript("scripts/general.js", function () {});
+$.getScript("scripts/datetimepicker.js", function () {});
 
 //del_options will hold the retrieved data names from
 //the table ManualDataNames
@@ -81,9 +82,12 @@ function loadDelete()
         //they may choose from.
         $('#Delete_Data').append(
                 '<div class="large_text">Time Frame:</div>' +
-                '<div id="dateInstructDiv">Date Range:</div>' +
-                '<input class="dateselector" id="delete_startdate" type="datetime-local" placeholder="' + date + '"> to ' +
-                '<input class="dateselector" id="delete_enddate" type="datetime-local" placeholder="' + date + '"></div><br/><br/>' +
+                '<div id="dateInstructDiv">Start Date:</div>' +
+                '<input  id="delete_startdate" type="text"> ' +
+                '<input id="delete_starttime" type="text"></div>' +
+                '<div id="dateInstructDiv">End Date:</div>' +
+                '<input class="dateselector" id="delete_enddate" type="text"> ' +
+                '<input class="dateselector" id="delete_endtime" type="text"></div>' +
                 '<div class="large_text">Parameter to delete:</div>' +
                 '<select id="delete_param">' + del_options +
                 '</select><br/><br/>' +
@@ -95,15 +99,30 @@ function loadDelete()
                 '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
                 );
         
-        
-        var end = new Date();
-        var start = new Date();
-        end.setSeconds(0);
-        start.setSeconds(0);
-        start.setMonth(start.getMonth() - 1);
-        setDate(end, "delete_enddate");
-        setDate(start, "delete_startdate");
-    });});
+
+        $( function() {
+            var date = new Date();
+//            $( "#delete_endtime" ).timepicker();
+//            $( "#delete_starttime" ).timepicker();
+            $( "#delete_enddate" ).datetimepicker({
+                controlType: 'select',
+                oneLine: true,
+                timeFormat: 'hh:mm tt',
+                altField: "#delete_endtime"
+            })
+            .datepicker("setDate", date);
+            
+            date.setMonth(date.getMonth() - 1);
+            $( "#delete_startdate" ).datetimepicker({
+                    controlType: 'select',
+                    oneLine: true,
+                    timeFormat: 'hh:mm tt',
+                    altField: "#delete_starttime"
+            })
+            .datepicker("setDate", date);
+        });
+    });
+});
 }
 
 /**
@@ -161,7 +180,12 @@ function filterData() {
      * 
      */
     post("AdminServlet", filterRequest, function (resp) {
+        if (resp.hasOwnProperty("status")) {
+            window.alert("Error Fetching Data from AdminServlet...\nError: \"" + resp.status + "\"");
+            return;
+        }
         var data = JSON.parse(resp)["data"];
+        var htmlstring = "";
         for (var i = 0; i < data.length; i++)
         {
             var item = data[i];
@@ -174,11 +198,10 @@ function filterData() {
             htmlstring += '<td><input type="checkbox" name="data_select" id=' + item["entryID"] + '></td>';
             htmlstring += '</tr>';
         }
-
-        console.log('Stringified' + JSON.stringify(items));
+        $('#deletion_space').append(htmlstring);
     });
 
-    $('#deletion_space').append(htmlstring);
+    
 }
 
 /**
