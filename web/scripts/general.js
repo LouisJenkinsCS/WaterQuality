@@ -30,35 +30,19 @@
  */
 
 
-/*
- * This file contains types for the protocol used to communicate between JSP and Servlet.
+/**Sets the default dates for the date selectors
+ * @param {type} date
+ * @param {type} id
  */
-
-function DataRequest(startTime, endTime, parameters) {
-    this.startTime = startTime;
-    this.endTime = endTime;
-    this.params = parameters;
+function setDate(date, id) {
+    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1)%60, 2) + ":" + pad(0, 2);
+    document.getElementById(id).value = dateStr;
+    console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
 }
 
-DataRequest.prototype = {
-    
-};
-
-function DataResponse(json) {
-    if (typeof json != "object") {
-        json = JSON.parse(json);
-    } 
-    console.log(json);
-    // Obtain data from response as JSONArray
-    this.data = json["resp"];
-    this.table = json["table"];
-    this.description = json["descriptions"];
-    console.log(this.data);
-    for (var i = 0; i < this.data.length; i++) {
-        console.log("Parsed: " + this.data[i]["name"] + " with " + this.data[i]["data"].length + " items...");
-    }
+function pad(num, size) {
+    var s = num + "";
+    while (s.length < size)
+        s = "0" + s;
+    return s;
 }
-
-DataResponse.prototype = {
-    
-};
