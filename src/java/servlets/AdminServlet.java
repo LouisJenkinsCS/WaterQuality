@@ -8,12 +8,18 @@ package servlets;
 import common.UserRole;
 import database.DatabaseManager;
 import static database.DatabaseManager.LogError;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -33,52 +39,36 @@ import utilities.FileUtils;
  */
 @WebServlet(name = "AdminServlet", urlPatterns = {"/AdminServlet"})
 public class AdminServlet extends HttpServlet {
+    
+private static final JSONObject BAD_REQUEST = new JSONObject();
 
+static {
+    BAD_REQUEST.put("status", "Generic Error...");
+}
+
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        
         HttpSession session = request.getSession(true);//Create a new session if one does not exists
         final Object lock = session.getId().intern();
         session.setAttribute("user", new common.User());
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
+        log("Action is: " + action);
         
+        DatabaseManager.init();
         /*
             Admin is manually inputting data into the ManualDataValues table
         
             If data is parsed and the input succeeds or fails, inputstatus is set
-            If the data fails to parse, inputstatus will be set with various
-            possible things that could go wrong
+            If the data fails to parse, input status will remain null so check
+            if dateStatus, numberStatus, and etcStatus if they are not null and
+            print whatever isn't null so the user can see what they did wrong.
         */
         if (action.trim().equalsIgnoreCase("InputData")) 
         {
-            try
-            { 
-                boolean inputStatus = DatabaseManager.manualInput((String) request.getParameter("dataName"),
-                    (String) request.getParameter("units"), LocalDateTime.parse((String) request.getParameter("time")),
-                    Float.parseFloat((String) request.getParameter("value")), Integer.parseInt((String) request.getParameter("id")), 
-                    admin);
-                if (inputStatus) 
-                {
-                    request.setAttribute("inputStatus", "Data Input Successful");
-                } 
-                else 
-                {
-                    request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
-                }
-            }
-            catch(DateTimeParseException e)
-            {
-                request.setAttribute("inputStatus","Invalid Format on Time");
-            }
-            catch(NumberFormatException e)
-            {
-                request.setAttribute("inputStatus","Value or ID is not a valid number");
-            }
-            catch(Exception e)
-            {
-                request.setAttribute("inputStatus","Extraneous Error: Are all the text fields not empty?");
-            }
+            String dataName = request.getParameter("dataName");
             
         } 
         
@@ -87,9 +77,9 @@ public class AdminServlet extends HttpServlet {
             
             If the deletion succeeds or fails without causing an error, 
             dataDeletionStatus is set.
-            If an error arises, dataDeletionStatus is set with a suggested cause
+            If an error arises, etcStatus is set with a suggested cause
         */
-        else if (action.trim().equalsIgnoreCase("DeleteData")) 
+        else if (action.trim().equalsIgnoreCase("RemoveData")) 
         {
             try
             {
@@ -111,85 +101,11 @@ public class AdminServlet extends HttpServlet {
         } 
         
         /*
-            Deletes a number of data values from the DataValues table
-            with ids specified by an ArrayList of Integer IDs
-        
-            If it succeeds the data is deleted with no message displayed.
-            If it fails, dataDeletionStatus is set with a possible cause.
-        */
-        else if (action.trim().equalsIgnoreCase("DeleteDataBulk")) 
-        {
-            try
-            {
-                ArrayList<Integer> deletionIDs = (ArrayList) session.getAttribute("deletionIDs");
-                deletionIDs.forEach((i) -> 
-                {
-                    DatabaseManager.manualDeletion(i, admin);
-                });
-            }
-            catch(Exception e)
-            {
-                request.setAttribute("dataDeletionStatus","Error: Did you not check any boxes for deletion?");
-            }
-        }
-        
-        /*
-            Admin is deleting single pieces of data from the ManualDataValues table
-            
-            If the deletion succeeds or fails without causing an error, 
-            manualDeletionStatus is set.
-            If an error arises, manualDeletionStatus is set with a suggested cause
-        */
-        else if (action.trim().equalsIgnoreCase("DeleteManualData")) 
-        {
-            try
-            {
-                boolean dataRemovalStatus = DatabaseManager.manualDeletionM(Integer.parseInt((String) request.getParameter("dataDeletionID")),
-                    admin);
-                if (dataRemovalStatus) 
-                {
-                    session.setAttribute("manualDeletionStatus", "Data Deletion Successful");
-                } 
-                else 
-                {
-                    session.setAttribute("manualDeletionStatus", "Data Deletion Unsuccessful");
-                }
-            }
-            catch(Exception e)
-            {
-                request.setAttribute("manualDeletionStatus","Error: Did you not check any boxes for deletion?");
-            }
-        } 
-        
-        /*
-            Deletes a number of data values from the ManualDataValues table
-            with ids specified by an ArrayList of Integer IDs
-        
-            If it succeeds the data is deleted with no message displayed.
-            If it fails, manualDeletionStatus is set with a possible cause.
-        */
-        else if (action.trim().equalsIgnoreCase("DeleteManualDataBulk")) 
-        {
-            try
-            {
-                ArrayList<Integer> deletionIDs = (ArrayList) session.getAttribute("deletionIDs");
-                deletionIDs.forEach((i) -> 
-                {
-                    DatabaseManager.manualDeletionM(i, admin);
-                });
-            }
-            catch(Exception e)
-            {
-                request.setAttribute("manualDeletionStatus","Error: Did you not check any boxes for deletion?");
-            }
-        }
-        
-        /*
             Admin is registering a new user to the Users table
             
             If registering the user succeeds or fails without an error, 
             inputStatus is set.
-            If an error arises, inputStatus is set with the exception message as
+            If an error arises, etcStatus is set with the exception message as
             there are no obvious reasons for it to fail.
         */
         else if (action.trim().equalsIgnoreCase("RegisterUser")) 
@@ -221,7 +137,7 @@ public class AdminServlet extends HttpServlet {
             
             If the deletion succeeds or fails with no error, userDeletionStatus
             is set.
-            If an error arises, userDeletionStatus is set with a suggested cause.
+            If an error arises, etcStatus is set with a suggested cause.
         */
         else if (action.trim().equalsIgnoreCase("RemoveUser")) 
         {
@@ -249,7 +165,7 @@ public class AdminServlet extends HttpServlet {
         
             If locking the user was successful or failed without an error,
             lockStatus is set.
-            If an error arises, lockStatus is set with a suggested cause.
+            If an error arises, etcStatus is set with a suggested cause.
         */
         else if (action.trim().equalsIgnoreCase("LockUser")) 
         {
@@ -276,8 +192,8 @@ public class AdminServlet extends HttpServlet {
             Admin is unlocking a user, allowing them to log in once again
         
             If unlocking the user was successful or failed without an error,
-            unlockStatus is set.
-            If an error arises, unlockStatus is set with a suggested cause.
+            lockStatus is set.
+            If an error arises, etcStatus is set with a suggested cause.
         */
         else if (action.trim().equalsIgnoreCase("UnlockUser")) 
         {
@@ -305,7 +221,7 @@ public class AdminServlet extends HttpServlet {
             
             If editing the description succeeded or failed without error,
             editDescStatus is set. 
-            If an error arises, editDescStatus is set with the exception message as
+            If an error arises, etcStatus is set with the exception message as
             there are no obvious reasons for it to fail.
         */
         else if (action.trim().equalsIgnoreCase("EditDesc")) 
@@ -337,17 +253,67 @@ public class AdminServlet extends HttpServlet {
         */
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
         {
-            JSONParser parser = new JSONParser();
-            try
-            {
-                Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
-                JSONObject jObj = (JSONObject)obj;
-                response.getWriter().append(jObj.toJSONString());
-            }
-            catch(Exception e)
-            {
-                DatabaseManager.LogError("Something went wrong..." + e.toString());
-            }
+            Observable.just(0)
+                    .subscribeOn(Schedulers.io())
+                    .map(_ignored -> DatabaseManager.getManualDataNames())
+                    .observeOn(Schedulers.computation())
+                    .flatMap(Observable::fromIterable)
+                    .map((String name) -> {
+                        JSONObject wrappedName = new JSONObject();
+                        wrappedName.put("name", name);
+                        return wrappedName;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map((List<JSONObject> data) -> {
+                        JSONArray wrappedData = new JSONArray();
+                        wrappedData.addAll(data);
+                        return wrappedData;
+                    })
+                    .map((JSONArray data) -> {
+                        JSONObject root = new JSONObject();
+                        root.put("data", data);
+                        return root;
+                    })
+                    .defaultIfEmpty(BAD_REQUEST)
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+                                        
+            /*
+            //We'll change to use this next group meeting
+            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            */
+        }
+        else if (action.trim().equalsIgnoreCase("getSensorItems")) 
+        {
+            Observable.just(0)
+                    .subscribeOn(Schedulers.io())
+                    .map(_ignored -> DatabaseManager.getDataNames())
+                    .observeOn(Schedulers.computation())
+                    .flatMap(Observable::fromIterable)
+                    .map((String name) -> {
+                        JSONObject wrappedName = new JSONObject();
+                        wrappedName.put("name", name);
+                        return wrappedName;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map((List<JSONObject> data) -> {
+                        JSONArray wrappedData = new JSONArray();
+                        wrappedData.addAll(data);
+                        return wrappedData;
+                    })
+                    .map((JSONArray data) -> {
+                        JSONObject root = new JSONObject();
+                        root.put("data", data);
+                        return root;
+                    })
+                    .defaultIfEmpty(BAD_REQUEST)
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+                                        
             /*
             //We'll change to use this next group meeting
             session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
@@ -359,24 +325,48 @@ public class AdminServlet extends HttpServlet {
             
             If the list retrieval succeeded, filteredData will be set.
             
-            If it failed due to invalid LocalDateTime format, filterStatus is
+            If it failed due to invalid LocalDateTime format, dateStatus is
             set.
         */
         else if (action.trim().equalsIgnoreCase("getFilteredData")) 
         {
-            JSONParser parser = new JSONParser();
-            try
-            {
-                Object obj = parser.parse(FileUtils.readAll("resources/manual_entry_items.json"));
-                
-                JSONObject jObj = (JSONObject)obj;
-                
-                response.getWriter().append(jObj.toJSONString());
-            }
-            catch(Exception e)
-            {
-                DatabaseManager.LogError("Something went wrong..." + e.toString());
-            }
+            String parameter = request.getParameter("parameter");
+            String startDate = request.getParameter("startDate");
+            String endDate = request.getParameter("endDate");
+            String startTime = request.getParameter("startTime");
+            String endTime = request.getParameter("endTime");
+            
+            Observable.just(parameter)
+                    .subscribeOn(Schedulers.io())
+                    .map(param -> DatabaseManager.getAllGraphData(param))
+                    .flatMap(Observable::fromIterable)
+                    .observeOn(Schedulers.computation())
+                    .map(param -> {
+                        JSONObject wrappedParam = new JSONObject();
+                        wrappedParam.put("entryID", param.getEntryID());
+                        wrappedParam.put("name", param.getName());
+                        wrappedParam.put("submittedBy", param.getSensor());
+                        wrappedParam.put("date", param.getTime().toLocalDate() + "");
+                        wrappedParam.put("time", param.getTime().toLocalTime() + "");
+                        wrappedParam.put("value", param.getValue());
+                        return wrappedParam;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map(list -> {
+                        JSONArray arr = new JSONArray();
+                        arr.addAll(list);
+                        return arr;
+                    })
+                    .map(arr -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("data", arr);
+                        return obj;
+                    })
+                    .defaultIfEmpty(BAD_REQUEST)
+                    .blockingSubscribe(resp -> {
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
             /*
             //We'll change to use this next group meeting
             //Gets a list of data values within a time range for display on a chart so the user can select which ones to delete
@@ -389,16 +379,39 @@ public class AdminServlet extends HttpServlet {
             }
             catch(DateTimeParseException e)
             {
-                session.setAttribute("filterStatus", "Invalid Format on Lower or Upper Time Bound.");
+                session.setAttribute("dateStatus", "Invalid Format on Lower or Upper Time Bound.");
             }
             */
+        }
+        
+        /*
+            Deletes a number of data values from the ManualDataValues table
+            with ids specified by an ArrayList of Integer IDs
+        
+            If it succeeds the data is deleted with no message displayed.
+            If it fails, etcStatus is set with a possible cause.
+        */
+        else if (action.trim().equalsIgnoreCase("deleteManualData")) 
+        {
+            try
+            {
+                ArrayList<Integer> deletionIDs = (ArrayList) session.getAttribute("deletionIDs");
+                for(Integer i: deletionIDs)
+                {
+                    DatabaseManager.manualDeletionM(i.intValue(), admin);
+                }
+            }
+            catch(Exception e)
+            {
+                request.setAttribute("manualDeleteStatus","Error: Did you not check any boxes for deletion?");
+            }
         }
         
         /*
             Retrieves a list of all Errors
         
             If it succeeds, errorList is set with an ArrayList of ErrorMessages
-            If it fails, errorListStatus is set with the exception message as there 
+            If it fails, etcStatus is set with the exception message as there 
             are no obvious reasons for failure.
         */
         else if (action.trim().equalsIgnoreCase("getAllErrors")) 
@@ -411,6 +424,10 @@ public class AdminServlet extends HttpServlet {
             {
                 request.setAttribute("errorListStatus","Error getting error list: " + e);
             }
+            /*
+            //We'll change to use this next group meeting
+            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            */
         }
         
         /*
@@ -418,10 +435,10 @@ public class AdminServlet extends HttpServlet {
         
             If it succeeds, errorList is set with an ArrayList of ErrorMessages
         
-            If it fails and a DateTimeParseException is caught, filteredErrorStatus is
+            If it fails and a DateTimeParseException is caught, dateStatus is
             set to inform the user that their datetime format is incorrect.
             
-            If it fails with any other error, filteredErrorStatus is set with the exception 
+            If it fails with any other error, etcStatus is set with the exception 
             message as there are no other obvious reasons for failure.
         */
         else if (action.trim().equalsIgnoreCase("getFilteredErrors")) 
@@ -441,6 +458,11 @@ public class AdminServlet extends HttpServlet {
             {
                 request.setAttribute("filteredErrorStatus","Error getting error list: " + e);
             }
+        }
+        
+        else if (action.trim().equalsIgnoreCase("insertCSV"))
+        {
+            
         }
 
     }
@@ -483,4 +505,6 @@ public class AdminServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+    
+    
 }

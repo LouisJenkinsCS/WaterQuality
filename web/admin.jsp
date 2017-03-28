@@ -15,12 +15,17 @@ Current bugs:
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles/admin.css" type="text/css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <link rel="stylesheet" href="styles/datetimepicker.css" type="text/css">
+        <script src="scripts/datetimepicker.js"></script>
         <script src="scripts/admin_insertion.js"></script>
         <script src="scripts/admin_register.js"></script>
         <script src="scripts/admin_removeuser.js"></script>
         <script src="scripts/admin_editdesc.js"></script>
         <script src="scripts/admin_deletion.js"></script>
+        <script src="scripts/admin_errors.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
@@ -30,7 +35,6 @@ Current bugs:
     </head>
     <body onload="onLoad();">
         <script>
-            debugger
             function onLoad()
             {
                 console.log("Page loaded!");
@@ -60,11 +64,15 @@ Current bugs:
                            id="RemoveTab">Remove User</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Edit_Description'); hide();"
                            id="EditTab">Edit Desc</a></li>
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Errors'); hide();"
+                           id="ErrorsTab">Errors</a></li>
                 </ul>
             </div>
             <!--Admin insertion-->
             <admincontent id="Input_Data" class="tab_content">
-                <script>loadInsert();</script>
+                <script>loadInsert();
+                    //$().ready(createNewInput());
+                </script>
                 <!--Input Tab defined in admin_insertion.js-->
             </admincontent>
 
@@ -95,6 +103,11 @@ Current bugs:
             <admincontent id="Edit_Description" class="tab_content">
                 <!--Edit Desc Tab defined in admin_editdesc.js-->
                 <script>fillPageEditDesc();</script>
+            </admincontent>
+
+            <admincontent id="Errors" class="tab_content">
+                <!--Errors Tab defined in admin_errors.js-->
+                <script>fillPageErrors();</script>
             </admincontent>
 
 
@@ -157,28 +170,23 @@ Current bugs:
     <script>
         function post(path, params, method) {
             method = method || "post"; // Set method to post by default if not specified.
-
             // The rest of this code assumes you are not using a library.
             // It can be made less wordy if you use one.
             var form = document.createElement("form");
             form.setAttribute("method", method);
             form.setAttribute("action", path);
-
             for (var key in params) {
                 if (params.hasOwnProperty(key)) {
                     var hiddenField = document.createElement("input");
                     hiddenField.setAttribute("type", "hidden");
                     hiddenField.setAttribute("name", key);
                     hiddenField.setAttribute("value", params[key]);
-
                     form.appendChild(hiddenField);
                 }
             }
-
             document.body.appendChild(form);
             form.submit();
         }
-
         function handleClick(cb)
         {
             if (current == 'Graph') {
@@ -186,7 +194,6 @@ Current bugs:
             }
 //                post("ControlServlet", {key: 'control', control: 'getDesc'});
         }
-
         function graphSubmit() {
             var checkboxes = document.querySelectorAll('input[type="checkbox"]');
             var data = "{ data: [";
@@ -196,10 +203,8 @@ Current bugs:
                 }
             }
             data += "] }";
-
             post("ControlServlet", {key: 'control', control: 'getData ' + data});
         }
-
         function exportData(id) {
             document.write(id);
         }
@@ -217,18 +222,15 @@ Current bugs:
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks, submitbutton;
             tabcontent = document.getElementsByClassName("tab_content");
-
             for (i = 0; i < tabcontent.length; i++) {
                 tabcontent[i].style.display = "none";
             }
-
             tablinks = document.getElementsByClassName("tabs");
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].className = tablinks[i].className.replace(" active", "");
             }
             document.getElementById(tabName).style.display = "block";
             evt.currentTarget.className += " active";
-
             //unchecks all of the checkboxes
             toggle(this);
             checkedBoxes = 0;
@@ -242,7 +244,6 @@ Current bugs:
 //                }
 //                document.getElementById(current + "_submit").style.display = "block";
         }
-
         /**
          * The <code>toggle</code> function checks or unchecks
          * all of the checkboxes in the given <code>source</code> 
@@ -255,7 +256,6 @@ Current bugs:
                     checkboxes[i].checked = source.checked;
             }
         }
-
         /**
          * The <code>hide</code> function hides the
          * <code>select_all_toggle</code> checkbox when the Graph tab
@@ -269,7 +269,6 @@ Current bugs:
 //                else
 //                    item.className = 'hide';
         }
-
         var checkedBoxes = 0;
         /**
          * The <code>fullCheck</code> function limits the number of data
@@ -288,7 +287,6 @@ Current bugs:
             } else
                 checkedBoxes--;
         }
-
         /**
          * Makes it so the date input fields can not be chosen for future
          * dates. Also sets makes sure the <code>enddate</code> can not be a
@@ -312,8 +310,6 @@ Current bugs:
             if (document.getElementById("enddate").value != null)
                 document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
         }
-
-
     </script>
 </body>
 </html>
