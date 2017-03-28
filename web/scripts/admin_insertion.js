@@ -61,16 +61,16 @@ function loadInsert()
 //then puts a button below for adding more data entry areas
     $('#Input_Data').append(
             '<div class="large_text">Upload .CSV File</div>'
-            + '<input type="file" value="Browse..."><br/>'
+            + '<input type="file" value="Browse..."><br/><br/>'
             + '<input type="submit" value="Submit"><br/>'
-            + '<br>'
+            + '<br><br>'
             + '<div class="large_text">Enter Data Manually</div>'
             + '<table id="input_space">'
             + '<tr><th>Date</th><th>Time</th><th>Parameter</th><th>Value</th></tr>'
             + '</table>'
             + '<button type="button" onclick="createNewInput()">+</button>'
-            + '<button type="button" onclick="removeLastInput()">x</button>'
-            + '<button type="button" onclick="submitInput()">Submit</button>\n');
+            + '<button type="button" onclick="removeLastInput()">x</button><br>'
+            + '<input type="submit" value="Submit" onclick="submitInput()">\n');
 };
 
 /**
@@ -99,7 +99,7 @@ function removeLastInput()
     if ((document.getElementById("input_space")).rows.length > 2)
     {
         //fadeOut is more visually pleasing when removing items
-        $('#input_space tr:last').fadeOut(500, function () {
+        $('#input_space tr:last').fadeOut(200, function () {
             $(this).remove();
         });
         $insertionid--;
