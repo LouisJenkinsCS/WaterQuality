@@ -200,14 +200,6 @@ ul.tab li a:focus, .active {background-color: #8CCE8C;}
     border-top: none;
 }
 
-.hide{
-    display:none;
-}
-
-.unhide{
-    display:inline-block;
-}
-
 input[type="button"]{
     border-radius: 5px;
     border: 0;

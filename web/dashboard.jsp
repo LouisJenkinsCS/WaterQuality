@@ -121,13 +121,18 @@
                     <div class="data_type_submit" id="Table_submit">
                         <input type="button" value="Table" onclick="fetch()">
                     </div>
-                    <input type="hidden" name="control" value ="Table">
                 </form>
-                <form class="data_type_form" id="BayesianForm">
-                    div class="data_type_submit" id="Table_submit">
-                        <input type="button" value="Table" onclick="fetch()">
+                    
+                <form class="data_type_form" id="Bayesian_form">
+                    
+                        <div id="dateselectordiv" onclick="bayesianDateLimits();">
+                        <br>Bayesian Day:
+                        <input class="dateselector" id="bayesian_day" name="bayesian_day"type="date" min="" max="">
+                        </div>
+                        <br>
+                    <div class="data_type_submit" id="Bayesian_submit">
+                        <input type="button" value="Bayesian" onclick="">
                     </div>
-                    <input type="hidden" name="control" value ="Table">
                 </form>
             </aside><br>
 
@@ -169,21 +174,12 @@
             setDate(end, "graph_end_date");
             setDate(start, "graph_start_date");
             setDate(end, "table_end_date");
-            setDate(start, "table_start_date");            
+            setDate(start, "table_start_date");
+            var bay = new Date();
+            setBayesianDate(bay,"bayesian_day");
         </script>
             
         <script>
-            // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
-            var data = new DataResponse(${ChartData});
-
-            var timeStamps = getTimeStamps(data);
-            var timeStampStr = [];
-            var values = getDataValues(data);
-            // Convert timestamps to string; HighCharts already defines a nice formatting one.
-            for (i = 0; i < timeStamps.length; i++) {
-                timeStampStr.push([timeStamps[i], values[0][i]]);
-            }
-
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
                 chart: {
@@ -322,14 +318,6 @@
                 },
                 series: []
             });
-            /*for (var i = 0; i < data.data.length; i++) {
-                chart.addSeries({
-                    yAxis: i,
-                    name: data.data[i]["name"],
-                    data: timeStampStr
-                }, false);
-                chart.yAxis[i].setTitle({text: data.data[i]["name"]});
-            }*/
         </script>
         
         <script type="text/javascript">
