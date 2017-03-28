@@ -18,9 +18,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,10 +36,10 @@ import security.SecurityCode;
  *
  * @author Tyler Mutzek
  */
-public class DatabaseManager 
+public class DatabaseManager implements DataProvider
 {
     // TODO: Make this more elegant. Database needs to be initialized when first setup, 
-    // but we cannot setup the database until AFTER the servlet has begun running ore we get
+    // but we cannot setup the database until AFTER the servlet has begun running or we get
     // an 'Allocate' exception. So we need to have a Test-and-Test-and-Set type of initializer
     // loop. This MUST be refactored before production. - L.J
     // TYLER: DO NOT DELETE THIS, PLEASE ACTUALLY CHECK WHAT NEEDS TO BE MERGED AND DO NOT DISCARD
@@ -65,6 +68,7 @@ public class DatabaseManager
                 DatabaseManager.createManualDataValueTable();
                 DatabaseManager.createManualDataNamesTable();
                 DatabaseManager.createUserTable();
+                DatabaseManager.createBitmapsTable();
                 // Need to fill parameter table as this is potentially first time running
                 // At least on the actual server...
                 DataReceiver.getParameters().map(DataParameter::getName).blockingSubscribe(DatabaseManager::insertDataName);
@@ -354,6 +358,52 @@ public class DatabaseManager
         catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating ManualDataNames Table: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(createTable != null)
+                    createTable.close();
+            }
+            catch(SQLException e)
+            {
+                LogError("Error closing statement: " + e);
+            }
+        }
+    }
+    
+    /*
+        A table for holding bitmaps of each month's data
+        
+        date is the full date / time used of the first day in a given month
+        for which data exists
+    
+        bitmap is a bitmap of every day in the month with a 1 or 0
+        depending on whether that data is present in the database 
+        already or not
+    
+        lastDateUsed is the last day this bitmap was used. Every time it is
+        accessed, it is refreshed, and it starts out as the day the entry was
+        created
+    */
+    public static void createBitmapsTable()    
+    {
+        Statement createTable = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            createTable = conn.createStatement();
+            String createSQL = "Create Table IF NOT EXISTS DataBitmaps("
+                    + "date varchar(25) primary key,"
+                    + "bitmap INT,"
+                    + "dataName varchar(40),"
+                    + "lastDateUsed varchar(25)"
+                    + ");";
+            createTable.execute(createSQL);
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error creating DataBitmaps Table: " + ex);
         }
         finally
         {
@@ -1098,6 +1148,7 @@ public class DatabaseManager
             if(!dataNameExists(name))//updates the table of unique data names should any new ones appear
                 insertDataName(name);
             
+            modifyBitmap(name,time);
             insertData = conn.prepareStatement(insertSQL);
             insertData.setString(1, name);
             insertData.setString(2, units);
@@ -1853,7 +1904,7 @@ public class DatabaseManager
         }
         catch (Exception ex)//SQLException ex 
         {
-            LogError("Error retrieving data names: " + ex);
+            LogError("Error retrieving errors in range: " + ex);
         }
         finally
         {
@@ -1870,6 +1921,254 @@ public class DatabaseManager
             }
         }
         return errorList;
+    }
+
+    /*
+        Modifies the bitmap of the month that the given time is in to 
+        indicate that this data exists already.
+    */
+    private static void modifyBitmap(String dataName, String time) 
+    {
+        //strips everything but the month and year off the time
+        String date = time.substring(0, 7) + "-01T00:00:00";
+        PreparedStatement getBitmap = null;
+        ResultSet selectedBitmap = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from DataBitmaps where dataName = ? AND date = ?";
+            getBitmap = conn.prepareStatement(query);
+            getBitmap.setString(1, dataName);
+            getBitmap.setString(2, date);
+            selectedBitmap = getBitmap.executeQuery();
+            
+            
+            int day = Integer.parseInt(time.substring(8, 10));
+            if(selectedBitmap.next())
+            {
+                int bitmap = selectedBitmap.getInt(2);
+                String bitString = Integer.toBinaryString(bitmap);
+                if(bitString.charAt(day-1) == '0')
+                {
+                    bitString = bitString.substring(0,day-1) + "1" + bitString.substring(day);
+                    bitmap = Integer.parseUnsignedInt(bitString,2);
+                    updateBitmap(dataName,date,bitmap);
+                }
+            }
+            else
+                insertBitmap(dataName,date,day);
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error retrieving bitmap: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(getBitmap != null)
+                    getBitmap.close();
+                if(selectedBitmap != null)
+                    selectedBitmap.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+    }
+
+    /*
+        Inserts a new entry in the bitmap table for the given month/year (date)
+        and a day of the month.
+    
+        date is assumed to be a localdatetime format date where the year
+        and month can be anything, but the day must be 01 and the time is
+        all 0s
+    */
+    private static void insertBitmap(String dataName, String date, int day) 
+    {
+        PreparedStatement insertBitmap = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String insert = "Insert into DataBitmaps values(?,?,?,?)";
+            insertBitmap = conn.prepareStatement(insert);
+            insertBitmap.setString(1, date);
+            
+            String bitString = "00000000000000000000000000000000";//32 0s
+            bitString = bitString.substring(0,day-1) + "1" + bitString.substring(day);
+            insertBitmap.setInt(2, Integer.parseUnsignedInt(bitString,2));
+            
+            insertBitmap.setString(3, dataName);
+            insertBitmap.setString(4, LocalDateTime.now().toString());
+            insertBitmap.executeUpdate();
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error inserting bitmap: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(insertBitmap != null)
+                    insertBitmap.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+    }
+    
+    /*
+        Updates an entry in the bitmap table 
+    */
+    private static void updateBitmap(String dataName, String date, int bitmap) 
+    {
+        PreparedStatement updateBitmap = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String update = "Update DataBitmaps SET bitmap = ?, lastDateUsed = ?"
+                    + " WHERE dataName = ? AND date = ?";
+            updateBitmap = conn.prepareStatement(update);
+            updateBitmap.setInt(1, bitmap);
+            updateBitmap.setString(2, LocalDateTime.now().toString());
+            updateBitmap.setString(3, dataName);
+            updateBitmap.setString(4, date);
+            updateBitmap.executeUpdate();
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error updating bitmap: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(updateBitmap != null)
+                    updateBitmap.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+    }
+    
+    /*
+        Returns true or false depending on whether data exists for a given day
+        For use to decide whether to pull data from netronix for a given day
+    
+        time is in localdatetime format
+    */
+    private static boolean dataExistsAtDay(String dataName, String time) 
+    {
+        String date = time.substring(0, 7) + "-01T00:00:00";
+        PreparedStatement selectBitmap = null;
+        ResultSet selectedBitmap = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from DataBitmaps where dataName = ? AND date = ?";
+            selectBitmap = conn.prepareStatement(query);
+            selectBitmap.setString(1, dataName);
+            selectBitmap.setString(2, date);
+            selectedBitmap = selectBitmap.executeQuery();
+            
+            
+            int day = Integer.parseInt(time.substring(8, 10));
+            if(selectedBitmap.next())
+            {
+                int bitmap = selectedBitmap.getInt(2);
+                String bitString = Integer.toBinaryString(bitmap);
+                if(bitString.charAt(day-1) == '1')
+                    return true;//data does exist for this day
+                else
+                    return false;//data does not exist for this day
+            }
+            else
+                return false;//data does not exist for this month even
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error retrieving bitmap: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectBitmap != null)
+                    selectBitmap.close();
+                if(selectedBitmap != null)
+                    selectedBitmap.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public List<String> getAllParameters() 
+    {
+        List<String> allParams= new ArrayList<>();
+        allParams.addAll(DatabaseManager.getDataNames());
+        allParams.addAll(DatabaseManager.getManualDataNames());
+        return allParams;
+    }
+
+    @Override
+    public List<async.DataValue> getDataValueRange(Instant start, Instant end, long... keys) 
+    {
+        List<async.DataValue> graphData = new ArrayList<>();
+        PreparedStatement selectData = null;
+        ResultSet dataRange = null;
+        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        {
+            String query = "Select * from DataValues Where dataName = ?"
+                + " AND timeRecorded >= ? AND timeRecorded <= ?;";
+            selectData = conn.prepareStatement(query);
+            
+            //PLACEHOLDER! Will cause errors if executed.
+            selectData.setString(1, "");
+            selectData.setString(2, LocalDateTime.ofInstant(start, ZoneOffset.UTC)+"");
+            selectData.setString(3, LocalDateTime.ofInstant(end, ZoneOffset.UTC)+"");
+            dataRange = selectData.executeQuery();
+            
+            String name;
+            LocalDateTime time;
+            float value;
+            while(dataRange.next())
+            {
+                name = dataRange.getString(2);
+                time = LocalDateTime.parse(dataRange.getString(5));
+                value = dataRange.getFloat(6);
+                
+                //PLACEHOLDER! Will cause errors if executed.
+                async.DataValue dV = new async.DataValue(Long.parseLong(name),time.toInstant(ZoneOffset.UTC),(double)value);
+                graphData.add(dV);
+            }
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error Retrieving Graph Data: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(selectData != null)
+                    selectData.close();
+                if(dataRange != null)
+                    dataRange.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return graphData;
     }
     
     public static void main(String[] args)
@@ -1904,4 +2203,6 @@ public class DatabaseManager
         }
         */
     }
+
+    
 }

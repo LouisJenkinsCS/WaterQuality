@@ -49,7 +49,7 @@ public interface DataProvider {
      * what they both share.
      * @return List of all data parameters.
      */
-    List<DataParameter> getAllParameters();
+    List<String> getAllParameters();
     
     /**
      * For how to convert between Instant and LocalDateTime, see the LocalDateTime.toInstant
