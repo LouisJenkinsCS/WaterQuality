@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="styles/dashboard.css" type="text/css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="http://code.highcharts.com/modules/exporting.js"></script>
         <script src="http://code.highcharts.com/modules/offline-exporting.js"></script>

@@ -68,33 +68,7 @@ static {
         */
         if (action.trim().equalsIgnoreCase("InputData")) 
         {
-            try
-            { 
-                boolean inputStatus = DatabaseManager.manualInput((String) request.getParameter("dataName"),
-                    (String) request.getParameter("units"), LocalDateTime.parse((String) request.getParameter("time")),
-                    Float.parseFloat((String) request.getParameter("value")), Integer.parseInt((String) request.getParameter("id")), 
-                    admin);
-                if (inputStatus) 
-                {
-                    request.setAttribute("inputStatus", "Data Input Successful");
-                } 
-                else 
-                {
-                    request.setAttribute("inputStatus", "Data Input Unsuccessful. Check your syntax");
-                }
-            }
-            catch(DateTimeParseException e)
-            {
-                request.setAttribute("inputStatus","Invalid Format on Time");
-            }
-            catch(NumberFormatException e)
-            {
-                request.setAttribute("inputStatus","Value or ID is not a valid number");
-            }
-            catch(Exception e)
-            {
-                request.setAttribute("inputStatus","Extraneous Error: Are all the text fields not empty?");
-            }
+            String dataName = request.getParameter("dataName");
             
         } 
         
@@ -311,6 +285,40 @@ static {
             session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
             */
         }
+        else if (action.trim().equalsIgnoreCase("getSensorItems")) 
+        {
+            Observable.just(0)
+                    .subscribeOn(Schedulers.io())
+                    .map(_ignored -> DatabaseManager.getDataNames())
+                    .observeOn(Schedulers.computation())
+                    .flatMap(Observable::fromIterable)
+                    .map((String name) -> {
+                        JSONObject wrappedName = new JSONObject();
+                        wrappedName.put("name", name);
+                        return wrappedName;
+                    })
+                    .buffer(Integer.MAX_VALUE)
+                    .map((List<JSONObject> data) -> {
+                        JSONArray wrappedData = new JSONArray();
+                        wrappedData.addAll(data);
+                        return wrappedData;
+                    })
+                    .map((JSONArray data) -> {
+                        JSONObject root = new JSONObject();
+                        root.put("data", data);
+                        return root;
+                    })
+                    .defaultIfEmpty(BAD_REQUEST)
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+                                        
+            /*
+            //We'll change to use this next group meeting
+            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            */
+        }
         
         /*
             Gets a list of data from the ManualDataValues table within a time range
@@ -338,8 +346,8 @@ static {
                         wrappedParam.put("entryID", param.getEntryID());
                         wrappedParam.put("name", param.getName());
                         wrappedParam.put("submittedBy", param.getSensor());
-                        wrappedParam.put("date", param.getTime().toLocalDate());
-                        wrappedParam.put("time", param.getTime().toLocalTime());
+                        wrappedParam.put("date", param.getTime().toLocalDate() + "");
+                        wrappedParam.put("time", param.getTime().toLocalTime() + "");
                         wrappedParam.put("value", param.getValue());
                         return wrappedParam;
                     })
@@ -446,6 +454,11 @@ static {
             {
                 request.setAttribute("filteredErrorStatus","Error getting error list: " + e);
             }
+        }
+        
+        else if (action.trim().equalsIgnoreCase("insertCSV"))
+        {
+            
         }
 
     }
