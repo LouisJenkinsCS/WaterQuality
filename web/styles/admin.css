@@ -211,6 +211,22 @@ input[type="submit"]{
     margin-left: 100px;
 }
 
+.themed_button{
+    margin: 5px;
+    margin-right:0px;
+    border-radius: 5px;
+    border: 0;
+    background: #266B6B;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+.themed_button:hover{
+    background: #5CB05C;
+}
+
 button:hover,input[type = "submit"]:hover {
     background: #5CB05C;
 }
