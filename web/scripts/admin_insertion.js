@@ -121,12 +121,8 @@ function removeLastInput()
  * {
  *  action : 'InputData',
  *  dataName : 'Temperature'
- *  units : this needs to be determined by what dataName is selected
  *  time : '1490525115000' <-- epoch milliseconds
  *  value : '13.0'
- *  id : currently hard-coded, should be auto-generated in table, right?
- *  inputStatus : currently set to '', is filled by adminServlet currently
- *      with a message regarding the insertion's success.
  * }
  * 
  * POST response:
@@ -144,10 +140,12 @@ function submitInput()
 
         var time = "";
 
-        var inputRequest = {action: 'InputData', dataName: '',
-            units: 'test', time: '',
-            value: '', id: '789',
-            inputStatus: ''};
+        var inputRequest = {
+            action: 'InputData', 
+            dataName: '',
+            time: '',
+            value: ''
+        };
 
         var $dataName = $(this).find("select").val();
         inputRequest['dataName'] = $dataName;
@@ -185,6 +183,7 @@ function submitInput()
 
 function sendCSV()
 {
+    var lines;
     var file = $('#csv')[0].files[0];
     var fr = new FileReader();
     fr.readAsText(file);
@@ -199,14 +198,16 @@ function sendCSV()
     function processData(csv)
     {
         var allTextLines = csv.split(/\r\n|\n/);
-        var lines = [];
+        lines = [];
         while (allTextLines.length) {
             lines.push(allTextLines.shift().split(','));
         }
         console.log(lines);
-    }
+    }  
+    
+    var sendRequest = {action: 'insertCSV', csvfile: lines};
 
-    //post("AdminServlet", {action: 'insertCSV', csvfile: file}, function (resp) {
-
-    //});
+    post("AdminServlet", sendRequest, function (resp) {
+        alert("Posted successfully");
+    });
 }

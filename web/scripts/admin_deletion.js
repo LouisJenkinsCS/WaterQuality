@@ -83,8 +83,7 @@ function loadDelete()
                 '<div class="large_text">Time Frame:</div>' +
                 '<div id="dateInstructDiv">Date Range:</div>' +
                 '<input class="dateselector" id="delete_startdate" type="datetime-local" placeholder="' + date + '"> to ' +
-                '<input class="dateselector" id="delete_enddate" type="datetime-local" placeholder="' + date + '"></div>' +
-                '<div id="dateInstructDiv">Time Range:</div>' +
+                '<input class="dateselector" id="delete_enddate" type="datetime-local" placeholder="' + date + '"></div><br/><br/>' +
                 '<div class="large_text">Parameter to delete:</div>' +
                 '<select id="delete_param">' + del_options +
                 '</select><br/><br/>' +
