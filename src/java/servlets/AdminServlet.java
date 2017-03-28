@@ -460,6 +460,11 @@ static {
         {
             
         }
+        
+        else if (action.trim().equalsIgnoreCase("getRoles"))
+        {
+            response.getWriter().append("Response");
+        }
 
     }
 

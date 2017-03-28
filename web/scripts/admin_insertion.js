@@ -47,8 +47,8 @@ function loadInsert()
             //console.log(item["name"]);
             options_params += item["name"];
             options_params += '</option>';
+            
         }
-
         //console.log("Parameter names: " + parameter_names);
         //console.log("Item: " + item["name"]);
 
@@ -58,7 +58,6 @@ function loadInsert()
         //outside of this block {} of code will cause it to display before
         //options_params has been initialilzed.
     });
-
 
 //This creates the browse area, then fires off the function createNewInput,
 //then puts a button below for adding more data entry areas
@@ -74,8 +73,8 @@ function loadInsert()
             + '<button type="button" onclick="createNewInput()">+</button>'
             + '<button type="button" onclick="removeLastInput()">x</button>'
             + '<button type="button" onclick="submitInput()">Submit</button>\n');
-}
-;
+    
+};
 
 /**
  * Creates a row of input fields for the user to enter data into,
