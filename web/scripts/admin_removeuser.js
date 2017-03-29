@@ -24,9 +24,15 @@ function fillPageRemoveUser() {
             + '<select name="user_list" id="select_user_list" form="form_remove_user">'
             + options_users
             + '</select><br><br>'
-            + '<input type="submit" value="Remove Users" form="form_remove_user">'
+            + '<input type="submit" id="select_user_list" value="Remove Users" form="form_remove_user">'
             );
     var userList = document.getElementById("select_user_list");
     userList.multiple = "multiple";
+    
+    document.getElementByTagName('input[type="submit"]').addEventListener("click", sendMsg, false);
+    setUpXHR();
 }
-;
+
+function setUpXHR(){
+    xhr=false;
+}

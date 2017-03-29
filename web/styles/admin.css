@@ -75,15 +75,39 @@
     background-color: #266B6B;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
+    line-height:30px;
     text-align: center;
-    height:30px;
 }
 
-.content_box__banner__text{
+#content_box__banner__buttons{
+    float: right;
+    padding-right: 10px;
+}
+
+#content_box__banner__text{
+    vertical-align: middle;
     color:white;
-    line-height: 30px;
     font-family: "Arial", Helvetica, san-serif;
     font-weight: bold;
+}
+
+#button_to_dashboard{
+    border-radius: 5px;
+    border: 0;
+    width: 100px;
+    height:25px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+#button_to_dashboard:hover{
+    background: rgba(190, 190, 190, 0.3);
+}
+
+#button_logout{
+    opacity: 0.35;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
 }
 
 .content_box{
@@ -211,6 +235,22 @@ input[type="submit"]{
     margin-left: 100px;
 }
 
+.themed_button{
+    margin: 5px;
+    margin-right:0px;
+    border-radius: 5px;
+    border: 0;
+    background: #266B6B;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+.themed_button:hover{
+    background: #5CB05C;
+}
+
 button:hover,input[type = "submit"]:hover {
     background: #5CB05C;
 }
@@ -246,17 +286,6 @@ button:hover,input[type = "submit"]:hover {
 #select_param_list{
     min-width: 150px;
     height: 25em;/*same as size=25*/
-}
-
-#table_edit_desc{
-    /*nothing yet*/
-}
-
-/*no longer in use--remove.*/
-#table_edit_desc td{
-    text-align: center;
-    padding-left: 15px;
-    padding-right: 15px;
 }
 
 .section_edit_desc{
