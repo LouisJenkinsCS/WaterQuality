@@ -3,13 +3,15 @@
 */
 package common;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import org.json.simple.JSONObject;
 
 /**
  *
  * @author Tyler Mutzek
  */
-public class ManualDataValue 
+public class ManualDataValue implements Serializable, DataInt
 {
     private int entryID; //id number distinguishing this data entry (auto incremented)
     private String name;//name of this data type (e.g. temperature, pressure)
@@ -114,5 +116,17 @@ public class ManualDataValue
      */
     public void setValue(float value) {
         this.value = value;
+    }
+
+    public JSONObject toJSON() 
+    {
+        JSONObject jO = new JSONObject();
+        jO.put("entryID", entryID);
+        jO.put("name", name);
+        jO.put("units", units);
+        jO.put("submittedBy", submittedBy);
+        jO.put("value", value);
+        jO.put("time",time.toString());
+        return jO;
     }
 }

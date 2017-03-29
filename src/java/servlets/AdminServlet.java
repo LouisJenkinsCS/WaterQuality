@@ -424,6 +424,10 @@ static {
             {
                 request.setAttribute("errorListStatus","Error getting error list: " + e);
             }
+            /*
+            //We'll change to use this next group meeting
+            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            */
         }
         
         /*

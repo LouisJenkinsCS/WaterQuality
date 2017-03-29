@@ -74,8 +74,7 @@ function loadInsert()
             + '<button type="button" onclick="createNewInput()">+</button>'
             + '<button type="button" onclick="removeLastInput()">x</button>'
             + '<button type="button" onclick="submitInput()">Submit</button>\n');
-}
-;
+};
 
 /**
  * Creates a row of input fields for the user to enter data into,
@@ -96,8 +95,7 @@ function createNewInput()
             + '     <td><input type="text" name="value" id="value" placeholder="Do not include units"></td>'
             + '  </tr>'
             );
-}
-;
+};
 
 /**
  * If there is more than one row of information, the function will
@@ -113,8 +111,7 @@ function removeLastInput()
         });
         $insertionid--;
     }
-}
-;
+};
 
 /**
  * POST request: 
