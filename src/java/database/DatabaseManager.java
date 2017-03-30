@@ -19,13 +19,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import com.github.davidmoten.rx.jdbc.Database;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import rx.Observable;
 import security.SecurityCode;
 
 /**
@@ -1054,6 +1057,7 @@ public class DatabaseManager
     */
     public static void insertJSON(JSONObject j)
     {
+        
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement insertData = null;
         try
@@ -1870,55 +1874,35 @@ public class DatabaseManager
     }
     
     public static void insertParameter(DataParameter parameter) {
-        String query = "INSERT INTO `WaterQuality`.`data_parameters`\n" +
-                "(`name`, `unit`) values (?, ?);";
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try (Connection conn = Web_MYSQL_Helper.getConnection();) {
-            conn.setAutoCommit(false);
-            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, parameter.getName());
-            stmt.setString(2, "".equals(parameter.getUnit()) ? null : parameter.getUnit());
-            stmt.executeUpdate();
-            rs = stmt.getGeneratedKeys();
-            rs.next();
-            long inserted = rs.getLong(1);
-            System.out.println("Inserted parameter with id: " + inserted);
-            
-            query = "INSERT INTO `WaterQuality`.`data_descriptions`\n" +
-                    "(`parameter_id`, `description`) values (?, ?);";
-            stmt = conn.prepareStatement(query);
-            stmt.setLong(1, inserted);
-            stmt.setString(2, parameter.getDescription());
-            stmt.executeUpdate();
-            System.out.println("Created description for id: " + inserted);
-            
-            query = "INSERT INTO `WaterQuality`.`remote_data_parameters`\n" +
-                    "(`parameter_id`, `source`, `remote_name`) values (?, ?, ?);";
-            stmt = conn.prepareStatement(query);
-            stmt.setLong(1, inserted);
-            stmt.setLong(2, parameter.getId());
-            stmt.setString(3, parameter.getSensor());
-            stmt.executeUpdate();
-            System.out.println("Created remote data parameter for id: " + inserted);
-            
-            conn.commit();
-        } catch (SQLException ex) {
-            Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-
+        Database db = Database.from("jdbc:mysql://127.0.0.1/WaterQuality?useSSL=true", "root", "root");
+        
+        Observable<Long> dataParamId = db.update("INSERT IGNORE INTO `WaterQuality`.`data_parameters` (`name`, `unit`) values (?, ?);")
+                .parameter(parameter.getName())
+                .parameter("".equals(parameter.getUnit()) ? null : parameter.getUnit())
+                .returnGeneratedKeys()
+                .getAs(Long.class)
+                .doOnNext(id -> System.out.println("Inserted: " + id));
+        
+        db.update("INSERT IGNORE INTO `WaterQuality`.`data_descriptions` (`parameter_id`, `description`) values (?, ?);")
+                .dependsOn(dataParamId)
+                .parameters(dataParamId)
+                .parameter(parameter.getDescription());
+        
+        db.update("INSERT IGNORE INTO `WaterQuality`.`remote_data_parameters` (`parameter_id`, `source`, `remote_name`) values (?, ?, ?);")
+                .dependsOn(dataParamId)
+                .parameters(dataParamId)
+                .parameter(parameter.getId())
+                .parameter(parameter.getSensor());
+        
+        dataParamId.subscribe();
     }
  
     public static void main(String[] args) {
-        DataReceiver.getParameters().blockingSubscribe(DatabaseManager::insertParameter);
+        DataReceiver
+                .getParameters()
+                .subscribeOn(Schedulers.io())
+                .doOnNext(DatabaseManager::insertParameter)
+                .blockingSubscribe();
     }
     
 }
