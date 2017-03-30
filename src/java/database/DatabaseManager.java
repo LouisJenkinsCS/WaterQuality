@@ -1878,7 +1878,7 @@ public class DatabaseManager
             conn.setAutoCommit(false);
             stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, parameter.getName());
-            stmt.setString(2, "".equals(parameter.getUnit()) ? "(NULL)" : parameter.getUnit());
+            stmt.setString(2, "".equals(parameter.getUnit()) ? null : parameter.getUnit());
             stmt.executeUpdate();
             rs = stmt.getGeneratedKeys();
             rs.next();

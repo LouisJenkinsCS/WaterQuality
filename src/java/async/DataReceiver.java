@@ -114,7 +114,6 @@ public class DataReceiver {
                         .filter((String name) -> !name.equals("Turbidity"))
                         .anyMatch((name -> name.equals(obj.get("name"))))
                 )
-                .doOnNext(obj -> System.out.println("Parameter: " + obj.toJSONString()))
                 // Update the current DataParameters loaded with the data from the JSON and add it
                 // to our map.
                 .blockingSubscribe((JSONObject obj) -> {
@@ -246,7 +245,7 @@ public class DataReceiver {
                     return sb.toString();
                 })
                 // Remove any and all unicode characters
-                .map((String json) -> json.replaceAll("\\P{Print}", ""))
+//                .map((String json) -> json.replaceAll("\\P{Print}", ""))
                 // From that received string, since it is in JSON, we can parse it into a JSONObject.
                 .map((String json) -> (JSONObject) new JSONParser().parse(json));
     }
