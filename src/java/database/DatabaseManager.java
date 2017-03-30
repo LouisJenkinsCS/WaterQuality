@@ -87,6 +87,9 @@ public class DatabaseManager
         }
         
     }
+    
+    
+    
     /*
         Creates the data value table
         entryID is the unique id number of the data value
@@ -1864,6 +1867,58 @@ public class DatabaseManager
             }
         }
         return errorList;
+    }
+    
+    public static void insertParameter(DataParameter parameter) {
+        String query = "INSERT INTO `WaterQuality`.`data_parameters`\n" +
+                "(`name`, `unit`) values (?, ?);";
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try (Connection conn = Web_MYSQL_Helper.getConnection();) {
+            conn.setAutoCommit(false);
+            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, parameter.getName());
+            stmt.setString(2, "".equals(parameter.getUnit()) ? "(NULL)" : parameter.getUnit());
+            stmt.executeUpdate();
+            rs = stmt.getGeneratedKeys();
+            rs.next();
+            long inserted = rs.getLong(1);
+            System.out.println("Inserted parameter with id: " + inserted);
+            
+            query = "INSERT INTO `WaterQuality`.`data_descriptions`\n" +
+                    "(`parameter_id`, `description`) values (?, ?);";
+            stmt = conn.prepareStatement(query);
+            stmt.setLong(1, inserted);
+            stmt.setString(2, parameter.getDescription());
+            stmt.executeUpdate();
+            System.out.println("Created description for id: " + inserted);
+            
+            query = "INSERT INTO `WaterQuality`.`remote_data_parameters`\n" +
+                    "(`parameter_id`, `source`, `remote_name`) values (?, ?, ?);";
+            stmt = conn.prepareStatement(query);
+            stmt.setLong(1, inserted);
+            stmt.setLong(2, parameter.getId());
+            stmt.setString(3, parameter.getSensor());
+            stmt.executeUpdate();
+            System.out.println("Created remote data parameter for id: " + inserted);
+            
+            conn.commit();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+    }
+ 
+    public static void main(String[] args) {
+        DataReceiver.getParameters().blockingSubscribe(DatabaseManager::insertParameter);
     }
     
 }
