@@ -45,9 +45,18 @@ Current bugs:
             <div id="banner__text">Water Quality</div>
         </header>
         <section class = "content_box">
-            <header class = "content_box__banner"> 
-                <div class = "content_box__banner__text" >
-                    Administrative Functions
+            <header class = "content_box__banner">
+                    <span id="content_box__banner__text">
+                        Administrative Functions
+                    </span>
+                    <span id="content_box__banner__buttons">
+                        <input type="button" id="button_to_dashboard"
+                               onclick="location.href='dashboard.jsp';" value="Dashboard" />
+                        <a href="javascript:void(0)">
+                            <img src="images/power-symbol-6-reduced.png"title="Logout"
+                                 id="button_logout" onclick="logout();"/>
+                        </a>
+                    </span>
                 </div>
             </header>
             <div class="content_box__tab_bar"><!--this div is needed to make the ul into a bar-->
@@ -309,6 +318,10 @@ Current bugs:
             document.getElementById("enddate").setAttribute("min", document.getElementById("startdate").value);
             if (document.getElementById("enddate").value != null)
                 document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
+        }
+
+        function logout(){
+            
         }
     </script>
 </body>
