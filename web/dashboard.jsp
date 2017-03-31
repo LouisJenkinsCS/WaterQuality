@@ -22,6 +22,13 @@
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <script src="scripts/dashboard.js"></script>
+        
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.css"/>
+ 
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.js"></script>
+
+
+
         <link rel="stylesheet" type="text/css" href="styles/popup.css">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
@@ -60,14 +67,14 @@
                            id="BayesianTab">Bayesian</a></li>
                     <li>
                         <button id="exportbutton"
-                            onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}">
+                            onclick="if(getCookie('id') == 'Table'){exportTable('data_table');}">
                             Export</button>
                     </li>
                 </ul>
                 <div id="Graph" class="tabcontent">
                 </div>
                 <div id="Table" class="tabcontent">
-                    <table align="center" id="dataTable" onclick="openPopup()">
+                    <table align="center" id="data_table" onclick="openPopup()">
                         
                     </table>
                 </div>
@@ -155,8 +162,9 @@
             <div id="myModal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
+                        Table Data
                         <span class="close">&times;</span>
-                        <h2>Table Data</h2>
+                        
                     </div>
                     <div class="modal-body">
                         <table id="popup" align="center"></table>
@@ -319,12 +327,7 @@
                 series: []
             });
         </script>
-        
-        <script type="text/javascript">
-            //document.getElementById("GraphTab").click();
-            /*if (getCookie("id") == "Table")
-                document.getElementById("TableTab").click();
-            else
-                document.getElementById("GraphTab").click();*/
+        <script>
+            
         </script>
     </body>
