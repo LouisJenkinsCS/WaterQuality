@@ -20,6 +20,7 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import com.github.davidmoten.rx.jdbc.Database;
+import io.reactivex.subjects.PublishSubject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,7 +34,13 @@ import security.SecurityCode;
 
 /**
  *
- * @author Tyler Mutzek
+ * NOTE: rxjava-jdbc uses rxjava 1.0, while we use rxjava 2.0. Both are not truly
+ * compatible with each other, and so we must be explicit with the actual return types.
+ * Luckily this is no actual issue and extremely trivial performance loss, as we can
+ * easily just create a rxjava 2.0 Observable that accepts the emissions from the
+ * rxjava 1.0 Observables.
+ * 
+ * @author Tyler Mutzek & Louis Jenkins
  */
 public class DatabaseManager 
 {
@@ -1048,97 +1055,6 @@ public class DatabaseManager
         return status;
     }
     
-    /*
-        Inserts a JSONObject into the data table
-        Made primarily for pulling data from netronix and inputing it into our
-        own tables
-    
-        @param j a json object containing data for the data value table
-    */
-    public static void insertJSON(JSONObject j)
-    {
-        
-        Connection conn = Web_MYSQL_Helper.getConnection();
-        PreparedStatement insertData = null;
-        try
-        {
-            String name = (String)j.get("name");
-            if(name.equals("Turbidity"))//turbidity values from the old sensor are not wanted
-                return;
-            
-            conn.setAutoCommit(false);
-            String insertSQL = "INSERT INTO DataValues (dataName,units,sensor,timeRecorded,dataValue,delta) "
-                    + "values (?,?,?,?,?,?)";
-            
-            //removes special characters as prepared statement will replace them with ?
-            String units = (String)j.get("unit");
-            if(units.equals("℃"))
-            {
-                units = "C";
-                //air temperature is stored as degrees C
-                //This change allows for easy distinguishing among water and air temp
-                if(name.equals("Temperature"))//dewpoint is also degrees C so this line is necessary here
-                    name = "Air Temperature";
-            }
-            else if(units.equals("C") && name.equals("Temperature"))
-            {
-                name = "Water Temperature";//Water has units C and is only labeled temperature
-            }
-            //HDO refers to a method of checking dissolved oxygen
-            //We only care that is it dissolved oxygen
-            if(name.equals("HDO"))
-                name = "DO";
-            else if(name.equals("Turbidity Dig"))//dig only refers to digital, not something meaningful
-                name = "Turbidity";
-            units = units.replace("μ","u");//special chars not allowed
-            
-            String time = ((String)j.get("timestamp")).substring(0,19);
-            if(dataExistsAtTime(name,time))
-            {return;}//This tells us if the data is a duplicate. Don't insert it if so
-            
-            if(!dataNameExists(name))//updates the table of unique data names should any new ones appear
-                insertDataName(name);
-            
-            insertData = conn.prepareStatement(insertSQL);
-            insertData.setString(1, name);
-            insertData.setString(2, units);
-            insertData.setString(3, (String)j.get("sensor_name"));
-            insertData.setString(4, time);
-            insertData.setFloat(5, (float)(double)j.get("value"));
-            insertData.setFloat(6, (float)(double)j.get("delta"));
-            insertData.executeUpdate();
-            conn.commit();
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error with JSON Insertion: " + ex);
-            if(conn!=null)
-            {
-                try
-                {
-                    conn.rollback();
-                }
-                catch(SQLException excep)
-                {
-                    LogError("Rollback unsuccessful: " + excep);
-                }
-            }
-        }
-        finally
-        {
-            try
-            {
-                if(insertData != null)
-                    insertData.close();
-                if(conn != null)
-                    conn.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or connection: " + excep);
-            }
-        }
-    }
     
     /*
         Gets the user with the parameter login name
@@ -1701,89 +1617,21 @@ public class DatabaseManager
     
     
     
-    /*
-        Returns an arraylist of all manual data names
-    */
-    public static ArrayList<String> getManualDataNames()
+    public static List<String> getManualDataNames()
     {
-        ArrayList<String> dataNameList= new ArrayList<>();
-        Statement selectDataNames = null;
-        ResultSet dataNames = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String query = "Select * from ManualDataNames";
-            selectDataNames = conn.createStatement();
-            dataNames = selectDataNames.executeQuery(query);
-            
-            while(dataNames.next())
-                    dataNameList.add(dataNames.getString(1));
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error retrieving data names: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectDataNames != null)
-                    selectDataNames.close();
-                if(dataNames != null)
-                    dataNames.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        return dataNameList;
+        Database db = Database.from("jdbc:mysql://127.0.0.1/WaterQuality?useSSL=true", "root", "root");
+        
+        return db.select("select parameter_id from remote_data_parameters")
+                .getAs(Long.class)
+                .compose(db.select("select name from data_parameters where id = ?")
+                        .parameterTransformer()
+                        .getAs(String.class)
+                )
+                .toList()
+                .toBlocking()
+                .first();
     }
     
-    /*
-        Checks if data with the parameter dataName exists at the parameter time.
-        Since it doesn't make sense for there to be 2 different values for a
-        data type at the same time, this function is useful for preventing data
-        duplicates from being pulled from netronix.
-    
-        time is in LocalDateTime.toString format (it's pointless to convert it
-        to LocalDateTime just to pass it here, then convert it back as it is 
-        pulled from the JSON as a string and it is needed as a string here).
-    */
-    public static boolean dataExistsAtTime(String dataName, String time)
-    {
-        PreparedStatement selectDataAtTime = null;
-        ResultSet dataAtTime = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String query = "Select * from DataValues Where dataName = ? AND timeRecorded = ?";
-            selectDataAtTime = conn.prepareStatement(query);
-            selectDataAtTime.setString(1, dataName);
-            selectDataAtTime.setString(2, time.toString());
-            dataAtTime = selectDataAtTime.executeQuery();
-            
-            if(!dataAtTime.next())
-                return false;//if there is no data, it doesn't exist at that time
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error checking if data exists at time: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectDataAtTime != null)
-                    selectDataAtTime.close();
-                if(dataAtTime != null)
-                    dataAtTime.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        return true;//else there is data at that time
-    }
     
     /*
         Returns an arraylist of all errors
@@ -1875,26 +1723,33 @@ public class DatabaseManager
     
     public static void insertParameter(DataParameter parameter) {
         Database db = Database.from("jdbc:mysql://127.0.0.1/WaterQuality?useSSL=true", "root", "root");
-        
-        Observable<Long> dataParamId = db.update("INSERT IGNORE INTO `WaterQuality`.`data_parameters` (`name`, `unit`) values (?, ?);")
+        try {
+            db.getConnectionProvider().get().setAutoCommit(false);
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+                
+        db.update("INSERT IGNORE INTO `WaterQuality`.`data_parameters` (`name`, `unit`) values (?, ?);")
+                .dependsOn(db.beginTransaction())
                 .parameter(parameter.getName())
                 .parameter("".equals(parameter.getUnit()) ? null : parameter.getUnit())
                 .returnGeneratedKeys()
                 .getAs(Long.class)
-                .doOnNext(id -> System.out.println("Inserted: " + id));
-        
-        db.update("INSERT IGNORE INTO `WaterQuality`.`data_descriptions` (`parameter_id`, `description`) values (?, ?);")
-                .dependsOn(dataParamId)
-                .parameters(dataParamId)
-                .parameter(parameter.getDescription());
-        
-        db.update("INSERT IGNORE INTO `WaterQuality`.`remote_data_parameters` (`parameter_id`, `source`, `remote_name`) values (?, ?, ?);")
-                .dependsOn(dataParamId)
-                .parameters(dataParamId)
-                .parameter(parameter.getId())
-                .parameter(parameter.getSensor());
-        
-        dataParamId.subscribe();
+                .flatMap(key -> Observable.just(key)
+                                    .compose(db.update("INSERT IGNORE INTO `WaterQuality`.`data_descriptions` (`parameter_id`, `description`) values (?, ?);")
+                                            .parameter(key)
+                                            .parameter(parameter.getDescription())
+                                            .dependsOnTransformer()
+                                    )
+                                    .compose(db.update("INSERT IGNORE INTO `WaterQuality`.`remote_data_parameters` (`parameter_id`, `source`, `remote_name`) values (?, ?, ?);")
+                                            .parameter(key)
+                                            .parameter(parameter.getId())
+                                            .parameter(parameter.getSensor())
+                                            .dependsOnTransformer()
+                                    )
+                )
+                .compose(db.commitOnComplete_())
+                .subscribe();
     }
  
     public static void main(String[] args) {
@@ -1903,6 +1758,10 @@ public class DatabaseManager
                 .subscribeOn(Schedulers.io())
                 .doOnNext(DatabaseManager::insertParameter)
                 .blockingSubscribe();
+        
+        System.out.println("Transactions Done...");
+        
+        DatabaseManager.getManualDataNames().stream().forEach(System.out::println);
     }
     
 }
