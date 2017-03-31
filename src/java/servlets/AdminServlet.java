@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -35,6 +37,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import protocol.JSONProtocol;
 import utilities.FileUtils;
+import utilities.JSONUtils;
 
 /**
  *
@@ -395,13 +398,23 @@ static {
             */
         }
         
-        /*
-            Deletes a number of data values from the ManualDataValues table
-            with ids specified by an ArrayList of Integer IDs
-        
-            If it succeeds the data is deleted with no message displayed.
-            If it fails, etcStatus is set with a possible cause.
-        */
+        else if (action.trim().equalsIgnoreCase("insertData")) {
+            
+            Observable.just(request.getParameter("data"))
+                    .map(req -> (JSONObject) new JSONParser().parse(req))
+                    .map(obj -> (JSONArray) obj.get("data"))
+                    .flatMap(JSONUtils::toData)
+                    .flatMap(obj -> Observable.just(obj)
+                            .map(o -> (JSONArray) o.get("values"))
+                            .flatMap(JSONUtils::toData)
+                            .flatMap(o -> DatabaseManager
+                                    .parameterNameToId((String) o.get("name"))
+                                    .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), (double) o.get("value")))
+                            )
+                    )
+                    .subscribe(dv -> System.out.println("Insert for: " + dv));
+                    
+        }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 
         {
             try

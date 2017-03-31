@@ -260,6 +260,19 @@ public class DatabaseManager
         }
     }
     
+    public static io.reactivex.Observable<Long> parameterNameToId(String name) {
+         Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        PublishSubject<Long> results = PublishSubject.create();
+        
+        db.select("select id from data_parameters where name = ?")
+                .parameter(name)
+                .getAs(Long.class)
+                .observeOn(rx.schedulers.Schedulers.io())
+                .subscribe(results::onNext, results::onError, results::onComplete);
+        
+        return results;
+    }
+    
     /*
         A table consisting only of the unique data names of all data
     
@@ -665,7 +678,7 @@ public class DatabaseManager
                 )
                 .subscribe(results::onNext, results::onError, results::onComplete);
         
-        return results.doOnNext(System.out::println);
+        return results;
     }
     
     /*
