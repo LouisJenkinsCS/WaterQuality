@@ -49,7 +49,7 @@ function toggle() {
     //Sets to the opposite of itself so that the next click will be the revers
     doCheck=!doCheck;
     //makes sure the <code>select_all_box</code>
-    document.getElementById("select_all_box").checked=false;
+    //document.getElementById("select_all_box").checked=false;
 }
 
 /**Sets a cookie so that the current tab name can remembered for reloading the page
@@ -187,7 +187,7 @@ function fetchData(json) {
                 chart.yAxis[i].setTitle({text: ""});
             chart.redraw();
         }
-    }
+    }    
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor="default";
 }
@@ -222,7 +222,7 @@ function fetch() {
     if(current=="Graph")
         var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
     if(current=="Table")
-        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
+        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([id="select_all_box"])');
     console.log("Start: " + startTime + " end: " + endTime);
     var numChecked=0;
     for (var i = 0; i < checkboxes.length; i++) {
@@ -236,7 +236,7 @@ function fetch() {
     if(numChecked==0){
         //if in the table tab the table will be set to null
         if(current=="Table")
-            document.getElementById("dataTable").innerHTML=null;
+            document.getElementById("data_table").innerHTML=null;
         //Returns the cursor to default so it doesnt get stuck on loading
         document.getElementById("loader").style.cursor="default";
         return;
@@ -297,16 +297,16 @@ function pad(num, size) {
  * @param {type} dataResp
  */
 function fillTable(dataResp) {
-    var table = document.getElementById("dataTable");
+    var table = document.getElementById("data_table");
     table.innerHTML = "";
     var html = [];//Holds the table that will be created 
     var dates=[];//holds the array of all dates from all parameters 
-    html.push("<table><tr><th>TimeStamp</th>");
+    html.push("<table><thead><tr><th>TimeStamp</th>");
     //Adds the names to the header of the table 
     for (var i = 0; i < dataResp.data.length; i++) {
         html.push("<th>" + dataResp.data[i]["name"] + "</th>");
     }
-    html.push("</tr>");
+    html.push("</tr></thead><tbody>");
     //adds one of every date to the <code>dates</code> array
     //This ensures that every date that is used can be accounted for
     //also allows the handling of missing data
@@ -342,6 +342,7 @@ function fillTable(dataResp) {
         }
         html.push("</tr>");
     }
+    html.push("</tbody></table>")
     //setting the innerHTML allows the table to be visible on the page
     var finalHtml = "";
     for (i = 0; i < html.length; i++) {
@@ -354,20 +355,22 @@ function fillTable(dataResp) {
 }
 
 /**The <code>openPoppup()</code> function simply opens a popped up
- * version of the data table when <code>dataTable</code> is clicked 
+ * version of the data table when <code>data_table</code> is clicked 
  * so that the user can more easily see the data 
  */
 function openPopup() {
     var modal = document.getElementById("myModal");
     var span = document.getElementsByClassName("close")[0];
-    var table = document.getElementById("dataTable");
+    var table = document.getElementById("data_table");
     var popup = document.getElementById("popup");
 
 
     popup.innerHTML = table.innerHTML;
     modal.style.display = "block";
+        $(popup).DataTable();
     span.onclick = function () {
         modal.style.display = "none";
+        $(popup).DataTable().destroy();
     }
 }
 
@@ -404,11 +407,10 @@ var load=true;
 function startingData(){
     current="Graph";
     var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
-    var startingNumber=Math.floor((Math.random() * graphcheckboxes.length));
-    graphcheckboxes[startingNumber].click();
+    graphcheckboxes[3].click();
     
     var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
-    tablecheckboxes[startingNumber+1].checked=true;
+    tablecheckboxes[4].checked=true;
     current=getCookie("id");
     if (getCookie("id") == "Table")
         document.getElementById("TableTab").click();
