@@ -20,7 +20,9 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import com.github.davidmoten.rx.jdbc.Database;
+import com.github.davidmoten.rx.jdbc.tuple.TupleN;
 import io.reactivex.subjects.PublishSubject;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,6 +33,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import rx.Observable;
 import security.SecurityCode;
+import utilities.Either;
+import utilities.FileUtils;
+import utilities.JSONUtils;
 
 /**
  *
@@ -44,61 +49,6 @@ import security.SecurityCode;
  */
 public class DatabaseManager 
 {
-    // TODO: Make this more elegant. Database needs to be initialized when first setup, 
-    // but we cannot setup the database until AFTER the servlet has begun running ore we get
-    // an 'Allocate' exception. So we need to have a Test-and-Test-and-Set type of initializer
-    // loop. This MUST be refactored before production. - L.J
-    // TYLER: DO NOT DELETE THIS, PLEASE ACTUALLY CHECK WHAT NEEDS TO BE MERGED AND DO NOT DISCARD
-    // CHANGES TO THIS FILE THAT ARE NOT YOUR OWN.
-    private static final int DATABASE_UNINITIALIZED = 2;
-    private static final int DATABASE_INITIALIZING = 1;
-    private static final int DATABASE_INITIALIZED = 0; 
-    private static AtomicInteger INIT_STATE = new AtomicInteger(DATABASE_UNINITIALIZED); 
-    
-    /**
-     * Initialization function that ensures it is initialized only once and that any
-     * race conditions are satisfied by checking the INIT_STATE; if it it currently being
-     * initialized it is not safe to proceed, so they spin and wait anyway. 
-     */
-    public static void init() {
-        int status;
-        // Database is not initialized yet
-        while ((status = INIT_STATE.get()) != DATABASE_INITIALIZED) {
-            // If we're the lucky thread to be selected, initialize.
-            // A weak compare and swap is used to help with potential memory contention in the case it is not initialized.
-            if (status == DATABASE_UNINITIALIZED && INIT_STATE.weakCompareAndSet(DATABASE_UNINITIALIZED, DATABASE_INITIALIZING)) {
-                System.out.println("Setting up Database...");
-                DatabaseManager.createErrorLogsTable();
-                DatabaseManager.createDataDescriptionTable();
-                DatabaseManager.createDataValueTable();
-                DatabaseManager.createManualDataValueTable();
-                DatabaseManager.createManualDataNamesTable();
-                DatabaseManager.createUserTable();
-                // Need to fill parameter table as this is potentially first time running
-                // At least on the actual server...
-                DataReceiver.getParameters().map(DataParameter::getName).blockingSubscribe(DatabaseManager::insertDataName);
-                
-                System.out.println("Setting up...");
-                // Alert spinning threads...
-                INIT_STATE.set(DATABASE_INITIALIZED);
-            } else if (status == DATABASE_INITIALIZING) { // We are spinning waiting for initialization
-                // Spin becuase we have to wait anyway...
-                int spins = 0;
-                while (INIT_STATE.get() != DATABASE_INITIALIZED) { 
-                    spins++;
-                    System.out.println(Thread.currentThread().getName() + ": " + spins + " spins..."); 
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-}
-            }
-        }
-        
-    }
-    
-    
     
     /*
         Creates the data value table
@@ -686,60 +636,65 @@ public class DatabaseManager
         return graphData;
     }
     
+    public static io.reactivex.Observable<async.DataValue> getDataValues(Instant start, Instant end, String name) {
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        PublishSubject<async.DataValue> results = PublishSubject.create();
+        
+        db.select("select id from data_parameters where name = ?")
+                .parameter(name)
+                .getAs(Long.class)
+                .doOnNext(System.out::println)
+                .observeOn(rx.schedulers.Schedulers.io())
+                .flatMap(key -> db.select("select source from remote_data_parameters where parameter_id = ?")
+                        .parameter(key)
+                        .count()
+                        .flatMap(cnt -> {
+                            // Is it a remote data value?
+                            if (cnt != 0) {
+                                return db.select("select source from remote_data_parameters where parameter_id = ?")
+                                        .parameter(key)
+                                        .getAs(Long.class)
+                                        .flatMap(remoteKey -> Observable.from(DataReceiver.getData(start, end, remoteKey).getRawData()));
+                            } else {
+                                return db.select("select time, value from data_values where parameter_id = ?")
+                                    .parameter(key)
+                                    .getAs(Long.class, Double.class)
+                                    .map(pair -> new async.DataValue(key, Instant.ofEpochMilli(pair._1()), pair._2()));
+                            }
+                        })
+                )
+                .subscribe(results::onNext, results::onError, results::onComplete);
+        
+        return results.doOnNext(System.out::println);
+    }
+    
     /*
         Returns a list of all data
         @param name the name of the data type for which data is being requested
     */
-    public static ArrayList<DataValue> getAllGraphData(String name)
-    {
-        ArrayList<DataValue> graphData = new ArrayList<>();
-        PreparedStatement selectData = null;
-        ResultSet dataRange = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String query = "Select * from DataValues Where dataName = ?;";
-            selectData = conn.prepareStatement(query);
-            selectData.setString(1, name);
-            dataRange = selectData.executeQuery();
-            
-            int entryID;
-            String units;
-            LocalDateTime time;
-            float value;
-            float delta;
-            String sensor;
-            while(dataRange.next())
-            {
-                entryID = dataRange.getInt(1);
-                name = dataRange.getString(2);
-                units = dataRange.getString(3);
-                sensor = dataRange.getString(4);
-                time = LocalDateTime.parse(dataRange.getString(5));
-                value = dataRange.getFloat(6);
-                delta = dataRange.getFloat(7);
-                DataValue dV = new DataValue(entryID,name,units,sensor,time,value,delta);
-                graphData.add(dV);
-            }
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error Retrieving Graph Data: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectData != null)
-                    selectData.close();
-                if(dataRange != null)
-                    dataRange.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        return graphData;
+    public static io.reactivex.Observable<async.DataValue> getDataValues(Instant start, Instant end, long id) {
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        PublishSubject<async.DataValue> results = PublishSubject.create();
+        
+        db.select("select source from remote_data_parameters where parameter_id = ?")
+                .parameter(id)
+                .count()
+                .doOnNext(System.out::println)
+                .observeOn(rx.schedulers.Schedulers.io())
+                .flatMap(cnt -> {
+                    // Is it a remote data value?
+                    if (cnt != 0) {
+                        return Observable.from(DataReceiver.getData(start, end, id).getRawData());
+                    } else {
+                        return db.select("select time, value from data_values where parameter_id = ?")
+                            .parameter(id)
+                            .getAs(Long.class, Double.class)
+                            .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
+                    }
+                })
+                .subscribe(results::onNext, results::onError, results::onComplete);
+        
+        return results;
     }
     
     /*
@@ -1318,42 +1273,6 @@ public class DatabaseManager
         return desc;
     }
     
-    /*
-        Inserts a description into the DataDescriptions table
-        @param name the name of the data type that is getting a description
-        @param the description (limit 500 characters)
-    */
-    public static void insertDescription(String name, String desc)
-    {
-        Connection conn = Web_MYSQL_Helper.getConnection();
-        PreparedStatement insertDesc = null;
-        try
-        {
-            String insertSQL = "INSERT INTO DataDescriptions values(?, ?)";
-            insertDesc = conn.prepareStatement(insertSQL);
-            insertDesc.setString(1, name);
-            insertDesc.setString(2, desc);
-            insertDesc.executeUpdate();
-        }
-        catch(Exception e)
-        {
-            LogError("Error inserting description for \"" + name + "\": " + e);
-        }
-        finally
-        {
-            try
-            {
-                if(insertDesc != null)
-                    insertDesc.close();
-                if(conn != null)
-                    conn.close();
-            }
-            catch(Exception excep)
-            {
-                LogError("Error closing statement or connection: " + excep);
-            }
-        }
-    }
 
     /*
         Retrieves the salt of the user with the parameter login name
@@ -1426,212 +1345,6 @@ public class DatabaseManager
             }
         }
     }
-    
-    /*
-        Returns whether the parameter data name is already in the list of all
-        unique data names or not
-    */
-    public static boolean dataNameExists(String name)
-    {
-        Statement selectDataNames = null;
-        ResultSet dataNames = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String query = "Select * from DataNames";
-            selectDataNames = conn.createStatement();
-            dataNames = selectDataNames.executeQuery(query);
-            
-            while(dataNames.next())
-                if(dataNames.getString(1).equals(name))
-                    return true;
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error checking data names: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectDataNames != null)
-                    selectDataNames.close();
-                if(dataNames != null)
-                    dataNames.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        return false;
-    }
-
-    /*
-        Inserts the data name into the table of unique data names
-        This should only be called if it is known in advance that the 
-        parameter name is not already in the table (ex: through the dataNameExists
-        function)
-    */
-    public static void insertDataName(String name)
-    {
-        PreparedStatement insertDataName = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String insertSQL = "INSERT INTO DataNames values (?)";
-            insertDataName = conn.prepareStatement(insertSQL);
-            insertDataName.setString(1, name);
-            insertDataName.executeUpdate();
-        }
-        catch(SQLException e)
-        {
-            LogError("Error inserting Data Name:" + e);
-        }
-        finally
-        {
-            try
-            {
-                if(insertDataName != null)
-                    insertDataName.close();
-            }
-            catch(Exception excep)
-            {
-                LogError("Error closing statement or result set:" + excep);
-            }
-        }
-    }
-    
-    /*
-        Returns an arraylist of all unique data names
-    */
-    public static ArrayList<String> getDataNames()
-    {
-        ArrayList<String> dataNameList= new ArrayList<>();
-        Statement selectDataNames = null;
-        ResultSet dataNames = null;
-        System.out.println("Getting Data Names...");
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            System.out.println("Made connection...");
-            String query = "Select * from DataNames";
-            selectDataNames = conn.createStatement();
-            dataNames = selectDataNames.executeQuery(query);
-            
-            while(dataNames.next())
-                    dataNameList.add(dataNames.getString(1));
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error retrieving data names: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectDataNames != null)
-                    selectDataNames.close();
-                if(dataNames != null)
-                    dataNames.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        
-        System.out.println("Returning...");
-        return dataNameList;
-    }
-    
-    /*
-        Returns whether the parameter data name is already in the list of all
-        unique manual data names or not
-    */
-    public static boolean manualDataNameExists(String name)
-    {
-        Statement selectManualDataNames = null;
-        ResultSet dataNames = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String query = "Select * from DataNames";
-            selectManualDataNames = conn.createStatement();
-            dataNames = selectManualDataNames.executeQuery(query);
-            
-            while(dataNames.next())
-                if(dataNames.getString(1).equals(name))
-                    return true;
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error checking data names: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectManualDataNames != null)
-                    selectManualDataNames.close();
-                if(dataNames != null)
-                    dataNames.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        return false;
-    }
-
-    /*
-        Inserts the data name into the table of manual data names
-        This should only be called if it is known in advance that the 
-        parameter name is not already in the table (ex: through the manualDataNameExists
-        function)
-    */
-    public static void insertManualDataName(String name)
-    {
-        PreparedStatement insertDataName = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String insertSQL = "INSERT INTO ManualDataNames values (?)";
-            insertDataName = conn.prepareStatement(insertSQL);
-            insertDataName.setString(1, name);
-            insertDataName.executeUpdate();
-        }
-        catch(SQLException e)
-        {
-            LogError("Error inserting Data Name:" + e);
-        }
-        finally
-        {
-            try
-            {
-                if(insertDataName != null)
-                    insertDataName.close();
-            }
-            catch(Exception excep)
-            {
-                LogError("Error closing statement or result set:" + excep);
-            }
-        }
-    }
-    
-    
-    
-    public static List<String> getManualDataNames()
-    {
-        Database db = Database.from("jdbc:mysql://127.0.0.1/WaterQuality?useSSL=true", "root", "root");
-        
-        return db.select("select parameter_id from remote_data_parameters")
-                .getAs(Long.class)
-                .compose(db.select("select name from data_parameters where id = ?")
-                        .parameterTransformer()
-                        .getAs(String.class)
-                )
-                .toList()
-                .toBlocking()
-                .first();
-    }
-    
     
     /*
         Returns an arraylist of all errors
@@ -1721,13 +1434,67 @@ public class DatabaseManager
         return errorList;
     }
     
-    public static void insertParameter(DataParameter parameter) {
-        Database db = Database.from("jdbc:mysql://127.0.0.1/WaterQuality?useSSL=true", "root", "root");
-        try {
-            db.getConnectionProvider().get().setAutoCommit(false);
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+    public static io.reactivex.Observable<String> getManualParameterNames()
+    {
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        PublishSubject<String> results = PublishSubject.create();
+        
+        db.select("select parameter_id from manual_data_parameters")
+                .getAs(Long.class)
+                .observeOn(rx.schedulers.Schedulers.io())
+                .compose(db.select("select name from data_parameters where id = ?")
+                        .parameterTransformer()
+                        .getAs(String.class)
+                )
+                .subscribe(results::onNext, results::onError, results::onComplete);
+        
+        return results;
+    }
+    
+    public static io.reactivex.Observable<String> getRemoteParameterNames()
+    {
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        PublishSubject<String> results = PublishSubject.create();
+        
+        db.select("select parameter_id from remote_data_parameters")
+                .getAs(Long.class)
+                .observeOn(rx.schedulers.Schedulers.io())
+                .compose(db.select("select name from data_parameters where id = ?")
+                        .parameterTransformer()
+                        .getAs(String.class)
+                )
+                .subscribe(results::onNext, results::onError, results::onComplete);
+        
+        return results;
+    }
+    
+    public static void insertManualParameter(DataParameter parameter) {
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        
+        db.update("INSERT IGNORE INTO `WaterQuality`.`data_parameters` (`name`, `unit`) values (?, ?);")
+                .dependsOn(db.beginTransaction())
+                .parameter(parameter.getName())
+                .parameter("".equals(parameter.getUnit()) ? null : parameter.getUnit())
+                .returnGeneratedKeys()
+                .getAs(Long.class)
+                .flatMap(key -> Observable.just(key)
+                                    .compose(db.update("INSERT IGNORE INTO `WaterQuality`.`data_descriptions` (`parameter_id`, `description`) values (?, ?);")
+                                            .parameter(key)
+                                            .parameter(parameter.getDescription())
+                                            .dependsOnTransformer()
+                                    )
+                                    .compose(db.update("INSERT IGNORE INTO `WaterQuality`.`manual_data_parameters` (`parameter_id`, `source`) values (?, ?);")
+                                            .parameter(key)
+                                            .parameter(parameter.getId())
+                                            .dependsOnTransformer()
+                                    )
+                )
+                .compose(db.commitOnComplete_())
+                .subscribe();
+    }
+    
+    public static void insertRemoteParameter(DataParameter parameter) {
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
                 
         db.update("INSERT IGNORE INTO `WaterQuality`.`data_parameters` (`name`, `unit`) values (?, ?);")
                 .dependsOn(db.beginTransaction())
@@ -1756,12 +1523,25 @@ public class DatabaseManager
         DataReceiver
                 .getParameters()
                 .subscribeOn(Schedulers.io())
-                .doOnNext(DatabaseManager::insertParameter)
+                .doOnNext(DatabaseManager::insertRemoteParameter)
                 .blockingSubscribe();
         
         System.out.println("Transactions Done...");
         
-        DatabaseManager.getManualDataNames().stream().forEach(System.out::println);
+        io.reactivex.Observable
+                .just("resources/manual_entry_items.json")
+                .map(FileUtils::readAll)
+                .map(str -> (JSONObject) new JSONParser().parse(str))
+                .map(obj -> (JSONArray) obj.get("data"))
+                .flatMap(JSONUtils::toData)
+                .map((JSONObject obj) -> {
+                    DataParameter param = new DataParameter((String) obj.get("name"), (String) obj.get("description"));
+                    param.setUnit((String) obj.get("units"));
+                    return param;
+                })
+                .blockingSubscribe(DatabaseManager::insertManualParameter);
+        
+        DatabaseManager.getRemoteParameterNames().map("Name: "::concat).blockingSubscribe(System.out::println);
     }
     
 }

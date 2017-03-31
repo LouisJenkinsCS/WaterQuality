@@ -144,12 +144,11 @@ function filterData() {
     var $deleteEndTime = $('#delete_endtime').val();
     
 
-    var filterRequest = {action: 'getFilteredData',
+    var filterRequest = {action: 'getData',
         parameter: $paramName,
-        startDate: $deleteStartDate,
-        endDate: $deleteEndDate,
-        startTime: $deleteStartTime,
-        endTime: $deleteEndTime};
+        start: $deleteStartDate,
+        end: $deleteEndDate,
+    };
 
     /*
      * Dr. Jones has requested that the user be shown the date and time
@@ -184,13 +183,14 @@ function filterData() {
             window.alert("Error Fetching Data from AdminServlet...\nError: \"" + resp.status + "\"");
             return;
         }
+        window.alert("Read: " + JSON.stringify(resp));
         var data = JSON.parse(resp)["data"];
         var htmlstring = "";
         for (var i = 0; i < data.length; i++)
         {
             var item = data[i];
             htmlstring += '<tr id = deletion_row class = datadeletion>';
-            htmlstring += '<td><input type="text" name="data_date" id="time" value=' + item["date"] + '></td>';
+            htmlstring += '<td><input type="text" name="data_date" id="time" value=' + item["timestamp"] + '></td>';
             htmlstring += '<td><input type="text" name="data_time" id="time" value=' + item["time"] + '></td>';
             htmlstring += '<td><input type="text" name="data_name" id="name" value=' + item["name"] + '></td>';
             htmlstring += '<td><input type="text" name="data_value" id="value" value=' + item["value"] + '></td>';
