@@ -46,9 +46,10 @@ DataRequest.prototype = {
 
 function DataResponse(json) {
     if (typeof json != "object") {
+        console.log(json);
         json = JSON.parse(json);
     } 
-    console.log(json);
+    
     // Obtain data from response as JSONArray
     this.data = json["resp"];
     this.table = json["table"];

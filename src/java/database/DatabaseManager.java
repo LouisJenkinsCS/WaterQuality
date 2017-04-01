@@ -275,6 +275,21 @@ public class DatabaseManager
         return results;
     }
     
+    public static io.reactivex.Observable<String> parameterIdToName(Long id) {
+         Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        PublishSubject<String> results = PublishSubject.create();
+        Subject<String> serializedResults = results.toSerialized();
+        
+        db.select("select name from data_parameters where id = ?")
+                .parameter(id)
+                .getAs(String.class)
+                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
+        
+        return results;
+    }
+    
+    
     /*
         A table consisting only of the unique data names of all data
     
@@ -670,7 +685,7 @@ public class DatabaseManager
                                 return db.select("select source from remote_data_parameters where parameter_id = ?")
                                         .parameter(key)
                                         .getAs(Long.class)
-                                        .flatMap(remoteKey -> Observable.from(DataReceiver.getData(start, end, remoteKey).getRawData()));
+                                        .flatMap(remoteKey -> Observable.from(DataReceiver.getRemoteData(start, end, remoteKey).getRawData()));
                             } else {
                                 return db.select("select time, value from data_values where parameter_id = ?")
                                     .parameter(key)
@@ -701,7 +716,7 @@ public class DatabaseManager
                 .flatMap(cnt -> {
                     // Is it a remote data value?
                     if (cnt != 0) {
-                        return Observable.from(DataReceiver.getData(start, end, id).getRawData());
+                        return Observable.from(DataReceiver.getRemoteData(start, end, id).getRawData());
                     } else {
                         return db.select("select time, value from data_values where parameter_id = ?")
                             .parameter(id)
@@ -714,118 +729,6 @@ public class DatabaseManager
         return results;
     }
     
-    /*
-        Returns a list of data within a certain time range
-        @param name the name of the data type for which data is being requested
-        @param lower the lower range of the time
-        @param upper the upper range of the time
-    */
-    public static ArrayList<ManualDataValue> getManualData(String name, LocalDateTime lower, LocalDateTime upper)
-    {
-        ArrayList<ManualDataValue> graphData = new ArrayList<>();
-        PreparedStatement selectData = null;
-        ResultSet dataRange = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String query = "Select * from ManualDataValues Where dataName = ?"
-                + " AND timeRecorded >= ? AND timeRecorded <= ?;";
-            selectData = conn.prepareStatement(query);
-            selectData.setString(1, name);
-            selectData.setString(2, lower+"");
-            selectData.setString(3, upper+"");
-            dataRange = selectData.executeQuery();
-            
-            int entryID;
-            String units;
-            LocalDateTime time;
-            float value;
-            String submittedBy;
-            while(dataRange.next())
-            {
-                entryID = dataRange.getInt(1);
-                name = dataRange.getString(2);
-                units = dataRange.getString(3);
-                submittedBy = dataRange.getString(4);
-                time = LocalDateTime.parse(dataRange.getString(5));
-                value = dataRange.getFloat(6);
-                ManualDataValue dV = new ManualDataValue(entryID,name,units,submittedBy,time,value);
-                graphData.add(dV);
-            }
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error Retrieving Graph Data: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectData != null)
-                    selectData.close();
-                if(dataRange != null)
-                    dataRange.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        return graphData;
-    }
-    
-    /*
-        Returns a list of all manual data
-        @param name the name of the data type for which data is being requested
-    */
-    public static ArrayList<ManualDataValue> getAllManualData(String name)
-    {
-        ArrayList<ManualDataValue> graphData = new ArrayList<>();
-        PreparedStatement selectData = null;
-        ResultSet dataRange = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
-        {
-            String query = "Select * from ManualDataValues Where dataName = ?;";
-            selectData = conn.prepareStatement(query);
-            selectData.setString(1, name);
-            dataRange = selectData.executeQuery();
-            
-            int entryID;
-            String units;
-            LocalDateTime time;
-            float value;
-            String submittedBy;
-            while(dataRange.next())
-            {
-                entryID = dataRange.getInt(1);
-                name = dataRange.getString(2);
-                units = dataRange.getString(3);
-                submittedBy = dataRange.getString(4);
-                time = LocalDateTime.parse(dataRange.getString(5));
-                value = dataRange.getFloat(6);
-                ManualDataValue dV = new ManualDataValue(entryID,name,units,submittedBy,time,value);
-                graphData.add(dV);
-            }
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error Retrieving Graph Data: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(selectData != null)
-                    selectData.close();
-                if(dataRange != null)
-                    dataRange.close();
-            }
-            catch(SQLException excep)
-            {
-                LogError("Error closing statement or result set: " + excep);
-            }
-        }
-        return graphData;
-    }
     
     /*
         Adds a new user to the user table

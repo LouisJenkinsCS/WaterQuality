@@ -30,6 +30,7 @@
  */
 package async;
 
+import database.DatabaseManager;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
@@ -152,6 +153,19 @@ public class DataReceiver {
      * @return Data containing data from query.
      */
     public static Data getData(Instant start, Instant end, Long ...keys) {
+        return new Data(Observable
+                // For each key
+                .fromArray(keys)
+                .flatMap((Long key) ->
+                        DatabaseManager.parameterIdToName(key)
+                                .flatMap(name -> DatabaseManager.getDataValues(start, end, name))
+                    
+                // 'replay' is a way to say that we want to take ALL items up to this point (being the DataValues), cache it, and then
+                // resend it each and every time it is subscribed to (pretty much meaning this becomes reusable).
+                ).replay());
+    }
+    
+    public static Data getRemoteData(Instant start, Instant end, Long ...keys) {
         return new Data(Observable
                 // For each key
                 .fromArray(keys)

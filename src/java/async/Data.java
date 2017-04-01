@@ -31,6 +31,7 @@
 package async;
 
 import io.reactivex.observables.ConnectableObservable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,6 +55,6 @@ public class Data {
     }
     
     public List<DataValue> getRawData() {
-        return data.buffer(Integer.MAX_VALUE).blockingFirst();
+        return data.buffer(Integer.MAX_VALUE).blockingFirst(Collections.EMPTY_LIST);
     }
 }
