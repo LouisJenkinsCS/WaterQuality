@@ -244,7 +244,6 @@ function fetch() {
     
     var request = new DataRequest(startTime, endTime, selected);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
-    //document.getElementById("loader").style.cursor="default";
 }
 
 /**Sets the default dates for the date selectors
@@ -399,10 +398,10 @@ function exportTable(tableId) {
 
 //<code>load</code> makes sure that when the page is newly loaded it will do a
 //special action in the <code>fetchDataFunction</code> allowing it to generate
-//botht he table and the graph
+//both the table and the graph
 var load=true;
 /**The <code>startingData()</code> function generates both the table and the graph
- * on load/refresh of a page by using the same randomly generated data type
+ * on load/refresh of a page by using setting them to Dewpoint
  */
 function startingData(){
     current="Graph";
