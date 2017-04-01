@@ -5,13 +5,16 @@
  */
 package servlets;
 
+import async.DataValue;
 import common.UserRole;
 import database.DatabaseManager;
 import static database.DatabaseManager.LogError;
 import io.reactivex.Observable;
+import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -20,18 +23,23 @@ import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import protocol.JSONProtocol;
 import utilities.FileUtils;
+import utilities.JSONUtils;
 
 /**
  *
@@ -41,8 +49,10 @@ import utilities.FileUtils;
 public class AdminServlet extends HttpServlet {
     
 private static final JSONObject BAD_REQUEST = new JSONObject();
+private static final JSONObject EMPTY_RESULT = new JSONObject();
 
 static {
+    EMPTY_RESULT.put("data", new JSONArray());
     BAD_REQUEST.put("status", "Generic Error...");
 }
 
@@ -57,7 +67,6 @@ static {
         String action = request.getParameter("action");
         log("Action is: " + action);
         
-        DatabaseManager.init();
         /*
             Admin is manually inputting data into the ManualDataValues table
         
@@ -255,9 +264,8 @@ static {
         {
             Observable.just(0)
                     .subscribeOn(Schedulers.io())
-                    .map(_ignored -> DatabaseManager.getManualDataNames())
+                    .flatMap(_ignored -> DatabaseManager.getManualParameterNames())
                     .observeOn(Schedulers.computation())
-                    .flatMap(Observable::fromIterable)
                     .map((String name) -> {
                         JSONObject wrappedName = new JSONObject();
                         wrappedName.put("name", name);
@@ -274,7 +282,7 @@ static {
                         root.put("data", data);
                         return root;
                     })
-                    .defaultIfEmpty(BAD_REQUEST)
+                    .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe((JSONObject resp) -> { 
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -282,16 +290,15 @@ static {
                                         
             /*
             //We'll change to use this next group meeting
-            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            session.setAttribute("manualItems", DatabaseManager.getRemoteParameterNames());
             */
         }
         else if (action.trim().equalsIgnoreCase("getSensorItems")) 
         {
             Observable.just(0)
                     .subscribeOn(Schedulers.io())
-                    .map(_ignored -> DatabaseManager.getDataNames())
+                    .flatMap(_ignored -> DatabaseManager.getRemoteParameterNames())
                     .observeOn(Schedulers.computation())
-                    .flatMap(Observable::fromIterable)
                     .map((String name) -> {
                         JSONObject wrappedName = new JSONObject();
                         wrappedName.put("name", name);
@@ -308,7 +315,7 @@ static {
                         root.put("data", data);
                         return root;
                     })
-                    .defaultIfEmpty(BAD_REQUEST)
+                    .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe((JSONObject resp) -> { 
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -316,7 +323,7 @@ static {
                                         
             /*
             //We'll change to use this next group meeting
-            session.setAttribute("manualItems", DatabaseManager.getManualDataNames());
+            session.setAttribute("manualItems", DatabaseManager.getRemoteParameterNames());
             */
         }
         
@@ -328,29 +335,40 @@ static {
             If it failed due to invalid LocalDateTime format, dateStatus is
             set.
         */
-        else if (action.trim().equalsIgnoreCase("getFilteredData")) 
+        else if (action.trim().equalsIgnoreCase("getData")) 
         {
             String parameter = request.getParameter("parameter");
-            String startDate = request.getParameter("startDate");
-            String endDate = request.getParameter("endDate");
-            String startTime = request.getParameter("startTime");
-            String endTime = request.getParameter("endTime");
+            long start = Long.parseLong(request.getParameter("start"));
+            long end = Long.parseLong(request.getParameter("end"));
+            
+            JSONObject empty = new JSONObject();
+            empty.put("data", new JSONArray());
             
             Observable.just(parameter)
                     .subscribeOn(Schedulers.io())
-                    .map(param -> DatabaseManager.getAllGraphData(param))
-                    .flatMap(Observable::fromIterable)
+                    .flatMap(param -> DatabaseManager.getDataValues(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end), param))
                     .observeOn(Schedulers.computation())
-                    .map(param -> {
-                        JSONObject wrappedParam = new JSONObject();
-                        wrappedParam.put("entryID", param.getEntryID());
-                        wrappedParam.put("name", param.getName());
-                        wrappedParam.put("submittedBy", param.getSensor());
-                        wrappedParam.put("date", param.getTime().toLocalDate() + "");
-                        wrappedParam.put("time", param.getTime().toLocalTime() + "");
-                        wrappedParam.put("value", param.getValue());
-                        return wrappedParam;
-                    })
+                    .groupBy(DataValue::getId)
+                    .flatMap((GroupedObservable<Long, DataValue> gdv) -> 
+                            gdv.map((DataValue dv) -> {
+                                JSONObject obj = new JSONObject();
+                                obj.put("timestamp", dv.getTimestamp().getEpochSecond() * 1000);
+                                obj.put("value", dv.getValue());
+                                return obj;
+                            })
+                            .buffer(Integer.MAX_VALUE)
+                            .map((List<JSONObject> data) -> {
+                                JSONArray arr = new JSONArray();
+                                arr.addAll(data);
+                                return arr;
+                            })
+                            .map((JSONArray arr) -> {
+                                JSONObject obj = new JSONObject();
+                                obj.put("dataValues", arr);
+                                obj.put("id", gdv.getKey());
+                                return obj;
+                            })
+                    )
                     .buffer(Integer.MAX_VALUE)
                     .map(list -> {
                         JSONArray arr = new JSONArray();
@@ -362,7 +380,7 @@ static {
                         obj.put("data", arr);
                         return obj;
                     })
-                    .defaultIfEmpty(BAD_REQUEST)
+                    .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe(resp -> {
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -384,13 +402,77 @@ static {
             */
         }
         
-        /*
-            Deletes a number of data values from the ManualDataValues table
-            with ids specified by an ArrayList of Integer IDs
-        
-            If it succeeds the data is deleted with no message displayed.
-            If it fails, etcStatus is set with a possible cause.
-        */
+        else if (action.trim().equalsIgnoreCase("getParameters")) {
+            long type = Long.parseLong(request.getParameter("data"));
+            
+            Observable.just(type)
+                    .flatMap(typ -> Observable.concat(
+                            (typ & 0x1) != 0 ? DatabaseManager.getRemoteParameterNames()
+                                    .flatMap(name -> DatabaseManager.parameterNameToId(name)
+                                            .flatMap(id -> DatabaseManager.getDescription(id)
+                                                    .map(descr -> Quartet.with(1, id, name, descr))
+                                            )
+                                    ) : Observable.empty(),
+                            (typ & 0x2) != 0 ? DatabaseManager.getManualParameterNames()
+                                    .flatMap(name -> DatabaseManager.parameterNameToId(name)
+                                            .flatMap(id -> DatabaseManager.getDescription(id)
+                                                    .map(descr -> Quartet.with(2, id, name, descr))
+                                            )
+                                    ) : Observable.empty()
+                    ))
+                    .groupBy(Quartet::getValue0, Quartet::removeFrom0)
+                    .flatMap(group -> group
+                            .sorted((t1, t2) -> t1.getValue1().compareTo(t2.getValue1()))
+                            .map(triplet -> {
+                                JSONObject obj = new JSONObject();
+                                obj.put("id", triplet.getValue0());
+                                obj.put("name", triplet.getValue1());
+                                obj.put("description", triplet.getValue2());
+                                return obj;  
+                            })
+                            .buffer(Integer.MAX_VALUE)
+                            .map(JSONUtils::toJSONArray)
+                            .map(arr -> {
+                                JSONObject obj = new JSONObject();
+                                obj.put("mask", group.getKey());
+                                obj.put("descriptors", arr);
+                                return obj;
+                            })
+                    )
+                    .buffer(Integer.MAX_VALUE)
+                    .map(JSONUtils::toJSONArray)
+                    .map(arr -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("data", arr);
+                        return obj;
+                    })
+                    .defaultIfEmpty(EMPTY_RESULT)
+                    .doOnNext(System.out::println)
+                    .blockingSubscribe(resp -> {
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+                    
+                    
+                    
+        }
+        else if (action.trim().equalsIgnoreCase("insertData")) {
+            
+            Observable.just(request.getParameter("data"))
+                    .map(req -> (JSONObject) new JSONParser().parse(req))
+                    .map(obj -> (JSONArray) obj.get("data"))
+                    .flatMap(JSONUtils::flattenJSONArray)
+                    .flatMap(obj -> Observable.just(obj)
+                            .map(o -> (JSONArray) o.get("values"))
+                            .flatMap(JSONUtils::flattenJSONArray)
+                            .flatMap(o -> DatabaseManager
+                                    .parameterNameToId((String) o.get("name"))
+                                    .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), (double) o.get("value")))
+                            )
+                    )
+                    .subscribe(dv -> System.out.println("Insert for: " + dv));
+                    
+        }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 
         {
             try

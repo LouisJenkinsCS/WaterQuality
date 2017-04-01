@@ -7,6 +7,7 @@
  * generate the JS file to draw the plots.
  */
 package bayesian;
+import utilities.DataToCSV;
 import async.Data;
 import async.DataReceiver;
 import async.DataValue;
@@ -16,7 +17,10 @@ import io.reactivex.schedulers.Schedulers;
 import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +46,14 @@ public class RunBayesianModel {
     private static String input_dir = base_dir + "input\\"; 
     private static String output_dir = base_dir + "output\\";
     private static String jsroot_dir = base_dir + "JSchart\\";
+    private static String file_name = "";
     private static int interval = 600; // IMO, this variable is used to generate instant_rate table.
-    private static final long PAR = 637957793;
-    private static final long HDO = 1050296639;
-    private static final long Temp = 639121399;
-    private static final long Pressure = 639121405;
-    private static final double ATMOSPHERIC_CONVERSION_FACTOR = 0.000986923;
-    
+    public static final long PAR = 637957793;
+    public static final long HDO = 1050296639;
+    public static final long Temp = 639121399;
+    public static final long Pressure = 639121405;
+    public static final double ATMOSPHERIC_CONVERSION_FACTOR = 0.000986923;
+
     private static String EXAMPLE = "";
     /**
      * @param args the command line arguments
@@ -59,10 +64,45 @@ public class RunBayesianModel {
         
         FileOperation fo = new FileOperation();
         
-        Data data = DataReceiver.getData(Instant.now().truncatedTo(ChronoUnit.DAYS).minus(Period.ofWeeks(5)), Instant.now().truncatedTo(ChronoUnit.DAYS).minus(Period.ofWeeks(5)).plus(Period.ofDays(1)), PAR, HDO, Temp, Pressure);
+        Instant day = getFullDayOfData();
+        LocalDateTime dt = LocalDateTime.ofInstant(day, ZoneId.systemDefault());
+        file_name = dt.getYear() + "_" + dt.getMonthValue() + "_" + dt.getDayOfMonth() + ".csv";
+        Data data = DataReceiver.getData(
+                day,
+                day.plus(Period.ofDays(1)),
+                PAR, HDO, Temp, Pressure);
+        
+        System.out.println(DataToCSV.dataToCSV(data, true));
         ForkJoinPool.commonPool().execute(() -> runJJAGSForCSV(fo, data));
         
         ForkJoinPool.commonPool().awaitQuiescence(Integer.MAX_VALUE, TimeUnit.DAYS);
+    }
+    
+    public static Instant getFullDayOfData() {
+        Instant day = Instant
+                .now()
+                .truncatedTo(ChronoUnit.DAYS)
+                .minus(Period.ofDays(1));
+        
+        int attempts = 1000;
+        int currAttempts = 0;
+        
+        while (currAttempts++ < attempts) {
+            long cnt = DataReceiver
+                    .getData(day, day.minus(Period.ofDays(1)), PAR, HDO, Temp, Pressure)
+                    .getData()
+                    .subscribeOn(Schedulers.computation())
+                    .count()
+                    .blockingGet();
+            
+            if (cnt == 92 * 4) {
+                return day.minus(Period.ofDays(1));
+            } else {
+                day = day.minus(Period.ofDays(1));
+            }
+        }
+        
+        throw new RuntimeException("Could not find a full day in " + attempts + " tries...");
     }
     
     public static String formatForDay(List<DataValue> values) {
@@ -86,7 +126,7 @@ public class RunBayesianModel {
     
     
     private static void runJJAGSForCSV(FileOperation fo, Data data) {
-        String fname = "tmp.csv";
+        String fname = file_name;
         //Fitting the model and obtain the results in the folder output/
         String tmp_dir = base_dir + fname + "/";
 

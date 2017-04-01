@@ -102,7 +102,8 @@
                         End Date:
                         <input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">
                     </div>
-                    ${Parameters}
+                    <div id="graph_parameters">
+                    </div>
                     <br>
                     <div class="data_type_submit" id="Graph_submit">
                         <input type="button" value="Graph" onclick="fetch()">
@@ -122,8 +123,9 @@
                     <div id="select_all_div">
                         <input type="checkbox" onclick="toggle(); fetch();"id="select_all_box" value="select_all_data">
                         Select all
-                    </div><br>
-                        ${Parameters}
+                    </div>
+                    <div id="table_parameters">
+                    </div>
                     <br>
                     <div class="data_type_submit" id="Table_submit">
                         <input type="button" value="Table" onclick="fetch()">
@@ -156,7 +158,7 @@
 
                 <p id="tmp"> </p>
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
-                <div id="description">${Descriptions}</div>
+                <div id="description"></div>
             </section>
             <!--The modal aka the popup for the table-->
             <div id="myModal" class="modal">
@@ -171,7 +173,12 @@
                     </div>
                 </div>
             </div>
-        </section> 
+        </section>
+        
+            <script>
+               
+            </script>
+            
             
         <script>
             var end = new Date();
