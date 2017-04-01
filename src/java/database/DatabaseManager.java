@@ -270,7 +270,7 @@ public class DatabaseManager
                 .parameter(name)
                 .getAs(Long.class)
                 .subscribeOn(rx.schedulers.Schedulers.io())
-                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
     }
@@ -679,7 +679,7 @@ public class DatabaseManager
                             }
                         })
                 )
-                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
     }
@@ -709,7 +709,7 @@ public class DatabaseManager
                             .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
                     }
                 })
-                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
     }
@@ -1262,7 +1262,7 @@ public class DatabaseManager
                 .parameter(id)
                 .getAs(String.class)
                 .subscribeOn(rx.schedulers.Schedulers.io())
-                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
     }
@@ -1441,7 +1441,7 @@ public class DatabaseManager
                         .parameterTransformer()
                         .getAs(String.class)
                 )
-                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
     }
@@ -1459,7 +1459,8 @@ public class DatabaseManager
                         .parameterTransformer()
                         .getAs(String.class)
                 )
-                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
+        
         
         return results;
     }
