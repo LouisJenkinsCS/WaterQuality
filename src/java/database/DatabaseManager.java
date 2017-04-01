@@ -7,11 +7,9 @@ import async.DataParameter;
 import async.DataReceiver;
 import common.DataValue;
 import common.ErrorMessage;
-import common.ManualDataValue;
 import common.User;
 import common.UserRole;
 import io.reactivex.schedulers.Schedulers;
-import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,21 +18,15 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import com.github.davidmoten.rx.jdbc.Database;
-import com.github.davidmoten.rx.jdbc.tuple.TupleN;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.time.Instant;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.Executors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import rx.Observable;
 import security.SecurityCode;
-import utilities.Either;
 import utilities.FileUtils;
 import utilities.JSONUtils;
 
@@ -269,7 +261,7 @@ public class DatabaseManager
         db.select("select id from data_parameters where name = ?")
                 .parameter(name)
                 .getAs(Long.class)
-                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.computation())
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
@@ -283,7 +275,7 @@ public class DatabaseManager
         db.select("select name from data_parameters where id = ?")
                 .parameter(id)
                 .getAs(String.class)
-                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.computation())
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
@@ -675,7 +667,7 @@ public class DatabaseManager
                 .parameter(name)
                 .getAs(Long.class)
                 .doOnNext(System.out::println)
-                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.computation())
                 .flatMap(key -> db.select("select source from remote_data_parameters where parameter_id = ?")
                         .parameter(key)
                         .count()
@@ -712,7 +704,7 @@ public class DatabaseManager
                 .parameter(id)
                 .count()
                 .doOnNext(System.out::println)
-                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.computation())
                 .flatMap(cnt -> {
                     // Is it a remote data value?
                     if (cnt != 0) {
@@ -1164,7 +1156,7 @@ public class DatabaseManager
         db.select("select description from data_descriptions where parameter_id = ?")
                 .parameter(id)
                 .getAs(String.class)
-                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.computation())
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
@@ -1339,7 +1331,7 @@ public class DatabaseManager
         
         db.select("select parameter_id from manual_data_parameters")
                 .getAs(Long.class)
-                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.computation())
                 .compose(db.select("select name from data_parameters where id = ?")
                         .parameterTransformer()
                         .getAs(String.class)
@@ -1357,7 +1349,7 @@ public class DatabaseManager
         
         db.select("select parameter_id from remote_data_parameters")
                 .getAs(Long.class)
-                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.computation())
                 .compose(db.select("select name from data_parameters where id = ?")
                         .parameterTransformer()
                         .getAs(String.class)
@@ -1422,7 +1414,7 @@ public class DatabaseManager
     public static void main(String[] args) {
         DataReceiver
                 .getParameters()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .doOnNext(DatabaseManager::insertRemoteParameter)
                 .blockingSubscribe();
         

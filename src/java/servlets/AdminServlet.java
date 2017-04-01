@@ -406,7 +406,6 @@ static {
             long type = Long.parseLong(request.getParameter("data"));
             
             Observable.just(type)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(typ -> Observable.concat(
                             (typ & 0x1) != 0 ? DatabaseManager.getRemoteParameterNames()
                                     .flatMap(name -> DatabaseManager.parameterNameToId(name)
@@ -423,6 +422,7 @@ static {
                     ))
                     .groupBy(Quartet::getValue0, Quartet::removeFrom0)
                     .flatMap(group -> group
+                            .sorted((t1, t2) -> t1.getValue1().compareTo(t2.getValue1()))
                             .map(triplet -> {
                                 JSONObject obj = new JSONObject();
                                 obj.put("id", triplet.getValue0());
