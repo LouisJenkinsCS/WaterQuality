@@ -140,10 +140,10 @@ function fetchData(json) {
         var arr = [];
         for (var j = 0; j < timeStamps.length; j++) {
             arr.push([timeStamps[j], values[i][j]]);
-            console.log("Pushed: " + values[i][j]);
+            //console.log("Pushed: " + values[i][j]);
         }
         timeStampStr.push(arr);
-        console.log("Pushed: " + arr);
+        //console.log("Pushed: " + arr);
     }
     
     //If this page is being loaded/refreshed it will run through the if
@@ -223,7 +223,7 @@ function fetch() {
         var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
     if(current=="Table")
         var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([id="select_all_box"])');
-    console.log("Start: " + startTime + " end: " + endTime);
+    //console.log("Start: " + startTime + " end: " + endTime);
     var numChecked=0;
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked == true) {
@@ -254,7 +254,7 @@ function fetch() {
 function setDate(date, id) {
     var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1)%60, 2) + ":" + pad(0, 2);
     document.getElementById(id).value = dateStr;
-    console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
+    //console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
 }
 
 /**
@@ -347,10 +347,10 @@ function fillTable(dataResp) {
     var finalHtml = "";
     for (i = 0; i < html.length; i++) {
         var str = html[i];
-        console.log(str);
+        //console.log(str);
         finalHtml += str;
     }
-    console.log(finalHtml);
+    //console.log(finalHtml);
     table.innerHTML = finalHtml;
 }
 
@@ -405,7 +405,18 @@ var load=true;
  * on load/refresh of a page by using the same randomly generated data type
  */
 function startingData(){
-    current="Graph";
+     post("AdminServlet", {action: "getParameters", data: 1}, function (resp) {
+                    
+       console.log(JSON.parse(resp));
+       var data = JSON.parse(resp)["data"][0]["descriptors"];
+       console.log(data);
+       for (i = 0; i < data.length; i++) {
+           var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+           document.getElementById("graph_parameters").innerHTML += param;
+           document.getElementById("table_parameters").innerHTML += param;
+       }
+       
+       current="Graph";
     var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
     graphcheckboxes[3].click();
     
@@ -420,4 +431,6 @@ function startingData(){
         else
             document.getElementById("GraphTab").click();
     }
+    });
+    
 }
