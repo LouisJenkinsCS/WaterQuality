@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import com.github.davidmoten.rx.jdbc.Database;
 import com.github.davidmoten.rx.jdbc.tuple.TupleN;
 import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
@@ -263,12 +264,13 @@ public class DatabaseManager
     public static io.reactivex.Observable<Long> parameterNameToId(String name) {
          Database db = Database.from(Web_MYSQL_Helper.getConnection());
         PublishSubject<Long> results = PublishSubject.create();
+        Subject<Long> serializedResults = results.toSerialized();
         
         db.select("select id from data_parameters where name = ?")
                 .parameter(name)
                 .getAs(Long.class)
-                .observeOn(rx.schedulers.Schedulers.io())
-                .subscribe(results::onNext, results::onError, results::onComplete);
+                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
         
         return results;
     }
@@ -652,12 +654,13 @@ public class DatabaseManager
     public static io.reactivex.Observable<async.DataValue> getDataValues(Instant start, Instant end, String name) {
         Database db = Database.from(Web_MYSQL_Helper.getConnection());
         PublishSubject<async.DataValue> results = PublishSubject.create();
+        Subject<async.DataValue> serializedResults = results.toSerialized();
         
         db.select("select id from data_parameters where name = ?")
                 .parameter(name)
                 .getAs(Long.class)
                 .doOnNext(System.out::println)
-                .observeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.io())
                 .flatMap(key -> db.select("select source from remote_data_parameters where parameter_id = ?")
                         .parameter(key)
                         .count()
@@ -676,7 +679,7 @@ public class DatabaseManager
                             }
                         })
                 )
-                .subscribe(results::onNext, results::onError, results::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
         
         return results;
     }
@@ -688,12 +691,13 @@ public class DatabaseManager
     public static io.reactivex.Observable<async.DataValue> getDataValues(Instant start, Instant end, long id) {
         Database db = Database.from(Web_MYSQL_Helper.getConnection());
         PublishSubject<async.DataValue> results = PublishSubject.create();
+        Subject<async.DataValue> serializedResults = results.toSerialized();
         
         db.select("select source from remote_data_parameters where parameter_id = ?")
                 .parameter(id)
                 .count()
                 .doOnNext(System.out::println)
-                .observeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.io())
                 .flatMap(cnt -> {
                     // Is it a remote data value?
                     if (cnt != 0) {
@@ -705,7 +709,7 @@ public class DatabaseManager
                             .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
                     }
                 })
-                .subscribe(results::onNext, results::onError, results::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
         
         return results;
     }
@@ -1248,42 +1252,19 @@ public class DatabaseManager
         Retrieves the description for the parameter data name
         @param name the name of the data type being requested
     */
-    public static String getDescription(String name)
+    public static io.reactivex.Observable<String> getDescription(long id)
     {
-        Connection conn = Web_MYSQL_Helper.getConnection();
-        PreparedStatement getDesc = null;
-        ResultSet selectedDesc = null;
-        String desc = null;
-        try
-        {
-            String getSQL = "SELECT * FROM DataDescriptions WHERE dataName = ?";
-            getDesc = conn.prepareStatement(getSQL);
-            getDesc.setString(1, name);
-            selectedDesc = getDesc.executeQuery();
-            selectedDesc.next();
-            desc = selectedDesc.getString("description");
-        }
-        catch(Exception e)
-        {
-            LogError("Error retrieving description for \"" + name + "\": " + e);
-        }
-        finally
-        {
-            try
-            {
-                if(getDesc != null)
-                    getDesc.close();
-                if(selectedDesc != null)
-                    selectedDesc.close();
-                if(conn != null)
-                    conn.close();
-            }
-            catch(Exception excep)
-            {
-                LogError("Error closing statement or connection: " + excep);
-            }
-        }
-        return desc;
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        PublishSubject<String> results = PublishSubject.create();
+        Subject<String> serializedResults = results.toSerialized();
+        
+        db.select("select description from data_descriptions where parameter_id = ?")
+                .parameter(id)
+                .getAs(String.class)
+                .subscribeOn(rx.schedulers.Schedulers.io())
+                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
+        
+        return results;
     }
     
 
@@ -1451,15 +1432,16 @@ public class DatabaseManager
     {
         Database db = Database.from(Web_MYSQL_Helper.getConnection());
         PublishSubject<String> results = PublishSubject.create();
+        Subject<String> serializedResults = results.toSerialized();
         
         db.select("select parameter_id from manual_data_parameters")
                 .getAs(Long.class)
-                .observeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.io())
                 .compose(db.select("select name from data_parameters where id = ?")
                         .parameterTransformer()
                         .getAs(String.class)
                 )
-                .subscribe(results::onNext, results::onError, results::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
         
         return results;
     }
@@ -1468,15 +1450,16 @@ public class DatabaseManager
     {
         Database db = Database.from(Web_MYSQL_Helper.getConnection());
         PublishSubject<String> results = PublishSubject.create();
+        Subject<String> serializedResults = results.toSerialized();
         
         db.select("select parameter_id from remote_data_parameters")
                 .getAs(Long.class)
-                .observeOn(rx.schedulers.Schedulers.io())
+                .subscribeOn(rx.schedulers.Schedulers.io())
                 .compose(db.select("select name from data_parameters where id = ?")
                         .parameterTransformer()
                         .getAs(String.class)
                 )
-                .subscribe(results::onNext, results::onError, results::onComplete);
+                .subscribe(serializedResults::onNext, serializedResults::onError, serializedResults::onComplete);
         
         return results;
     }
@@ -1546,7 +1529,7 @@ public class DatabaseManager
                 .map(FileUtils::readAll)
                 .map(str -> (JSONObject) new JSONParser().parse(str))
                 .map(obj -> (JSONArray) obj.get("data"))
-                .flatMap(JSONUtils::toData)
+                .flatMap(JSONUtils::flattenJSONArray)
                 .map((JSONObject obj) -> {
                     DataParameter param = new DataParameter((String) obj.get("name"), (String) obj.get("description"));
                     param.setUnit((String) obj.get("units"));

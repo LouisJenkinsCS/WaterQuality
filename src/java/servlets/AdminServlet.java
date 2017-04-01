@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.json.simple.JSONArray;
@@ -47,8 +49,10 @@ import utilities.JSONUtils;
 public class AdminServlet extends HttpServlet {
     
 private static final JSONObject BAD_REQUEST = new JSONObject();
+private static final JSONObject EMPTY_RESULT = new JSONObject();
 
 static {
+    EMPTY_RESULT.put("data", new JSONArray());
     BAD_REQUEST.put("status", "Generic Error...");
 }
 
@@ -278,7 +282,7 @@ static {
                         root.put("data", data);
                         return root;
                     })
-                    .defaultIfEmpty(BAD_REQUEST)
+                    .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe((JSONObject resp) -> { 
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -311,7 +315,7 @@ static {
                         root.put("data", data);
                         return root;
                     })
-                    .defaultIfEmpty(BAD_REQUEST)
+                    .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe((JSONObject resp) -> { 
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -376,7 +380,7 @@ static {
                         obj.put("data", arr);
                         return obj;
                     })
-                    .defaultIfEmpty(empty)
+                    .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe(resp -> {
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -398,15 +402,69 @@ static {
             */
         }
         
+        else if (action.trim().equalsIgnoreCase("getParameters")) {
+            long type = Long.parseLong(request.getParameter("data"));
+            
+            Observable.just(type)
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(typ -> Observable.concat(
+                            (typ & 0x1) != 0 ? DatabaseManager.getRemoteParameterNames()
+                                    .flatMap(name -> DatabaseManager.parameterNameToId(name)
+                                            .flatMap(id -> DatabaseManager.getDescription(id)
+                                                    .map(descr -> Quartet.with(1, id, name, descr))
+                                            )
+                                    ) : Observable.empty(),
+                            (typ & 0x2) != 0 ? DatabaseManager.getManualParameterNames()
+                                    .flatMap(name -> DatabaseManager.parameterNameToId(name)
+                                            .flatMap(id -> DatabaseManager.getDescription(id)
+                                                    .map(descr -> Quartet.with(2, id, name, descr))
+                                            )
+                                    ) : Observable.empty()
+                    ))
+                    .groupBy(Quartet::getValue0, Quartet::removeFrom0)
+                    .flatMap(group -> group
+                            .map(triplet -> {
+                                JSONObject obj = new JSONObject();
+                                obj.put("id", triplet.getValue0());
+                                obj.put("name", triplet.getValue1());
+                                obj.put("description", triplet.getValue2());
+                                return obj;  
+                            })
+                            .buffer(Integer.MAX_VALUE)
+                            .map(JSONUtils::toJSONArray)
+                            .map(arr -> {
+                                JSONObject obj = new JSONObject();
+                                obj.put("mask", group.getKey());
+                                obj.put("descriptors", arr);
+                                return obj;
+                            })
+                    )
+                    .buffer(Integer.MAX_VALUE)
+                    .map(JSONUtils::toJSONArray)
+                    .map(arr -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("data", arr);
+                        return obj;
+                    })
+                    .defaultIfEmpty(EMPTY_RESULT)
+                    .doOnNext(System.out::println)
+                    .blockingSubscribe(resp -> {
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+                    
+                    
+                    
+        }
         else if (action.trim().equalsIgnoreCase("insertData")) {
             
             Observable.just(request.getParameter("data"))
                     .map(req -> (JSONObject) new JSONParser().parse(req))
                     .map(obj -> (JSONArray) obj.get("data"))
-                    .flatMap(JSONUtils::toData)
+                    .flatMap(JSONUtils::flattenJSONArray)
                     .flatMap(obj -> Observable.just(obj)
                             .map(o -> (JSONArray) o.get("values"))
-                            .flatMap(JSONUtils::toData)
+                            .flatMap(JSONUtils::flattenJSONArray)
                             .flatMap(o -> DatabaseManager
                                     .parameterNameToId((String) o.get("name"))
                                     .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), (double) o.get("value")))

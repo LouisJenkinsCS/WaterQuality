@@ -82,7 +82,7 @@ public class DataReceiver {
                 .map(FileUtils::readAll)
                 .map(str -> (JSONObject) new JSONParser().parse(str))
                 .map(obj -> (JSONArray) obj.get("descriptions"))
-                .flatMap(JSONUtils::toData)
+                .flatMap(JSONUtils::flattenJSONArray)
                 .blockingSubscribe((JSONObject obj) -> parameters.add(new DataParameter((String) obj.get("name"), (String) obj.get("description"))));
         
         // Fill the map so we only need to obtain it once on startup.
@@ -104,7 +104,7 @@ public class DataReceiver {
                 // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
                 // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
                 // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                .flatMap(JSONUtils::toData)
+                .flatMap(JSONUtils::flattenJSONArray)
                 // Filter out any parameters we do not contain a description for
                 .filter((JSONObject obj) -> parameters
                         .stream()
@@ -164,7 +164,7 @@ public class DataReceiver {
                             // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
                             // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
                             // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                            .flatMap(JSONUtils::toData)
+                            .flatMap(JSONUtils::flattenJSONArray)
                             // We take both the timestamp (X-Axis) and the value (Y-Axis).
                             // This data is what is returned as a DataValue.
                             .map((JSONObject obj) -> new DataValue(key, (String) obj.get("timestamp"), (Double) obj.get("value")))

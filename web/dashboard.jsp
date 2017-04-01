@@ -163,7 +163,11 @@
                     </div>
                 </div>
             </div>
-        </section> 
+        </section>
+            
+            <script>
+                post("AdminServlet", {action: "getParameters", data: 1}, function (resp) { window.alert(resp) });
+            </script>
             
         <script>
             var end = new Date();
