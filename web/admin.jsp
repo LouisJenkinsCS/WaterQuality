@@ -27,6 +27,8 @@ Current bugs:
         <script src="scripts/admin_deletion.js"></script>
         <script src="scripts/admin_errors.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
+        <script src="scripts/protocol.js"></script>
+
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">

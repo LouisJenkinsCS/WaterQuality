@@ -465,6 +465,11 @@ static {
         {
             response.getWriter().append("Response");
         }
+        
+        else if (action.trim().equalsIgnoreCase("getParameters"))
+        {
+            response.getWriter().append("Response");
+        }
 
     }
 

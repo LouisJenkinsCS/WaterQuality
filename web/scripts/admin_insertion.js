@@ -1,6 +1,7 @@
 //This function simply pulls the AJAX_magic.js script
 //to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
+//$.getScript("scripts/protocol.js", function(){});
 
 ////insertionid changes with each new field created
 //for unique entries
@@ -47,7 +48,7 @@ function loadInsert()
             //console.log(item["name"]);
             options_params += item["name"];
             options_params += '</option>';
-            
+
         }
         //console.log("Parameter names: " + parameter_names);
         //console.log("Item: " + item["name"]);
@@ -73,7 +74,7 @@ function loadInsert()
             + '<button type="button" onclick="createNewInput()">+</button>'
             + '<button type="button" onclick="removeLastInput()">x</button>'
             + '<button type="button" onclick="submitInput()">Submit</button>\n');
-    
+
 };
 
 /**
@@ -140,7 +141,7 @@ function submitInput()
         var time = "";
 
         var inputRequest = {
-            action: 'InputData', 
+            action: 'InputData',
             dataName: '',
             time: '',
             value: ''
@@ -202,8 +203,8 @@ function sendCSV()
             lines.push(allTextLines.shift().split(','));
         }
         console.log(lines);
-    }  
-    
+    }
+
     var sendRequest = {action: 'insertCSV', csvfile: lines};
 
     post("AdminServlet", sendRequest, function (resp) {

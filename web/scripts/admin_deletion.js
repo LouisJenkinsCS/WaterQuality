@@ -13,8 +13,7 @@ $.getScript("scripts/datetimepicker.js", function () {});
 //the table ManualDataNames
 var del_options = "";
 
-//Defines how AdminServlet responds
-var dataRequest = {action: "getManualItems"};
+
 
 //Called in admin.jsp to load this script
 function loadDelete()
@@ -22,7 +21,7 @@ function loadDelete()
     //A request to the servlet is made to retrieve all parameter names
 
     /*
-     * GET request: {action : 'getManualItems'} (as seen on line 10)
+     * GET request: {action : 'getManualItems'}
      * GET response:
      *  
      * data: [
@@ -37,41 +36,72 @@ function loadDelete()
      * 
      */
 
-    get("AdminServlet", dataRequest, function (response)
-    {
-        console.log("Connection made!" + response);
-        var param_names = JSON.parse(response)["data"];
-        for (var i = 0; i < param_names.length; i++)
-        {
-            del_options += '<option>';
-            var entry_name = param_names[i];
-            console.log(entry_name["name"]);
-            del_options += entry_name["name"];
-            del_options += '</option>';
-        }
-        
-        del_options += '<option disabled>----------</option>';
-        
-        get("AdminServlet", {action: "getSensorItems"}, function (response)
-        {
-            console.log("Connection made!" + response);
-            var param_names = JSON.parse(response)["data"];
-            for (var i = 0; i < param_names.length; i++)
-            {
-                del_options += '<option>';
-                var entry_name = param_names[i];
-                console.log(entry_name["name"]);
-                del_options += entry_name["name"];
-                del_options += '</option>';
-            }
-        
-        
+    //Defines how AdminServlet responds
+    var ALL_MASK = 3;
+    var parameterRequest = new ParameterRequest(ALL_MASK);
 
-        //console.log("Parameter names: " + param_names);
-        //console.log("Entry name: " + entry_name["name"]);
+    get("AdminServlet", {action: "getParameters", parameterRequest}, function (response)
+    {
+        response = {
+            "data": [
+                {
+                    "mask": "1",
+                    "descriptors": [
+                        {
+                            "id": "001",
+                            "name": "DO",
+                            "description": "Dissolved oxygen is blah blah..."
+                        },
+                        {
+                            "id": "005",
+                            "name": "Water Temperature",
+                            "description": "The temperature of the water..."
+                        }
+                    ]
+                },
+                {
+                    "mask": "2",
+                    "descriptors": [
+                        {
+                            "id": "021",
+                            "name": "Algae Cover",
+                            "description": "Amount of algae on a cool lookin' rock..."
+                        },
+                        {
+                            "id": "022",
+                            "name": "Nitrate+Nitrite-Nitrous",
+                            "description": "This is a confusing one..."
+                        }
+                    ]
+                }
+            ]
+        }
+        var resp = new ParameterResponse(response)
+        console.log("Connection made!" + resp);
+        (resp.names).forEach(function(item){
+            del_options += '<options>';
+            del_options += item;
+            del_options += '</options>';
+        });
+//        var data = resp.data;
+//        for (var i = 0; i < data.length; i++)
+//        {
+//            var entry = data[i];
+//            var items = entry["descriptors"];
+//            for (var j = 0; j < items.length; j++)
+//            {
+//                var item = items[j];
+//                del_options += '<option>';
+//                var name = item["name"];
+//                console.log("Name: " + name);
+//                del_options += name;
+//                del_options += '</option>';
+//            }
+//        }
+
         console.log("del_options" + del_options);
-        
-        
+
+
         var today = new Date();
         var date = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
         var time = today.toLocaleTimeString();
@@ -98,31 +128,30 @@ function loadDelete()
                 '</table><br/>' +
                 '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
                 );
-        
 
-        $( function() {
+
+        $(function () {
             var date = new Date();
 //            $( "#delete_endtime" ).timepicker();
 //            $( "#delete_starttime" ).timepicker();
-            $( "#delete_enddate" ).datetimepicker({
+            $("#delete_enddate").datetimepicker({
                 controlType: 'select',
                 oneLine: true,
                 timeFormat: 'hh:mm tt',
                 altField: "#delete_endtime"
             })
-            .datepicker("setDate", date);
-            
+                    .datepicker("setDate", date);
+
             date.setMonth(date.getMonth() - 1);
-            $( "#delete_startdate" ).datetimepicker({
-                    controlType: 'select',
-                    oneLine: true,
-                    timeFormat: 'hh:mm tt',
-                    altField: "#delete_starttime"
+            $("#delete_startdate").datetimepicker({
+                controlType: 'select',
+                oneLine: true,
+                timeFormat: 'hh:mm tt',
+                altField: "#delete_starttime"
             })
-            .datepicker("setDate", date);
+                    .datepicker("setDate", date);
         });
     });
-});
 }
 
 /**
@@ -142,7 +171,7 @@ function filterData() {
     var $deleteEndDate = new Date($('#delete_enddate').val()).getTime();
     var $deleteStartTime = $('#delete_starttime').val();
     var $deleteEndTime = $('#delete_endtime').val();
-    
+
 
     var filterRequest = {action: 'getFilteredData',
         parameter: $paramName,
@@ -201,7 +230,7 @@ function filterData() {
         $('#deletion_space').append(htmlstring);
     });
 
-    
+
 }
 
 /**
@@ -210,8 +239,21 @@ function filterData() {
  * 
  * POST request:
  * {
- *  action: 'RemoveData',
- *  entryIDs : {'3', '4', '6'}
+ *  action: "deleteData"
+ {
+ "data" : [
+ {
+ name : "PAR",
+ timeRange : [
+ {
+ start : epoch_milliseconds,
+ end : epoch_milliseconds,
+ "//If selecting one piece of data, start and end will be the same"
+ }
+ ]
+ }
+ ]
+ }
  * }
  * 
  * 
