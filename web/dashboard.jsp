@@ -80,7 +80,7 @@
                 </div>
                 <div id="Table" class="tabcontent">
                     <table align="center" id="data_table" onclick="openPopup()">
-                        
+                        <thead><tr><th></th></tr></thead>
                     </table>
                 </div>
                 <div id="Bayesian" class="tabcontent">

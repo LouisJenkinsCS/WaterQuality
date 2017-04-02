@@ -1,4 +1,5 @@
 $.getScript("scripts/datetimepicker.js", function () {});
+$.getScript("scripts/general.js", function () {});
 
 var checkedBoxes = 0;
 var selected = [];
@@ -287,7 +288,7 @@ function dateLimits() {
         $("#table_start_date").datetimepicker("option","maxDate",$("#table_end_date").datepicker("getDate"));
         $("#table_end_date").datetimepicker("option","minDate",$("#table_start_date").datepicker("getDate"));
     }
-    $(selected).datepicker("show");
+    //$(selected).datepicker("show");
 }
 
 function setBayesianDate(date,id){
@@ -315,7 +316,10 @@ function pad(num, size) {
  */
 function fillTable(dataResp) {
     var table = document.getElementById("data_table");
+    
+    $("#data_table").DataTable().destroy();
     table.innerHTML = "";
+  
     var html = [];//Holds the table that will be created 
     var dates=[];//holds the array of all dates from all parameters 
     html.push("<table><thead><tr><th>TimeStamp</th>");
@@ -342,7 +346,9 @@ function fillTable(dataResp) {
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
-        html.push("<td>" + new Date(dates[i]).toUTCString() + "</td>");
+        var rowData = [];
+        html.push("<td>" + formatDate(new Date(dates[i])) + "</td>");
+        rowData.push(formatDate(new Date(dates[i])));
         for (var j = 0; j < dataResp.data.length; j++) {
             var d=dataResp.data[j]["data"];
             if(i>=d.length){
@@ -354,8 +360,9 @@ function fillTable(dataResp) {
                 html.push("<td> N/A </td>");
                     d.splice(i,0,null);
             }
-            else
+            else {
                 html.push("<td>" + ts_val["value"] + "</td>");
+            }
         }
         html.push("</tr>");
     }
@@ -367,8 +374,9 @@ function fillTable(dataResp) {
         //console.log(str);
         finalHtml += str;
     }
-    //console.log(finalHtml);
+    console.log(finalHtml);
     table.innerHTML = finalHtml;
+    $("#data_table").DataTable();
 }
 
 /**The <code>openPoppup()</code> function simply opens a popped up
