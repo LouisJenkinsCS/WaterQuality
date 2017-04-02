@@ -30,6 +30,7 @@
  */
 package async;
 
+import database.DatabaseManager;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
@@ -82,7 +83,7 @@ public class DataReceiver {
                 .map(FileUtils::readAll)
                 .map(str -> (JSONObject) new JSONParser().parse(str))
                 .map(obj -> (JSONArray) obj.get("descriptions"))
-                .flatMap(JSONUtils::toData)
+                .flatMap(JSONUtils::flattenJSONArray)
                 .blockingSubscribe((JSONObject obj) -> parameters.add(new DataParameter((String) obj.get("name"), (String) obj.get("description"))));
         
         // Fill the map so we only need to obtain it once on startup.
@@ -104,7 +105,7 @@ public class DataReceiver {
                 // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
                 // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
                 // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                .flatMap(JSONUtils::toData)
+                .flatMap(JSONUtils::flattenJSONArray)
                 // Filter out any parameters we do not contain a description for
                 .filter((JSONObject obj) -> parameters
                         .stream()
@@ -114,7 +115,6 @@ public class DataReceiver {
                         .filter((String name) -> !name.equals("Turbidity"))
                         .anyMatch((name -> name.equals(obj.get("name"))))
                 )
-                .doOnNext(obj -> System.out.println("Parameter: " + obj.toJSONString()))
                 // Update the current DataParameters loaded with the data from the JSON and add it
                 // to our map.
                 .blockingSubscribe((JSONObject obj) -> {
@@ -157,6 +157,19 @@ public class DataReceiver {
                 // For each key
                 .fromArray(keys)
                 .flatMap((Long key) ->
+                        DatabaseManager.parameterIdToName(key)
+                                .flatMap(name -> DatabaseManager.getDataValues(start, end, name))
+                    
+                // 'replay' is a way to say that we want to take ALL items up to this point (being the DataValues), cache it, and then
+                // resend it each and every time it is subscribed to (pretty much meaning this becomes reusable).
+                ).replay());
+    }
+    
+    public static Data getRemoteData(Instant start, Instant end, Long ...keys) {
+        return new Data(Observable
+                // For each key
+                .fromArray(keys)
+                .flatMap((Long key) ->
                     getData(getParameterURL(start, end, key))
 //                            .observeOn(Schedulers.computation())
                             // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
@@ -165,7 +178,7 @@ public class DataReceiver {
                             // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
                             // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
                             // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                            .flatMap(JSONUtils::toData)
+                            .flatMap(JSONUtils::flattenJSONArray)
                             // We take both the timestamp (X-Axis) and the value (Y-Axis).
                             // This data is what is returned as a DataValue.
                             .map((JSONObject obj) -> new DataValue(key, (String) obj.get("timestamp"), (Double) obj.get("value")))
@@ -246,7 +259,7 @@ public class DataReceiver {
                     return sb.toString();
                 })
                 // Remove any and all unicode characters
-                .map((String json) -> json.replaceAll("\\P{Print}", ""))
+//                .map((String json) -> json.replaceAll("\\P{Print}", ""))
                 // From that received string, since it is in JSON, we can parse it into a JSONObject.
                 .map((String json) -> (JSONObject) new JSONParser().parse(json));
     }

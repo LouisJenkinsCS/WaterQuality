@@ -108,7 +108,7 @@ function removeLastInput()
     if ((document.getElementById("input_space")).rows.length > 2)
     {
         //fadeOut is more visually pleasing when removing items
-        $('#input_space tr:last').fadeOut(500, function () {
+        $('#input_space tr:last').fadeOut(200, function () {
             $(this).remove();
         });
         $insertionid--;

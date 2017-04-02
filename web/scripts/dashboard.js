@@ -6,6 +6,8 @@
 
 var checkedBoxes = 0;
 var selected = [];
+var descriptions = [];
+
 /**
  * The <code>fullCheck</code> function limits the number of data
  * checkboxes checked at a time to 3 by unchecking <coe>id</code>
@@ -49,7 +51,7 @@ function toggle() {
     //Sets to the opposite of itself so that the next click will be the revers
     doCheck=!doCheck;
     //makes sure the <code>select_all_box</code>
-    document.getElementById("select_all_box").checked=false;
+    //document.getElementById("select_all_box").checked=false;
 }
 
 /**Sets a cookie so that the current tab name can remembered for reloading the page
@@ -126,12 +128,16 @@ function openTab(evt, tabName) {
 
 function fetchData(json) {
     var resp = new DataResponse(json);
-
-    var table = resp.table;
-    var description = resp.description;
-    document.getElementById("description").innerHTML = description;
+    
+    
+   
     // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
     var data = new DataResponse(json);
+     document.getElementById("description").innerHTML = "";
+    for (i = 0; i < data.data.length; i++) {
+        document.getElementById("description").innerHTML += "<center><h1>" + data.data[i].name + "</h1></center>";
+        document.getElementById("description").innerHTML += descriptions[data.data[i].name];
+    }
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
     var values = getDataValues(data);
@@ -140,10 +146,10 @@ function fetchData(json) {
         var arr = [];
         for (var j = 0; j < timeStamps.length; j++) {
             arr.push([timeStamps[j], values[i][j]]);
-            console.log("Pushed: " + values[i][j]);
+            //console.log("Pushed: " + values[i][j]);
         }
         timeStampStr.push(arr);
-        console.log("Pushed: " + arr);
+        //console.log("Pushed: " + arr);
     }
     
     //If this page is being loaded/refreshed it will run through the if
@@ -187,7 +193,7 @@ function fetchData(json) {
                 chart.yAxis[i].setTitle({text: ""});
             chart.redraw();
         }
-    }
+    }    
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor="default";
 }
@@ -222,8 +228,8 @@ function fetch() {
     if(current=="Graph")
         var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
     if(current=="Table")
-        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
-    console.log("Start: " + startTime + " end: " + endTime);
+        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([id="select_all_box"])');
+    //console.log("Start: " + startTime + " end: " + endTime);
     var numChecked=0;
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked == true) {
@@ -236,7 +242,7 @@ function fetch() {
     if(numChecked==0){
         //if in the table tab the table will be set to null
         if(current=="Table")
-            document.getElementById("dataTable").innerHTML=null;
+            document.getElementById("data_table").innerHTML=null;
         //Returns the cursor to default so it doesnt get stuck on loading
         document.getElementById("loader").style.cursor="default";
         return;
@@ -254,7 +260,7 @@ function fetch() {
 function setDate(date, id) {
     var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1)%60, 2) + ":" + pad(0, 2);
     document.getElementById(id).value = dateStr;
-    console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
+    //console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
 }
 
 /**
@@ -297,16 +303,16 @@ function pad(num, size) {
  * @param {type} dataResp
  */
 function fillTable(dataResp) {
-    var table = document.getElementById("dataTable");
+    var table = document.getElementById("data_table");
     table.innerHTML = "";
     var html = [];//Holds the table that will be created 
     var dates=[];//holds the array of all dates from all parameters 
-    html.push("<table><tr><th>TimeStamp</th>");
+    html.push("<table><thead><tr><th>TimeStamp</th>");
     //Adds the names to the header of the table 
     for (var i = 0; i < dataResp.data.length; i++) {
         html.push("<th>" + dataResp.data[i]["name"] + "</th>");
     }
-    html.push("</tr>");
+    html.push("</tr></thead><tbody>");
     //adds one of every date to the <code>dates</code> array
     //This ensures that every date that is used can be accounted for
     //also allows the handling of missing data
@@ -342,32 +348,35 @@ function fillTable(dataResp) {
         }
         html.push("</tr>");
     }
+    html.push("</tbody></table>")
     //setting the innerHTML allows the table to be visible on the page
     var finalHtml = "";
     for (i = 0; i < html.length; i++) {
         var str = html[i];
-        console.log(str);
+        //console.log(str);
         finalHtml += str;
     }
-    console.log(finalHtml);
+    //console.log(finalHtml);
     table.innerHTML = finalHtml;
 }
 
 /**The <code>openPoppup()</code> function simply opens a popped up
- * version of the data table when <code>dataTable</code> is clicked 
+ * version of the data table when <code>data_table</code> is clicked 
  * so that the user can more easily see the data 
  */
 function openPopup() {
     var modal = document.getElementById("myModal");
     var span = document.getElementsByClassName("close")[0];
-    var table = document.getElementById("dataTable");
+    var table = document.getElementById("data_table");
     var popup = document.getElementById("popup");
 
 
     popup.innerHTML = table.innerHTML;
     modal.style.display = "block";
+        $(popup).DataTable();
     span.onclick = function () {
         modal.style.display = "none";
+        $(popup).DataTable().destroy();
     }
 }
 
@@ -402,13 +411,24 @@ var load=true;
  * on load/refresh of a page by using the same randomly generated data type
  */
 function startingData(){
-    current="Graph";
+     post("AdminServlet", {action: "getParameters", data: 1}, function (resp) {
+                    
+       console.log(JSON.parse(resp));
+       var data = JSON.parse(resp)["data"][0]["descriptors"];
+       console.log(data);
+       for (i = 0; i < data.length; i++) {
+           descriptions[data[i].name] = data[i].description;
+           var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+           document.getElementById("graph_parameters").innerHTML += param;
+           document.getElementById("table_parameters").innerHTML += param;
+       }
+       
+       current="Graph";
     var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
-    var startingNumber=Math.floor((Math.random() * graphcheckboxes.length));
-    graphcheckboxes[startingNumber].click();
+    graphcheckboxes[3].click();
     
     var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
-    tablecheckboxes[startingNumber+1].checked=true;
+    tablecheckboxes[4].checked=true;
     current=getCookie("id");
     if (getCookie("id") == "Table")
         document.getElementById("TableTab").click();
@@ -418,4 +438,6 @@ function startingData(){
         else
             document.getElementById("GraphTab").click();
     }
+    });
+    
 }
