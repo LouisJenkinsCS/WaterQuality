@@ -1,8 +1,3 @@
-/* TODO: Change hardcoded times to the current time / whatever makes sense
- *       Change the filter date format to date and time
- *       Handle loop in deleteData()
- */
-
 //This function simply pulls the AJAX_magic.js script
 //to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
@@ -14,7 +9,7 @@ $.getScript("scripts/datetimepicker.js", function () {});
 var del_options = "";
 
 //Defines how AdminServlet responds
-var dataRequest = {action: "getManualItems"};
+var dataRequest = {action: "getParameters", data: "1"};
 
 //Called in admin.jsp to load this script
 function loadDelete()
@@ -22,31 +17,41 @@ function loadDelete()
     //A request to the servlet is made to retrieve all parameter names
 
     /*
-     * GET request: {action : 'getManualItems'} (as seen on line 10)
-     * GET response:
-     *  
-     * data: [
-     *  {
-     *      name : 'parameter name'
-     *  },
-     *  {
-     *      name : 'parameter name'
-     *  },
-     *  ...
-     * ]
+     * request: {action : "getParameters", data : 1}
+     * response:
+     {
+        "data" : [
+          {
+            "mask" : 1,
+            "descriptors" : [
+              {
+                "id" : 001,
+                "name" : "DO",
+                "description" : "Dissolved oxygen is..."
+              },
+              {
+                "id" : 002,
+                "name" : "Water Temperature",
+                "description" : "The temperature of the water..."
+              }
+            ]
+          }
+        ]
+      }
      * 
      */
 
     get("AdminServlet", dataRequest, function (response)
     {
         console.log("Connection made!" + response);
-        var param_names = JSON.parse(response)["data"];
-        for (var i = 0; i < param_names.length; i++)
+        var data_objects = JSON.parse(response)["data"];
+        var mask = data_objects[0];
+        for (var i = 1; i < param_names.length; i++)
         {
             del_options += '<option>';
-            var entry_name = param_names[i];
-            console.log(entry_name["name"]);
-            del_options += entry_name["name"];
+            var descriptors = data_objects[i];
+            console.log(descriptors["name"]);
+            del_options += descriptors["name"];
             del_options += '</option>';
         }
         
