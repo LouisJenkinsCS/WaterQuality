@@ -78,7 +78,7 @@ public class DatabaseManager
                     spins++;
                     System.out.println(Thread.currentThread().getName() + ": " + spins + " spins..."); 
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
                     }
