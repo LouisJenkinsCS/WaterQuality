@@ -32,7 +32,8 @@ import utilities.PropertyManager;
  * @author Joseph Picataggio
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
-public class LoginServlet extends HttpServlet {
+public class LoginServlet extends HttpServlet 
+{
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
@@ -71,7 +72,8 @@ public class LoginServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException 
+    {
         
         HttpSession session = request.getSession(true); // Create a new session if one does not exists
 
@@ -101,8 +103,6 @@ public class LoginServlet extends HttpServlet {
 
         // Creates and assigns a <class>UserManager</class> from the 
         // DatabaseManagement class.
-           database.DatabaseManager um = new database.DatabaseManager();
-        
             String username = request.getParameter("username");
             String password = request.getParameter("password");
 
@@ -118,7 +118,7 @@ public class LoginServlet extends HttpServlet {
             }
 
             // See if we have this user by asking for the salt associated with the user
-            String salt = um.getSaltByLoginName(username);
+            String salt = database.DatabaseManager.getSaltByLoginName(username);
             if (salt == null) { //user was not in database
                 request.setAttribute("errorMessage", "Invalid username or password.");
                 getServletContext()
@@ -130,17 +130,17 @@ public class LoginServlet extends HttpServlet {
             // Sets a potential user from the requested username and runs
             // through a series of checks to validate it.
 
-            User potentialUser = um.getUserByLoginName(username);
+            User potentialUser = database.DatabaseManager.getUserByLoginName(username);
             if (potentialUser != null && !potentialUser.isLocked()) {
                 if (potentialUser.getAttemptedLoginCount() < loginAttempts) {
-                    User user = um.validateUser(username, security.SecurityCode.encryptSHA256(password + salt));
+                    User user = database.DatabaseManager.validateUser(username, security.SecurityCode.encryptSHA256(password + salt));
                     if (user != null) { //Password was valid for this user
                         //Thread Safe
                         synchronized(lock){
                           session.setAttribute("user", user);
                         }
                         //Notice that user informaion is not updated in the database in this servlet
-                        String url = "/ControlServlet";
+                        String url = "/admin.jsp";
                         request.getRequestDispatcher(url).forward(request, response);
                     }
                     // if the user is null then the password was not correct        
@@ -156,11 +156,11 @@ public class LoginServlet extends HttpServlet {
                                 potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
                             }
                             potentialUser.setAttemptedLoginCount(potentialUser.getAttemptedLoginCount() + 1);
-                            um.updateUserLogin(potentialUser);
+                            database.DatabaseManager.updateUserLogin(potentialUser);
                         } else {
                             potentialUser.setLastAttemptedLoginTime(LocalDateTime.now());
                             potentialUser.setAttemptedLoginCount(1);
-                            um.updateUserLogin(potentialUser);
+                            database.DatabaseManager.updateUserLogin(potentialUser);
                         }
 
                         request.setAttribute("errorMessage", "Invalid password.");
@@ -177,7 +177,7 @@ public class LoginServlet extends HttpServlet {
                     request.setAttribute("errorMessage", "You have been Locked out. Please contact system administrator for access.");
                     potentialUser.setLocked(true);
                     potentialUser.setAttemptedLoginCount(0);
-                    um.updateUserLogin(potentialUser);
+                    database.DatabaseManager.updateUserLogin(potentialUser);
                     emailUser(potentialUser, ipAddress);
 
                     // Returns the user back to the login screen.
@@ -258,9 +258,9 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getServletContext()
+        /*request.getServletContext()
                         .getRequestDispatcher("/loginScreen.jsp")
-                        .forward(request, response);
+                        .forward(request, response);*/
         processRequest(request, response);
     }
 
