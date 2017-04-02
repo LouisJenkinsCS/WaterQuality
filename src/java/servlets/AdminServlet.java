@@ -412,7 +412,7 @@ static {
             long type = Long.parseLong(request.getParameter("data"));
             
             Observable.just(type)
-                    .flatMap(typ -> Observable.concat(
+                    .flatMap(typ -> Observable.merge(
                             (typ & 0x1) != 0 ? DatabaseManager.getRemoteParameterNames()
                                     .flatMap(name -> DatabaseManager.parameterNameToId(name)
                                             .flatMap(id -> DatabaseManager.getDescription(id)
@@ -427,6 +427,7 @@ static {
                                     ) : Observable.empty()
                     ))
                     .groupBy(Quartet::getValue0, Quartet::removeFrom0)
+                    .doOnNext(group -> System.out.println("Mask: " + group.getKey()))
                     .flatMap(group -> group
                             .sorted((t1, t2) -> t1.getValue1().compareTo(t2.getValue1()))
                             .map(triplet -> {

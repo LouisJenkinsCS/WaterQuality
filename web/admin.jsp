@@ -41,6 +41,7 @@ Current bugs:
         <title>Admin Page</title>
     </head>
     <body onload="onLoad();">
+        
         <script>
             function onLoad()
             {

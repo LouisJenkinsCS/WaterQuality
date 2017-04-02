@@ -41,12 +41,12 @@ function post(destination, data, callback) {
 
 function Request() {}
 
-Request.prototype.toString = function() {
+Request.prototype.toString = function () {
     return "";
 }
 
-Request.prototype.post = function(destination, action) {
-    post(destination, {action: action, data: this.toString()}, function() {});
+Request.prototype.post = function (destination, action) {
+    post(destination, {action: action, data: this.toString()}, function () {});
 }
 
 
@@ -58,38 +58,40 @@ function DataRequest(startTime, endTime, parameters) {
 
 DataRequest.prototype = new Request();
 
-DataRequest.prototype.toString = function() {
+DataRequest.prototype.toString = function () {
     return this.value;
 }
 
 function ParameterRequest(dataMask)
-{    
+{
     this.action = "";
     this.data = dataMask;
 }
 
 ParameterRequest.prototype = new Request();
-ParameterRequest.prototype.toString = function(){return this.value;}
+ParameterRequest.prototype.toString = function () {
+    return this.value;
+}
 
 function ParameterResponse(json)
 {
-    if (typeof json != "object") {
-        console.log("json: " + json);
+    if (typeof json !== "object") {
+        //console.log("json: " + json);
         json = JSON.parse(json);
-    } 
-    console.log(json);
+    }
     // Obtain data from response as JSONArray
     this.data = json["data"];
-    console.log(this.data);
-    for (var i = 0; i < this.data.length; i++) {
-        this.piece = this.data[i];
-        this.descriptors = this.piece["descriptors"];
-        this.names = [];
-        for (var j = 0; j < this.descriptors.length; j++)
-        {
-            this.names[j] = this.descriptors["name"];
-        }
-    }
+//    console.log("this.data: " + JSON.stringify(this.data));
+//    this.descriptors = this.data[0]["descriptors"];
+//    console.log("this.descriptors length: " + this.descriptors.length);
+//    this.names = [];
+//
+//    for (var i = 0; i < this.descriptors.length; i++) {
+//        this.piece = this.descriptors[i];
+//        console.log("this.piece: " + JSON.stringify(this.piece));
+//        this.names.push(this.piece["name"]);
+//        console.log("this.names contains:" + JSON.stringify(this.names))
+//    }
 }
 
 
@@ -101,16 +103,16 @@ function DeleteDataRange(start, end) {
 DeleteDataRange.prototype = {}
 
 function DeleteDataRequest() {
-  this.data = [];
+    this.data = [];
 }
 
 DeleteDataRequest.prototype = new Request();
 
-DeleteDataRequest.prototype.toString = function() {
+DeleteDataRequest.prototype.toString = function () {
     return this.data;
 }
 
-DeleteDataRequest.prototype.queueDeletion = function(name, range) {
+DeleteDataRequest.prototype.queueDeletion = function (name, range) {
     // Append if already present
     for (i = 0; i < this.data.length; i++) {
         if (data[i].name === name) {
@@ -120,7 +122,7 @@ DeleteDataRequest.prototype.queueDeletion = function(name, range) {
     }
 
     // Create new...
-    this.data.push({ name: name, timeRange: [range]});
+    this.data.push({name: name, timeRange: [range]});
 }
 
 
@@ -129,8 +131,8 @@ function DataResponse(json) {
     if (typeof json != "object") {
         console.log(json);
         json = JSON.parse(json);
-    } 
-    
+    }
+
     // Obtain data from response as JSONArray
     this.data = json["resp"];
     this.table = json["table"];
@@ -142,5 +144,5 @@ function DataResponse(json) {
 }
 
 DataResponse.prototype = {
-    
+
 }
