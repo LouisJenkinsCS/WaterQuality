@@ -6,6 +6,8 @@
 
 var checkedBoxes = 0;
 var selected = [];
+var descriptions = [];
+
 /**
  * The <code>fullCheck</code> function limits the number of data
  * checkboxes checked at a time to 3 by unchecking <coe>id</code>
@@ -126,12 +128,16 @@ function openTab(evt, tabName) {
 
 function fetchData(json) {
     var resp = new DataResponse(json);
-
-    var table = resp.table;
-    var description = resp.description;
-    document.getElementById("description").innerHTML = description;
+    
+    
+   
     // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
     var data = new DataResponse(json);
+     document.getElementById("description").innerHTML = "";
+    for (i = 0; i < data.data.length; i++) {
+        document.getElementById("description").innerHTML += "<center><h1>" + data.data[i].name + "</h1></center>";
+        document.getElementById("description").innerHTML += descriptions[data.data[i].name];
+    }
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
     var values = getDataValues(data);
@@ -411,6 +417,7 @@ function startingData(){
        var data = JSON.parse(resp)["data"][0]["descriptors"];
        console.log(data);
        for (i = 0; i < data.length; i++) {
+           descriptions[data[i].name] = data[i].description;
            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
            document.getElementById("graph_parameters").innerHTML += param;
            document.getElementById("table_parameters").innerHTML += param;

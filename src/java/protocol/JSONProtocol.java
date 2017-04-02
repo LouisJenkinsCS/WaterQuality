@@ -33,6 +33,7 @@ package protocol;
 import async.Data;
 import async.DataReceiver;
 import async.DataValue;
+import database.DatabaseManager;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
@@ -72,15 +73,7 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                 .groupBy(DataValue::getId)
                 // For each group of DataValue (remember they are grouped by the parameter's id)
                 // we must construct a unique JSONObject, as per protocol.
-                .flatMap((GroupedObservable<Long, DataValue> group) -> {
-                    JSONObject obj = new JSONObject();
-                    // The key is the actual 'id' for the parameter.
-                    obj.put("param", group.getKey());
-                    obj.put("name", DataReceiver.getParameterName(group.getKey()));
-
-                    // Create a JSONArray filled with the DataValues. They are sorted
-                    // by timestamp to make it easier on the front-end.
-                    return group
+                .flatMap((GroupedObservable<Long, DataValue> group) -> group
                             .sorted()
                             // DataValue -> JSONObject
                             .map((DataValue dv) -> {
@@ -99,11 +92,18 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                             })
                             // As per protocol, the JSONArray is stored in the root
                             // "data" field of each parameter
-                            .map((JSONArray arr) -> {
-                                obj.put("data", arr);
-                                return obj;
-                            });
-                })
+                            .flatMap((JSONArray arr) -> 
+                                    DatabaseManager.parameterIdToName(group.getKey())
+                                        .map(name -> {
+                                            JSONObject obj = new JSONObject();
+                                            // The key is the actual 'id' for the parameter.
+                                            obj.put("param", group.getKey());
+                                            obj.put("name", name);
+                                            obj.put("data", arr);
+                                            return obj;
+                                        })
+                            )
+                )
                 // Obtains all JSONObjects containing the data values for each parameter.
                 .buffer(Integer.MAX_VALUE)
                 // Same as before, construct a JSONArray from it.
@@ -117,8 +117,6 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                 .map((JSONArray arr) -> {
                     JSONObject response = new JSONObject();
                     
-                    // TODO: Refactor .jsp to generate table and descriptions.
-                    response.put("descriptions", DataReceiver.generateDescriptions(source));
                     response.put("resp", arr);
                     return response;
                 });
