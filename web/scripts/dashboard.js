@@ -258,7 +258,7 @@ function setDate(date, id) {
  * date that is earlier than ending dates
  */
 function dateLimits() {
-    //var date=new Date();
+    var date=new Date();
     /*var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
     document.getElementById("graph_end_date").setAttribute("maxDate", dateStr);
     document.getElementById("graph_start_date").setAttribute("maxDate", document.getElementById("graph_end_date").value);
@@ -266,6 +266,22 @@ function dateLimits() {
     document.getElementById("table_end_date").setAttribute("maxDate", dateStr);
     document.getElementById("table_start_date").setAttribute("maxDate", document.getElementById("table_end_date").value);
     document.getElementById("table_end_date").setAttribute("minDate", document.getElementById("table_start_date").value);*/
+    var selected=document.activeElement;
+    if($("#graph_end_date").data("datepicker") != null){
+        $("#graph_end_date").datetimepicker("option","maxDate",date);
+    }
+    if($("#graph_start_date").data("datepicker") != null){
+        $("#graph_start_date").datetimepicker("option","maxDate",$("#graph_end_date").datepicker("getDate"));
+        $("#graph_end_date").datetimepicker("option","minDate",$("#graph_start_date").datepicker("getDate"));
+    }
+    if($("#table_end_date").data("datepicker") != null){
+        $("#table_end_date").datetimepicker("option","maxDate",date);
+    }
+    if($("#table_start_date").data("datepicker") != null){
+        $("#table_start_date").datetimepicker("option","maxDate",$("#table_end_date").datepicker("getDate"));
+        $("#table_end_date").datetimepicker("option","minDate",$("#table_start_date").datepicker("getDate"));
+    }
+    $(selected).datepicker("show");
 }
 
 function setBayesianDate(date,id){
@@ -440,7 +456,6 @@ $(function () {
         oneLine: true,
         timeFormat: 'hh:mm tt',
         altField: "#graph_end_time",
-        maxDate:date
     })
             .datepicker("setDate", date);
     $("#table_end_date").datetimepicker({
@@ -448,7 +463,6 @@ $(function () {
         oneLine: true,
         timeFormat: 'hh:mm tt',
         altField: "#table_end_time",
-        maxDate:date
     })
             .datepicker("setDate", date);
 
@@ -457,14 +471,14 @@ $(function () {
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
-        altField: "#graph_start_time"
+        altField: "#graph_start_time",
     })
             .datepicker("setDate", date);
     $("#table_start_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
-        altField: "#table_start_time"
+        altField: "#table_start_time",
     })
             .datepicker("setDate", date);
     
