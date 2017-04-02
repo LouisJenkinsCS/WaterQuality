@@ -30,17 +30,17 @@ and open the template in the editor.
     overflow:auto;
 }
 
-td, th {
+#data_table td ,#data_table th, #popup td ,#popup th{
     border: 1px solid #ddd;
     padding: 8px;
     align-content: center;
 }
 
-tr:nth-child(even){background-color: #f2f2f2;}
+#data_table tr:nth-child(even),#popup tr:nth-child(even){background-color: #f2f2f2;}
 
-tr:hover {background-color: #ddd;}
+#data_table tr:hover, #popup tr:hover{background-color: #ddd;}
 
-th {
+#data_table th,#popup th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: center;
@@ -251,10 +251,6 @@ button:hover,input[type = "button"]:hover {
     width:auto;
 }
 
-#dateInstructDiv{
-    text-align:center;
-}
-
 #Graph{
     width:auto;
     min-width: 57.7%;
@@ -275,7 +271,23 @@ button:hover,input[type = "button"]:hover {
     color:white;
 }
 
-#Login_Button:hover{
+#Admin_Button{
+    float:right;
+    margin-right: 25px;
+    position:relative;
+    border: 0;
+    width: 100px;
+    height:50px;
+    background-color: #266B6B;
+    margin-bottom:10px;
+    font-family: "Ariel", Helvetica, san-serif;
+    font-size: 100%;
+    font-weight: bold;
+    color:white;
+    display:none;
+}
+
+#Login_Button:hover,#Admin_Button:hover{
     background-color:#5CB05C;
 }
 

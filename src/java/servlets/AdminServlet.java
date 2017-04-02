@@ -361,12 +361,18 @@ static {
                                 arr.addAll(data);
                                 return arr;
                             })
-                            .map((JSONArray arr) -> {
-                                JSONObject obj = new JSONObject();
-                                obj.put("dataValues", arr);
-                                obj.put("id", gdv.getKey());
-                                return obj;
-                            })
+                            .flatMap((JSONArray arr) ->
+                                
+                                DatabaseManager.parameterIdToName(gdv.getKey())
+                                        .doOnNext(System.out::println)
+                                        .map(name -> {
+                                            JSONObject obj = new JSONObject();
+                                            obj.put("dataValues", arr);
+                                            obj.put("name", name);
+                                            return obj;
+                                        })
+                               
+                            )
                     )
                     .buffer(Integer.MAX_VALUE)
                     .map(list -> {

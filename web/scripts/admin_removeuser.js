@@ -28,9 +28,13 @@ function fillPageRemoveUser() {
             );
     var userList = document.getElementById("select_user_list");
     userList.multiple = "multiple";
+//    
+//    document.querySelectorAll('input[type="submit"]').addEventListener("click", sendMsg, false);
+//    setUpXHR();
+}
+
+function sendMsg() {
     
-    document.getElementByTagName('input[type="submit"]').addEventListener("click", sendMsg, false);
-    setUpXHR();
 }
 
 function setUpXHR(){

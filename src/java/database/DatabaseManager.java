@@ -22,6 +22,7 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.time.Instant;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -709,7 +710,13 @@ public class DatabaseManager
                                 return db.select("select source from remote_data_parameters where parameter_id = ?")
                                         .parameter(key)
                                         .getAs(Long.class)
-                                        .flatMap(remoteKey -> Observable.from(DataReceiver.getRemoteData(start, end, remoteKey).getRawData()));
+                                        .flatMap(remoteKey -> Observable
+                                                .from(DataReceiver.getRemoteData(start, end, remoteKey)
+                                                        .getRawData()
+                                                        .stream()
+                                                        .map(dv -> new async.DataValue(key, dv.getTimestamp(), dv.getValue()))
+                                                        .collect(Collectors.toList())
+                                                ));
                             } else {
                                 return db.select("select time, value from data_values where parameter_id = ?")
                                     .parameter(key)

@@ -11,7 +11,10 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
         <link rel="stylesheet" href="styles/dashboard.css" type="text/css">
+        <link rel="stylesheet" type="text/css" href="styles/popup.css">
+        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -23,25 +26,27 @@
         <script src="scripts/AJAX_magic.js"></script>
         <script src="scripts/dashboard.js"></script>
         
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.css"/>
- 
-        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.js"></script>
-
-
-
-        <link rel="stylesheet" type="text/css" href="styles/popup.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.css"/>
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="styles/datetimepicker.css" type="text/css">
+        <script src="scripts/datetimepicker.js"></script>
+        
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
         </noscript>
         <title>Dashboard</title>
     </head>
-    <body id="loader" onload="startingData();">
+    <body id="loader" onload="checkUser(); startingData();">
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
             <a href="loginScreen.jsp">
             <button id="Login_Button">Login</button>
+            </a>
+            <a href="admin.jsp">
+            <button id="Admin_Button">Admin</button>
             </a>
         </header>
         <section class = "content_container1" id = "dashboard_container">
@@ -75,7 +80,7 @@
                 </div>
                 <div id="Table" class="tabcontent">
                     <table align="center" id="data_table" onclick="openPopup()">
-                        
+                        <thead><tr><th></th></tr></thead>
                     </table>
                 </div>
                 <div id="Bayesian" class="tabcontent">
@@ -97,10 +102,14 @@
                     </br>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="graph_start_date" name="graph_start_date"type="datetime-local" min="" max="">
+                        <input class="dateselector" id="graph_start_date" type="text">
+                        <input class="dateselector" id="graph_start_time" type="text">
+                        <!--<input class="dateselector" id="graph_start_date" name="graph_start_date"type="datetime-local" min="" max="">-->
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">
+                        <input class="dateselector" id="graph_end_date" type="text">
+                        <input class="dateselector" id="graph_end_time" type="text">
+                        <!--<input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">-->
                     </div>
                     <div id="graph_parameters">
                     </div>
@@ -115,10 +124,14 @@
                     </br>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="table_start_date" name="table_start_date"type="datetime-local" min="" max="">
+                        <input class="dateselector" id="table_start_date" type="text">
+                        <input class="dateselector" id="table_start_time" type="text">
+                        <!--<input class="dateselector" id="table_start_date" name="table_start_date"type="datetime-local" min="" max="">-->
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="table_end_date" name="table_start_date" type="datetime-local" min="" max="">
+                        <input class="dateselector" id="table_end_date" type="text">
+                        <input class="dateselector" id="table_end_time" type="text">
+                        <!--<input class="dateselector" id="table_end_date" name="table_start_date" type="datetime-local" min="" max="">-->
                     </div>
                     <div id="select_all_div">
                         <input type="checkbox" onclick="toggle(); fetch();"id="select_all_box" value="select_all_data">
@@ -168,9 +181,10 @@
                         <span class="close">&times;</span>
                         
                     </div>
+                    <div id="center">
                     <div class="modal-body">
                         <table id="popup" align="center"></table>
-                    </div>
+                    </div></div>
                 </div>
             </div>
         </section>
@@ -186,10 +200,10 @@
             end.setSeconds(0);
             start.setSeconds(0);
             start.setMonth(start.getMonth() - 1);
-            setDate(end, "graph_end_date");
-            setDate(start, "graph_start_date");
-            setDate(end, "table_end_date");
-            setDate(start, "table_start_date");
+            //setDate(end, "graph_end_date");
+            //setDate(start, "graph_start_date");
+            //setDate(end, "table_end_date");
+            //setDate(start, "table_start_date");
             var bay = new Date();
             setBayesianDate(bay,"bayesian_day");
         </script>

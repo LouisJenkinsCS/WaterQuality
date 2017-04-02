@@ -20,10 +20,10 @@
     border:2.5px solid black;
     text-align: center;
     position: fixed;
-    bottom:5%;
+    bottom:10%;
     background-color: #FFF2D7;
     width: 100%;
-    height:85%;
+    height:75%;
     overflow:auto;
     -webkit-animation-name: slideIn;
     -webkit-animation-duration: 0.4s;
@@ -55,17 +55,17 @@
     color: white;
 }
 
-.modal-body {padding: 2px 16px;}
+.modal-body {padding: 2px 16px; display:inline-table;}
 
 /* Add Animation */
 @-webkit-keyframes slideIn {
     from {bottom: -300px; opacity: 0} 
-    to {bottom: 5%; opacity: 1}
+    to {bottom: 10%; opacity: 1}
 }
 
 @keyframes slideIn {
     from {bottom: -300px; opacity: 0}
-    to {bottom: 5%; opacity: 1}
+    to {bottom: 10%; opacity: 1}
 }
 
 @-webkit-keyframes fadeIn {

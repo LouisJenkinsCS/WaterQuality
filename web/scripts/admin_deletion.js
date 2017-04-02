@@ -93,12 +93,18 @@ function loadDelete()
                 '</select><br/><br/>' +
                 '<button type="button" onclick="filterData()">Filter</button><br/><br/>' +
                 '<div class="large_text">Please select the data entry from below:</div>' +
-                '<table id="deletion_space">' +
-                '<tr><th>Date/Time</th><th>Name</th><th>Value</th><th>Author</th></tr>' +
+                '<table id="delete_table">' +
+                '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>' +
                 '</table><br/>' +
                 '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
                 );
-        
+        $('#delete_table').DataTable({
+            columns: [
+                { title: "Date-Time" },
+                { title: "Name" },
+                { title: "Value" }
+            ]
+        });
 
         $( function() {
             var date = new Date();
@@ -183,22 +189,29 @@ function filterData() {
             window.alert("Error Fetching Data from AdminServlet...\nError: \"" + resp.status + "\"");
             return;
         }
-        window.alert("Read: " + JSON.stringify(resp));
+        var dataTable = $('#delete_table').DataTable();
+        
+        dataTable.clear();
         var data = JSON.parse(resp)["data"];
-        var htmlstring = "";
+        var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
         for (var i = 0; i < data.length; i++)
         {
             var item = data[i];
-            htmlstring += '<tr id = deletion_row class = datadeletion>';
-            htmlstring += '<td><input type="text" name="data_date" id="time" value=' + item["timestamp"] + '></td>';
-            htmlstring += '<td><input type="text" name="data_time" id="time" value=' + item["time"] + '></td>';
-            htmlstring += '<td><input type="text" name="data_name" id="name" value=' + item["name"] + '></td>';
-            htmlstring += '<td><input type="text" name="data_value" id="value" value=' + item["value"] + '></td>';
-            htmlstring += '<td><input type="text" name="data_author" id="author" value=' + item["submittedBy"] + '></td>';
-            htmlstring += '<td><input type="checkbox" name="data_select" id=' + item["entryID"] + '></td>';
-            htmlstring += '</tr>';
+            var name = item.name;
+            var dataValues = item.dataValues;
+            for (var j = 0; j < dataValues.length; j++) {
+                item = dataValues[j];
+                dataTable.rows.add([ [ formatDate(new Date(item["timestamp"])), name, item["value"]]]);
+            }
         }
-        $('#deletion_space').append(htmlstring);
+        
+        dataTable.draw();
+//        console.log(htmlstring);
+//         
+//        $('#delete_table').DataTable().destroy(true);
+//        $('#delete_table').append(htmlstring);
+//        $('#delete_table').DataTable();
+       
     });
 
     

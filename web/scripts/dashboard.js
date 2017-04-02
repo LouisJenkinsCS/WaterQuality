@@ -1,11 +1,10 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+$.getScript("scripts/datetimepicker.js", function () {});
+$.getScript("scripts/general.js", function () {});
 
 var checkedBoxes = 0;
 var selected = [];
+var descriptions = [];
+
 /**
  * The <code>fullCheck</code> function limits the number of data
  * checkboxes checked at a time to 3 by unchecking <coe>id</code>
@@ -126,12 +125,16 @@ function openTab(evt, tabName) {
 
 function fetchData(json) {
     var resp = new DataResponse(json);
-
-    var table = resp.table;
-    var description = resp.description;
-    document.getElementById("description").innerHTML = description;
+    
+    
+   
     // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
     var data = new DataResponse(json);
+     document.getElementById("description").innerHTML = "";
+    for (i = 0; i < data.data.length; i++) {
+        document.getElementById("description").innerHTML += "<center><h1>" + data.data[i].name + "</h1></center>";
+        document.getElementById("description").innerHTML += descriptions[data.data[i].name];
+    }
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
     var values = getDataValues(data);
@@ -244,7 +247,6 @@ function fetch() {
     
     var request = new DataRequest(startTime, endTime, selected);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
-    //document.getElementById("loader").style.cursor="default";
 }
 
 /**Sets the default dates for the date selectors
@@ -263,14 +265,30 @@ function setDate(date, id) {
  * date that is earlier than ending dates
  */
 function dateLimits() {
-    var date = new Date();
-    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
-    document.getElementById("graph_end_date").setAttribute("max", dateStr);
-    document.getElementById("graph_start_date").setAttribute("max", document.getElementById("graph_end_date").value);
-    document.getElementById("graph_end_date").setAttribute("min", document.getElementById("graph_start_date").value);
-    document.getElementById("table_end_date").setAttribute("max", dateStr);
-    document.getElementById("table_start_date").setAttribute("max", document.getElementById("table_end_date").value);
-    document.getElementById("table_end_date").setAttribute("min", document.getElementById("table_start_date").value);
+    var date=new Date();
+    /*var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+    document.getElementById("graph_end_date").setAttribute("maxDate", dateStr);
+    document.getElementById("graph_start_date").setAttribute("maxDate", document.getElementById("graph_end_date").value);
+    document.getElementById("graph_end_date").setAttribute("minDate", document.getElementById("graph_start_date").value);
+    document.getElementById("table_end_date").setAttribute("maxDate", dateStr);
+    document.getElementById("table_start_date").setAttribute("maxDate", document.getElementById("table_end_date").value);
+    document.getElementById("table_end_date").setAttribute("minDate", document.getElementById("table_start_date").value);*/
+    var selected=document.activeElement;
+    if($("#graph_end_date").data("datepicker") != null){
+        $("#graph_end_date").datetimepicker("option","maxDate",date);
+    }
+    if($("#graph_start_date").data("datepicker") != null){
+        $("#graph_start_date").datetimepicker("option","maxDate",$("#graph_end_date").datepicker("getDate"));
+        $("#graph_end_date").datetimepicker("option","minDate",$("#graph_start_date").datepicker("getDate"));
+    }
+    if($("#table_end_date").data("datepicker") != null){
+        $("#table_end_date").datetimepicker("option","maxDate",date);
+    }
+    if($("#table_start_date").data("datepicker") != null){
+        $("#table_start_date").datetimepicker("option","maxDate",$("#table_end_date").datepicker("getDate"));
+        $("#table_end_date").datetimepicker("option","minDate",$("#table_start_date").datepicker("getDate"));
+    }
+    //$(selected).datepicker("show");
 }
 
 function setBayesianDate(date,id){
@@ -298,7 +316,10 @@ function pad(num, size) {
  */
 function fillTable(dataResp) {
     var table = document.getElementById("data_table");
+    
+    $("#data_table").DataTable().destroy();
     table.innerHTML = "";
+  
     var html = [];//Holds the table that will be created 
     var dates=[];//holds the array of all dates from all parameters 
     html.push("<table><thead><tr><th>TimeStamp</th>");
@@ -325,7 +346,9 @@ function fillTable(dataResp) {
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
-        html.push("<td>" + new Date(dates[i]).toUTCString() + "</td>");
+        var rowData = [];
+        html.push("<td>" + formatDate(new Date(dates[i])) + "</td>");
+        rowData.push(formatDate(new Date(dates[i])));
         for (var j = 0; j < dataResp.data.length; j++) {
             var d=dataResp.data[j]["data"];
             if(i>=d.length){
@@ -337,8 +360,9 @@ function fillTable(dataResp) {
                 html.push("<td> N/A </td>");
                     d.splice(i,0,null);
             }
-            else
+            else {
                 html.push("<td>" + ts_val["value"] + "</td>");
+            }
         }
         html.push("</tr>");
     }
@@ -350,15 +374,16 @@ function fillTable(dataResp) {
         //console.log(str);
         finalHtml += str;
     }
-    //console.log(finalHtml);
+    console.log(finalHtml);
     table.innerHTML = finalHtml;
+    $("#data_table").DataTable();
 }
 
 /**The <code>openPoppup()</code> function simply opens a popped up
  * version of the data table when <code>data_table</code> is clicked 
  * so that the user can more easily see the data 
  */
-function openPopup() {
+function openPopup() { 
     var modal = document.getElementById("myModal");
     var span = document.getElementsByClassName("close")[0];
     var table = document.getElementById("data_table");
@@ -367,7 +392,8 @@ function openPopup() {
 
     popup.innerHTML = table.innerHTML;
     modal.style.display = "block";
-        $(popup).DataTable();
+    
+    $(popup).DataTable();
     span.onclick = function () {
         modal.style.display = "none";
         $(popup).DataTable().destroy();
@@ -399,10 +425,10 @@ function exportTable(tableId) {
 
 //<code>load</code> makes sure that when the page is newly loaded it will do a
 //special action in the <code>fetchDataFunction</code> allowing it to generate
-//botht he table and the graph
+//both the table and the graph
 var load=true;
 /**The <code>startingData()</code> function generates both the table and the graph
- * on load/refresh of a page by using the same randomly generated data type
+ * on load/refresh of a page by using setting them to Dewpoint
  */
 function startingData(){
      post("AdminServlet", {action: "getParameters", data: 1}, function (resp) {
@@ -411,6 +437,7 @@ function startingData(){
        var data = JSON.parse(resp)["data"][0]["descriptors"];
        console.log(data);
        for (i = 0; i < data.length; i++) {
+           descriptions[data[i].name] = data[i].description;
            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
            document.getElementById("graph_parameters").innerHTML += param;
            document.getElementById("table_parameters").innerHTML += param;
@@ -431,6 +458,53 @@ function startingData(){
         else
             document.getElementById("GraphTab").click();
     }
-    });
-    
+    });    
 }
+
+function checkUser(){
+    /*var user=sessionStorage.getItem("user");
+    if (user == null || user.getUserRole() != UserRole.SystemAdmin) 
+    {
+        document.getElementById("Admin_Button").style.display="none";
+    }
+    else{
+        document.getElementById("Admin_Button").style.display="block";
+        document.getElementById("Login_Button").style.display="none";
+    }*/
+}
+
+$(function () {
+    var date = new Date();
+//            $( "#delete_endtime" ).timepicker();
+//            $( "#delete_starttime" ).timepicker();
+    $("#graph_end_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#graph_end_time",
+    })
+            .datepicker("setDate", date);
+    $("#table_end_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#table_end_time",
+    })
+            .datepicker("setDate", date);
+
+    date.setMonth(date.getMonth() - 1);
+    $("#graph_start_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#graph_start_time",
+    })
+            .datepicker("setDate", date);
+    $("#table_start_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#table_start_time",
+    })
+            .datepicker("setDate", date);
+});

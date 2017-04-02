@@ -17,6 +17,7 @@ Current bugs:
         <link rel="stylesheet" href="styles/admin.css" type="text/css">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <link rel="stylesheet" href="styles/datetimepicker.css" type="text/css">
         <script src="scripts/datetimepicker.js"></script>
@@ -28,6 +29,10 @@ Current bugs:
         <script src="scripts/admin_errors.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        
+         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.css"/>
+ 
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.js"></script>
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
         </noscript>
@@ -51,7 +56,7 @@ Current bugs:
                     </span>
                     <span id="content_box__banner__buttons">
                         <input type="button" id="button_to_dashboard"
-                               onclick="location.href='dashboard.jsp';" value="Dashboard" />
+                               onclick="location.href='/WaterQuality/';" value="Dashboard" />
                         <a href="javascript:void(0)">
                             <img src="images/power-symbol-6-reduced.png"title="Logout"
                                  id="button_logout" onclick="logout();"/>
@@ -177,25 +182,7 @@ Current bugs:
 
 
     <script>
-        function post(path, params, method) {
-            method = method || "post"; // Set method to post by default if not specified.
-            // The rest of this code assumes you are not using a library.
-            // It can be made less wordy if you use one.
-            var form = document.createElement("form");
-            form.setAttribute("method", method);
-            form.setAttribute("action", path);
-            for (var key in params) {
-                if (params.hasOwnProperty(key)) {
-                    var hiddenField = document.createElement("input");
-                    hiddenField.setAttribute("type", "hidden");
-                    hiddenField.setAttribute("name", key);
-                    hiddenField.setAttribute("value", params[key]);
-                    form.appendChild(hiddenField);
-                }
-            }
-            document.body.appendChild(form);
-            form.submit();
-        }
+        
         function handleClick(cb)
         {
             if (current == 'Graph') {
