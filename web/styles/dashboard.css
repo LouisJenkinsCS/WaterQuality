@@ -30,17 +30,17 @@ and open the template in the editor.
     overflow:auto;
 }
 
-td, th {
+#data_table td ,#data_table th, #popup td ,#popup th{
     border: 1px solid #ddd;
     padding: 8px;
     align-content: center;
 }
 
-tr:nth-child(even){background-color: #f2f2f2;}
+#data_table tr:nth-child(even),#popup tr:nth-child(even){background-color: #f2f2f2;}
 
-tr:hover {background-color: #ddd;}
+#data_table tr:hover, #popup tr:hover{background-color: #ddd;}
 
-th {
+#data_table th,#popup th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: center;
@@ -249,10 +249,6 @@ button:hover,input[type = "button"]:hover {
 
 .dateselector{
     width:auto;
-}
-
-#dateInstructDiv{
-    text-align:center;
 }
 
 #Graph{

@@ -1,8 +1,4 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+$.getScript("scripts/datetimepicker.js", function () {});
 
 var checkedBoxes = 0;
 var selected = [];
@@ -262,14 +258,14 @@ function setDate(date, id) {
  * date that is earlier than ending dates
  */
 function dateLimits() {
-    var date = new Date();
-    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
-    document.getElementById("graph_end_date").setAttribute("max", dateStr);
-    document.getElementById("graph_start_date").setAttribute("max", document.getElementById("graph_end_date").value);
-    document.getElementById("graph_end_date").setAttribute("min", document.getElementById("graph_start_date").value);
-    document.getElementById("table_end_date").setAttribute("max", dateStr);
-    document.getElementById("table_start_date").setAttribute("max", document.getElementById("table_end_date").value);
-    document.getElementById("table_end_date").setAttribute("min", document.getElementById("table_start_date").value);
+    //var date=new Date();
+    /*var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad(date.getHours() + 1, 2) + ":" + pad(date.getMinutes() + 1, 2) + ":" + pad(0, 2);
+    document.getElementById("graph_end_date").setAttribute("maxDate", dateStr);
+    document.getElementById("graph_start_date").setAttribute("maxDate", document.getElementById("graph_end_date").value);
+    document.getElementById("graph_end_date").setAttribute("minDate", document.getElementById("graph_start_date").value);
+    document.getElementById("table_end_date").setAttribute("maxDate", dateStr);
+    document.getElementById("table_start_date").setAttribute("maxDate", document.getElementById("table_end_date").value);
+    document.getElementById("table_end_date").setAttribute("minDate", document.getElementById("table_start_date").value);*/
 }
 
 function setBayesianDate(date,id){
@@ -357,7 +353,7 @@ function fillTable(dataResp) {
  * version of the data table when <code>data_table</code> is clicked 
  * so that the user can more easily see the data 
  */
-function openPopup() {
+function openPopup() { 
     var modal = document.getElementById("myModal");
     var span = document.getElementsByClassName("close")[0];
     var table = document.getElementById("data_table");
@@ -366,7 +362,8 @@ function openPopup() {
 
     popup.innerHTML = table.innerHTML;
     modal.style.display = "block";
-        $(popup).DataTable();
+    
+    $(popup).DataTable();
     span.onclick = function () {
         modal.style.display = "none";
         $(popup).DataTable().destroy();
@@ -433,3 +430,42 @@ function startingData(){
     });
     
 }
+
+$(function () {
+    var date = new Date();
+//            $( "#delete_endtime" ).timepicker();
+//            $( "#delete_starttime" ).timepicker();
+    $("#graph_end_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#graph_end_time",
+        maxDate:date
+    })
+            .datepicker("setDate", date);
+    $("#table_end_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#table_end_time",
+        maxDate:date
+    })
+            .datepicker("setDate", date);
+
+    date.setMonth(date.getMonth() - 1);
+    $("#graph_start_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#graph_start_time"
+    })
+            .datepicker("setDate", date);
+    $("#table_start_date").datetimepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#table_start_time"
+    })
+            .datepicker("setDate", date);
+    
+});

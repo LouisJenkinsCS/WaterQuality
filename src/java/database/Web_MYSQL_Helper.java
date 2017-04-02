@@ -37,9 +37,9 @@ public class Web_MYSQL_Helper {
       initialized = true;
       String dir = null;
         try {
-            System.out.println(Paths.get(Web_MYSQL_Helper.class.getResource(".").toURI()).getParent().getParent() + "\\config\\General.properties");
-            dir = Paths.get(Web_MYSQL_Helper.class.getResource(".").toURI()).getParent().getParent() + "\\config\\General.properties";
-            System.out.println("dir: " + dir);
+            dir = Web_MYSQL_Helper.class.getResource("../../config/General.properties").toURI().toString();
+                dir = dir.substring(6);
+                System.out.println("dir: " + dir); 
             } catch (URISyntaxException ex1) {
                 Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex1);
             }
