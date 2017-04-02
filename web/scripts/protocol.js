@@ -56,23 +56,25 @@ function DataRequest(startTime, endTime, parameters) {
     this.params = parameters;
 }
 
-DataRequest.prototype = {}
+DataRequest.prototype = new Request();
 
 DataRequest.prototype.toString = function() {
     return this.value;
 }
 
 function ParameterRequest(dataMask)
-{
-    data = dataMask;
+{    
+    this.action = "";
+    this.data = dataMask;
 }
 
-ParameterRequest.prototype = {data : 1}
+ParameterRequest.prototype = new Request();
 ParameterRequest.prototype.toString = function(){return this.value;}
 
 function ParameterResponse(json)
 {
     if (typeof json != "object") {
+        console.log("json: " + json);
         json = JSON.parse(json);
     } 
     console.log(json);
@@ -80,8 +82,8 @@ function ParameterResponse(json)
     this.data = json["data"];
     console.log(this.data);
     for (var i = 0; i < this.data.length; i++) {
-        this.piece = data[i];
-        this.descriptors = piece["descriptors"];
+        this.piece = this.data[i];
+        this.descriptors = this.piece["descriptors"];
         this.names = [];
         for (var j = 0; j < this.descriptors.length; j++)
         {

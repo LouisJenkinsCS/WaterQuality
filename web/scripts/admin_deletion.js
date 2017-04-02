@@ -42,43 +42,45 @@ function loadDelete()
     //Defines how AdminServlet responds
     var ALL_MASK = 3;
     var parameterRequest = new ParameterRequest(ALL_MASK);
+    parameterRequest.action = "getParameters";
 
-    get("AdminServlet", {action: "getParameters", parameterRequest}, function (response)
+    get("AdminServlet", parameterRequest, function (response)
     {
-        response = {
-            "data": [
-                {
-                    "mask": "1",
-                    "descriptors": [
-                        {
-                            "id": "001",
-                            "name": "DO",
-                            "description": "Dissolved oxygen is blah blah..."
-                        },
-                        {
-                            "id": "005",
-                            "name": "Water Temperature",
-                            "description": "The temperature of the water..."
-                        }
-                    ]
-                },
-                {
-                    "mask": "2",
-                    "descriptors": [
-                        {
-                            "id": "021",
-                            "name": "Algae Cover",
-                            "description": "Amount of algae on a cool lookin' rock..."
-                        },
-                        {
-                            "id": "022",
-                            "name": "Nitrate+Nitrite-Nitrous",
-                            "description": "This is a confusing one..."
-                        }
-                    ]
-                }
-            ]
-        }
+//        response = {
+//            "data": [
+//                {
+//                    "mask": "1",
+//                    "descriptors": [
+//                        {
+//                            "id": "001",
+//                            "name": "DO",
+//                            "description": "Dissolved oxygen is blah blah..."
+//                        },
+//                        {
+//                            "id": "005",
+//                            "name": "Water Temperature",
+//                            "description": "The temperature of the water..."
+//                        }
+//                    ]
+//                },
+//                {
+//                    "mask": "2",
+//                    "descriptors": [
+//                        {
+//                            "id": "021",
+//                            "name": "Algae Cover",
+//                            "description": "Amount of algae on a cool lookin' rock..."
+//                        },
+//                        {
+//                            "id": "022",
+//                            "name": "Nitrate+Nitrite-Nitrous",
+//                            "description": "This is a confusing one..."
+//                        }
+//                    ]
+//                }
+//            ]
+//        }
+        console.log("Response from admin_deletion: " + response);
         var resp = new ParameterResponse(response)
         console.log("Connection made!" + resp);
         (resp.names).forEach(function(item){
