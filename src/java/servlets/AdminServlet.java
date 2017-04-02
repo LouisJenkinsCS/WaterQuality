@@ -263,7 +263,6 @@ static {
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
         {
             Observable.just(0)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(_ignored -> DatabaseManager.getManualParameterNames())
                     .observeOn(Schedulers.computation())
                     .map((String name) -> {
@@ -296,7 +295,6 @@ static {
         else if (action.trim().equalsIgnoreCase("getSensorItems")) 
         {
             Observable.just(0)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(_ignored -> DatabaseManager.getRemoteParameterNames())
                     .observeOn(Schedulers.computation())
                     .map((String name) -> {
@@ -345,7 +343,6 @@ static {
             empty.put("data", new JSONArray());
             
             Observable.just(parameter)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(param -> DatabaseManager.getDataValues(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end), param))
                     .observeOn(Schedulers.computation())
                     .groupBy(DataValue::getId)
