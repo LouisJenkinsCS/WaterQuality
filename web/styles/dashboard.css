@@ -271,7 +271,23 @@ button:hover,input[type = "button"]:hover {
     color:white;
 }
 
-#Login_Button:hover{
+#Admin_Button{
+    float:right;
+    margin-right: 25px;
+    position:relative;
+    border: 0;
+    width: 100px;
+    height:50px;
+    background-color: #266B6B;
+    margin-bottom:10px;
+    font-family: "Ariel", Helvetica, san-serif;
+    font-size: 100%;
+    font-weight: bold;
+    color:white;
+    display:none;
+}
+
+#Login_Button:hover,#Admin_Button:hover{
     background-color:#5CB05C;
 }
 

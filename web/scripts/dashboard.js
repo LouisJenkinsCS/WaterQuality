@@ -443,8 +443,19 @@ function startingData(){
         else
             document.getElementById("GraphTab").click();
     }
-    });
-    
+    });    
+}
+
+function checkUser(){
+    /*var user=sessionStorage.getItem("user");
+    if (user == null || user.getUserRole() != UserRole.SystemAdmin) 
+    {
+        document.getElementById("Admin_Button").style.display="none";
+    }
+    else{
+        document.getElementById("Admin_Button").style.display="block";
+        document.getElementById("Login_Button").style.display="none";
+    }*/
 }
 
 $(function () {
@@ -481,5 +492,4 @@ $(function () {
         altField: "#table_start_time",
     })
             .datepicker("setDate", date);
-    
 });

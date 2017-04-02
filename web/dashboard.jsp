@@ -38,12 +38,15 @@
         </noscript>
         <title>Dashboard</title>
     </head>
-    <body id="loader" onload="startingData();">
+    <body id="loader" onload="checkUser(); startingData();">
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
             <a href="loginScreen.jsp">
             <button id="Login_Button">Login</button>
+            </a>
+            <a href="admin.jsp">
+            <button id="Admin_Button">Admin</button>
             </a>
         </header>
         <section class = "content_container1" id = "dashboard_container">

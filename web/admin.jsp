@@ -51,7 +51,7 @@ Current bugs:
                     </span>
                     <span id="content_box__banner__buttons">
                         <input type="button" id="button_to_dashboard"
-                               onclick="location.href='dashboard.jsp';" value="Dashboard" />
+                               onclick="location.href='/WaterQuality/';" value="Dashboard" />
                         <a href="javascript:void(0)">
                             <img src="images/power-symbol-6-reduced.png"title="Logout"
                                  id="button_logout" onclick="logout();"/>
