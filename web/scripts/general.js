@@ -46,3 +46,26 @@ function pad(num, size) {
         s = "0" + s;
     return s;
 }
+
+function createDateAsUTC(date) {
+    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
+}
+
+function convertDateToUTC(date) { 
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
+}
+
+function formatDate(date) {
+  date = convertDateToUTC(date);
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  var hour = pad((date.getHours() + 1) % 24, 2);
+  var minute = pad((date.getMinutes())%60, 2);
+  var am_pm = hour < 12 ? "AM" : "PM";
+  if (hour > 12) {
+      hour -= 12;
+  }
+  
+  return month + "/" + day + "/" + year + " " + hour + ":" + minute + " " + am_pm;
+}
