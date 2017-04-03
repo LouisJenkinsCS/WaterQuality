@@ -507,11 +507,16 @@ static {
         {
             try
             {
-                session.setAttribute("errorList", DatabaseManager.getErrors());
+                response.getWriter()
+                        .append(DatabaseManager
+                        .getErrors()
+                        .toJSONString());
             }
             catch(Exception e)
             {
-                request.setAttribute("errorListStatus","Error getting error list: " + e);
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error getting error list: " + e);
+                response.getWriter().append(obj.toJSONString());
             }
         }
         
@@ -530,18 +535,23 @@ static {
         {
             try
             {
-                session.setAttribute("errorList", DatabaseManager.getErrorsInRange(
-                    LocalDateTime.parse((String) request.getAttribute("filterLower")), 
-                    LocalDateTime.parse((String) request.getAttribute("filterUpper"))
-                    ));
+                response.getWriter()
+                        .append(DatabaseManager
+                        .getErrorsInRange(request.getParameter("start"),
+                                 request.getParameter("end"))
+                                .toJSONString());
             }
             catch(DateTimeParseException e)
             {
-                request.setAttribute("filteredErrorStatus","Invalid Format on Time");
+                JSONObject obj = new JSONObject();
+                obj.put("status","Invalid Format on Time");
+                response.getWriter().append(obj.toJSONString());
             }
             catch(Exception e)
             {
-                request.setAttribute("filteredErrorStatus","Error getting error list: " + e);
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error getting error list: " + e);
+                response.getWriter().append(obj.toJSONString());
             }
         }
         
