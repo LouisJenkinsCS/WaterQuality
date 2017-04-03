@@ -459,5 +459,40 @@ function startingData(){
             document.getElementById("GraphTab").click();
     }
     });
-    
+
 }
+    $(function () {
+-    var date = new Date();
+-//            $( "#delete_endtime" ).timepicker();
+-//            $( "#delete_starttime" ).timepicker();
+-    $("#graph_end_date").datetimepicker({
+-        controlType: 'select',
+-        oneLine: true,
+-        timeFormat: 'hh:mm tt',
+-        altField: "#graph_end_time",
+-    })
+-            .datepicker("setDate", date);
+-    $("#table_end_date").datetimepicker({
+-        controlType: 'select',
+-        oneLine: true,
+-        timeFormat: 'hh:mm tt',
+-        altField: "#table_end_time",
+-    })
+-            .datepicker("setDate", date);
+-
+-    date.setMonth(date.getMonth() - 1);
+-    $("#graph_start_date").datetimepicker({
+-        controlType: 'select',
+-        oneLine: true,
+-        timeFormat: 'hh:mm tt',
+-        altField: "#graph_start_time",
+-    })
+-            .datepicker("setDate", date);
+-    $("#table_start_date").datetimepicker({
+-        controlType: 'select',
+-        oneLine: true,
+-        timeFormat: 'hh:mm tt',
+-        altField: "#table_start_time",
+-    })
+-            .datepicker("setDate", date);
+-});
