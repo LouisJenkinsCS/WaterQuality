@@ -1294,9 +1294,10 @@ public class DatabaseManager
     /*
         Returns an arraylist of all errors
     */
-    public static ArrayList<ErrorMessage> getErrors()
+    public static JSONObject getErrors()
     {
-        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        JSONObject errorListFinal = new JSONObject();
+        JSONArray errorList = new JSONArray();
         Statement selectErrors = null;
         ResultSet selectedErrors = null;
         Connection conn = null;
@@ -1307,13 +1308,16 @@ public class DatabaseManager
             selectErrors = conn.createStatement();
             selectedErrors = selectErrors.executeQuery(query);
             
+            JSONObject error;
             while(selectedErrors.next())
             {
-                errorList.add(
-                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
-                        selectedErrors.getString(2))
-                );
+                error = new JSONObject();
+                error.put("time", selectedErrors.getString(1));
+                error.put("errorMessage", selectedErrors.getString(2));
+                errorList.add(error);
             }
+            errorListFinal.put("errors", errorList);
+            
         }
         catch (Exception ex)//SQLException ex 
         {
@@ -1335,15 +1339,19 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
-        return errorList;
+        
+        return errorListFinal;
     }
     
     /*
         Returns an arraylist of all errors within the parameter time range
+    
+        lower and upper are localdatetime format 
     */
-    public static ArrayList<ErrorMessage> getErrorsInRange(LocalDateTime lower, LocalDateTime upper)
+    public static JSONObject getErrorsInRange(String lower, String upper)
     {
-        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        JSONObject errorListFinal = new JSONObject();
+        JSONArray errorList = new JSONArray();
         PreparedStatement selectErrors = null;
         ResultSet selectedErrors = null;
         Connection conn = null;
@@ -1352,17 +1360,20 @@ public class DatabaseManager
             conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from ErrorLogs where timeOccured >= ? AND timeOccured <= ?";
             selectErrors = conn.prepareStatement(query);
-            selectErrors.setString(1, lower.toString());
-            selectErrors.setString(2, upper.toString());
+            selectErrors.setString(1, lower);
+            selectErrors.setString(2, upper);
             selectedErrors = selectErrors.executeQuery();
             
+            JSONObject error;
             while(selectedErrors.next())
             {
-                errorList.add(
-                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
-                        selectedErrors.getString(2))
-                );
+                error = new JSONObject();
+                error.put("time", selectedErrors.getString(1));
+                error.put("errorMessage", selectedErrors.getString(2));
+                errorList.add(error);
             }
+            
+            errorListFinal.put("errors", errorList);
         }
         catch (Exception ex)//SQLException ex 
         {
@@ -1384,7 +1395,7 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
-        return errorList;
+        return errorListFinal;
     }
     
     public static io.reactivex.Observable<String> getManualParameterNames()
