@@ -9,6 +9,8 @@
 $.getScript("scripts/AJAX_magic.js", function () {});
 
 var SERVLET="AdminServlet";
+var ACTION_GET_USERS='getUserList';
+var ACTION_REMOVE_USERS='removeUsers';
 var PAD_USERID=20;
 var PAD_BETWEEN=2;
 var PAD_ROLE=13;
@@ -16,6 +18,7 @@ var PAD_DATE=8;
 var OPTION_LENGTH=PAD_USERID+PAD_BETWEEN*3+PAD_ROLE+PAD_DATE;
 var PADDING = Array(OPTION_LENGTH).join(' ');//warning: assumes that Array is initially null/undefined (blank) in each position.
 var arrSelectedUsernames = new Array();
+var default_options='<option>[no users loaded]</option>';
 
 function fillPageRemoveUser() {
 
@@ -26,8 +29,10 @@ function fillPageRemoveUser() {
     //<form> tag might be removed when implementing AJAX (unsure).
     $('#Remove_User').append(
             '<div class=large_text>Select Users to Remove</div><br>'
-            + '<select id="select_user_list"></select><br><br>'
-            + '<input type="submit" id="input_submit_remove_users" value="Remove Users">'
+            + '<select id="select_user_list">'
+                +default_options
+            +'</select><br><br>'
+            + '<input type="submit" id="input_submit_remove_users" value="Remove Users" onclick="requestRemoveUsers">'
             );
     var userList = document.getElementById("select_user_list");
     userList.multiple = "multiple";
@@ -40,7 +45,7 @@ function fillPageRemoveUser() {
 
 //also updates select_user_list options upon receiving response.
 function requestGetUserList(){
-    reqObj={action: 'getUserList'};
+    var reqObj={action: ACTION_GET_USERS};
     post(SERVLET, reqObj, responseGetUserList);
 }
 function responseGetUserList(response) {
@@ -67,7 +72,7 @@ function responseGetUserList(response) {
 function requestRemoveUsers(){
     //put selected usernames into an request object
     var reqObj={
-	"action" : "removeUsers",
+	"action" : ACTION_REMOVE_USERS,
 	"usersSelected" : []//to be filled dynamically below
     };
     var allOptions=document.getElementById("select_user_list").options;
@@ -77,9 +82,9 @@ function requestRemoveUsers(){
             arrSelectedUsernames.push(option.value);
             reqObj.usersSelected.push({"userID":option.value});
         }
-        //..might be reqObj["usersSelected"].push() instead.
+        //could use reqObj["usersSelected"].push() instead.
     });
-    post(SERVLET, reqObj, responseRemoveUsers);
+    post(SERVLET, reqObj, responseRemoveUsers);//when to use post vs. get?
 }
 
 function responseRemoveUsers(response) {
@@ -97,7 +102,7 @@ function responseRemoveUsers(response) {
  * @returns {respObj} A object containing a sample response.
  */
 function getDummyDataUserList(){
-    respObj={
+    var respObj={
         "status" :[
           {
             "errorCode" : "0",
@@ -120,7 +125,7 @@ function getDummyDataUserList(){
     return respObj;
 }
 function getDummyDataRemoveUsers(){
-    respObj={"status" : [
+    var respObj={"status" : [
         {
           "errorCode" : "0",
           "errorMsg" : "[LOCAL DUMMY DATA] Selected users were successfully removed."//this message could be client-side only.
