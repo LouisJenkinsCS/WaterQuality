@@ -479,15 +479,6 @@ $(function () {
         altField: "#table_end_time"
     })
             .datepicker("setDate", date);
-    var bayesian_date=date;
-   $("#bayesian_date").datepicker({
-        controlType: 'select',
-        oneLine: true,
-        timeFormat: 'hh:mm tt',
-        altField: "#graph_end_time",
-        maxDate:bayesian_date.getDay()-1
-    })
-            .datepicker("setDate",bayesian_date.getDay()-1);
 
     date.setMonth(date.getMonth() - 1);
     $("#graph_start_date").datetimepicker({
@@ -504,8 +495,17 @@ $(function () {
         altField: "#table_start_time",
     })
             .datepicker("setDate", date);
+    
+    var bayesian_date=new Date();
+    bayesian_date.setDate(bayesian_date.getDate()-1);
+    $("#bayesian_date").datepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        maxDate:bayesian_date
+    })
+            .datepicker("setDate",bayesian_date);
 });
-
 
 function fillBayesian(){
     alert("Heres the bayesian");
