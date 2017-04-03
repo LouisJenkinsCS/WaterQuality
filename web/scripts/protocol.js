@@ -34,22 +34,106 @@
  * This file contains types for the protocol used to communicate between JSP and Servlet.
  */
 
+function post(destination, data, callback) {
+    console.log("Sent to " + destination + ": " + JSON.stringify(data));
+    callback("");
+}
+
+function Request() {}
+
+Request.prototype.toString = function () {
+    return "";
+}
+
+Request.prototype.post = function (destination, action) {
+    post(destination, {action: action, data: this.toString()}, function () {});
+}
+
+
 function DataRequest(startTime, endTime, parameters) {
     this.startTime = startTime;
     this.endTime = endTime;
     this.params = parameters;
 }
 
-DataRequest.prototype = {
-    
-};
+DataRequest.prototype = new Request();
+
+DataRequest.prototype.toString = function () {
+    return this.value;
+}
+
+function ParameterRequest(dataMask)
+{
+    this.action = "";
+    this.data = dataMask;
+}
+
+ParameterRequest.prototype = new Request();
+ParameterRequest.prototype.toString = function () {
+    return this.value;
+}
+
+function ParameterResponse(json)
+{
+    if (typeof json !== "object") {
+        //console.log("json: " + json);
+        json = JSON.parse(json);
+    }
+    // Obtain data from response as JSONArray
+    this.data = json["data"];
+//    console.log("this.data: " + JSON.stringify(this.data));
+//    this.descriptors = this.data[0]["descriptors"];
+//    console.log("this.descriptors length: " + this.descriptors.length);
+//    this.names = [];
+//
+//    for (var i = 0; i < this.descriptors.length; i++) {
+//        this.piece = this.descriptors[i];
+//        console.log("this.piece: " + JSON.stringify(this.piece));
+//        this.names.push(this.piece["name"]);
+//        console.log("this.names contains:" + JSON.stringify(this.names))
+//    }
+}
+
+
+function DeleteDataRange(start, end) {
+    this.start = start;
+    this.end = end;
+}
+
+DeleteDataRange.prototype = {}
+
+function DeleteDataRequest() {
+    this.data = [];
+}
+
+DeleteDataRequest.prototype = new Request();
+
+DeleteDataRequest.prototype.toString = function () {
+    return this.data;
+}
+
+DeleteDataRequest.prototype.queueDeletion = function (name, range) {
+    // Append if already present
+    for (i = 0; i < this.data.length; i++) {
+        if (data[i].name === name) {
+            data[i].timeRange.push(range);
+            return;
+        }
+    }
+
+    // Create new...
+    this.data.push({name: name, timeRange: [range]});
+}
+
+
 
 function DataResponse(json) {
     if (typeof json != "object") {
         console.log(json);
         json = JSON.parse(json);
-    } 
-    
+    }
+
+
     // Obtain data from response as JSONArray
     this.data = json["resp"];
     this.table = json["table"];
@@ -61,5 +145,5 @@ function DataResponse(json) {
 }
 
 DataResponse.prototype = {
-    
-};
+
+}
