@@ -103,6 +103,7 @@ public class RunBayesianModel {
         throw new RuntimeException("Could not find a full day in " + attempts + " tries...");
     }
     
+    
     public static String formatForDay(List<DataValue> values) {
         // Already sorted by timestamp in ascending order.
         Instant time = values.get(0).getTimestamp().truncatedTo(ChronoUnit.DAYS);

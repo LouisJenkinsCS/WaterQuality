@@ -57,8 +57,10 @@ public class DatabaseManager
     public static void createDataValueTable()    
     {
         Statement createTable = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS DataValues("
                     + "entryID INT primary key AUTO_INCREMENT,"
@@ -81,6 +83,8 @@ public class DatabaseManager
             {
                 if(createTable != null)
                     createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException e)
             {
@@ -101,8 +105,10 @@ public class DatabaseManager
     public static void createManualDataValueTable()    
     {
         Statement createTable = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS ManualDataValues("
                     + "entryID INT primary key AUTO_INCREMENT,"
@@ -124,6 +130,8 @@ public class DatabaseManager
             {
                 if(createTable != null)
                     createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException e)
             {
@@ -140,8 +148,10 @@ public class DatabaseManager
     public static void createDataDescriptionTable()    
     {
         Statement createTable = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS DataDescriptions("
                     + "dataName varchar(40) primary key,"
@@ -159,6 +169,8 @@ public class DatabaseManager
             {
                 if(createTable != null)
                     createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException e)
             {
@@ -178,8 +190,10 @@ public class DatabaseManager
     public static void createUserTable()
     {
         Statement createTable = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS users("
                     + "userNumber INT primary key AUTO_INCREMENT,"
@@ -208,6 +222,8 @@ public class DatabaseManager
             {
                 if(createTable != null)
                     createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException e)
             {
@@ -224,8 +240,10 @@ public class DatabaseManager
     public static void createErrorLogsTable()    
     {
         Statement createTable = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS ErrorLogs("
                     + "timeOccured varchar(25) primary key,"
@@ -245,6 +263,8 @@ public class DatabaseManager
             {
                 if(createTable != null)
                     createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException e)
             {
@@ -296,8 +316,10 @@ public class DatabaseManager
     public static void createDataNamesTable()    
     {
         Statement createTable = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS DataNames("
                     + "dataName varchar(40) primary key"
@@ -314,6 +336,8 @@ public class DatabaseManager
             {
                 if(createTable != null)
                     createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException e)
             {
@@ -328,8 +352,10 @@ public class DatabaseManager
     public static void createManualDataNamesTable()    
     {
         Statement createTable = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS ManualDataNames("
                     + "dataName varchar(100) primary key"
@@ -346,6 +372,8 @@ public class DatabaseManager
             {
                 if(createTable != null)
                     createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException e)
             {
@@ -412,7 +440,7 @@ public class DatabaseManager
                 if(insertData != null)
                     insertData.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException excep)
             {
@@ -470,7 +498,7 @@ public class DatabaseManager
                 if(deleteData != null)
                     deleteData.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException excep)
             {
@@ -528,7 +556,7 @@ public class DatabaseManager
                 if(deleteData != null)
                     deleteData.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException excep)
             {
@@ -588,7 +616,7 @@ public class DatabaseManager
                 if(deleteUser != null)
                     deleteUser.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException excep)
             {
@@ -609,8 +637,10 @@ public class DatabaseManager
         ArrayList<DataValue> graphData = new ArrayList<>();
         PreparedStatement selectData = null;
         ResultSet dataRange = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from DataValues Where dataName = ?"
                 + " AND timeRecorded >= ? AND timeRecorded <= ?;";
             selectData = conn.prepareStatement(query);
@@ -646,6 +676,8 @@ public class DatabaseManager
         {
             try
             {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
                 if(selectData != null)
                     selectData.close();
                 if(dataRange != null)
@@ -795,7 +827,7 @@ public class DatabaseManager
                 if(insertUser != null)
                     insertUser.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException excep)
             {
@@ -857,7 +889,7 @@ public class DatabaseManager
                 if(lockUser != null)
                     lockUser.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException excep)
             {
@@ -919,7 +951,7 @@ public class DatabaseManager
                 if(unlockUser != null)
                     unlockUser.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(SQLException excep)
             {
@@ -940,8 +972,10 @@ public class DatabaseManager
         
         PreparedStatement getUserByLogin = null;
         ResultSet selectedUser = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             String getSQL = "SELECT * FROM users WHERE loginName = ?;";
             getUserByLogin = conn.prepareStatement(getSQL);
             getUserByLogin.setString(1, username);
@@ -971,6 +1005,8 @@ public class DatabaseManager
         {
             try
             {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
                 if(getUserByLogin != null)
                     getUserByLogin.close(); 
                 if(selectedUser != null)
@@ -986,6 +1022,63 @@ public class DatabaseManager
     }
 
     /*
+        Gets the user with the parameter login name
+        @return a JSONObject holding all users
+    */
+    public static JSONObject getUsers() 
+    {
+        JSONObject userListFinal = new JSONObject();
+        JSONArray userList = new JSONArray();
+        
+        Statement selectUsers = null;
+        ResultSet selectedUsers = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String query = "Select * from users";
+            selectUsers = conn.createStatement();
+            selectedUsers = selectUsers.executeQuery(query);
+            
+            JSONObject user;
+            while(selectedUsers.next())
+            {
+                user = new JSONObject();
+                user.put("userNumber",selectedUsers.getString("userNumber"));
+                selectedUsers.getString("loginName");
+                selectedUsers.getString("lastName");
+                selectedUsers.getString("firstName");
+                selectedUsers.getString("emailAddress");
+                selectedUsers.getString("userRole");
+                userList.add(user);
+            }
+            userListFinal.put("users", userList);
+        }
+        catch(Exception e)
+        {
+            LogError("Error retrieving users: "+ e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(selectUsers != null)
+                    selectUsers.close(); 
+                if(selectedUsers != null)
+                    selectedUsers.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        
+        return userListFinal;
+    }
+    
+    /*
         Returns the user info if the username and password are correct
         @return a user with these specs, or null if either are wrong
     */
@@ -995,8 +1088,10 @@ public class DatabaseManager
         
         PreparedStatement selectUser = null;
         ResultSet validatee = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             password = security.SecurityCode.encryptSHA256(password+getSaltByLoginName(username));
             String getSQL = "SELECT * FROM users WHERE loginName = ? and password = ?;";
             selectUser = conn.prepareStatement(getSQL);
@@ -1004,8 +1099,9 @@ public class DatabaseManager
             selectUser.setString(2, password);
             validatee = selectUser.executeQuery();
             validatee.next();
+            System.out.println(Integer.parseInt(validatee.getString("userNumber")));
             u = new User(
-                validatee.getInt("userNumber"),
+                Integer.parseInt(validatee.getString("userNumber")),
                 validatee.getString("loginName"),
                 validatee.getString("password"),
                 validatee.getString("salt"),
@@ -1028,6 +1124,8 @@ public class DatabaseManager
         {
             try
             {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
                 if(selectUser != null)
                     selectUser.close();
                 if(validatee != null)
@@ -1088,7 +1186,7 @@ public class DatabaseManager
                 if(updateUser != null)
                     updateUser.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(Exception excep)
             {
@@ -1140,7 +1238,7 @@ public class DatabaseManager
                 if(updateDesc != null)
                     updateDesc.close();
                 if(conn != null)
-                    conn.close();
+                    Web_MYSQL_Helper.returnConnection(conn);
             }
             catch(Exception excep)
             {
@@ -1178,8 +1276,10 @@ public class DatabaseManager
         PreparedStatement getUserByLogin = null;
         ResultSet selectedUser = null;
         String salt = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             String getSQL = "SELECT * FROM users WHERE loginName = ?;";
             getUserByLogin = conn.prepareStatement(getSQL);
             getUserByLogin.setString(1, loginName);
@@ -1195,6 +1295,8 @@ public class DatabaseManager
         {
             try
             {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
                 if(getUserByLogin != null)
                     getUserByLogin.close();
                 if(selectedUser != null)
@@ -1216,8 +1318,10 @@ public class DatabaseManager
     public static void LogError(String errorMessage)
     {
         PreparedStatement logError = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             String insertSQL = "INSERT INTO ErrorLogs values (?,?)";
             logError = conn.prepareStatement(insertSQL);
             logError.setString(1, LocalDateTime.now().toString());
@@ -1232,6 +1336,8 @@ public class DatabaseManager
         {
             try
             {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
                 if(logError != null)
                     logError.close();
             }
@@ -1243,26 +1349,32 @@ public class DatabaseManager
     }
     
     /*
-        Returns an arraylist of all errors
+        Returns an JSONObject of all errors
     */
-    public static ArrayList<ErrorMessage> getErrors()
+    public static JSONObject getErrors()
     {
-        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        JSONObject errorListFinal = new JSONObject();
+        JSONArray errorList = new JSONArray();
         Statement selectErrors = null;
         ResultSet selectedErrors = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from ErrorLogs";
             selectErrors = conn.createStatement();
             selectedErrors = selectErrors.executeQuery(query);
             
+            JSONObject error;
             while(selectedErrors.next())
             {
-                errorList.add(
-                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
-                        selectedErrors.getString(2))
-                );
+                error = new JSONObject();
+                error.put("time", selectedErrors.getString(1));
+                error.put("errorMessage", selectedErrors.getString(2));
+                errorList.add(error);
             }
+            errorListFinal.put("errors", errorList);
+            
         }
         catch (Exception ex)//SQLException ex 
         {
@@ -1272,6 +1384,8 @@ public class DatabaseManager
         {
             try
             {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
                 if(selectErrors != null)
                     selectErrors.close();
                 if(selectedErrors != null)
@@ -1282,32 +1396,41 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
-        return errorList;
+        
+        return errorListFinal;
     }
     
     /*
-        Returns an arraylist of all errors within the parameter time range
+        Returns an JSONObject of all errors within a time range
+    
+        lower and upper are localdatetime format 
     */
-    public static ArrayList<ErrorMessage> getErrorsInRange(LocalDateTime lower, LocalDateTime upper)
+    public static JSONObject getErrorsInRange(String lower, String upper)
     {
-        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        JSONObject errorListFinal = new JSONObject();
+        JSONArray errorList = new JSONArray();
         PreparedStatement selectErrors = null;
         ResultSet selectedErrors = null;
-        try(Connection conn = Web_MYSQL_Helper.getConnection();)
+        Connection conn = null;
+        try
         {
+            conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from ErrorLogs where timeOccured >= ? AND timeOccured <= ?";
             selectErrors = conn.prepareStatement(query);
-            selectErrors.setString(1, lower.toString());
-            selectErrors.setString(2, upper.toString());
+            selectErrors.setString(1, lower);
+            selectErrors.setString(2, upper);
             selectedErrors = selectErrors.executeQuery();
             
+            JSONObject error;
             while(selectedErrors.next())
             {
-                errorList.add(
-                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
-                        selectedErrors.getString(2))
-                );
+                error = new JSONObject();
+                error.put("time", selectedErrors.getString(1));
+                error.put("errorMessage", selectedErrors.getString(2));
+                errorList.add(error);
             }
+            
+            errorListFinal.put("errors", errorList);
         }
         catch (Exception ex)//SQLException ex 
         {
@@ -1317,6 +1440,8 @@ public class DatabaseManager
         {
             try
             {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
                 if(selectErrors != null)
                     selectErrors.close();
                 if(selectedErrors != null)
@@ -1327,7 +1452,7 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
-        return errorList;
+        return errorListFinal;
     }
     
     public static io.reactivex.Observable<String> getManualParameterNames()
@@ -1443,4 +1568,5 @@ public class DatabaseManager
         DatabaseManager.getRemoteParameterNames().map("Name: "::concat).blockingSubscribe(System.out::println);
     }
     
+
 }

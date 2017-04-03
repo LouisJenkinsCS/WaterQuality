@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- web.xml descripes how the application will be configured when it is deployed.
 So it is also known as the deployment descriptor -->
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee                  
-         http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee                            http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>
-    
     <welcome-file-list>
-        <welcome-file>ControlServlet</welcome-file> 
+        <welcome-file>ControlServlet</welcome-file>
     </welcome-file-list>
-    
     <error-page>
         <error-code>404</error-code>
         <location>/jsp/error_404.jsp</location>
@@ -22,12 +16,13 @@ So it is also known as the deployment descriptor -->
         <exception-type>java.lang.Throwable</exception-type>
         <location>/jsp/error_java.jsp</location>
     </error-page>
-   
-   
+    <filter-mapping>
+        <filter-name>AdminLogin</filter-name>
+        <url-pattern>/admin.jsp</url-pattern>
+    </filter-mapping>
     <listener>
         <listener-class>servlets.listener.ContextListener</listener-class>
     </listener>
-    
     <context-param>
         <param-name>Configuration</param-name>
         <param-value>test</param-value>
@@ -46,12 +41,10 @@ So it is also known as the deployment descriptor -->
         <param-name>EncryptKeyPath</param-name>
         <param-value>/WEB-INF/config/DoNotDeleteFile</param-value>
     </context-param>
-
-  
     <!-- Filters ******************************************* -->
     <filter>
-        <filter-name>HTTPS</filter-name>
-        <filter-class>servlets.filter.HttpsRedirectFilter</filter-class>
+        <filter-name>AdminLogin</filter-name>
+        <filter-class>servlets.filter.LoginFilter</filter-class>
     </filter>
     <!-- comment out below when not on production machine 
     local host does not have https, so server is not found when 
@@ -63,7 +56,7 @@ So it is also known as the deployment descriptor -->
          <url-pattern>/*</url-pattern>
       </filter-mapping>
      -->
-<!--    <filter>
+    <!--    <filter>
         <filter-name>LoginFilter</filter-name>
         <filter-class>servlets.filter.LoginFilter</filter-class>
     </filter>
@@ -71,7 +64,6 @@ So it is also known as the deployment descriptor -->
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>-->
-    
     <!--<resource-ref>
         <description>jdbc:mysql://hermes.bloomu.edu:3306/ISISData</description>
         <res-ref-name>connection</res-ref-name>
@@ -79,6 +71,4 @@ So it is also known as the deployment descriptor -->
         <res-auth>Container</res-auth>
         <res-sharing-scope>Shareable</res-sharing-scope>
     </resource-ref>-->
-    
-    
 </web-app>
