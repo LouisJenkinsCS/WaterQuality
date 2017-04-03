@@ -113,8 +113,6 @@
                     </div>
                     <div id="graph_parameters">
                     </div>
-                    <div id="graph_parameters">
-                    </div>
                     <br>
                     <div class="data_type_submit" id="Graph_submit">
                         <input type="button" value="Graph" onclick="fetch()">
