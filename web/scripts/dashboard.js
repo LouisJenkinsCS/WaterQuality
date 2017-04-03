@@ -460,41 +460,26 @@ function startingData() {
                 document.getElementById("GraphTab").click();
         }
     });
-    
-    
-//-function checkUser(){
-//-    /*var user=sessionStorage.getItem("user");
-//-    if (user == null || user.getUserRole() != UserRole.SystemAdmin) 
-//-    {
-//-        document.getElementById("Admin_Button").style.display="none";
-//-    }
-//-    else{
-//-        document.getElementById("Admin_Button").style.display="block";
-//-        document.getElementById("Login_Button").style.display="none";
-//-    }*/
-//  
-//  }
-}
 
+
+}
 $(function () {
     var date = new Date();
-    //            $( "#delete_endtime" ).timepicker();
-    //            $( "#delete_starttime" ).timepicker();
+//            $( "#delete_endtime" ).timepicker();
+//            $( "#delete_starttime" ).timepicker();
     $("#graph_end_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
         altField: "#graph_end_time",
-    }
-    )
+    })
             .datepicker("setDate", date);
     $("#table_end_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
         altField: "#table_end_time",
-    }
-    )
+    })
             .datepicker("setDate", date);
 
     date.setMonth(date.getMonth() - 1);
@@ -503,16 +488,13 @@ $(function () {
         oneLine: true,
         timeFormat: 'hh:mm tt',
         altField: "#graph_start_time",
-    }
-    )
+    })
             .datepicker("setDate", date);
     $("#table_start_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
         altField: "#table_start_time",
-    }
-    )
+    })
             .datepicker("setDate", date);
-
 });
