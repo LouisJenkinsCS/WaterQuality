@@ -191,6 +191,7 @@ function filterData() {
     var $deleteEndTime = $('#delete_endtime').val();
 
 
+
     var filterRequest = {action: 'getData',
         parameter: $paramName,
         start: $deleteStartDate,
@@ -235,6 +236,7 @@ function filterData() {
 
         dataTable.clear();
 
+
         var data = JSON.parse(resp)["data"];
         var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
         for (var i = 0; i < data.length; i++)
@@ -248,6 +250,7 @@ function filterData() {
             }
         }
 
+
         dataTable.draw();
 //        console.log(htmlstring);
 //         
@@ -258,6 +261,7 @@ function filterData() {
             var cellData = dataTable.cell(this).data();
             console.log("cellData" + cellData);
         });
+
 
     });
 

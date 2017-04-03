@@ -42,7 +42,8 @@ public class LogOutServlet extends HttpServlet {
         session.invalidate();
                 
         //redirect to login page 
-        response.sendRedirect("../WebApplication1/");
+        String url = "/ControlServlet";
+        request.getRequestDispatcher(url).forward(request, response);
         
     }
 

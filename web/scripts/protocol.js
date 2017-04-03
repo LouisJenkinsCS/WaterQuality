@@ -133,6 +133,7 @@ function DataResponse(json) {
         json = JSON.parse(json);
     }
 
+
     // Obtain data from response as JSONArray
     this.data = json["resp"];
     this.table = json["table"];
