@@ -1022,6 +1022,63 @@ public class DatabaseManager
     }
 
     /*
+        Gets the user with the parameter login name
+        @return a JSONObject holding all users
+    */
+    public static JSONObject getUsers() 
+    {
+        JSONObject userListFinal = new JSONObject();
+        JSONArray userList = new JSONArray();
+        
+        Statement selectUsers = null;
+        ResultSet selectedUsers = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String query = "Select * from users";
+            selectUsers = conn.createStatement();
+            selectedUsers = selectUsers.executeQuery(query);
+            
+            JSONObject user;
+            while(selectedUsers.next())
+            {
+                user = new JSONObject();
+                user.put("userNumber",selectedUsers.getString("userNumber"));
+                selectedUsers.getString("loginName");
+                selectedUsers.getString("lastName");
+                selectedUsers.getString("firstName");
+                selectedUsers.getString("emailAddress");
+                selectedUsers.getString("userRole");
+                userList.add(user);
+            }
+            userListFinal.put("users", userList);
+        }
+        catch(Exception e)
+        {
+            LogError("Error retrieving users: "+ e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(selectUsers != null)
+                    selectUsers.close(); 
+                if(selectedUsers != null)
+                    selectedUsers.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        
+        return userListFinal;
+    }
+    
+    /*
         Returns the user info if the username and password are correct
         @return a user with these specs, or null if either are wrong
     */
@@ -1292,7 +1349,7 @@ public class DatabaseManager
     }
     
     /*
-        Returns an arraylist of all errors
+        Returns an JSONObject of all errors
     */
     public static JSONObject getErrors()
     {
@@ -1344,7 +1401,7 @@ public class DatabaseManager
     }
     
     /*
-        Returns an arraylist of all errors within the parameter time range
+        Returns an JSONObject of all errors within a time range
     
         lower and upper are localdatetime format 
     */

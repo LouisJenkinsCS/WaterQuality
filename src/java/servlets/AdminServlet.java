@@ -497,11 +497,34 @@ static {
         }
         
         /*
-            Retrieves a list of all Errors
+            Retrieves a list of all Users
         
             If it succeeds, errorList is set with an ArrayList of ErrorMessages
             If it fails, etcStatus is set with the exception message as there 
             are no obvious reasons for failure.
+        */
+        else if (action.trim().equalsIgnoreCase("getUserList")) 
+        {
+            try
+            {
+                response.getWriter()
+                        .append(DatabaseManager
+                        .getUsers()
+                        .toJSONString());
+            }
+            catch(Exception e)
+            {
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error getting user list: " + e);
+                response.getWriter().append(obj.toJSONString());
+            }
+        }
+        
+        /*
+            Retrieves a list of all Errors
+        
+            If it succeeds, it appends the JSONString holding all the errors
+            to the response's writer.
         */
         else if (action.trim().equalsIgnoreCase("getAllErrors")) 
         {
@@ -523,7 +546,8 @@ static {
         /*
             Retrieves a list of all Errors within a time range
         
-            If it succeeds, errorList is set with an ArrayList of ErrorMessages
+            If it succeeds, it appends the JSONString holding all the errors
+            to the response's writer.
         
             If it fails and a DateTimeParseException is caught, dateStatus is
             set to inform the user that their datetime format is incorrect.
@@ -537,8 +561,8 @@ static {
             {
                 response.getWriter()
                         .append(DatabaseManager
-                        .getErrorsInRange(request.getParameter("start"),
-                                 request.getParameter("end"))
+                        .getErrorsInRange(Instant.ofEpochMilli(Long.parseLong(request.getParameter("start"))).toString(),
+                                 Instant.ofEpochMilli(Long.parseLong(request.getParameter("end"))).toString())
                                 .toJSONString());
             }
             catch(DateTimeParseException e)
