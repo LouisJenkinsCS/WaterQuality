@@ -83,7 +83,7 @@ function loadDelete()
 //            ]
 //        }
 
-        console.log("Response from admin_deletion: " + response);
+        //console.log("Response from admin_deletion: " + response);
         var resp = new ParameterResponse(response);
         //console.log("resp.data: " + JSON.stringify(resp.data));
         for (var k = 0; k < resp.data.length; k++)
