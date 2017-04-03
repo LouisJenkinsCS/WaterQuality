@@ -38,7 +38,8 @@
         </noscript>
         <title>Dashboard</title>
     </head>
-    <body id="loader" onload="checkUser(); startingData();">
+    <!--<body id="loader" onload="checkUser(); startingData();">-->
+        <body id="loader" onload="startingData();">
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
