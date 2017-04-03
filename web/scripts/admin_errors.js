@@ -65,13 +65,10 @@ function filterErrors()
         //The entered/selected parameters are stored
         var $deleteStartDate = new Date($('#errors_startdate').val()).getTime();
         var $deleteEndDate = new Date($('#errors_enddate').val()).getTime();
-        var $deleteStartTime = $('#errors_starttime').val();
-        var $deleteEndTime = $('#errors_endtime').val();
-
 
         var filterRequest = {action: 'getFilteredErrors',
-            start: $deleteStartDate + $deleteStartTime,
-            end: $deleteEndDate + $deleteEndTime
+            start: $deleteStartDate,
+            end: $deleteEndDate
         };
 
         /*
