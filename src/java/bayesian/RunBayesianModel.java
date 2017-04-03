@@ -91,7 +91,6 @@ public class RunBayesianModel {
             long cnt = DataReceiver
                     .getData(day, day.minus(Period.ofDays(1)), PAR, HDO, Temp, Pressure)
                     .getData()
-                    .subscribeOn(Schedulers.computation())
                     .count()
                     .blockingGet();
             
@@ -137,7 +136,6 @@ public class RunBayesianModel {
 
         csvReader content = new csvReader();
         String cnt = data.getData()
-                .observeOn(Schedulers.computation())
                 .groupBy((DataValue dv) -> dv.getId())
                 .flatMap((GroupedObservable<Long, DataValue> group) -> {
                     String header;
