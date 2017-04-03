@@ -63,7 +63,7 @@ public class JJAGS {
                 mon += "monitor " + var + ", thin(" + nthin + ")\n"; 
             }
             
-            System.out.println(JJAGS.class.getResource("BASE/output/" + dir_name).getPath().substring(1));
+//            System.out.println(JJAGS.class.getResource("BASE/output/" + dir_name).getPath().substring(1));
 //            System.exit(0);
             
             

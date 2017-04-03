@@ -8,6 +8,9 @@
  */
 package bayesian;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -114,9 +117,12 @@ public class resultLoader {
             for(int j=0; j<nchains; j++)
                 currentPos[j] = 0;
             
+            Map<String, ArrayList<Double>> dataMap = new HashMap<>();
             while (bf_index.ready()) {
                 // Get each record line
                 String[] row_index = bf_index.readLine().split(" ");
+                String name = row_index[0];
+                
                 FileWriter var = new FileWriter(this.path + "/jsdata/" + csvName + "_" + row_index[0] + ".js");
                 String tmp = row_index[0].replace(".", "_");
                 if(row_index[0].contains("DO")){
@@ -129,6 +135,8 @@ public class resultLoader {
                     var.write("var " + tmp + " = {\n");
                 }
                 
+                // L.J: CODAindex.txt contains rows of three variables...
+                // NAME START_IDX END_IDX
                 StartPos = Integer.parseInt(row_index[1])-1;
                 EndPos = Integer.parseInt(row_index[2])-1;
                       
@@ -136,9 +144,13 @@ public class resultLoader {
                 // we need to read data TXT one-by-one, and each chain provides a List (key by this chain)
                 // to the Dictionary named by this variable.
                 for(int j=0; j< nchains - 1; j++){
+                    dataMap.put(name + "-chain" + (j + 1), new ArrayList<>());
                     var.write("chain" + (j+1) + ":[");
+                    // In each CODAchain file, read from START_IDX to END_IDX and read the second row
+                    // which contains the actual values for the chart.
                     while (bf_chains[j].ready() && (currentPos[j] >= StartPos && currentPos[j] < EndPos)){
                         String[] row_data = bf_chains[j].readLine().split("  ");
+                        dataMap.get(name + "-chain" + (j + 1)).add(Double.parseDouble(row_data[1]));
                         var.write(row_data[1] + ", ");
                         currentPos[j]++;
                     }
@@ -149,9 +161,11 @@ public class resultLoader {
                 }
                 {
                     // One more chain, eliminate the comma after this last List
+                    dataMap.put(name + "-chain" + nchains, new ArrayList<>());
                     var.write("chain" + (nchains) + ":[");
                     while (bf_chains[nchains - 1].ready() && (currentPos[nchains - 1] >= StartPos && currentPos[nchains - 1] < EndPos)){
                         String[] row_data = bf_chains[nchains - 1].readLine().split("  ");
+                        dataMap.get(name + "-chain" + nchains).add(Double.parseDouble(row_data[1]));
                         var.write(row_data[1] + ", ");
                         currentPos[nchains - 1]++;
                     }
@@ -161,6 +175,7 @@ public class resultLoader {
                 }
                 var.write("};");
                 var.close();
+                dataMap.keySet().stream().forEach(key -> System.out.println("Key: " + key + ", count: " + dataMap.get(key).size()));
                 //System.out.println(currentPos[0]);
             }
             f_index.close();

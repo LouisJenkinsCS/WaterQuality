@@ -67,7 +67,7 @@ public class RunBayesianModel {
         Instant day = getFullDayOfData();
         LocalDateTime dt = LocalDateTime.ofInstant(day, ZoneId.systemDefault());
         file_name = dt.getYear() + "_" + dt.getMonthValue() + "_" + dt.getDayOfMonth() + ".csv";
-        Data data = DataReceiver.getData(
+        Data data = DataReceiver.getRemoteData(
                 day,
                 day.plus(Period.ofDays(1)),
                 PAR, HDO, Temp, Pressure);
@@ -89,7 +89,7 @@ public class RunBayesianModel {
         
         while (currAttempts++ < attempts) {
             long cnt = DataReceiver
-                    .getData(day, day.minus(Period.ofDays(1)), PAR, HDO, Temp, Pressure)
+                    .getRemoteData(day, day.minus(Period.ofDays(1)), PAR, HDO, Temp, Pressure)
                     .getData()
                     .count()
                     .blockingGet();
