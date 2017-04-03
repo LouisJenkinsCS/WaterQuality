@@ -288,19 +288,7 @@ function dateLimits() {
         $("#table_start_date").datetimepicker("option","maxDate",$("#table_end_date").datepicker("getDate"));
         $("#table_end_date").datetimepicker("option","minDate",$("#table_start_date").datepicker("getDate"));
     }
-    //$(selected).datepicker("show");
-}
-
-function setBayesianDate(date,id){
-    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate()-1, 2);
-    document.getElementById(id).value = dateStr;
-}
-
-function bayesianDateLimits(){
-    var date = new Date();
-    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate()-1, 2);
-    
-    document.getElementById("bayesian_day").setAttribute("max",dateStr);
+    $(selected).datepicker("show");
 }
 
 function pad(num, size) {
@@ -481,16 +469,25 @@ $(function () {
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
-        altField: "#graph_end_time",
+        altField: "#graph_end_time"
     })
             .datepicker("setDate", date);
     $("#table_end_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
-        altField: "#table_end_time",
+        altField: "#table_end_time"
     })
             .datepicker("setDate", date);
+    var bayesian_date=date;
+   $("#bayesian_date").datepicker({
+        controlType: 'select',
+        oneLine: true,
+        timeFormat: 'hh:mm tt',
+        altField: "#graph_end_time",
+        maxDate:bayesian_date.getDay()-1
+    })
+            .datepicker("setDate",bayesian_date.getDay()-1);
 
     date.setMonth(date.getMonth() - 1);
     $("#graph_start_date").datetimepicker({
@@ -508,3 +505,8 @@ $(function () {
     })
             .datepicker("setDate", date);
 });
+
+
+function fillBayesian(){
+    alert("Heres the bayesian");
+}

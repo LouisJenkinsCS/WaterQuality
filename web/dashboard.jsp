@@ -149,11 +149,11 @@
                     
                         <div id="dateselectordiv" onclick="bayesianDateLimits();">
                         <br>Bayesian Day:
-                        <input class="dateselector" id="bayesian_day" name="bayesian_day"type="date" min="" max="">
+                        <input class="dateselector" id="bayesian_date" type="text">
                         </div>
                         <br>
                     <div class="data_type_submit" id="Bayesian_submit">
-                        <input type="button" value="Bayesian" onclick="">
+                        <input type="button" value="Bayesian" onclick="fillBayesian();">
                     </div>
                 </form>
             </aside><br>
@@ -188,26 +188,7 @@
                 </div>
             </div>
         </section>
-        
-            <script>
-               
-            </script>
-            
-            
-        <script>
-            var end = new Date();
-            var start = new Date();
-            end.setSeconds(0);
-            start.setSeconds(0);
-            start.setMonth(start.getMonth() - 1);
-            //setDate(end, "graph_end_date");
-            //setDate(start, "graph_start_date");
-            //setDate(end, "table_end_date");
-            //setDate(start, "table_start_date");
-            var bay = new Date();
-            setBayesianDate(bay,"bayesian_day");
-        </script>
-            
+                     
         <script>
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
@@ -347,8 +328,74 @@
                 },
                 series: []
             });
-        </script>
-        <script>
             
+            var bayesian_chart = Highcharts.chart('Bayesian', {
+            exporting: {
+                enabled: true,
+                buttons: {contextButton: {align: "left"}},
+                chartOptions: {// specific options for the exported image
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        }
+                    }
+                },
+                fallbackToExportServer: false
+            },
+            title: {
+                text: 'Bayesian Model',
+                x: -20 //center
+            },
+            subtitle: {
+                text: 'Source: environet.com',
+                x: -20
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    millisecond: '%H:%M:%S.%L',
+                    second: '%H:%M:%S',
+                    minute: '%H:%M',
+                    hour: '%H:%M',
+                    day: '%m/%e',
+                    week: '%m/%b',
+                    month: '%b \'%Y',
+                    year: '%Y'
+                },
+                title: {
+                    text: 'Date'
+                }
+            },
+            yAxis: [{
+                title: {
+                    text: '',
+                    style: {color: '#7cb5ec'}
+                },
+                labels: {style: {color: '#7cb5ec'}},
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            }, {// Secondary yAxis
+                title: {
+                    text: ''
+                },
+                opposite: true
+            }],
+            tooltip: {
+                valueSuffix: ''
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                borderWidth: 0,
+                floating: true
+            },
+            series: []
+        });
         </script>
     </body>

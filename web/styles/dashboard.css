@@ -130,7 +130,7 @@ description boxes */
 #dashboard_data_container{
     float:right;
     margin-top:10px;
-    margin-right:10px;
+    margin-right:1%;
     margin-left:5px;
     margin-bottom: 10px;;
     min-width: 350px;
@@ -142,7 +142,7 @@ description boxes */
 #graph_container{
     float:left;
     margin-top: 10px;
-    margin-left:10px;
+    margin-left:1%;
     margin-right:5px;
     min-width: 600px;
     width:60%;
@@ -153,7 +153,9 @@ description boxes */
 #dashboard_data_description{
     text-align:center;
     display:inline-block;
-    margin:10px 10px 0px 10px;
+    margin-left:1%;
+    margin-top:10px;
+    maring-bottom:10px;
     padding-bottom:10px;
     min-width:600px;
     width:60%;
@@ -251,7 +253,7 @@ button:hover,input[type = "button"]:hover {
     width:auto;
 }
 
-#Graph{
+#Graph, #Bayesian{
     width:auto;
     min-width: 57.7%;
 }
