@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -72,10 +73,8 @@ public class RunBayesianModel {
                 day.plus(Period.ofDays(1)),
                 PAR, HDO, Temp, Pressure);
         
-        System.out.println(DataToCSV.dataToCSV(data, true));
-        ForkJoinPool.commonPool().execute(() -> runJJAGSForCSV(fo, data));
-        
-        ForkJoinPool.commonPool().awaitQuiescence(Integer.MAX_VALUE, TimeUnit.DAYS);
+//        System.out.println(DataToCSV.dataToCSV(data, true));
+        runJJAGSForCSV(fo, data);
     }
     
     public static Instant getFullDayOfData() {
@@ -124,7 +123,7 @@ public class RunBayesianModel {
     }
     
     
-    private static void runJJAGSForCSV(FileOperation fo, Data data) {
+    private static Observable<JSONObject> runJJAGSForCSV(FileOperation fo, Data data) {
         String fname = file_name;
         //Fitting the model and obtain the results in the folder output/
         String tmp_dir = base_dir + fname + "/";
@@ -219,34 +218,35 @@ public class RunBayesianModel {
         fo.newFolder(output_dir + fname + "/jsdata");
 
         resultLoader rl = new resultLoader(output_dir + fname);
-        // Parsing all variables out from TXT outputs and create JS files for each
-        rl.PrepareDataJS(content.nRow, nchains, niter, nthin, fname);
-        // Generate the graph JS file
-        String plotVarList = "A,R,p,K.day,theta"; // Do NOT place "spaces"!!!
-        String scatterList = "PAR,tempC,DO.modelled";   // SAME as above!!!
-        JSgen csvjs = new JSgen(output_dir + fname);
-        csvjs.CodingHTML(fname, (plotVarList + "," + scatterList).split(","), content.nRow);
-        csvjs.codingJS(nchains, plotVarList.split(","), scatterList.split(","));
-        csvjs.codingStatJS(content.nRow, (int)(niter/nthin), nchains);
-
-        // Scatter plots of PAR and tempC
-        data
-                .getData()
-                .subscribeOn(Schedulers.computation())
-                .filter(dv -> dv.getId() == PAR)
-                .sorted()
-                .buffer(Integer.MAX_VALUE)
-                .map(RunBayesianModel::formatForDay)
-                .blockingSubscribe(plotData -> rl.Str2JS(plotData, fname, "PAR"));
-        
-        data
-                .getData()
-                .subscribeOn(Schedulers.computation())
-                .filter(dv -> dv.getId() == Temp)
-                .sorted()
-                .buffer(Integer.MAX_VALUE)
-                .map(RunBayesianModel::formatForDay)
-                .blockingSubscribe(plotData -> rl.Str2JS(plotData, fname, "tempC"));
+        return rl.parseJAGSOutput(content.nRow, nchains, niter, nthin);
+//        // Parsing all variables out from TXT outputs and create JS files for each
+//        rl.PrepareDataJS(content.nRow, nchains, niter, nthin, fname);
+//        // Generate the graph JS file
+//        String plotVarList = "A,R,p,K.day,theta"; // Do NOT place "spaces"!!!
+//        String scatterList = "PAR,tempC,DO.modelled";   // SAME as above!!!
+//        JSgen csvjs = new JSgen(output_dir + fname);
+//        csvjs.CodingHTML(fname, (plotVarList + "," + scatterList).split(","), content.nRow);
+//        csvjs.codingJS(nchains, plotVarList.split(","), scatterList.split(","));
+//        csvjs.codingStatJS(content.nRow, (int)(niter/nthin), nchains);
+//
+//        // Scatter plots of PAR and tempC
+//        data
+//                .getData()
+//                .subscribeOn(Schedulers.computation())
+//                .filter(dv -> dv.getId() == PAR)
+//                .sorted()
+//                .buffer(Integer.MAX_VALUE)
+//                .map(RunBayesianModel::formatForDay)
+//                .blockingSubscribe(plotData -> rl.Str2JS(plotData, fname, "PAR"));
+//        
+//        data
+//                .getData()
+//                .subscribeOn(Schedulers.computation())
+//                .filter(dv -> dv.getId() == Temp)
+//                .sorted()
+//                .buffer(Integer.MAX_VALUE)
+//                .map(RunBayesianModel::formatForDay)
+//                .blockingSubscribe(plotData -> rl.Str2JS(plotData, fname, "tempC"));
     }
     
 }
