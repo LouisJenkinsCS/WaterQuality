@@ -20,7 +20,7 @@ import utilities.PropertyManager;
  */
 public class Web_MYSQL_Helper { 
     private static boolean initialized = false; 
-    private static final boolean REUSE_CONNECTION = false;
+    private static final boolean REUSE_CONNECTION = true;
     private static final ConnectionPoolMySQL connectionPool = ConnectionPoolMySQL.getInstance();
     private static boolean USE_DB_POOLING;
     private static Connection connection = null;
@@ -39,10 +39,9 @@ public class Web_MYSQL_Helper {
         try {
             dir = Web_MYSQL_Helper.class.getResource("../../config/General.properties").toURI().toString();
             dir = dir.substring(6);
-            System.out.println("dir: " + dir);
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            } catch (URISyntaxException ex1) {
+                Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex1);
+            }
       
       
       PropertyManager.configure(dir);
@@ -120,8 +119,9 @@ public class Web_MYSQL_Helper {
         } catch (SQLException e) {
             WebErrorLogger.log(Level.SEVERE, "SQL Exception was thrown while "
                     + "trying to connect to the database. Database string = "
-                    + databaseURL + " user =  " + userName + " password " + password);
+                    + databaseURL + " user =  " + userName + " password " + password + "\nError: " + e.getMessage());
         }
+        
         //Connection is thread safe, but only one thread can access the database at once now
         return conn;
     }

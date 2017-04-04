@@ -11,7 +11,10 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
         <link rel="stylesheet" href="styles/dashboard.css" type="text/css">
+        <link rel="stylesheet" type="text/css" href="styles/popup.css">
+        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -22,19 +25,28 @@
         <script src="scripts/protocol.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <script src="scripts/dashboard.js"></script>
-        <link rel="stylesheet" type="text/css" href="styles/popup.css">
+        
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.css"/>
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="styles/datetimepicker.css" type="text/css">
+        <script src="scripts/datetimepicker.js"></script>
+        
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
         </noscript>
         <title>Dashboard</title>
     </head>
-    <body id="loader" onload="startingData();">
+    <body id="loader" onload="checkUser(); startingData();">
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
             <a href="loginScreen.jsp">
             <button id="Login_Button">Login</button>
+            </a>
+            <a href="admin.jsp">
+            <button id="Admin_Button">Admin</button>
             </a>
         </header>
         <section class = "content_container1" id = "dashboard_container">
@@ -60,15 +72,15 @@
                            id="BayesianTab">Bayesian</a></li>
                     <li>
                         <button id="exportbutton"
-                            onclick="if(getCookie('id') == 'Table'){exportTable('dataTable');}">
+                            onclick="if(getCookie('id') == 'Table'){exportTable('data_table');}">
                             Export</button>
                     </li>
                 </ul>
                 <div id="Graph" class="tabcontent">
                 </div>
                 <div id="Table" class="tabcontent">
-                    <table align="center" id="dataTable" onclick="openPopup()">
-                        
+                    <table align="center" id="data_table" onclick="openPopup()">
+                        <thead><tr><th></th></tr></thead>
                     </table>
                 </div>
                 <div id="Bayesian" class="tabcontent">
@@ -90,12 +102,17 @@
                     </br>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="graph_start_date" name="graph_start_date"type="datetime-local" min="" max="">
+                        <input class="dateselector" id="graph_start_date" type="text">
+                        <input class="dateselector" id="graph_start_time" type="text">
+                        <!--<input class="dateselector" id="graph_start_date" name="graph_start_date"type="datetime-local" min="" max="">-->
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">
+                        <input class="dateselector" id="graph_end_date" type="text">
+                        <input class="dateselector" id="graph_end_time" type="text">
+                        <!--<input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">-->
                     </div>
-                    ${Parameters}
+                    <div id="graph_parameters">
+                    </div>
                     <br>
                     <div class="data_type_submit" id="Graph_submit">
                         <input type="button" value="Graph" onclick="fetch()">
@@ -107,16 +124,21 @@
                     </br>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
-                        <input class="dateselector" id="table_start_date" name="table_start_date"type="datetime-local" min="" max="">
+                        <input class="dateselector" id="table_start_date" type="text">
+                        <input class="dateselector" id="table_start_time" type="text">
+                        <!--<input class="dateselector" id="table_start_date" name="table_start_date"type="datetime-local" min="" max="">-->
                         </BR>to</BR>
                         End Date:
-                        <input class="dateselector" id="table_end_date" name="table_start_date" type="datetime-local" min="" max="">
+                        <input class="dateselector" id="table_end_date" type="text">
+                        <input class="dateselector" id="table_end_time" type="text">
+                        <!--<input class="dateselector" id="table_end_date" name="table_start_date" type="datetime-local" min="" max="">-->
                     </div>
                     <div id="select_all_div">
                         <input type="checkbox" onclick="toggle(); fetch();"id="select_all_box" value="select_all_data">
                         Select all
-                    </div><br>
-                        ${Parameters}
+                    </div>
+                    <div id="table_parameters">
+                    </div>
                     <br>
                     <div class="data_type_submit" id="Table_submit">
                         <input type="button" value="Table" onclick="fetch()">
@@ -127,11 +149,11 @@
                     
                         <div id="dateselectordiv" onclick="bayesianDateLimits();">
                         <br>Bayesian Day:
-                        <input class="dateselector" id="bayesian_day" name="bayesian_day"type="date" min="" max="">
+                        <input class="dateselector" id="bayesian_date" type="text">
                         </div>
                         <br>
                     <div class="data_type_submit" id="Bayesian_submit">
-                        <input type="button" value="Bayesian" onclick="">
+                        <input type="button" value="Bayesian" onclick="fillBayesian();">
                     </div>
                 </form>
             </aside><br>
@@ -149,36 +171,24 @@
 
                 <p id="tmp"> </p>
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
-                <div id="description">${Descriptions}</div>
+                <div id="description"></div>
             </section>
             <!--The modal aka the popup for the table-->
             <div id="myModal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
+                        Table Data
                         <span class="close">&times;</span>
-                        <h2>Table Data</h2>
+                        
                     </div>
+                    <div id="center">
                     <div class="modal-body">
                         <table id="popup" align="center"></table>
-                    </div>
+                    </div></div>
                 </div>
             </div>
-        </section> 
-            
-        <script>
-            var end = new Date();
-            var start = new Date();
-            end.setSeconds(0);
-            start.setSeconds(0);
-            start.setMonth(start.getMonth() - 1);
-            setDate(end, "graph_end_date");
-            setDate(start, "graph_start_date");
-            setDate(end, "table_end_date");
-            setDate(start, "table_start_date");
-            var bay = new Date();
-            setBayesianDate(bay,"bayesian_day");
-        </script>
-            
+        </section>
+                     
         <script>
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
@@ -318,13 +328,74 @@
                 },
                 series: []
             });
-        </script>
-        
-        <script type="text/javascript">
-            //document.getElementById("GraphTab").click();
-            /*if (getCookie("id") == "Table")
-                document.getElementById("TableTab").click();
-            else
-                document.getElementById("GraphTab").click();*/
+            
+            var bayesian_chart = Highcharts.chart('Bayesian', {
+            exporting: {
+                enabled: true,
+                buttons: {contextButton: {align: "left"}},
+                chartOptions: {// specific options for the exported image
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        }
+                    }
+                },
+                fallbackToExportServer: false
+            },
+            title: {
+                text: 'Bayesian Model',
+                x: -20 //center
+            },
+            subtitle: {
+                text: 'Source: environet.com',
+                x: -20
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    millisecond: '%H:%M:%S.%L',
+                    second: '%H:%M:%S',
+                    minute: '%H:%M',
+                    hour: '%H:%M',
+                    day: '%m/%e',
+                    week: '%m/%b',
+                    month: '%b \'%Y',
+                    year: '%Y'
+                },
+                title: {
+                    text: 'Date'
+                }
+            },
+            yAxis: [{
+                title: {
+                    text: '',
+                    style: {color: '#7cb5ec'}
+                },
+                labels: {style: {color: '#7cb5ec'}},
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            }, {// Secondary yAxis
+                title: {
+                    text: ''
+                },
+                opposite: true
+            }],
+            tooltip: {
+                valueSuffix: ''
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                borderWidth: 0,
+                floating: true
+            },
+            series: []
+        });
         </script>
     </body>

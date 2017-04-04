@@ -28,33 +28,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package async;
+package utilities;
 
-import io.reactivex.observables.ConnectableObservable;
-import java.util.Collections;
-import java.util.List;
+import org.javatuples.Pair;
 
 /**
  *
  * @author Louis Jenkins
- * 
- * Data is created and used as a handle for the result of a data query for DataReceiver.
- * Data is kept in the form of a ConnectableObservable, which is a way to cache
- * data from a query to be used later.
  */
-public class Data {
-    private ConnectableObservable<DataValue> data;
-
-    public Data(ConnectableObservable<DataValue> data) {
-        this.data = data;
-        data.connect();
-    }
-
-    public ConnectableObservable<DataValue> getData() {
-        return data;
+public class Either <A, B> {
+    private A a;
+    private B b;
+    
+    public static <A, B> Either<A, B> A(A a) {
+        return new Either(a, null);
     }
     
-    public List<DataValue> getRawData() {
-        return data.buffer(Integer.MAX_VALUE).blockingFirst(Collections.EMPTY_LIST);
+    public static <A, B> Either<A, B> B(B b) {
+        return new Either(null, b);
+    }
+    
+
+    public Either(A a, B b) {
+        this.a = a;
+        this.b = b;
+    }
+    
+    public boolean isA() {
+        return a != null;
+    }
+    
+    public boolean isB() {
+        return b != null;
+    }
+    
+    public A getA() {
+        return a;
+    }
+    
+    public B getB() {
+        return b;
     }
 }
