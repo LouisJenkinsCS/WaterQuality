@@ -127,11 +127,15 @@ static {
                     admin);
                 if (newUserStatus) 
                 {
-                    session.setAttribute("inputStatus", "New User Registration Successful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Success");
+                    response.getWriter().append(obj.toJSONString());
                 } 
                 else 
                 {
-                    session.setAttribute("inputStatus", "New User Registration *Unsuccessful. Check your syntax");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Failed");
+                    response.getWriter().append(obj.toJSONString());
                 }
             }
             catch(Exception e)
@@ -155,11 +159,15 @@ static {
                     admin);
                 if (userRemovalStatus) 
                 {
-                    session.setAttribute("userDeletionStatus", "User Deletion Successful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Success");
+                    response.getWriter().append(obj.toJSONString());
                 } 
                 else 
                 {
-                    session.setAttribute("userDeletionStatus", "User Deletion Unsuccessful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Failed");
+                    response.getWriter().append(obj.toJSONString());
                 }
             }
             catch(Exception e)
@@ -225,6 +233,28 @@ static {
         } 
         
         /*
+            Gets the description of the parameter selected on the page
+            and returns it
+        
+        else if (action.trim().equalsIgnoreCase("getParamDesc")) 
+        {
+            try
+            {
+                response.getWriter()
+                        .append(DatabaseManager
+                                .getDescription(request.getParameter("name"))
+                                .toJSONString());
+            }
+            catch(Exception e)
+            {
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error editing description: " + e);
+                response.getWriter().append(obj.toJSONString());
+            }
+        }
+        */
+        
+        /*
             Admin is editing the description of a certain data value
             
             If editing the description succeeded or failed without error,
@@ -232,19 +262,23 @@ static {
             If an error arises, etcStatus is set with the exception message as
             there are no obvious reasons for it to fail.
         */
-        else if (action.trim().equalsIgnoreCase("EditDesc")) 
+        else if (action.trim().equalsIgnoreCase("editParamDesc")) 
         {
             try
             {
-                boolean editDescStatus = DatabaseManager.updateDescription((String) request.getParameter("description"),
-                    (String) request.getParameter("dataName"));
+                boolean editDescStatus = DatabaseManager.updateDescription((String) request.getParameter("desc"),
+                    Long.parseLong(request.getParameter("desc_id")));
                 if (editDescStatus) 
                 {
-                    session.setAttribute("editDescStatus", "Description Update Successful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Success");
+                    response.getWriter().append(obj.toJSONString());
                 } 
                 else 
                 {
-                    session.setAttribute("editDescStatus", "Description Update Unsuccessful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Failed");
+                    response.getWriter().append(obj.toJSONString());
                 }
             }
             catch(Exception e)
