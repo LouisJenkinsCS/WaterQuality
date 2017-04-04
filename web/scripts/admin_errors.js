@@ -7,7 +7,6 @@ $.getScript("scripts/datetimepicker.js", function () {});
 
 function fillPageErrors()
 {
-        
     $('#Errors').append(
             '<div class="large_text">Time Frame:</div>' +
             '<div id="dateInstructDiv">Start Date:</div>' +
