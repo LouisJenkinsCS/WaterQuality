@@ -33,6 +33,55 @@ function fullCheck(id) {
     }
 }
 
+function bayesianRequest() {
+    //makes the cursor show loading when graph/table is being generated 
+    document.getElementById("loader").style.cursor = "progress";
+    // Proof of Concept: Only obtains for a valid day
+    post("AdminServlet", {action: "getBayesian" }, function(resp) {
+        document.getElementById("loader").style.cursor = "default";
+        var response = JSON.parse(resp);
+        $('#bayesian_day').datepicker("setDate", new Date(resp.date));
+
+        var dataSets;
+        for (i = 0; i < response.data.length; i++) {
+            if (response.data[i].name == "DO Model") {
+                dataSets = response.data[i].dataSets;
+                break;
+            }
+        }
+        
+        var timestamp = response.date;
+        var arr = [];
+        var idx = 0;
+        console.log(timestamp);
+        for (i = 0; i < dataSets.length; i++) {
+             var subArr = [];
+             
+            for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
+                subArr.push([timestamp, dataSets[i].dataValues[idx]]);
+                
+                idx++;
+//                console.log(subArr);
+            }
+            arr.push(subArr);
+            idx = 0;
+        }
+        
+        
+        console.log(arr);
+        for (var i = 0; i < arr.length; i++) {
+            bayesianChart.addSeries({
+//                yAxis: i,
+                name: dataSets[i].name,
+                data: arr[i]
+            }, false);
+//            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
+        }
+        
+        bayesianChart.redraw();
+    })
+}
+
 //<code>doCheck</code> tells the checkboxes if they need to check or uncheck
 //The default value is set to true so that first time it is clicked it resets
 var doCheck = true;

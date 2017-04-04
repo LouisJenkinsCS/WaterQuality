@@ -6,6 +6,7 @@
 package servlets;
 
 import async.DataValue;
+import bayesian.RunBayesianModel;
 import common.UserRole;
 import database.DatabaseManager;
 import static database.DatabaseManager.LogError;
@@ -16,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -296,7 +298,6 @@ static {
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
         {
             Observable.just(0)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(_ignored -> DatabaseManager.getManualParameterNames())
                     .observeOn(Schedulers.computation())
                     .map((String name) -> {
@@ -326,10 +327,22 @@ static {
             session.setAttribute("manualItems", DatabaseManager.getRemoteParameterNames());
             */
         }
+        
+        else if (action.trim().equalsIgnoreCase("getBayesian")) {
+            Instant day = RunBayesianModel.getFullDayOfData().minus(Period.ofDays(1));
+            RunBayesianModel.trialJAGS(day)
+                    .map(obj -> {
+                        obj.put("date", day.getEpochSecond() * 1000);
+                        return obj;
+                    })
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+        }
         else if (action.trim().equalsIgnoreCase("getSensorItems")) 
         {
             Observable.just(0)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(_ignored -> DatabaseManager.getRemoteParameterNames())
                     .observeOn(Schedulers.computation())
                     .map((String name) -> {
@@ -378,7 +391,6 @@ static {
             empty.put("data", new JSONArray());
             
             Observable.just(parameter)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(param -> DatabaseManager.getDataValues(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end), param))
                     .observeOn(Schedulers.computation())
                     .groupBy(DataValue::getId)
@@ -461,7 +473,6 @@ static {
                                     ) : Observable.empty()
                     ))
                     .groupBy(Quartet::getValue0, Quartet::removeFrom0)
-                    .doOnNext(group -> System.out.println("Mask: " + group.getKey()))
                     .flatMap(group -> group
                             .sorted((t1, t2) -> t1.getValue1().compareTo(t2.getValue1()))
                             .map(triplet -> {
