@@ -9,9 +9,6 @@ var $insertionid = 0;
 //remember the list for the parameter dropdown
 var options_params = "";
 
-//defines the request action to be read by AdminServlet
-var getRequest = {action: 'getManualItems'};
-
 /**
  * The actions to be performed are defined here. This method is called
  * upon loading the admin.jsp page.
@@ -35,30 +32,43 @@ function loadInsert()
      * 
      */
 
-    get("AdminServlet", getRequest, function (response)
+    var ALL_MASK = 3;
+    var parameterRequest = new ParameterRequest(ALL_MASK);
+    parameterRequest.action = "getParameters";
+
+    get("AdminServlet", parameterRequest, function (response)
     {
-        //console.log(response);
-        //console.log("Connection made!" + response);
-        var parameter_names = JSON.parse(response)["data"];
-        for (var i = 0; i < parameter_names.length; i++)
+        console.log("Response from admin_insertion: " + response);
+        var resp = new ParameterResponse(response);
+        //console.log("resp.data: " + JSON.stringify(resp.data));
+        for (var k = 0; k < resp.data.length; k++)
         {
-            options_params += '<option>';
-            var item = parameter_names[i];
-            //console.log(item["name"]);
-            options_params += item["name"];
-            options_params += '</option>';
+            if(resp.data[k]["mask"] === 1)
+                options_params += '<option disabled=true>-----Sensor Parameters-----</option>';
+            else
+                options_params += '<option disabled=true>-----Manual Parameters-----</option>';
+            
+            resp.descriptors = resp.data[k]["descriptors"];
+            //console.log("resp.descriptors length: " + resp.descriptors.length);
+            resp.names = [];
+
+            for (var i = 0; i < resp.descriptors.length; i++) {
+                resp.piece = resp.descriptors[i];
+                //console.log("resp.piece: " + JSON.stringify(resp.piece));
+                resp.names.push(resp.piece["name"]);
+                //console.log("resp.names contains:" + JSON.stringify(resp.names))
+            }
+
+            (resp.names).forEach(function (item) {
+                options_params += '<option>';
+                options_params += item;
+                options_params += '</option>';
+            });
         }
-
-        //console.log("Parameter names: " + parameter_names);
-        //console.log("Item: " + item["name"]);
-
-        //console.log("Parameter names: " + options_params);
-
         //createNewInput();//get() is non-blocking, so moving createNewInput()
         //outside of this block {} of code will cause it to display before
         //options_params has been initialilzed.
     });
-
 
 //This creates the browse area, then fires off the function createNewInput,
 //then puts a button below for adding more data entry areas
@@ -74,8 +84,8 @@ function loadInsert()
             + '<button type="button" onclick="createNewInput()">+</button>'
             + '<button type="button" onclick="removeLastInput()">x</button>'
             + '<button type="button" onclick="submitInput()">Submit</button>\n');
-}
-;
+
+};
 
 /**
  * Creates a row of input fields for the user to enter data into,
@@ -141,7 +151,7 @@ function submitInput()
         var time = "";
 
         var inputRequest = {
-            action: 'InputData', 
+            action: 'InputData',
             dataName: '',
             time: '',
             value: ''
@@ -203,8 +213,8 @@ function sendCSV()
             lines.push(allTextLines.shift().split(','));
         }
         console.log(lines);
-    }  
-    
+    }
+
     var sendRequest = {action: 'insertCSV', csvfile: lines};
 
     post("AdminServlet", sendRequest, function (resp) {

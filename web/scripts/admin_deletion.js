@@ -1,8 +1,3 @@
-/* TODO: Change hardcoded times to the current time / whatever makes sense
- *       Change the filter date format to date and time
- *       Handle loop in deleteData()
- */
-
 //This function simply pulls the AJAX_magic.js script
 //to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
@@ -13,65 +8,109 @@ $.getScript("scripts/datetimepicker.js", function () {});
 //the table ManualDataNames
 var del_options = "";
 
-//Defines how AdminServlet responds
-var dataRequest = {action: "getManualItems"};
 
 //Called in admin.jsp to load this script
 function loadDelete()
 {
+
     //A request to the servlet is made to retrieve all parameter names
 
     /*
-     * GET request: {action : 'getManualItems'} (as seen on line 10)
-     * GET response:
-     *  
-     * data: [
-     *  {
-     *      name : 'parameter name'
-     *  },
-     *  {
-     *      name : 'parameter name'
-     *  },
-     *  ...
-     * ]
+     * request: {action : "getParameters", data : 1}
+     * response:
+     {
+     "data" : [
+     {
+     "mask" : 1,
+     "descriptors" : [
+     {
+     "id" : 001,
+     "name" : "DO",
+     "description" : "Dissolved oxygen is..."
+     },
+     {
+     "id" : 002,
+     "name" : "Water Temperature",
+     "description" : "The temperature of the water..."
+     }
+     ]
+     }
+     ]
+     }
      * 
      */
 
-    get("AdminServlet", dataRequest, function (response)
-    {
-        console.log("Connection made!" + response);
-        var param_names = JSON.parse(response)["data"];
-        for (var i = 0; i < param_names.length; i++)
-        {
-            del_options += '<option>';
-            var entry_name = param_names[i];
-            console.log(entry_name["name"]);
-            del_options += entry_name["name"];
-            del_options += '</option>';
-        }
-        
-        del_options += '<option disabled>----------</option>';
-        
-        get("AdminServlet", {action: "getSensorItems"}, function (response)
-        {
-            console.log("Connection made!" + response);
-            var param_names = JSON.parse(response)["data"];
-            for (var i = 0; i < param_names.length; i++)
-            {
-                del_options += '<option>';
-                var entry_name = param_names[i];
-                console.log(entry_name["name"]);
-                del_options += entry_name["name"];
-                del_options += '</option>';
-            }
-        
-        
+    //Defines how AdminServlet responds
+    var ALL_MASK = 3;
+    var parameterRequest = new ParameterRequest(ALL_MASK);
+    parameterRequest.action = "getParameters";
 
-        //console.log("Parameter names: " + param_names);
-        //console.log("Entry name: " + entry_name["name"]);
-        console.log("del_options" + del_options);
-        
-        
+
+    post("AdminServlet", parameterRequest, function (response)
+    {
+//        response = {
+//            "data": [
+//                {
+//                    "descriptors": [
+//                        {
+//                            "id": "001",
+//                            "name": "DO",
+//                            "description": "Dissolved oxygen is blah blah..."
+//                        },
+//                        {
+//                            "id": "005",
+//                            "name": "Water Temperature",
+//                            "description": "The temperature of the water..."
+//                        }
+//                    ],
+//                    "mask": 1
+//                },
+//                {
+//                    "descriptors": [
+//                        {
+//                            "id": "021",
+//                            "name": "Algae Cover",
+//                            "description": "Amount of algae on a cool lookin' rock..."
+//                        },
+//                        {
+//                            "id": "022",
+//                            "name": "Nitrate+Nitrite-Nitrous",
+//                            "description": "This is a confusing one..."
+//                        }
+//                    ],
+//                    "mask": 2
+//                }
+//            ]
+//        }
+
+        //console.log("Response from admin_deletion: " + response);
+        var resp = new ParameterResponse(response);
+        //console.log("resp.data: " + JSON.stringify(resp.data));
+        for (var k = 0; k < resp.data.length; k++)
+        {
+            if(resp.data[k]["mask"] === 1)
+                del_options += '<option disabled=true>-----Sensor Parameters-----</option>';
+            else
+                del_options += '<option disabled=true>-----Manual Parameters-----</option>';
+            
+            resp.descriptors = resp.data[k]["descriptors"];
+            //console.log("resp.descriptors length: " + resp.descriptors.length);
+            resp.names = [];
+
+            for (var i = 0; i < resp.descriptors.length; i++) {
+                resp.piece = resp.descriptors[i];
+                //console.log("resp.piece: " + JSON.stringify(resp.piece));
+                resp.names.push(resp.piece["name"]);
+                //console.log("resp.names contains:" + JSON.stringify(resp.names))
+            }
+
+            (resp.names).forEach(function (item) {
+                del_options += '<option>';
+                del_options += item;
+                del_options += '</option>';
+            });
+        }
+
         var today = new Date();
         var date = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
         var time = today.toLocaleTimeString();
@@ -100,35 +139,37 @@ function loadDelete()
                 );
         $('#delete_table').DataTable({
             columns: [
-                { title: "Date-Time" },
-                { title: "Name" },
-                { title: "Value" }
+                {title: "Date-Time"},
+                {title: "Name"},
+                {title: "Value"}
             ]
         });
 
-        $( function() {
+
+        $(function () {
             var date = new Date();
 //            $( "#delete_endtime" ).timepicker();
 //            $( "#delete_starttime" ).timepicker();
-            $( "#delete_enddate" ).datetimepicker({
+            $("#delete_enddate").datetimepicker({
                 controlType: 'select',
                 oneLine: true,
                 timeFormat: 'hh:mm tt',
                 altField: "#delete_endtime"
             })
-            .datepicker("setDate", date);
-            
+                    .datepicker("setDate", date);
+
             date.setMonth(date.getMonth() - 1);
-            $( "#delete_startdate" ).datetimepicker({
-                    controlType: 'select',
-                    oneLine: true,
-                    timeFormat: 'hh:mm tt',
-                    altField: "#delete_starttime"
+            $("#delete_startdate").datetimepicker({
+                controlType: 'select',
+                oneLine: true,
+                timeFormat: 'hh:mm tt',
+                altField: "#delete_starttime"
             })
-            .datepicker("setDate", date);
+                    .datepicker("setDate", date);
         });
+
+        console.log("del_options: " + del_options);
     });
-});
 }
 
 /**
@@ -148,7 +189,8 @@ function filterData() {
     var $deleteEndDate = new Date($('#delete_enddate').val()).getTime();
     var $deleteStartTime = $('#delete_starttime').val();
     var $deleteEndTime = $('#delete_endtime').val();
-    
+
+
 
     var filterRequest = {action: 'getData',
         parameter: $paramName,
@@ -189,9 +231,12 @@ function filterData() {
             window.alert("Error Fetching Data from AdminServlet...\nError: \"" + resp.status + "\"");
             return;
         }
+
         var dataTable = $('#delete_table').DataTable();
-        
+
         dataTable.clear();
+
+
         var data = JSON.parse(resp)["data"];
         var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
         for (var i = 0; i < data.length; i++)
@@ -201,20 +246,26 @@ function filterData() {
             var dataValues = item.dataValues;
             for (var j = 0; j < dataValues.length; j++) {
                 item = dataValues[j];
-                dataTable.rows.add([ [ formatDate(new Date(item["timestamp"])), name, item["value"]]]);
+                dataTable.rows.add([[formatDate(new Date(item["timestamp"])), name, item["value"]]]);
             }
         }
-        
+
+
         dataTable.draw();
 //        console.log(htmlstring);
 //         
 //        $('#delete_table').DataTable().destroy(true);
 //        $('#delete_table').append(htmlstring);
 //        $('#delete_table').DataTable();
-       
+        $('#delete_table tbody').on( 'click', 'td', function () {
+            var cellData = dataTable.cell(this).data();
+            console.log("cellData" + cellData);
+        });
+
+
     });
 
-    
+
 }
 
 /**
@@ -223,8 +274,21 @@ function filterData() {
  * 
  * POST request:
  * {
- *  action: 'RemoveData',
- *  entryIDs : {'3', '4', '6'}
+ *  action: "deleteData"
+ {
+ "data" : [
+ {
+ name : "PAR",
+ timeRange : [
+ {
+ start : epoch_milliseconds,
+ end : epoch_milliseconds,
+ "//If selecting one piece of data, start and end will be the same"
+ }
+ ]
+ }
+ ]
+ }
  * }
  * 
  * 

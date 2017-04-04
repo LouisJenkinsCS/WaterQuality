@@ -6,6 +6,32 @@ import java.io.*;
 
 /**
  *
+ * L.J: Computational Notes
+ * 
+ * Currently, it reads all data from each DO.modelled (from 1 to 92), into multiple
+ * JavaScript files... then it creates a computation in stat.js which handles computing
+ * all of that data, and plotting it that way.
+ * 
+ * The biggest and obvious issue is that its all single threaded, and that it takes an
+ * extra step of reading into another file just for it to be read again later to be computed.
+ * I can save many steps by computing ahead of time, so I will note the computations needed
+ * below...
+ * 
+ * Step 1)
+ *  Group all DO.modelled data chains grouped together; denote this as DO_Modeled_Data.
+ * Step 2)
+ *  Reduce all data (across all chains) in DO_Modeled_Data using addition, and take the average
+ *  for each. Keep a separate grouping of this average denoted as DO_Modeled_Mean
+ *  DO_Modeled_Mean = DO_Modeled_Data.reduce((x, y) -> x + y)
+ * Step 3)
+ *  Take the standard deviation of all data by, for each DO_modeled_data across all chains,
+ *  take the difference from the DO_modeled_mean, square it, add them together, then take average...
+ *  DO_Modeled_SD.map(x -> (x - thisAvg)^2).reduce((x, y) -> x + y)
+ * Step 4)
+ *  Take the upper and lower standard deviations...
+ *  DO_Modeled_Upper = DO_Modeled_Mean + DO_Modeled_SD
+ *  DO_Modeled_Lower = DO_Modeled_Mean - DO_Modeled_SD
+ * 
  * @author Dong (Kevin) Zhang
  */
 public class JSgen {
@@ -159,6 +185,7 @@ public class JSgen {
             e.printStackTrace();
         }
     }
+    
     
     public void codingStatJS(int Nmeasurment, int nRow, int nChains){
         try{

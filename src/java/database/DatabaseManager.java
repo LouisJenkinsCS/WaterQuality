@@ -1022,6 +1022,63 @@ public class DatabaseManager
     }
 
     /*
+        Gets the user with the parameter login name
+        @return a JSONObject holding all users
+    */
+    public static JSONObject getUsers() 
+    {
+        JSONObject userListFinal = new JSONObject();
+        JSONArray userList = new JSONArray();
+        
+        Statement selectUsers = null;
+        ResultSet selectedUsers = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String query = "Select * from users";
+            selectUsers = conn.createStatement();
+            selectedUsers = selectUsers.executeQuery(query);
+            
+            JSONObject user;
+            while(selectedUsers.next())
+            {
+                user = new JSONObject();
+                user.put("userNumber",selectedUsers.getString("userNumber"));
+                selectedUsers.getString("loginName");
+                selectedUsers.getString("lastName");
+                selectedUsers.getString("firstName");
+                selectedUsers.getString("emailAddress");
+                selectedUsers.getString("userRole");
+                userList.add(user);
+            }
+            userListFinal.put("users", userList);
+        }
+        catch(Exception e)
+        {
+            LogError("Error retrieving users: "+ e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(selectUsers != null)
+                    selectUsers.close(); 
+                if(selectedUsers != null)
+                    selectedUsers.close();
+            }
+            catch(SQLException excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        
+        return userListFinal;
+    }
+    
+    /*
         Returns the user info if the username and password are correct
         @return a user with these specs, or null if either are wrong
     */
@@ -1142,7 +1199,7 @@ public class DatabaseManager
         Updates the description with dataName 'name' using the description 'desc'
         @return whether this operation was sucessful or not
     */
-    public static boolean updateDescription(String desc, String name)
+    public static boolean updateDescription(String desc, long id)
     {
         boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -1150,12 +1207,12 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String updateSQL = "UPDATE DataDescriptions "
+            String updateSQL = "UPDATE data_descriptions "
                     + "SET description = ? "
-                    + "WHERE dataName = ?;";
+                    + "WHERE parameter_id = ?;";
             updateDesc = conn.prepareStatement(updateSQL);
             updateDesc.setString(1, desc);
-            updateDesc.setString(2, name);
+            updateDesc.setString(2, id + "");
             updateDesc.executeUpdate();
             conn.commit();
             status = true;
@@ -1163,7 +1220,7 @@ public class DatabaseManager
         catch(Exception e)
         {
             status = false;
-            LogError("Error updating description for \"" + name + "\": " + e);
+            LogError("Error updating description for \"" + id + "\": " + e);
             if(conn != null)
                 try
                 {
@@ -1292,11 +1349,12 @@ public class DatabaseManager
     }
     
     /*
-        Returns an arraylist of all errors
+        Returns an JSONObject of all errors
     */
-    public static ArrayList<ErrorMessage> getErrors()
+    public static JSONObject getErrors()
     {
-        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        JSONObject errorListFinal = new JSONObject();
+        JSONArray errorList = new JSONArray();
         Statement selectErrors = null;
         ResultSet selectedErrors = null;
         Connection conn = null;
@@ -1307,13 +1365,16 @@ public class DatabaseManager
             selectErrors = conn.createStatement();
             selectedErrors = selectErrors.executeQuery(query);
             
+            JSONObject error;
             while(selectedErrors.next())
             {
-                errorList.add(
-                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
-                        selectedErrors.getString(2))
-                );
+                error = new JSONObject();
+                error.put("time", selectedErrors.getString(1));
+                error.put("errorMessage", selectedErrors.getString(2));
+                errorList.add(error);
             }
+            errorListFinal.put("errors", errorList);
+            
         }
         catch (Exception ex)//SQLException ex 
         {
@@ -1335,15 +1396,19 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
-        return errorList;
+        
+        return errorListFinal;
     }
     
     /*
-        Returns an arraylist of all errors within the parameter time range
+        Returns an JSONObject of all errors within a time range
+    
+        lower and upper are localdatetime format 
     */
-    public static ArrayList<ErrorMessage> getErrorsInRange(LocalDateTime lower, LocalDateTime upper)
+    public static JSONObject getErrorsInRange(String lower, String upper)
     {
-        ArrayList<ErrorMessage> errorList= new ArrayList<>();
+        JSONObject errorListFinal = new JSONObject();
+        JSONArray errorList = new JSONArray();
         PreparedStatement selectErrors = null;
         ResultSet selectedErrors = null;
         Connection conn = null;
@@ -1352,17 +1417,20 @@ public class DatabaseManager
             conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from ErrorLogs where timeOccured >= ? AND timeOccured <= ?";
             selectErrors = conn.prepareStatement(query);
-            selectErrors.setString(1, lower.toString());
-            selectErrors.setString(2, upper.toString());
+            selectErrors.setString(1, lower);
+            selectErrors.setString(2, upper);
             selectedErrors = selectErrors.executeQuery();
             
+            JSONObject error;
             while(selectedErrors.next())
             {
-                errorList.add(
-                        new ErrorMessage(LocalDateTime.parse(selectedErrors.getString(1)), 
-                        selectedErrors.getString(2))
-                );
+                error = new JSONObject();
+                error.put("time", selectedErrors.getString(1));
+                error.put("errorMessage", selectedErrors.getString(2));
+                errorList.add(error);
             }
+            
+            errorListFinal.put("errors", errorList);
         }
         catch (Exception ex)//SQLException ex 
         {
@@ -1384,7 +1452,7 @@ public class DatabaseManager
                 LogError("Error closing statement or result set: " + excep);
             }
         }
-        return errorList;
+        return errorListFinal;
     }
     
     public static io.reactivex.Observable<String> getManualParameterNames()
@@ -1500,4 +1568,5 @@ public class DatabaseManager
         DatabaseManager.getRemoteParameterNames().map("Name: "::concat).blockingSubscribe(System.out::println);
     }
     
+
 }

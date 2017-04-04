@@ -28,6 +28,8 @@ Current bugs:
         <script src="scripts/admin_deletion.js"></script>
         <script src="scripts/admin_errors.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
+        <script src="scripts/protocol.js"></script>
+
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         
          <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.css"/>
@@ -39,6 +41,7 @@ Current bugs:
         <title>Admin Page</title>
     </head>
     <body onload="onLoad();">
+        
         <script>
             function onLoad()
             {
@@ -85,7 +88,6 @@ Current bugs:
             <!--Admin insertion-->
             <admincontent id="Input_Data" class="tab_content">
                 <script>loadInsert();
-                    //$().ready(createNewInput());
                 </script>
                 <!--Input Tab defined in admin_insertion.js-->
             </admincontent>

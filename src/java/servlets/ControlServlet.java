@@ -82,7 +82,6 @@ public class ControlServlet extends HttpServlet {
             JSONProtocol proto = new JSONProtocol();
             try {
                 proto.process((JSONObject) new JSONParser().parse(data))
-                        .subscribeOn(Schedulers.computation())
                         .blockingSubscribe(obj -> response.getWriter().append(obj.toJSONString()));
             } catch (ParseException ex) {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);

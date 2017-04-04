@@ -6,6 +6,7 @@
 package servlets;
 
 import async.DataValue;
+import bayesian.RunBayesianModel;
 import common.UserRole;
 import database.DatabaseManager;
 import static database.DatabaseManager.LogError;
@@ -16,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -127,11 +129,15 @@ static {
                     admin);
                 if (newUserStatus) 
                 {
-                    session.setAttribute("inputStatus", "New User Registration Successful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Success");
+                    response.getWriter().append(obj.toJSONString());
                 } 
                 else 
                 {
-                    session.setAttribute("inputStatus", "New User Registration *Unsuccessful. Check your syntax");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Failed");
+                    response.getWriter().append(obj.toJSONString());
                 }
             }
             catch(Exception e)
@@ -155,11 +161,15 @@ static {
                     admin);
                 if (userRemovalStatus) 
                 {
-                    session.setAttribute("userDeletionStatus", "User Deletion Successful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Success");
+                    response.getWriter().append(obj.toJSONString());
                 } 
                 else 
                 {
-                    session.setAttribute("userDeletionStatus", "User Deletion Unsuccessful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Failed");
+                    response.getWriter().append(obj.toJSONString());
                 }
             }
             catch(Exception e)
@@ -225,6 +235,28 @@ static {
         } 
         
         /*
+            Gets the description of the parameter selected on the page
+            and returns it
+        
+        else if (action.trim().equalsIgnoreCase("getParamDesc")) 
+        {
+            try
+            {
+                response.getWriter()
+                        .append(DatabaseManager
+                                .getDescription(request.getParameter("name"))
+                                .toJSONString());
+            }
+            catch(Exception e)
+            {
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error editing description: " + e);
+                response.getWriter().append(obj.toJSONString());
+            }
+        }
+        */
+        
+        /*
             Admin is editing the description of a certain data value
             
             If editing the description succeeded or failed without error,
@@ -232,19 +264,23 @@ static {
             If an error arises, etcStatus is set with the exception message as
             there are no obvious reasons for it to fail.
         */
-        else if (action.trim().equalsIgnoreCase("EditDesc")) 
+        else if (action.trim().equalsIgnoreCase("editParamDesc")) 
         {
             try
             {
-                boolean editDescStatus = DatabaseManager.updateDescription((String) request.getParameter("description"),
-                    (String) request.getParameter("dataName"));
+                boolean editDescStatus = DatabaseManager.updateDescription((String) request.getParameter("desc"),
+                    Long.parseLong(request.getParameter("desc_id")));
                 if (editDescStatus) 
                 {
-                    session.setAttribute("editDescStatus", "Description Update Successful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Success");
+                    response.getWriter().append(obj.toJSONString());
                 } 
                 else 
                 {
-                    session.setAttribute("editDescStatus", "Description Update Unsuccessful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status","Failed");
+                    response.getWriter().append(obj.toJSONString());
                 }
             }
             catch(Exception e)
@@ -262,7 +298,6 @@ static {
         else if (action.trim().equalsIgnoreCase("getManualItems")) 
         {
             Observable.just(0)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(_ignored -> DatabaseManager.getManualParameterNames())
                     .observeOn(Schedulers.computation())
                     .map((String name) -> {
@@ -292,10 +327,22 @@ static {
             session.setAttribute("manualItems", DatabaseManager.getRemoteParameterNames());
             */
         }
+        
+        else if (action.trim().equalsIgnoreCase("getBayesian")) {
+            Instant day = RunBayesianModel.getFullDayOfData().minus(Period.ofDays(1));
+            RunBayesianModel.trialJAGS(day)
+                    .map(obj -> {
+                        obj.put("date", day.getEpochSecond() * 1000);
+                        return obj;
+                    })
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+        }
         else if (action.trim().equalsIgnoreCase("getSensorItems")) 
         {
             Observable.just(0)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(_ignored -> DatabaseManager.getRemoteParameterNames())
                     .observeOn(Schedulers.computation())
                     .map((String name) -> {
@@ -344,7 +391,6 @@ static {
             empty.put("data", new JSONArray());
             
             Observable.just(parameter)
-                    .subscribeOn(Schedulers.io())
                     .flatMap(param -> DatabaseManager.getDataValues(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end), param))
                     .observeOn(Schedulers.computation())
                     .groupBy(DataValue::getId)
@@ -411,7 +457,8 @@ static {
             long type = Long.parseLong(request.getParameter("data"));
             
             Observable.just(type)
-                    .flatMap(typ -> Observable.concat(
+                    .flatMap(typ -> Observable.merge(
+
                             (typ & 0x1) != 0 ? DatabaseManager.getRemoteParameterNames()
                                     .flatMap(name -> DatabaseManager.parameterNameToId(name)
                                             .flatMap(id -> DatabaseManager.getDescription(id)
@@ -495,28 +542,57 @@ static {
         }
         
         /*
-            Retrieves a list of all Errors
+            Retrieves a list of all Users
         
             If it succeeds, errorList is set with an ArrayList of ErrorMessages
             If it fails, etcStatus is set with the exception message as there 
             are no obvious reasons for failure.
         */
+        else if (action.trim().equalsIgnoreCase("getUserList")) 
+        {
+            try
+            {
+                response.getWriter()
+                        .append(DatabaseManager
+                        .getUsers()
+                        .toJSONString());
+            }
+            catch(Exception e)
+            {
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error getting user list: " + e);
+                response.getWriter().append(obj.toJSONString());
+            }
+        }
+        
+        /*
+            Retrieves a list of all Errors
+        
+            If it succeeds, it appends the JSONString holding all the errors
+            to the response's writer.
+        */
         else if (action.trim().equalsIgnoreCase("getAllErrors")) 
         {
             try
             {
-                session.setAttribute("errorList", DatabaseManager.getErrors());
+                response.getWriter()
+                        .append(DatabaseManager
+                        .getErrors()
+                        .toJSONString());
             }
             catch(Exception e)
             {
-                request.setAttribute("errorListStatus","Error getting error list: " + e);
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error getting error list: " + e);
+                response.getWriter().append(obj.toJSONString());
             }
         }
         
         /*
             Retrieves a list of all Errors within a time range
         
-            If it succeeds, errorList is set with an ArrayList of ErrorMessages
+            If it succeeds, it appends the JSONString holding all the errors
+            to the response's writer.
         
             If it fails and a DateTimeParseException is caught, dateStatus is
             set to inform the user that their datetime format is incorrect.
@@ -528,24 +604,39 @@ static {
         {
             try
             {
-                session.setAttribute("errorList", DatabaseManager.getErrorsInRange(
-                    LocalDateTime.parse((String) request.getAttribute("filterLower")), 
-                    LocalDateTime.parse((String) request.getAttribute("filterUpper"))
-                    ));
+                response.getWriter()
+                        .append(DatabaseManager
+                        .getErrorsInRange(Instant.ofEpochMilli(Long.parseLong(request.getParameter("start"))).toString(),
+                                 Instant.ofEpochMilli(Long.parseLong(request.getParameter("end"))).toString())
+                                .toJSONString());
             }
             catch(DateTimeParseException e)
             {
-                request.setAttribute("filteredErrorStatus","Invalid Format on Time");
+                JSONObject obj = new JSONObject();
+                obj.put("status","Invalid Format on Time");
+                response.getWriter().append(obj.toJSONString());
             }
             catch(Exception e)
             {
-                request.setAttribute("filteredErrorStatus","Error getting error list: " + e);
+                JSONObject obj = new JSONObject();
+                obj.put("status","Error getting error list: " + e);
+                response.getWriter().append(obj.toJSONString());
             }
         }
         
         else if (action.trim().equalsIgnoreCase("insertCSV"))
         {
             
+        }
+        
+        else if (action.trim().equalsIgnoreCase("getRoles"))
+        {
+            response.getWriter().append("Response");
+        }
+        
+        else if (action.trim().equalsIgnoreCase("getParameters"))
+        {
+            response.getWriter().append("Response");
         }
 
     }
