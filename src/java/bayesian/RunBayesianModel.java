@@ -123,8 +123,19 @@ public class RunBayesianModel {
         return graphData.stream().map(Object::toString).collect(Collectors.joining(","));
     }
     
+    public static Observable<JSONObject> trialJAGS(Instant day) {
+        LocalDateTime dt = LocalDateTime.ofInstant(day, ZoneId.systemDefault());
+        file_name = dt.getYear() + "_" + dt.getMonthValue() + "_" + dt.getDayOfMonth() + ".csv";
+        Data data = DataReceiver.getRemoteData(
+                day,
+                day.plus(Period.ofDays(1)),
+                PAR, HDO, Temp, Pressure);
+        
+//        System.out.println(DataToCSV.dataToCSV(data, true));
+        return runJJAGSForCSV(new FileOperation(), data);
+    }
     
-    private static Observable<JSONObject> runJJAGSForCSV(FileOperation fo, Data data) {
+    public static Observable<JSONObject> runJJAGSForCSV(FileOperation fo, Data data) {
         String fname = file_name;
         //Fitting the model and obtain the results in the folder output/
         String tmp_dir = base_dir + fname + "/";

@@ -154,7 +154,7 @@
                         </div>
                         <br>
                     <div class="data_type_submit" id="Bayesian_submit">
-                        <input type="button" value="Bayesian" onclick="">
+                        <input type="button" value="Bayesian" onclick="bayesianRequest()">
                     </div>
                 </form>
             </aside><br>
@@ -297,6 +297,76 @@
                 },
                 title: {
                     text: 'Water Creek Parameter Values',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: 'Source: environet.com',
+                    x: -20
+                },
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                            millisecond: '%H:%M:%S.%L',
+                            second: '%H:%M:%S',
+                            minute: '%H:%M',
+                            hour: '%H:%M',
+                            day: '%m/%e',
+                            week: '%m/%b',
+                            month: '%b \'%Y',
+                            year: '%Y'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
+                },
+                yAxis: [{
+                        title: {
+                            text: '',
+                            style: {color: '#7cb5ec'}
+                        },
+                        labels: {style: {color: '#7cb5ec'}},
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    }, {// Secondary yAxis
+                        title: {
+                            text: ''
+                        },
+                        opposite: true
+                    }],
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    borderWidth: 0,
+                    floating: true
+                },
+                series: []
+            });
+            
+            // Setup chart, the data will be fed from the servlet through JSP (temporary)
+            var bayesianChart = Highcharts.chart('Bayesian', {
+                exporting: {
+                    enabled:true,
+                    buttons:{contextButton:{align:"left"}},
+                    chartOptions: { // specific options for the exported image
+                        plotOptions: {
+                            series: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        }
+                    },
+                    fallbackToExportServer: false
+                },
+                title: {
+                    text: 'Bayesian Model',
                     x: -20 //center
                 },
                 subtitle: {

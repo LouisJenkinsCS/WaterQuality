@@ -6,6 +6,7 @@
 package servlets;
 
 import async.DataValue;
+import bayesian.RunBayesianModel;
 import common.UserRole;
 import database.DatabaseManager;
 import static database.DatabaseManager.LogError;
@@ -16,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -290,6 +292,19 @@ static {
             //We'll change to use this next group meeting
             session.setAttribute("manualItems", DatabaseManager.getRemoteParameterNames());
             */
+        }
+        
+        else if (action.trim().equalsIgnoreCase("getBayesian")) {
+            Instant day = RunBayesianModel.getFullDayOfData().minus(Period.ofDays(1));
+            RunBayesianModel.trialJAGS(day)
+                    .map(obj -> {
+                        obj.put("date", day.getEpochSecond() * 1000);
+                        return obj;
+                    })
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
         }
         else if (action.trim().equalsIgnoreCase("getSensorItems")) 
         {
