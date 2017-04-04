@@ -150,7 +150,7 @@
                     
                         <div id="dateselectordiv" onclick="bayesianDateLimits();">
                         <br>Bayesian Day:
-                        <input class="dateselector" id="bayesian_day" name="bayesian_day"type="date" min="" max="">
+                        <input class="dateselector" id="bayesian_date" type="text">
                         </div>
                         <br>
                     <div class="data_type_submit" id="Bayesian_submit">
@@ -189,26 +189,7 @@
                 </div>
             </div>
         </section>
-        
-            <script>
-               
-            </script>
-            
-            
-        <script>
-            var end = new Date();
-            var start = new Date();
-            end.setSeconds(0);
-            start.setSeconds(0);
-            start.setMonth(start.getMonth() - 1);
-            //setDate(end, "graph_end_date");
-            //setDate(start, "graph_start_date");
-            //setDate(end, "table_end_date");
-            //setDate(start, "table_start_date");
-            var bay = new Date();
-            setBayesianDate(bay,"bayesian_day");
-        </script>
-            
+                     
         <script>
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
@@ -348,7 +329,7 @@
                 },
                 series: []
             });
-            
+ 
             // Setup chart, the data will be fed from the servlet through JSP (temporary)
             var bayesianChart = Highcharts.chart('Bayesian', {
                 exporting: {
@@ -420,6 +401,5 @@
             });
         </script>
         <script>
-            
         </script>
     </body>
