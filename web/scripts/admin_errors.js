@@ -16,7 +16,7 @@ function fillPageErrors()
             '<input class="dateselector" id="errors_enddate" type="text">' +
             '<input class="dateselector" id="errors_endtime" type="text">' +
             '<br/><br/>' +
-            '<button type="button" onclick="filterErrors()">Filter</button><br/><br/>' +
+            '<button type="button" onclick="filterErrors()">Display</button><br/><br/>' +
             '<table id="error_table">' +
             '<thead><tr><th>Date-Time</th><th>Error Message</th></tr></thead>' +
             '</table><br/>'

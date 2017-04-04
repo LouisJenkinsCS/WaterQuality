@@ -140,8 +140,9 @@ public class LoginServlet extends HttpServlet
                           session.setAttribute("user", user);
                         }
                         //Notice that user informaion is not updated in the database in this servlet
-                        String url = "/admin.jsp";
-                        request.getRequestDispatcher(url).forward(request, response);
+                        String url = "/WaterQuality/admin.jsp";
+                        //request.getRequestDispatcher(url).forward(request, response);
+                        response.sendRedirect(url);
                     }
                     // if the user is null then the password was not correct        
                     else {
