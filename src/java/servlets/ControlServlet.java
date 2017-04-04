@@ -45,36 +45,6 @@ import utilities.TimeStampFormatter;
 public class ControlServlet extends HttpServlet {
 
     private void defaultHandler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        StringBuilder data = new StringBuilder();
-
-        long defaultId = DataReceiver.getParameters().blockingFirst().getId();
-        Data source = DataReceiver.getData(Instant.now().minus(Period.ofWeeks(4)), Instant.now(), defaultId);
-        DataReceiver
-                .getParameters()
-                .subscribeOn(Schedulers.computation())
-                // Display based on lexicographical ordering
-                .sorted((DataParameter dp1, DataParameter dp2) -> dp1.getName().compareTo(dp2.getName()))
-                // Generate a checkbox for each parameter.
-                .map((DataParameter parameter) -> "<input type=\"checkbox\" name=\"" + parameter.getId() + "\" onclick=\"handleClick(this); fetch();\" class=\"data\" id=\"" + parameter.getId() + "\" value=\"data\">" + parameter.getName() + "<br>\n")
-                .blockingSubscribe(data::append);
-        
-        System.out.println("Thread: " + Thread.currentThread().getName());
-        JSONProtocol proto = new JSONProtocol();
-        proto
-                .processUsing(source)
-                .subscribeOn(Schedulers.computation())
-                .blockingSubscribe((JSONObject resp) -> request.setAttribute("ChartData", resp));
-        
-        String defaultDescription = "<center><h1>None Selected</h1></center>";
-        String defaultTable = "<table border='1'>\n"
-                + "	<tr>\n"
-                + "		<th>Timestamp</th>\n"
-                + "               <th>(NULL)</th>\n"
-                + "	</tr>\n"
-                + "</table>";
-
-        request.setAttribute("Parameters", data.toString());
-        request.setAttribute("Descriptions", DataReceiver.generateDescriptions(source));
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
                 .forward(request, response);

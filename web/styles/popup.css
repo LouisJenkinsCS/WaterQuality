@@ -49,11 +49,13 @@
 
 .modal-header {
     padding: 2px 16px;
+    height:25px;
+    font-size:25px;
     background-color: #266B6B;
     color: white;
 }
 
-.modal-body {padding: 2px 16px;}
+.modal-body {padding: 2px 16px; display:inline-table;}
 
 /* Add Animation */
 @-webkit-keyframes slideIn {

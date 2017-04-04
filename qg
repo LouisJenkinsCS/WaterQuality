@@ -1,0 +1,2483 @@
+[33mcommit 807c85882cec80068d0cb63e92517f4b3515705f[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Wed Mar 29 10:30:38 2017 -0400
+
+    Dan dev - Admin:Dashboard and Logout Buttons (#120)
+    
+    * Merge remote-tracking branch 'refs/remotes/origin/Development' into Dan-Development
+    
+    # Conflicts:
+    #	src/java/bayesian/RunBayesianModel.java
+    #	src/java/bayesian/resultLoader.java
+    #	src/java/servlets/AdminServlet.java
+    #	web/admin.jsp
+    #	web/scripts/admin_deletion.js
+    #	web/scripts/admin_errors.js
+    #	web/scripts/admin_insertion.js
+    #	web/styles/admin.css
+    
+    * Admin - Dashboard and Logout Buttons
+    
+    * Admin - Dashboard and Logout Buttons
+    
+    * Typo fix
+
+[33mcommit 0ab38393c14201afbe7479b1d621608249ccfdf8[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Tue Mar 28 00:25:50 2017 -0400
+
+    Kevin - Deleted some unnecessary code, (#117)
+    
+    also did some more work for the proof of concept bayesian tab.
+    Added bayesianDateLimits() and setBayesianDate() for the date picker
+    of the bayesian model. Also made it so bayesian tab can be remembered as
+    the current tab with a cookie like the other tabs
+
+[33mcommit 4a5ce44f5712026c2541dab345ef484990859f98[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Mon Mar 27 21:30:49 2017 -0400
+
+    Brandon dev (#116)
+    
+    * Admin changes
+    
+    Insertion tab shows an insertion line by default;
+    Deletion and insertion look more user friendly for input, inserted
+    placeholders that disappear on focus, displaying sample time/date with
+    current time/date
+    
+    * Applying Louis' patch
+    
+    * Applying livelock patch
+    
+    * Committing patched code...
+    
+    * Another patch
+    
+    changed path to general.properties, connection is working
+    
+    * .gitignore change to ignore patch files
+    
+    * Added newline at end of gitignore
+    
+    * Deleted patches
+    
+    * Admin changes
+    
+    Copy/pasted Louis' AdminServlet code to pull sensor-collected parameter
+    names; Parameter names appear on selection dropdowns on both insertion
+    and deletion tabs
+    
+    * Fixed Brandon's datetime
+    
+    * With Louis' help, modified templates for inserting data
+    
+    and added CSV input button. Response to submission is not handled, but
+    data is parsed nicely.
+    
+    * Fixed more of Brandon's front-end code
+    
+    * Sending csv request
+
+[33mcommit 5504b1dcc319923901482626156ff0423f7219e8[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Sun Mar 26 22:41:17 2017 -0400
+
+    Brandon dev (#114)
+    
+    * Admin changes
+    
+    Insertion tab shows an insertion line by default;
+    Deletion and insertion look more user friendly for input, inserted
+    placeholders that disappear on focus, displaying sample time/date with
+    current time/date
+    
+    * Applying Louis' patch
+    
+    * Applying livelock patch
+    
+    * Committing patched code...
+    
+    * Another patch
+    
+    changed path to general.properties, connection is working
+    
+    * .gitignore change to ignore patch files
+    
+    * Added newline at end of gitignore
+    
+    * Deleted patches
+
+[33mcommit 049a2b6a620d8393511388499c08a572429757cd[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sat Mar 25 23:50:36 2017 -0400
+
+    Kevin development (#112)
+    
+    * Got rid of the export button on the graph tab and added the context button
+    back into the highchart. Also graph can be gupdated just by clicking checkbox.
+    Started fixing an issue that breaks the graph tab
+    
+    * added link to login page to dashboard.
+    Fixed login page and forgot password page styles.
+    Added bayesian tab to dashboard to work on for proof of concept
+    made loading cursor when loading table/graph
+    corrected and issue that had table using the same dates as the graph tab
+    however in doing so made another issue that am trying to fix
+    
+    * made update table/graph on click of data type
+    
+    * applied patch that louis made to fix the graph issue
+    
+    * On first load/refresh the table and graph generate using the same
+    randomly chosen data type.
+
+[33mcommit b77bab6e399edbf34f5b8d171411a316213a251b[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Mar 24 20:05:39 2017 -0400
+
+    Bayesian Model CSV (#111)
+    
+    * Retrieves the manual entries from the database for Brandon. Had to populate the database table for local database as well.
+    
+    * Implemented the filtered part, but Brandon needs to confirm it
+    
+    * Subtle changes; parallelized the fetchQuery processing (which must have gotten lost in one of the Midnight Version Control Madness series), and began attempting to slowly integrate Tyler's DatabaseManager over Netronix. Needs vast improvement, but is the end-game
+    
+    * Bayesian Model is mainly finished. Need quite a bit of changes to make it presentable, but it now works for data from sensors.
+    
+    * Fixed up Bayesian Model to work with gaps of data, although it may skew the data somewhat. Now, it will just duplicate the previous value.
+    
+    * Removed the JAGS installation bundled with it
+    
+    * Fixed up an eyesore in my code; less duplicates now when generating the JAGS data script
+    
+    * Deleted some excess functions from DataReceiver, should be cleeaner now
+    
+    * Added a nice interface for Tyler to potentially use
+
+[33mcommit 96441a2d176754ddce23fe92fe4f815fd000b0a5[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Mar 23 10:38:19 2017 -0400
+
+    Admin backend (#110)
+    
+    * Retrieves the manual entries from the database for Brandon. Had to populate the database table for local database as well.
+    
+    * Implemented the filtered part, but Brandon needs to confirm it
+
+[33mcommit 47d830c0654c6efcfa85d3301824806ee1d45182[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Thu Mar 23 10:27:08 2017 -0400
+
+    Dan development - Admin: Edit_Desc, Admin: Errors Tab (#109)
+    
+    * Changed Admin - Edit_desc from table to sections
+    
+    * Fixed formatting for Admin - Edit_Desc
+    
+    * Admin Page - Added template tab for error log
+    
+    * Admin: Errors Tab
+    
+    Further implemented the Errors tab template.
+
+[33mcommit 11a434227532a07051739423692476f838b107d8[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Thu Mar 23 09:31:51 2017 -0400
+
+    Updated Database Manager (#108)
+    
+    Added functions to get all data of a certain data name from both the
+    datavalues and manualdatavalues tables.
+
+[33mcommit 055b0ceeb4448a31b54aa976f4cfda2934151e6b[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Wed Mar 22 09:34:30 2017 -0400
+
+    Updated AdminServlet (#107)
+    
+    Simplified Request attribute names
+
+[33mcommit 0287d74d7a300a3aeb56479aa4581cf10980dfec[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Tue Mar 21 23:40:43 2017 -0400
+
+    Admin insertion/deletion changes (#106)
+    
+    * Servlet update for public methods, deletion update with sample
+    message for Louis' needs
+    
+    * Appropriately documented functions and possibly ambiguous code.
+    Renamed variables and functions more appropriately [e.g. doTheThing()
+    is now named loadInsert()]
+    
+    * Documented all of admin_deletion.js, provided POST/GET templates,
+    began date/time template fixes
+
+[33mcommit 83bf89b9ac4067599f7f24a4ceb8cba15042dedb[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Mar 21 19:58:35 2017 -0400
+
+    Bayesian model (#105)
+    
+    * New Baysian Model code
+    
+    * Deleted the excess files, as they were about 100MB in total
+    
+    * The CODA output which erroneously output to the root of the project were removed
+
+[33mcommit 3d25e850c47a13f87667d3f5913ed261aeeebdb7[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Tue Mar 21 10:20:08 2017 -0400
+
+    Updated Database Manager (#104)
+    
+    Some functions were private instead of public
+
+[33mcommit 1c302b7db51ba16f33f1e2fc90bbd439724d342c[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Tue Mar 21 09:50:37 2017 -0400
+
+    Tyler development (#102)
+    
+    * Minor update to Database Manager and Big update to AdminServlet
+    
+    Fixed some minor things in database manager and added more functions,
+    lots of exception handling, and documentation to admin servlet
+    
+    * Updated adminservlet
+    
+    Fixed some minor errors I couldn't see on my computer
+
+[33mcommit 089c4ec63eb388ec1e82c55f236d0e0cac0240a5[m
+Merge: 80648e6 7e0db63
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Mar 20 23:52:26 2017 -0400
+
+    Kevin Fixing Some Midnight Version Control Madness
+    
+    Kevin deserves an oscar for taking up the reins while I sit back and watch... with popcorn!
+
+[33mcommit 7e0db6325da6c922c2058459e277b99e91e29ef2[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Mar 20 23:47:33 2017 -0400
+
+[33mcommit 93dc02fd1c2284207e68c8ca9f82da26739ea89b[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Mar 20 22:56:39 2017 -0400
+
+[33mcommit 28141e541336bcd88fd70b62d6ebd41a5fdd0c0b[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Mar 20 22:36:12 2017 -0400
+
+[33mcommit 80648e64cb96c74498d18d205529bdad551dbb4d[m
+Merge: 59faadc dd0fb35
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Mar 20 22:08:39 2017 -0400
+
+    Merge pull request #99 from LouisJenkinsCS/new-development
+    
+    Group Changes
+
+[33mcommit dd0fb357d6aaccd40487fd7edff3b3ac2e25c400[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Mon Mar 20 22:07:28 2017 -0400
+
+    New brandon (#98)
+    
+    * Parsed user input to correct variables, fixed small bugs, formatted
+    JSON object in preparation for POST call. Included response to show
+    user their input was successful.
+    
+    * SUCCESSFUL test input into ManualDataValues table, changed
+    DatabaseManager method to be non-static so to be accessed by
+    admin_insertion.js
+    
+    * Made it fancier with one line of code - erased entries now fadeout.
+    
+    * Created the .js for data deletion, updated the servlet to (begin to)
+    handle filtered requests, debugged filtering issues
+    
+    * changes for Admin Deletion
+    
+    * Changes from 3_20 meeting
+    
+    * Small change, committing to ensure saved code
+    
+    * Front-end admin deletion is finished (pending Louis' approval),
+    documented for clarity; commented servlet for ease of understanding
+    necessary steps
+
+[33mcommit 8b7888cb826a02a9e7ab1ada2925b3e2f030c942[m
+Merge: 128cad6 1b7620b
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Mon Mar 20 19:06:35 2017 -0400
+
+    Merge pull request #96 from LouisJenkinsCS/Tyler-Development
+    
+    Tyler development
+
+[33mcommit 1b7620b967f971b15d26a49083e524b604f02ece[m
+Merge: 2408e1e 128cad6
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 20 18:37:13 2017 -0400
+
+    Merge branch 'new-development' into Tyler-Development
+
+[33mcommit 2408e1e6ca38bf4de1074b2ad4202d7f00310fb2[m
+Merge: 50e33c4 cd233eb
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 20 18:06:01 2017 -0400
+
+    Merge branch 'Development' into Tyler-Development
+
+[33mcommit 50e33c4019467a62e0f484ad11854a33fcb95126[m
+Merge: 05c5777 a66f3bc
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 20 18:01:20 2017 -0400
+
+    Updated Database manager
+    
+    new function for accessing a list of manual data values within a time
+    range
+
+[33mcommit 05c57772d2fc4afd5ff5346cda685f3da355d60c[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 20 17:55:31 2017 -0400
+
+    Updated Database manager
+    
+    Added function to retrieve manually entered data within a certain time
+    range
+
+[33mcommit 128cad64a29d64c2b5eb9e47eb971fbd00b70393[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Mar 20 16:12:41 2017 -0400
+
+    Kevin development (#93)
+    
+    * Made some style changes to the table generated for the table tab such as
+    changing the header color and centering the table in the tab.
+    Also added the ability to click on the table and a popup appears of the
+    table making the table easier to view. For this I added the popup.css file
+    which is the style sheet for the popup. Added a modal box for the popup
+    table, and openPop function for opening the popup
+    
+    * Added the exportTable() function to export table data to a csv file
+    also made some style changes to the popup table
+    
+    * Added an exportGraph() function so that the graph can now be exported
+    along with the table.
+
+[33mcommit 9f04a27d2776a465d1c86f79eae19c8a696e5910[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Mon Mar 20 10:29:18 2017 -0400
+
+    Pull request deletion and database changes (#92)
+    
+    * Parsed user input to correct variables, fixed small bugs, formatted
+    JSON object in preparation for POST call. Included response to show
+    user their input was successful.
+    
+    * SUCCESSFUL test input into ManualDataValues table, changed
+    DatabaseManager method to be non-static so to be accessed by
+    admin_insertion.js
+    
+    * Made it fancier with one line of code - erased entries now fadeout.
+    
+    * Created the .js for data deletion, updated the servlet to (begin to)
+    handle filtered requests, debugged filtering issues
+    
+    * changes for Admin Deletion
+
+[33mcommit 7609c44f6eff23b0fb116b57397f5f5bfb331a22[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Sun Mar 19 12:04:32 2017 -0400
+
+    Dan Development - Admin Insertion using a table. (#90)
+    
+    Changed the admin insert_data manual section into a table.
+
+[33mcommit 486cd6d5efeb798332e80e9f6d11887d9b68b06f[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Thu Mar 16 12:49:12 2017 -0400
+
+    Brandon development (#89)
+    
+    * Manual entry items defined, insertion progress
+    
+    * Worked on AdminServlet case to pass parsed JSON data to
+    admin_insertion.js
+    
+    * Made changes to send JSONstring, parse it, and manipulate it
+    
+    * Got the dropdown selection working!
+    
+    (Thank you Louis for your guidance and prodding and not letting me give
+    up haha)
+    
+    * Fixed up admin some more
+    
+    * Data entry deletion button...
+    
+    ...wasn't working, committing to my branch, but Dan's table format will
+    be used.
+
+[33mcommit a66f3bce93796b5f2aaff3266aef4e735a3cb0cd[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Tue Mar 7 10:31:40 2017 -0500
+
+    Updated Database Manager and made a class for error messages
+    
+    Database manager now prevents duplicate data at a certain time from
+    being entered. Also added a new table for holding the list of manual
+    data names and functions to go along with it, and functions for
+    accessing error logs for admins to view them.
+
+[33mcommit 59faadcb718b9a5a3ca28264d1095d9b24f57e5b[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Mar 7 10:29:16 2017 -0500
+
+    Kevin's Table Fix
+
+[33mcommit 75ce44db195511c244a6f9c83d70dbe412856bd9[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Mar 6 22:31:15 2017 -0500
+
+    Tyler's Database Changes
+    
+    Tyler submitted after original PR, caused some issues but resolved.
+
+[33mcommit cd233ebd4c88d50596a4d34d76065663d1d45afb[m
+Merge: 53e9fff 6ccd4cd
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Mar 6 22:30:13 2017 -0500
+
+    Merge branch 'master' into Development
+
+[33mcommit 53e9fffa88efb120eb6749425c0f36129d3d4223[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 6 21:58:39 2017 -0500
+
+    Tyler development (#85)
+    
+    * Updated Datavalue and database manager
+    
+    id is actually no longer needed so I removed it. Also added did a lot of
+    cleanup on error logging as i made a function to log errors to a
+    database table
+    
+    * Created ManualDataValue and updated DatabaseManager
+    
+    Added a number of new functions and functionality to previous function
+    relating to a new table of unique data names, added more documentation
+    on things that didn't have obvious reasons for being there, and adjusted
+    manually entered data values to be in their own seperate table (also
+    created code for creating that table added functions to work with that
+    data)
+
+[33mcommit 2b055d2181c27bf12601908bc4a1a996a8a1a84c[m
+Merge: a4556bb afd3d30
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 6 21:57:29 2017 -0500
+
+    Merge branch 'Development' into Tyler-Development
+
+[33mcommit a4556bb714263dfac1eea625246d61fdb5e54d4a[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 6 21:07:30 2017 -0500
+
+    Created ManualDataValue and updated DatabaseManager
+    
+    Added a number of new functions and functionality to previous function
+    relating to a new table of unique data names, added more documentation
+    on things that didn't have obvious reasons for being there, and adjusted
+    manually entered data values to be in their own seperate table (also
+    created code for creating that table added functions to work with that
+    data)
+
+[33mcommit 6ccd4cdb3c1be34e971d7cd3fcf6fa0e610e655e[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Mar 6 20:28:46 2017 -0500
+
+    Kevin development (#83)
+    
+    * Did some more work on the fillTable function and changed some styleing
+    
+    * Finished the fillTable() function. Also added a couple comments that
+    were previously missing
+
+[33mcommit 9ba821c80c9d11b7b909647e4ffe3e5daf66a8aa[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 6 10:18:12 2017 -0500
+
+    Updated Datavalue and database manager (#82)
+    
+    id is actually no longer needed so I removed it. Also added did a lot of
+    cleanup on error logging as i made a function to log errors to a
+    database table
+
+[33mcommit 9dcd4076256e93918d52f5e76cc4b96e88cc12f7[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Mon Mar 6 10:07:32 2017 -0500
+
+    Merge progress on admin pages (#81)
+    
+    * Manual entry items defined, insertion progress
+    
+    * Worked on AdminServlet case to pass parsed JSON data to
+    admin_insertion.js
+    
+    * Made changes to send JSONstring, parse it, and manipulate it
+    
+    * Got the dropdown selection working!
+    
+    (Thank you Louis for your guidance and prodding and not letting me give
+    up haha)
+
+[33mcommit afd3d305de7b46145e312f8d9c805f7b9a833ae5[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Mar 6 20:28:46 2017 -0500
+
+    Kevin development (#83)
+    
+    * Did some more work on the fillTable function and changed some styleing
+    
+    * Finished the fillTable() function. Also added a couple comments that
+    were previously missing
+
+[33mcommit f5e8bec0e49e2b6e9edcf063f85ea46811d9d13f[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 6 10:18:12 2017 -0500
+
+    Updated Datavalue and database manager (#82)
+    
+    id is actually no longer needed so I removed it. Also added did a lot of
+    cleanup on error logging as i made a function to log errors to a
+    database table
+
+[33mcommit 839eefaa27c839cbf0d69eb5a16058178e61be12[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Mon Mar 6 10:07:32 2017 -0500
+
+    Merge progress on admin pages (#81)
+    
+    * Manual entry items defined, insertion progress
+    
+    * Worked on AdminServlet case to pass parsed JSON data to
+    admin_insertion.js
+    
+    * Made changes to send JSONstring, parse it, and manipulate it
+    
+    * Got the dropdown selection working!
+    
+    (Thank you Louis for your guidance and prodding and not letting me give
+    up haha)
+
+[33mcommit 5c66be2f0ff248a8a95f62de8f020ac046f54876[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Mar 6 08:46:04 2017 -0500
+
+    Updated Datavalue and database manager
+    
+    id is actually no longer needed so I removed it. Also added did a lot of
+    cleanup on error logging as i made a function to log errors to a
+    database table
+
+[33mcommit 138dfc41fd1e1334c2b17a5f2c8677dad860ebee[m
+Merge: c8d838e b881681
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Mar 3 20:57:50 2017 -0500
+
+    Merge pull request #80 from LouisJenkinsCS/new-development
+    
+    New development
+
+[33mcommit b881681aedf2093d4c77bb8413a05a28220ca45e[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Mar 3 20:48:21 2017 -0500
+
+    Removed graph
+
+[33mcommit 08aca46dfcb68d049648882b888118e0f206d2e6[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Mar 3 20:47:45 2017 -0500
+
+    Found the needle in the haystack: Issue was that DataResponse somehow had it's code for retrieving the table and descriptions removed
+
+[33mcommit 041d1de55ff91836ef73fc2f3e891e07aacc14c4[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Fri Mar 3 20:04:09 2017 -0500
+
+    Kevin's Updates
+    
+    Double Y-Axis and misc
+
+[33mcommit e78bcf4eea81f39bb57a9b6563ade60a44ed5a3f[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Thu Mar 2 10:37:35 2017 -0500
+
+    Dan development2 - Admin Fixes for new branch (#74)
+    
+    * Merged
+    
+    * Admin Fixes for new branch
+
+[33mcommit 31a6939e3a09e3d2b01d436cd19aeca65425e9b1[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Mar 1 18:08:58 2017 -0500
+
+    Vastly increased performance and chart now loads Asynchronously (#72)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+    
+    * Added a way to get just raw data from the Data returned from DataReceiver for people who would prefer to use it over Observables
+    
+    * Updated the chart so that it pulls data from the request attributes, so Kevin can focus purely on front end and not backend.
+    
+    * Limited X-Axis to display 5 at a time (dynamically based on amount of data).
+    
+    * Began to create method to process AJAX query
+    
+    * Correctly implemented Protocol, as well as fixing up graph
+    
+    * Ready to commit current changes; finished adding protocol to both JavaScript AND Java
+    
+    * Resolved an issue where I improperly merged into Group-Development, works now
+    
+    * AJAX generic function defined!
+    
+    The generic AJAX function is defined in AJAX_magic.js
+    
+    ControlServlet and dashboard are updated for testing passing data
+    between the two pages using the new function defined above.
+    
+    descriptions.json is fixed to read the correct data, thanks to Dr.
+    Rier's keen eye.
+    
+    * Fixed fluctations in graph
+    
+    * Admin progress...
+    
+    Beginning attempt to connect to AdminServlet from admin page...
+    
+    * Fixed files for correct data entry
+    
+    Debugged for over an hour with Brett's and Jake's help to get a
+    successful connection to Tyler's database methods, and into the table.
+    *phew* Testing code has not been taken out yet.
+    
+    * Added documentation, as well as a specific post/get function to extend on Brandon's post_get.
+    
+    * Can now successfully obtain data from the server! Huge improvement, thanks to Brandon's AJAX function
+    
+    * Updated the graph so that it updates dynamically: Currently the table is not properly generated, need to do that.
+    
+    * Managed to implement date time for HighChart
+
+[33mcommit dc8a61458096f8e17915b5ed23208734dceb5247[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Mar 1 11:05:35 2017 -0500
+
+    Revert "Dan development - Renaming and Deletion of Admin Pages" (#71)
+
+[33mcommit 317528ed8bc445ac6f74227c44ecf65ae7fe22b4[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Wed Mar 1 10:54:00 2017 -0500
+
+    Dan development - Renaming and Deletion of Admin Pages (#69)
+    
+    * Admin Pages minor fixes
+    
+    Minor changes on Dan's and began some changes on Brandon's
+    
+    * Styling and Design
+    
+    Made changes to the styling and design of Brandon's version of the admin
+    pages.  Also did some renaming of CSS classes.
+    
+    * Dan-Development wk4 (#67)
+    
+    * Admin Pages minor fixes
+    
+    Minor changes on Dan's and began some changes on Brandon's
+    
+    * Styling and Design
+    
+    Made changes to the styling and design of Brandon's version of the admin
+    pages.  Also did some renaming of CSS classes.
+    
+    * conflict fix
+    
+    * Renaming and Deletions
+    
+    Removed old versions of admin page.
+
+[33mcommit 4211accc0fe6fd5642e57802499b036fc70dc933[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Mar 1 10:29:11 2017 -0500
+
+    Parallelization and Documentation (#70)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+    
+    * Added a way to get just raw data from the Data returned from DataReceiver for people who would prefer to use it over Observables
+    
+    * Updated the chart so that it pulls data from the request attributes, so Kevin can focus purely on front end and not backend.
+    
+    * Limited X-Axis to display 5 at a time (dynamically based on amount of data).
+    
+    * Began to create method to process AJAX query
+    
+    * Correctly implemented Protocol, as well as fixing up graph
+    
+    * Ready to commit current changes; finished adding protocol to both JavaScript AND Java
+    
+    * Resolved an issue where I improperly merged into Group-Development, works now
+    
+    * AJAX generic function defined!
+    
+    The generic AJAX function is defined in AJAX_magic.js
+    
+    ControlServlet and dashboard are updated for testing passing data
+    between the two pages using the new function defined above.
+    
+    descriptions.json is fixed to read the correct data, thanks to Dr.
+    Rier's keen eye.
+    
+    * Fixed fluctations in graph
+    
+    * Admin progress...
+    
+    Beginning attempt to connect to AdminServlet from admin page...
+    
+    * Fixed files for correct data entry
+    
+    Debugged for over an hour with Brett's and Jake's help to get a
+    successful connection to Tyler's database methods, and into the table.
+    *phew* Testing code has not been taken out yet.
+    
+    * Added documentation, as well as a specific post/get function to extend on Brandon's post_get.
+
+[33mcommit c8d838e8044c87a9279c5206d16ba350651b95e3[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Tue Feb 28 08:46:58 2017 -0500
+
+    Dan-Development wk4 (#67)
+    
+    * Admin Pages minor fixes
+    
+    Minor changes on Dan's and began some changes on Brandon's
+    
+    * Styling and Design
+    
+    Made changes to the styling and design of Brandon's version of the admin
+    pages.  Also did some renaming of CSS classes.
+
+[33mcommit 679680a1e11479190bcbfb6ad59aa17db39fd8ee[m
+Merge: b4a1067 ff6d08e
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 27 22:35:05 2017 -0500
+
+    Merge pull request #66 from LouisJenkinsCS/Group-Development
+    
+    Group development
+
+[33mcommit ff6d08ea3154dd5915d1d5693765f7e5839e62c1[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 27 22:31:10 2017 -0500
+
+    Uncommented the functionality for opening Tab
+
+[33mcommit 6f04177806cb1de2cb73fdf7b9f80e1f7f0a13ff[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 27 22:21:27 2017 -0500
+
+    Added semicolon lost in merge
+
+[33mcommit 067d54b525b535e6dc5bc7f4b19bb7ac93336f25[m
+Merge: 7376350 b4a1067
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 27 22:19:20 2017 -0500
+
+    Merge branch 'master' into Group-Development
+
+[33mcommit 737635027bb6064e9caed595efc691be52a5d1f6[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Mon Feb 27 22:09:06 2017 -0500
+
+    AJAX generic function defined! (#64)
+    
+    The generic AJAX function is defined in AJAX_magic.js
+    
+    ControlServlet and dashboard are updated for testing passing data
+    between the two pages using the new function defined above.
+    
+    descriptions.json is fixed to read the correct data, thanks to Dr.
+    Rier's keen eye.
+
+[33mcommit 6d871626b6fa830c1d1b63490937c0265d56c63e[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 27 21:50:51 2017 -0500
+
+    Kevin development (#61)
+    
+    * Committing to my own branch to merge with Development for Tyler's updates
+    
+    * Updated Database manager
+    
+    Added description update, insert, and get functions
+    
+    * updated databasemananger
+    
+    * Changed path to properties
+    
+    Hard-coded path to properties for a good local connection
+    
+    * Keeping changes to DatabaseManager
+    
+    * Added the working DatabaseManager back into the package
+    
+    * name -> dataName fix
+    
+    * Committing to Brandon-Development to continue working from lab
+    
+    * Toyed with DatabaseManager (then undid all my changes), tried managing the user table with UserManager
+    
+    * Beginning Admin
+    
+    * Unsure of Dan's progress, pushing ahead with admin functions and GUI
+    
+    * More work on admin functionality
+    
+    * More Admin progress
+    
+    No functionality, add entry button not connected to a method. Beginning
+    work on Delete Data tab
+    
+    * Admin work
+    
+    * Updated styles for Dashboard GUI
+    
+    * fixed the limits
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * changed the export tab to a export button that blends in with the other
+    tabs.
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+    
+    * Updated .gitignore
+    
+    Moving the GitHub folder to My Documents caused a small issue with
+    thumbs.db, this resolves that issue
+    
+    * Started playing around with Highchartjs in order to eventually make the
+    graph zoomable with a double axis for 2 data points
+    
+    * Added a way to get just raw data from the Data returned from DataReceiver for people who would prefer to use it over Observables
+    
+    * Styled the Highcharts chart to match the styling of the rest of the page,
+    and and played around trying to get real data in there
+    
+    * Updated the chart so that it pulls data from the request attributes, so Kevin can focus purely on front end and not backend.
+    
+    * Took the Highchart graph that Louis was able to make to generate real data
+    and styled it to zoom, resize, and a couple other minor changes.
+    
+    * Created body of admin AJAX/jQuery insertion template
+    
+    Using the example I followed online, I typed up basic insertion and
+    deletion functions to test. Now I am translating it to our project,
+    changing variables as necessary. Testing with our JSON's comes next.
+    
+    * Made it so there is a dedicated form for the graph and table tab
+    also made it so that whichever tab was submitted from is the tab that
+    loads after submission
+    
+    * Change in properties: WaterQualityServer now WaterQuality
+    
+    I changed the name of the project per Dr. Jones' request. It is no
+    longer WaterQualityServer. The properties files need to be kept to keep
+    the change.
+    
+    Also committing work on the javascript files to implement AJAX requests
+    on the dashboard.
+    
+    * Just changed it back so that table still generates when  graph is made
+    
+    * just fixing stuff
+    
+    * L.J: Fixed some issues for Kevin
+    
+    * added the capability for double axes. Made it display with the color of
+    the lines and dynamically places names of data based on whatever is checked
+
+[33mcommit c42d405a701b5b7d6eb7ec74ed8e068dce6ed44c[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Feb 27 21:36:09 2017 -0500
+
+    Tyler development (#60)
+    
+    * Updated Database manager
+    
+    Added description update, insert, and get functions
+    
+    * updated databasemananger
+    
+    * Debugging
+    
+    fixed errors in databasemanager and web helper
+    
+    * Lots of Debugging on Database Manager
+    
+    Fixed most of the functions that were working and added some failsafes
+    incase important functions were somehow accessed by unauthorized users
+    
+    * Updated database manager
+    
+    insertJSON function now works (still a few kinks though)
+    
+    * Changes to databasemanager and datavalue
+    
+    added delta to datavalue and all functions using datavalue in
+    databasemanager. insertJson now truncates time string to fit the format
+    of localdatetime.
+    
+    * modified databasemanager
+    
+    changes units to nvarchar to support special characters. Changed
+    insertjson's sensor from node_id to sensor_name (some dont have
+    sensor_name so those that dont will just have null in the data table)
+    
+    * Modified Datavalue and Database Manager
+    
+    getGraphData function is now tested and working. Investigating problems
+    for why prepared statement is discarding special characters.
+    
+    * Created AdminServlet and Modified Database Manager
+    
+    AdminServlet now has the basis of all of the admin functionality code
+    and Database Manager has better documentation  with a few other minor
+    things changed
+    
+    * Updated Database Manager, Datavalue, and created AdminServlet
+    
+    Added documentation and more meaningful names for statements in Database
+    Manager. Added id to all areas that use DataValue. Created the basis of
+    a servlet for performing tasks on the admin pages. Added documentation
+    on the session variables to be used on the admin pages.
+    
+    * Update DatabaseManager.java
+    
+    * Update AdminServlet.java
+    
+    * Update AdminServlet.java
+    
+    * Update AdminServlet.java
+    
+    * Update AdminServlet.java
+    
+    * Fixed up some issues for tyler - L.J
+
+[33mcommit a2991193164977e2f9bbf3d4351173cfe3c16108[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 27 18:10:31 2017 -0500
+
+    Fixing a mistake I made while merging (#58)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+    
+    * Added a way to get just raw data from the Data returned from DataReceiver for people who would prefer to use it over Observables
+    
+    * Updated the chart so that it pulls data from the request attributes, so Kevin can focus purely on front end and not backend.
+    
+    * Limited X-Axis to display 5 at a time (dynamically based on amount of data).
+    
+    * Began to create method to process AJAX query
+    
+    * Correctly implemented Protocol, as well as fixing up graph
+    
+    * Ready to commit current changes; finished adding protocol to both JavaScript AND Java
+    
+    * Resolved an issue where I improperly merged into Group-Development, works now
+
+[33mcommit 74096e5046c55c5e906c01d54e413176a0413a8b[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 27 17:54:18 2017 -0500
+
+    Added new protocols for server-client communication (#57)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+    
+    * Added a way to get just raw data from the Data returned from DataReceiver for people who would prefer to use it over Observables
+    
+    * Updated the chart so that it pulls data from the request attributes, so Kevin can focus purely on front end and not backend.
+    
+    * Limited X-Axis to display 5 at a time (dynamically based on amount of data).
+    
+    * Began to create method to process AJAX query
+    
+    * Correctly implemented Protocol, as well as fixing up graph
+    
+    * Ready to commit current changes; finished adding protocol to both JavaScript AND Java
+
+[33mcommit 07ba70e15a1967cce68a9360c2a8476d11ac99bb[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 26 22:37:41 2017 -0500
+
+    Kevin development (#54)
+    
+    * fixed the limits
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * changed the export tab to a export button that blends in with the other
+    tabs.
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+    
+    * Started playing around with Highchartjs in order to eventually make the
+    graph zoomable with a double axis for 2 data points
+    
+    * Added a way to get just raw data from the Data returned from DataReceiver for people who would prefer to use it over Observables
+    
+    * Styled the Highcharts chart to match the styling of the rest of the page,
+    and and played around trying to get real data in there
+    
+    * Updated the chart so that it pulls data from the request attributes, so Kevin can focus purely on front end and not backend.
+    
+    * Took the Highchart graph that Louis was able to make to generate real data
+    and styled it to zoom, resize, and a couple other minor changes.
+    
+    * Made it so there is a dedicated form for the graph and table tab
+    also made it so that whichever tab was submitted from is the tab that
+    loads after submission
+
+[33mcommit 41ef79275e15b5d32c02a1ae225baad95b535a54[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Feb 24 19:01:53 2017 -0500
+
+    Converted from HighChart.js to Chart.js (#53)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+    
+    * Added a way to get just raw data from the Data returned from DataReceiver for people who would prefer to use it over Observables
+    
+    * Updated the chart so that it pulls data from the request attributes, so Kevin can focus purely on front end and not backend.
+
+[33mcommit b4a106733a39f23474957a2dd2cb3046eaab114b[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Feb 23 09:36:03 2017 -0500
+
+    Louis development (#51)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+
+[33mcommit 1749d06869603b84ed8e670779976a5b3bf2bf4a[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Feb 22 10:31:29 2017 -0500
+
+    Louis development (#50)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+
+[33mcommit f433288a08b91ff6ce588e95220531374892cf72[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Wed Feb 22 09:13:58 2017 -0500
+
+    Pull my admin progress ~ (#49)
+    
+    * Committing to my own branch to merge with Development for Tyler's updates
+    
+    * Updated Database manager
+    
+    Added description update, insert, and get functions
+    
+    * updated databasemananger
+    
+    * Changed path to properties
+    
+    Hard-coded path to properties for a good local connection
+    
+    * Keeping changes to DatabaseManager
+    
+    * Added the working DatabaseManager back into the package
+    
+    * name -> dataName fix
+    
+    * Committing to Brandon-Development to continue working from lab
+    
+    * Toyed with DatabaseManager (then undid all my changes), tried managing the user table with UserManager
+    
+    * Beginning Admin
+    
+    * Unsure of Dan's progress, pushing ahead with admin functions and GUI
+    
+    * More work on admin functionality
+    
+    * More Admin progress
+    
+    No functionality, add entry button not connected to a method. Beginning
+    work on Delete Data tab
+    
+    * Admin work
+    
+    * Updated styles for Dashboard GUI
+
+[33mcommit ea22f68267e40a9d8cb3c19a2d8f6b3756aa08fe[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Tue Feb 21 09:25:06 2017 -0500
+
+    wk3 test change
+
+[33mcommit 0990e1bda463abf2f10ac0e74c32084fba5636f3[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Tue Feb 21 09:20:28 2017 -0500
+
+    wk3 fixes
+    
+    admin gui
+
+[33mcommit 7919f94013ddc1e0b84372ebfab9ec24a0db9864[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Feb 23 09:36:03 2017 -0500
+
+    Louis development (#51)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+    
+    * Began revising so that the data parameter chosen can  is based on it's actual id
+    
+    * Refactored DataReceiver a bit so that it maintains a single PARAMETER_MAP, which keeps track of DataParameters, which is an object that keeps track of the name, id, unit, etc., for a given parameter
+
+[33mcommit 23d77840b12aeac2ad8778517aff13384f44ec97[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Feb 22 10:31:29 2017 -0500
+
+    Louis development (#50)
+    
+    * Group development (#48)
+    
+    Group development
+    
+    * Added double Y-Axis and default to Temperature of Air and Water
+
+[33mcommit cd4066b6c2ba8fbf300bafe44a5f7d3deb7f00ed[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Wed Feb 22 09:13:58 2017 -0500
+
+    Pull my admin progress ~ (#49)
+    
+    * Committing to my own branch to merge with Development for Tyler's updates
+    
+    * Updated Database manager
+    
+    Added description update, insert, and get functions
+    
+    * updated databasemananger
+    
+    * Changed path to properties
+    
+    Hard-coded path to properties for a good local connection
+    
+    * Keeping changes to DatabaseManager
+    
+    * Added the working DatabaseManager back into the package
+    
+    * name -> dataName fix
+    
+    * Committing to Brandon-Development to continue working from lab
+    
+    * Toyed with DatabaseManager (then undid all my changes), tried managing the user table with UserManager
+    
+    * Beginning Admin
+    
+    * Unsure of Dan's progress, pushing ahead with admin functions and GUI
+    
+    * More work on admin functionality
+    
+    * More Admin progress
+    
+    No functionality, add entry button not connected to a method. Beginning
+    work on Delete Data tab
+    
+    * Admin work
+    
+    * Updated styles for Dashboard GUI
+
+[33mcommit 89835e06ee1718c3b0730a16ed8c07f2f481064e[m
+Merge: 5393927 bed78c0
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 21 09:29:17 2017 -0500
+
+    Merge pull request #47 from LouisJenkinsCS/Dan-Development
+    
+    Dan development wk3
+
+[33mcommit bed78c0206dcefb0d40cef5e513179000b77d83a[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Tue Feb 21 09:25:06 2017 -0500
+
+    wk3 test change
+
+[33mcommit 11894aeab134b36925131c05e905205bd9890b62[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Tue Feb 21 09:20:28 2017 -0500
+
+    wk3 fixes
+    
+    admin gui
+
+[33mcommit 539392779a0859d93bc53f5f932a539aee6623e9[m
+Merge: fc5768c 402cafd
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 19:14:52 2017 -0500
+
+    Merge pull request #45 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit 402cafd85d4228490c2575256777907dbd867c6a[m
+Merge: 7ce5993 a16164f
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 19:14:36 2017 -0500
+
+    Merge pull request #44 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit a16164fa650ad234500f93639f5efc62d4a52ba6[m
+Merge: 4de5f20 f998488
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 19:11:07 2017 -0500
+
+    Merged my changes with Kevin's. The graph now actually pulls data now, it is beautiful. It defaults to a single month, but allows the user pick the time. It takes a LONG time if they go back too far, and this is what the database caching is for: Imagine hundreds of requests like these, there is no way it can be handled without careful thread, no bound thread-per-connection would work
+
+[33mcommit 4de5f205f7b260d43cd715703f193588acac912b[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 18:53:29 2017 -0500
+
+    Fixed up Kevin's DateTime to select a month full of data
+
+[33mcommit f998488004cd228507e3a496f005569e918961a4[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 20 18:52:31 2017 -0500
+
+[33mcommit ee9f5718e7588eed8ee7ad61348df663d85613b5[m
+Merge: 28c0983 eb1d521
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 17:42:35 2017 -0500
+
+    Merge branch 'Kevin-Development' of https://github.com/LouisJenkinsCS/WaterQuality into Louis-Development
+
+[33mcommit eb1d5219e8309ed3c8fcc79715f212fe13d98a31[m
+Merge: 8f921a0 fc5768c
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 20 17:29:04 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/master' into Kevin-Development
+
+[33mcommit 8f921a0aa26883cde4737e0ddcda3bcb51ddbc21[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 20 17:23:00 2017 -0500
+
+    style changes
+
+[33mcommit d97d18b357e6b6ab66d066e6af97d0a058e0a23c[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 20 16:53:57 2017 -0500
+
+    Worked on limiting the range of dates for date selectors
+
+[33mcommit 28c0983784ed73cc790db917de1ac1525575ab2e[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 16:23:35 2017 -0500
+
+    Turns out that an empty graph produces invalid HTML generated. Fixed, but still no descriptions, need to update so that when there is no input, it either displays a default graph, or redirects back to the previous.
+
+[33mcommit fc5768c17a824434a3cb6d27fca862ffd10ee022[m
+Merge: 8c97e2c 7ce5993
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 16:06:37 2017 -0500
+
+    Merge pull request #42 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit 7ce5993aabf7404dac0e9e61261b96959256a371[m
+Merge: d43e046 b620355
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 16:06:20 2017 -0500
+
+    Merge pull request #41 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit b62035598432c51b096bcbf82d03d347edce80a8[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 16:04:15 2017 -0500
+
+    Added additional documentation
+
+[33mcommit ff28b76c95790af1fe9309c48e2f903196882433[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 20 12:04:25 2017 -0500
+
+    Refactored a lot, and now it should be a LOT more extensible and easy to use. Now the DataReceiver returns a 'Data' object which contains cached DataValues that is used on resubscribing, thanks to ConnectedObservables. Amazing, and very easy to use now
+
+[33mcommit 79d765907184331ea1eeb113cb0c3bfb69c0bdb2[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 20 10:53:19 2017 -0500
+
+    Worked on limiting the range of dates for date selectors
+
+[33mcommit 4879c11bc30479bea3450c56183e595ee1e6a5da[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 23:27:08 2017 -0500
+
+    Did some style changes to make the GUI mor dynamically sized
+
+[33mcommit 9e77a4c1ce1bd6eb0b0d49ef3e2d8f365cd56826[m
+Merge: 41052a7 d43e046
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 23:15:18 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Development' into Kevin-Development
+
+[33mcommit 41052a72b80f2ce97cde8359dfb8c74a370a4e90[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 23:14:12 2017 -0500
+
+    Did some style changes to make the GUI mor dynamically sized
+
+[33mcommit d43e0469e3f2839b77238c59f395a341ffa3bb38[m
+Merge: 979392d 98e48ee
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 19:53:29 2017 -0500
+
+    Merge pull request #38 from LouisJenkinsCS/Louis-Development
+    
+    Attached javadoc and sources for rxjava and javatuples (especially si…
+
+[33mcommit 98e48ee452c13345a88e1644be23ed17fc70e791[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 19:52:14 2017 -0500
+
+    Attached javadoc and sources for rxjava and javatuples (especially since they are used heavily in my code)
+
+[33mcommit 8c97e2cc2352fe4307bea4e87b1dcddfc3092999[m
+Merge: ab85fb5 979392d
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 18:05:05 2017 -0500
+
+    Merge pull request #37 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit 979392d24479459c5303429fb202b3d3dbc90c1e[m
+Merge: aab8e35 7cf352c
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 18:04:02 2017 -0500
+
+    Merge pull request #36 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit 7cf352c4ce9fa1598af54a6fb6493e6bd12672c1[m
+Merge: 4a3df19 94f859f
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 18:01:30 2017 -0500
+
+    Merged with Kevin's branch so I can push this out as a single pull request
+
+[33mcommit 4a3df19c8200f1f0a5c91b98a918ac37b6357b95[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 17:48:33 2017 -0500
+
+    Updated with Kevin's CSS changes which prevents it from overflowing the container. As well, the default dashboard screen now displays a default chart, table, and description. When the user selects nothing, it now forwards to this same default dashboard screen
+
+[33mcommit 94f859ff79f02a48ea2128c9bc80bf0334bd07eb[m
+Merge: bc949d3 aab8e35
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 17:00:25 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Development' into Kevin-Development
+    
+    # Conflicts:
+    #	web/dashboard.jsp
+
+[33mcommit bc949d3d3370c7ae9748b97c1e373ee70f6e394e[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 16:58:44 2017 -0500
+
+[33mcommit aab8e353cdb3f7f0dee832ba9fdc281e6675c21a[m
+Merge: 952b75f 5f44c53
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 16:51:38 2017 -0500
+
+    Merge pull request #34 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit 2a47ad628c23e62222e9f5fc998c5b5318c7ab96[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 16:44:13 2017 -0500
+
+[33mcommit 5f44c53cd085025debd333c89f64e33cf71a184e[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 16:42:47 2017 -0500
+
+    I've now fully implemented a way to select multiple parameters, as well
+    as have them displayed in the chart and table. The aesthetic parts I can
+    leave to the others as that's not really fun. The code was surprisingly
+    difficult to write, as I needed to adapt a decent control flow that
+    allowed me to pull data for all selected keys and format it to be
+    presented in HTML.
+
+[33mcommit 84e20cbe90947e4488ec794adaa38dc25b526014[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 19 16:03:17 2017 -0500
+
+    Currently, am working on a way to display multiple selections at once
+
+[33mcommit 313386e63f83a5ee258e3fd52fb38028bc08e89b[m
+Merge: 6e76ed4 430cf68
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 15:49:20 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Louis-Development' into Kevin-Development
+    
+    # Conflicts:
+    #	web/dashboard.jsp
+
+[33mcommit 6e76ed44ebf21a9e350a016bc9f09a4b54555ce5[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 19 15:45:20 2017 -0500
+
+[33mcommit 952b75f3f15992a157d84df82f23eac9a7b02d16[m
+Merge: ac97aaa 430cf68
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 18 20:48:08 2017 -0500
+
+    Merge pull request #33 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit 430cf68d318d6f60e0353632d291d0472846342d[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 18 20:40:17 2017 -0500
+
+    I managed to implement the Description too! The data is from what Dr. Rier sent himself, and filters out those parameters which are not listed. It is far from perfect, as a few parameters share the same name and hence the same description as I cannot differentiate them, but that is for another day
+
+[33mcommit 22201764454aedd5bb7c067882870ecd06b7391f[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 18 18:27:53 2017 -0500
+
+    Thanks to Brandon's genius detective work, it turns out that unicode characters shows up as '?' in HTML, and in turn when I need to obtain what parameters are chosen, it returned as a key entirely different from the original, leading to a N.P.E
+
+[33mcommit 76c08062dc24e35560136f0f11ec1476ab66c683[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 18 14:23:38 2017 -0500
+
+    Small change: Graph now shows the name of the selected parameter
+
+[33mcommit 2dd0f26e1ad59690d05feed014e6507b00082b99[m
+Merge: 8d542a3 a04dbe6
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 18 14:18:28 2017 -0500
+
+    Merge commit 'a04dbe6' into Louis-Development
+
+[33mcommit a04dbe6ec8c0f466f45115d8a0bd8f5c209ed24d[m
+Merge: 06ffe40 077f484
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 18 14:16:10 2017 -0500
+
+    Finally have something really good. Currently, it will obtain the data straight from the server. I need to make use of the current user session however, because I need to have it keep track of what was selected
+
+[33mcommit 06ffe405922b12024d900930d9a758b714c7d929[m
+Merge: 85f359f ca30b1b
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 18 13:12:50 2017 -0500
+
+    Old changes I forgot to commit
+
+[33mcommit e8b5eba342a77599c54fe57cc74e018807918b8d[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 16 23:33:44 2017 -0500
+
+[33mcommit 95b84e0fd53966e463de45cdda244d69b29482b4[m
+Merge: 1d0b6e0 077f484
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 16 23:25:11 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Louis-Development' into Kevin-Development
+    
+    # Conflicts:
+    #	src/java/servlets/ControlServlet.java
+    #	web/dashboard.jsp
+
+[33mcommit 1d0b6e0b5e73a29b65ba4dd0e06f34a726fedd75[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 16 23:19:46 2017 -0500
+
+[33mcommit 077f484ca71ab3e9ebbd04c9efb309f4a6c37801[m
+Merge: 27eb32d 6385cea
+Author: theif519 <theif517@gmail.com>
+Date:   Thu Feb 16 10:42:00 2017 -0500
+
+    Merged with Kevin's changes, as well now have JSP sending data to server.
+
+[33mcommit 27eb32d772d397bb6b1721e935ebde4deab03593[m
+Author: theif519 <theif517@gmail.com>
+Date:   Thu Feb 16 09:38:07 2017 -0500
+
+    Testing Query sent from JSP
+
+[33mcommit 9ac2bfa5b16a6ab0fe50b4cc86c1a17213fadf58[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Thu Feb 16 09:36:47 2017 -0500
+
+[33mcommit 6385ceafdfef271d851b3dc97ed44a392e044275[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 16 00:04:27 2017 -0500
+
+[33mcommit 285b8f0e9eeebb45711c3fa8f4d3ab110602c2d3[m
+Merge: ca30b1b 85f359f
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Wed Feb 15 18:27:52 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Louis-Development' into Kevin-Development
+    
+    # Conflicts:
+    #	src/java/servlets/ControlServlet.java
+    #	web/dashboard.jsp
+
+[33mcommit 1e3d89939f495ef75ee1ca5b0d0060a67d3ead45[m
+Merge: 4f14498 ca30b1b
+Author: theif519 <theif517@gmail.com>
+Date:   Tue Feb 14 14:07:37 2017 -0500
+
+    Merge origin/Kevin-Development into Louis-Development
+    
+    Conflicts:
+    	src/java/servlets/ControlServlet.java
+    	web/dashboard.jsp
+
+[33mcommit ca30b1b5871866c3eefe109c76a744e12de49682[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Tue Feb 14 10:48:11 2017 -0500
+
+[33mcommit 4f14498c73a4a19072c9d9f04ef0e9297f9a3a57[m
+Merge: 85f359f ec45ccf
+Author: Louis Jenkins <lpj11535@huskies.bloomu.edu>
+Date:   Tue Feb 14 10:47:22 2017 -0500
+
+    Merge branch 'Development' into Louis-Development
+
+[33mcommit ac97aaa373285c54a08d4327ba78b8571dc65c0d[m
+Merge: 8062f06 85f359f
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 14 10:47:13 2017 -0500
+
+    Merge pull request #32 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit 85f359f1c70f5906da6cad1307697ab093e34e7b[m
+Author: Louis Jenkins <lpj11535@huskies.bloomu.edu>
+Date:   Tue Feb 14 10:45:31 2017 -0500
+
+    Added units
+
+[33mcommit 8062f06f5d19d00131a14887bcd1eee8bd395056[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Tue Feb 14 09:51:33 2017 -0500
+
+    Changed back to LocalDateTime
+    
+    It's in the name
+
+[33mcommit 03c83d8f724094814b235be41d7cc4636baeeabd[m
+Merge: 2be7173 a315a27
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Tue Feb 14 09:38:02 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Brandon-Development' into Kevin-Development
+
+[33mcommit a315a27dde4c8862a657a8604f9c3aa3d977c079[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Mon Feb 13 21:54:04 2017 -0500
+
+    Attempting to get a connection goin
+
+[33mcommit ab85fb539d6da5ee54674d463470cea87a1c0a97[m
+Merge: 67a3031 9778c8c
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 13 13:17:13 2017 -0500
+
+    Merge pull request #30 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit 9778c8c532673ae01083b2f7b341ba7eaa26a902[m
+Merge: b3e39c6 344a4bd
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 13 13:09:34 2017 -0500
+
+    Merge pull request #29 from LouisJenkinsCS/Louis-Development
+    
+    Obtained Data for Sensors
+
+[33mcommit 8d542a30a19c747955b2c019237bb4c1db60e696[m
+Merge: 344a4bd b3e39c6
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 13 12:58:57 2017 -0500
+
+    Merge branch 'Development' into Louis-Development
+
+[33mcommit b3e39c6099fca530b75f592cc3423aedcdf7dd38[m
+Merge: 4a4d588 cf1e56f
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 13 12:55:54 2017 -0500
+
+    Merge pull request #28 from LouisJenkinsCS/tyler-development
+    
+    Tyler development
+
+[33mcommit cf1e56fc515937192de6bc9511358dfc30e9bcdb[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 13 12:54:26 2017 -0500
+
+    Removed gitlog
+
+[33mcommit c77e8510a7013079f360c656b2842202c017b006[m
+Merge: a2be4ce 4a4d588
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 13 12:51:03 2017 -0500
+
+    Resolved merge conflict, and rebased tyler-development with Development HEAD
+
+[33mcommit a2be4ce8b56f25271a0526177aa43db0cb02e912[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Feb 13 11:24:42 2017 -0500
+
+    DatabaseManager
+    
+    Merged work done at lab with work done at home. Fixed a number of
+    possible uncaught exceptions.
+
+[33mcommit 4eba48e6a3d7e6ea20ebe9b36404f3287da9d015[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Feb 13 00:50:05 2017 -0500
+
+    Database manager updates
+    
+    Modified Database manager to have transactions for each function that
+    inserts, deletes, or modifies data. Also added a function for inserting
+    things into the water data database as a JSON.
+
+[33mcommit 89f87c0a330cf36ce84a10a58af3c43836959719[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Feb 13 10:52:05 2017 -0500
+
+    DatabaseManager and loginservlet changes
+    
+    fixed errors in loginservlet. Added loginservlets needed functions to
+    databasemanager
+
+[33mcommit 344a4bdcc5e1f506a28f8c92737373717e6d5a25[m
+Author: Louis Jenkins <lpj11535@huskies.bloomu.edu>
+Date:   Mon Feb 13 10:50:28 2017 -0500
+
+    Obtained Data for Sensors
+    
+    Obtained list of all data from sensors. It also now communicates with
+    the JSP page as well through a POST request. I plan to return a list of
+    values that the dashboard can use.
+
+[33mcommit 4a4d5886da18da763ec50690cb164efd4ac47a3a[m
+Merge: ccc19d4 2be7173
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 13 10:41:04 2017 -0500
+
+    Merge pull request #26 from LouisJenkinsCS/Kevin-Development
+    
+    Kevin development
+
+[33mcommit 2be71738e54532d11047256497d9568938546b0e[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Mon Feb 13 10:39:49 2017 -0500
+
+    minor style changes
+
+[33mcommit 91ced03f128c5ea4913ecdb6fec4128cf02742bd[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Mon Feb 13 10:38:50 2017 -0500
+
+    Revert "minor style changes"
+    
+    This reverts commit b0216a09568a3d00eced79ddfac140268333ef82.
+
+[33mcommit ccc19d431c6fd689dd6025f42c6ff03579fb9619[m
+Merge: fe3f79a b0216a0
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 13 10:34:36 2017 -0500
+
+    Merge pull request #24 from LouisJenkinsCS/Kevin-Development
+    
+    Kevin development
+
+[33mcommit b0216a09568a3d00eced79ddfac140268333ef82[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Mon Feb 13 10:33:32 2017 -0500
+
+    minor style changes
+
+[33mcommit ded19a7773f5ec72fa0bc65a1822c1802fa28445[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Feb 13 09:31:43 2017 -0500
+
+    Fixed Errors
+    
+    Changed localdatetime to timestamp
+
+[33mcommit 0f1b1a9a28e3e982d0d818fc86ef14de967b50e2[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Feb 13 09:15:05 2017 -0500
+
+    SQLUtility changed
+    
+    changed localdatetime to timestamp
+
+[33mcommit f4fe0b23ec06e16b0bb06d963d42eb9123b8b77c[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Mon Feb 13 09:07:11 2017 -0500
+
+    minor style changes
+
+[33mcommit c1f4e4f62cf598ba43dc7257d5baea88edf67095[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 12 23:54:45 2017 -0500
+
+    took out the place holder pictures that I had and placed the description
+    box just under the graph/table section and it will move dynamically based
+    on height of that section
+
+[33mcommit 22d72b1d242e668d31e0b252e2f66c6e876e4fb1[m
+Merge: b094c7e fe3f79a
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 12 21:05:33 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Development' into Kevin-Development
+
+[33mcommit fe3f79a7adc3851eb4af9f1272943e184cc0d723[m
+Merge: 94d91f5 290b709
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 20:28:42 2017 -0500
+
+    Merge pull request #23 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit 290b70939008be9d8f7e756cdd4f740a5d32013c[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 20:26:57 2017 -0500
+
+    Removed comment that showed up in HTML
+
+[33mcommit ccdd6f544dfda78b17d2c3c85e10a1a04787c724[m
+Merge: c70b8b2 94d91f5
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 20:24:17 2017 -0500
+
+    Merge remote-tracking branch 'origin/development' into Louis-Development
+
+[33mcommit 94d91f5fac4019baa8a31227cc37189f97bb50c5[m
+Merge: 256bfad b094c7e
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 20:23:00 2017 -0500
+
+    Merge pull request #22 from LouisJenkinsCS/Kevin-Development
+    
+    Kevin development
+
+[33mcommit b094c7edab5144becc0b5790015a5db7b897ba6b[m
+Merge: b77715f 256bfad
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 20:22:55 2017 -0500
+
+    Merge branch 'Development' into Kevin-Development
+
+[33mcommit b77715f5b871e11afc5d8ab379293caf3bed9815[m
+Merge: d22dc59 15fff06
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 20:11:35 2017 -0500
+
+    Fixed conflicts again
+
+[33mcommit d22dc59a5e9f06e03ef1057c97ee62b26969f41a[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 20:07:58 2017 -0500
+
+    Resolved conflict for Kevin - L.J
+
+[33mcommit 15fff06f5882044ec3a129a83515f1bad23fd32f[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 12 20:03:10 2017 -0500
+
+[33mcommit 3dcca13c2ff222206dae4cdd3a891a726d035748[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 12 19:56:21 2017 -0500
+
+[33mcommit 2d75dc045490aceb57b21083f0fdf97dac40ac25[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 12 19:51:39 2017 -0500
+
+[33mcommit 4a22e86f2f4c5efdceb8c431a7b784b3158e72f5[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 19:51:25 2017 -0500
+
+    Updated .gitignore
+
+[33mcommit c70b8b21bf3894ab16251cd65bd713d39ea5b3c6[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 19:50:33 2017 -0500
+
+    Need to remove project.properties from .gitignore, it is actualy needed for configuration
+
+[33mcommit 9fe9bf041b34bbf45676b9dfe192b28eb1292aa8[m
+Merge: ad6e16c d216678
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sun Feb 12 19:43:56 2017 -0500
+
+    Resolving Conflict
+
+[33mcommit d2166781387edee4f62f5e4fb82a478d1d063e1e[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sun Feb 12 19:00:55 2017 -0500
+
+    did a couple small changes and added some comments that i forgot to add
+
+[33mcommit 256bfaddb7139d17520e4f282c802f7d6da4a10f[m
+Merge: 1835e43 b59590a
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 11 22:13:12 2017 -0500
+
+    Merge pull request #20 from LouisJenkinsCS/Brandon-Development
+    
+    Brandon development
+
+[33mcommit b59590a90c2e363ed40150da991d22cf986ad899[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 11 20:28:16 2017 -0500
+
+    Updated Brandon-Development with description box
+
+[33mcommit f541602a14c220c84d136e1f2b3ecf06dcdd507b[m
+Merge: 89fd68f 1835e43
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 11 19:46:17 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Development' into Brandon-Development
+    
+    # Conflicts:
+    #	nbproject/project.properties
+
+[33mcommit 1835e43e2c41a46f0a1f607fc5ef01ba9e3e9bbd[m
+Merge: be7ca0b 2862589
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sat Feb 11 18:45:12 2017 -0500
+
+    Merge pull request #19 from LouisJenkinsCS/Kev-Dev
+    
+    Kev dev
+
+[33mcommit 286258935f083de761b6438fdb1208cf3ca1efc0[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sat Feb 11 18:27:15 2017 -0500
+
+[33mcommit be7ca0ba234c95970e6f94d5e202fe4a96d10739[m
+Merge: ea2caa8 315cd74
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 11 18:21:24 2017 -0500
+
+    Merge branch 'Development' of https://github.com/LouisJenkinsCS/WaterQuality into Development
+
+[33mcommit 89fd68fa4bf899f019c302335fea7eb5eef83acf[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 11 18:20:53 2017 -0500
+
+    I have to commit these in order to 'checkout'..?
+
+[33mcommit bef77f50db84267625dd95f46a45e4c1cb1fb2da[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 11 18:18:25 2017 -0500
+
+    Color update to CSS
+
+[33mcommit fb7498f8e3b56a4c83a2f05cd41dbc81f94a848c[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Fri Feb 10 02:21:55 2017 -0500
+
+[33mcommit ad6e16cce50276a7d7842e99c5260511a8daca15[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 21:10:11 2017 -0500
+
+[33mcommit fb52dd5d084541562627e5beeb01e4e4e39ee7d3[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 21:09:11 2017 -0500
+
+[33mcommit 893ed4c3659d4517be40afbea3ca532b105012d8[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 21:06:33 2017 -0500
+
+[33mcommit 3eb9df2d7c113c570cd40e876b1a5cd59edba7cb[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 20:10:04 2017 -0500
+
+[33mcommit 1d63b2321a17d90bcced273dd34a6ab45d162b9d[m
+Merge: 24baf8b 315cd74
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 20:08:58 2017 -0500
+
+    Revert ""
+    
+    This reverts commit ca5902b2f081694d315b52d40a92219d50d4194b.
+
+[33mcommit 24baf8b3b7eb3bd7ce67233fcad27db44f6a274c[m
+Merge: ca5902b 5b79f34
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 19:54:30 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Development' into Kevin-Development
+
+[33mcommit ca5902b2f081694d315b52d40a92219d50d4194b[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 19:52:37 2017 -0500
+
+[33mcommit 315cd74247879184478eed39d4bcd3d551770d34[m
+Merge: 4536571 bf252f6
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Feb 9 11:51:19 2017 -0500
+
+    Merge pull request #18 from LouisJenkinsCS/Louis-Development
+    
+    Added a nice table to it as well
+
+[33mcommit bf252f6736bd013adb3db4a5e9f2c7d1c8e21df7[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Feb 9 11:48:23 2017 -0500
+
+    Added a nice table to it as well
+
+[33mcommit 45365712d5bec6b0dda045cc02f2bba68bb2957d[m
+Merge: 5b79f34 55eba5a
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Feb 9 11:07:13 2017 -0500
+
+    Merge pull request #17 from LouisJenkinsCS/Louis-Development
+    
+    Louis development
+
+[33mcommit 55eba5a42a2146d3f15f010d26572b759e962cca[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Feb 9 11:04:30 2017 -0500
+
+    Added the graph straight to jsp. Sloppy right now, as it just embeds the code in the servlet, not what I intended, but good enough for now
+
+[33mcommit 1965d7dfd565d54047f1524d11d37602a6d49e0b[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Thu Feb 9 01:07:00 2017 -0500
+
+    added a select all for the data types that is visible when the table
+    tab is selected and disappears when the graph tab is present
+
+[33mcommit 7a7f2f36257c57bebad47d7350fb9aecd252fe01[m
+Merge: 7e16e25 5b79f34
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Feb 8 19:27:13 2017 -0500
+
+    Merge branch 'Development' of https://github.com/LouisJenkinsCS/WaterQuality into Louis-Development
+
+[33mcommit 5b79f34cef88280d6039ba167057846f8aac22cb[m
+Merge: 1a0c89b 06aebb4
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Feb 8 19:26:00 2017 -0500
+
+    Merge pull request #16 from LouisJenkinsCS/Kevin-Development
+    
+    Kevin development
+
+[33mcommit 7e16e2522961d0465dd02c1738a9a30eb68bffe8[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Feb 8 18:08:40 2017 -0500
+
+    Got a good graph from the data I pulled, looks pretty good I'd say.
+
+[33mcommit 9a14da20bb476bb520dc5a4df056a4bfe179242f[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Wed Feb 8 17:37:10 2017 -0500
+
+    Added more to Database manager
+    
+    Added createuser, create user tables, delete data manually, and delete
+    user functions. Also made minor alterations to datavalue, user, and
+    userrole classes
+
+[33mcommit 91f312f45fb67612bd97a0fcd950a118a4512ef3[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Wed Feb 8 17:30:14 2017 -0500
+
+    Getting a real pain in the neck with Apache Tomcat: It will not push out the new .war file, that or the .class file it sends is outdated, because it throws an exception and points to a commented out line of code. 2 hours of this, too much
+
+[33mcommit 027989cb5b342def97c0e430a57bad9ade236b59[m
+Merge: 43f649d 2028ef9
+Author: Louis Jenkins <lpj11535@huskies.bloomu.edu>
+Date:   Wed Feb 8 11:21:06 2017 -0500
+
+    Merge commit '2028ef9' into Louis-Development
+
+[33mcommit 2028ef9a8fd633cfccbbe5dbdc04917e276c8738[m
+Author: theif519 <theif517@gmail.com>
+Date:   Wed Feb 8 11:04:58 2017 -0500
+
+    Created a sample DataReceiver concept that takes the JSON from the connection given to us. Adequately receives the JSON asynchronously (even printed it out).
+
+[33mcommit 06aebb430324d2ecbb369eb19a429c6c8c49f64a[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Wed Feb 8 11:01:08 2017 -0500
+
+    styling dashboard
+
+[33mcommit d1f94814afad9c59208ad8fdc5a79d8004851816[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Wed Feb 8 10:54:14 2017 -0500
+
+    Delete DataValue.java
+
+[33mcommit c992d355f9fc61bdbdc2448efa241c19ff8fff86[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Wed Feb 8 10:54:08 2017 -0500
+
+    Delete DatabaseManager.java
+
+[33mcommit 56d85bff77789a9c957a4e808acbda2a479da75b[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Wed Feb 8 10:53:57 2017 -0500
+
+    wrong spot
+
+[33mcommit a250644709757f37311428376a15b5bd9e76dcb6[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Wed Feb 8 10:53:40 2017 -0500
+
+    wrong spot
+
+[33mcommit c0ca0c4b800f57862b2041cc3e8178e96a0427a7[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Wed Feb 8 10:51:35 2017 -0500
+
+    Work during group meeting
+    
+    Added addnewUser function, manual data delete, user delete, and create user table function to databasemanager and minor alterations to UserRole, User, and DataValue
+
+[33mcommit 6bc3dd1b51f240e2e7465a044ee908d1eb466234[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Mon Feb 6 19:45:05 2017 -0500
+
+    Database backup work
+    
+    Changed database manager from a servlet to a simpler java class that
+    handles database interactions, and edited datavalue to use timestamp
+    instead of localdatetime because it simplifies read / writes.
+
+[33mcommit 43f649dfe32de342b47e6774ed38dee715bfbd4b[m
+Merge: 66eab52 1a0c89b
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:55:01 2017 -0500
+
+    Merge pull request #15 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit 0fa17e5684447e4ff926047671377c8e01470193[m
+Merge: db15b95 1a0c89b
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:53:21 2017 -0500
+
+    Merge pull request #13 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit 8c6a50b7c5b24489c4857de61a9cee161dec4f9b[m
+Merge: e1db5f4 1a0c89b
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:52:12 2017 -0500
+
+    Merge pull request #12 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit 13134308ad2fd8de2cc4e457d5be37aad2991d57[m
+Merge: c9eb479 1a0c89b
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Tue Feb 7 10:45:19 2017 -0500
+
+    Merge pull request #11 from LouisJenkinsCS/Development
+    
+    Development
+
+[33mcommit c9eb479bde0e75103b9029820f26db0af16f94d8[m
+Merge: aae494c ea2caa8
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Tue Feb 7 10:34:36 2017 -0500
+
+    Merge branch 'Development' into Brandon-Development
+
+[33mcommit 1a0c89b4ed0119f1bf85f328f1b6046743b65042[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:32:57 2017 -0500
+
+    Remove properties files
+    
+    Removed annoying properties files from being submitted.
+
+[33mcommit ec45ccf8e63965407f802d281370724aa3cfab4e[m
+Author: theif519 <theif517@gmail.com>
+Date:   Tue Feb 7 10:22:46 2017 -0500
+
+    Added .gitignore property
+
+[33mcommit a2cff8347cc6e64e5d8d786d0540639884c823c8[m
+Merge: c82015e e1db5f4
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:17:25 2017 -0500
+
+    Merge pull request #10 from LouisJenkinsCS/Kevin-Development
+    
+    Kevin development
+
+[33mcommit e1db5f4ab1152ef67e3ef2f84e305a8a3f1a29fc[m
+Merge: 66f7a8c c82015e
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:17:20 2017 -0500
+
+    Merge branch 'Development' into Kevin-Development
+
+[33mcommit c82015e73d6c1e93a0a678cc3de263e892190acd[m
+Merge: 58e43a8 6a63859
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:12:00 2017 -0500
+
+    Merge pull request #9 from LouisJenkinsCS/Dan-development
+    
+    Admin Prototype v1
+
+[33mcommit 58e43a864db2e59c3203ee4507b972ef4951bcee[m
+Merge: 66eab52 aae494c
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Feb 7 10:11:44 2017 -0500
+
+    Merge pull request #8 from LouisJenkinsCS/Brandon-Development
+    
+    Sample pull request
+
+[33mcommit 66f7a8c3b5082047d219027841e7e9f69ad41a28[m
+Merge: 5662089 66eab52
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Tue Feb 7 10:06:03 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Development' into Kevin-Development
+
+[33mcommit aae494cee775047d6f49149288bfc31db1dd347c[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Tue Feb 7 09:55:04 2017 -0500
+
+    fixed small issue
+
+[33mcommit 6a63859b2f5bae7bc3744ecc3df247c4380fa817[m
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Tue Feb 7 09:48:33 2017 -0500
+
+    Admin Prototype v1
+    
+    basic attempt
+
+[33mcommit 5662089a1bd0dcb487aac0d8ad7292347f8c886d[m
+Author: ktc45622 <ktc45622@BFH115-23.buad.bloomu.edu>
+Date:   Tue Feb 7 09:44:39 2017 -0500
+
+    style stuffs
+
+[33mcommit 798a5e478b22506042b57cb0b5ed449ae3135ebc[m
+Merge: 67a3031 66eab52
+Author: dan0x19b <djlatovich@outlook.com>
+Date:   Tue Feb 7 03:20:31 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/Development' into Dan-development
+
+[33mcommit 77a90def3101ca985c81c582c58364b33f69dd53[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 6 22:09:45 2017 -0500
+
+    Sample dashboard as it is so far
+
+[33mcommit 66eab524c1579b3ff7e8334fa5084a03dd6e556b[m
+Merge: 9cb94b8 67a3031
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Mon Feb 6 16:23:16 2017 -0500
+
+    Merge pull request #4 from LouisJenkinsCS/master
+    
+    Bringing Development up to speed
+
+[33mcommit 48a001c7e206d7ed973ce27cd952952d142357f2[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Mon Feb 6 16:14:34 2017 -0500
+
+    Sample dashboard as it is so far
+
+[33mcommit 67a3031dcc349ad659ce213a79cffd6373fedc97[m
+Author: Brandon Meglathery <bsm29471@huskies.bloomu.edu>
+Date:   Sun Feb 5 20:29:33 2017 -0500
+
+    Added the jfreechart jars to the lib folder
+
+[33mcommit db15b9501cce8450f93e2879e9c595cdfe02ab17[m
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Sat Feb 4 22:25:28 2017 -0500
+
+    Database stuff
+    
+    some in-progress database stuff
+
+[33mcommit 81498a515ecc02f866f58a2b0f3da75d0079fe99[m
+Merge: 9cb94b8 ea6a928
+Author: TylerMutzekCS <tm44120@huskies.bloomu.edu>
+Date:   Sat Feb 4 22:24:38 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/master' into tyler-development
+
+[33mcommit ea2caa8657bc66429a43b751bfe3c1ced87be5e9[m
+Merge: 9cb94b8 ea6a928
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 4 20:43:49 2017 -0500
+
+    Merge remote-tracking branch 'refs/remotes/origin/master' into Development
+
+[33mcommit ea6a928584fd81ac0150282b0b8a91c5a19ca7b2[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 4 20:31:15 2017 -0500
+
+    fixed small issue
+
+[33mcommit 9cb94b88874f7c1221cf2fd3c3c2516147550025[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 4 20:28:28 2017 -0500
+
+    Edited the resource which directs the program to the correct database
+
+[33mcommit 6bec765576122ceca177d86132cd4487c77f4e5b[m
+Author: bsm29471 <bsm29471@BFH115-24.buad.bloomu.edu>
+Date:   Sat Feb 4 19:26:50 2017 -0500
+
+    Changed the background image from BU fountain to Bloom creek
+
+[33mcommit 86328873db99174dabd7bdbe79c86c1f1953e437[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Sat Feb 4 16:02:37 2017 -0500
+
+    Added a continue as guest link that we can use in the future
+
+[33mcommit d9c6e68e0c7e6c02aea1075ecb5ad46f3bdca814[m
+Merge: 4bed693 8505704
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 4 14:45:26 2017 -0500
+
+    Merge branch 'master' of https://github.com/LouisJenkinsCS/WaterQuality
+
+[33mcommit 4bed6932e5239a6b8e0696e6aa13654035184b45[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Sat Feb 4 14:42:28 2017 -0500
+
+    Added my favorite libraries to the project.
+    
+    Java-Tuples supply what is desparately missing with Java so far:
+    Tuples. Tuples, such as Pairs, Triples, etc, are necessary, especially
+    for mapping data, and they allow you to add items, I.E adding to a Pair
+    produces a Triple, and are functionally pure.
+    
+    JSON Simple provides the android-JSON interface that is much needed,
+    providing JSONArray and JSONObject, both making working with them a
+    breeze.
+    
+    RxJava is a personal favorite of mine that I can't program without.
+    Reactive Streams is needed by RxJava, but their usage cannot be
+    explained in a simple commit. Much needed
+
+[33mcommit 8505704e8e54a5556b8d7e9d30342fbdf68445a0[m
+Author: ktc45622 <ktc45622@huskies.bloomu.edu>
+Date:   Fri Feb 3 17:16:31 2017 -0500
+
+    Just fixed a small issue that caused an error when clicking the
+    cancel button. Now cancel returns to main login screen
+
+[33mcommit 486977b1ed8c9a762fc3a6bc7951051539632530[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Feb 3 15:57:32 2017 -0500
+
+    Kevin was nice enough to run out and send the files we were missing, which were the web files. Pretty generous of him, as now we have enough tog et started
+
+[33mcommit ea7389e8a5203d1a2ee24cbb3aaee28dbd230955[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Feb 3 11:55:24 2017 -0500
+
+    Create .gitkeep
+
+[33mcommit ac0f2bf94c617c3d58af4aa6048f2d14ed112d6e[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Fri Feb 3 11:28:10 2017 -0500
+
+    Pushing out an actual working build this time. Added the files Dr Jones gave us with a new working template
+
+[33mcommit 774d588a2e0c410dff0e1bd884c9e1e9068e7cd3[m
+Author: Louis Jenkins <theif517@gmail.com>
+Date:   Thu Feb 2 19:56:28 2017 -0500
+
+    Update README for tutorial
+
+[33mcommit 5dc7861c6df9d1736f0fa2f7e3c3b13e4de9ebc8[m
+Merge: 913ff4e 2c61c96
+Author: theif519 <theif517@gmail.com>
+Date:   Tue Jan 31 10:45:50 2017 -0500
+
+    Merge branch 'master' of https://github.com/LouisJenkinsCS/WeatherProject
+
+[33mcommit 913ff4ef0f7913308ea631538a06d5e4b2a19e45[m
+Author: theif519 <theif517@gmail.com>
+Date:   Tue Jan 31 10:45:34 2017 -0500
+
+    Updated WaterQuality
+
+[33mcommit 2c61c9633e4895595bbb9f73104b733e62a460f5[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Tue Jan 31 10:08:11 2017 -0500
+
+    Update README.md
+
+[33mcommit 5fef0920ee4e704891fc38c01c6cc5a2deb26898[m
+Author: theif519 <theif517@gmail.com>
+Date:   Tue Jan 31 09:22:35 2017 -0500
+
+    Updated with svn source code
+
+[33mcommit f4e702d100bee5822f33f2050a827cd9da7d8831[m
+Author: Louis Jenkins <theif517@gmail.com>
+Date:   Fri Jan 27 16:20:57 2017 -0500
+
+    Created initial skeleton for project. Not much of a skeleton, but it
+    does demonstrate a few things. For one, it is officially a proof of
+    concept for the issue of displaying data. So far, the data that is
+    collected should be mapped to a GraphData object, which will handle not
+    only timestamping that data, but as well keeping track of the data
+    itself. This is extremely easy to have in a database and in memory, and
+    doubly so for manipulating at runtime (Observables and Streams anyone?).
+    
+    As well, I defined a "Provider" interface but I am not sure if I want to
+    go through with it. A Provider would essentially provide the user with
+    data. This however may not work anyway if the modular approach is
+    needed.
+    
+    As well, I have a decent graph up and running with randomly generated
+    stubbed data. So far it does a decent job of testing, and I can say that
+    chart.js definitely is a very handy library to use.
+
+[33mcommit 2cf719e391f25f264d1f2a856e92a2ccafb37e1d[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Jan 26 16:29:07 2017 +0000
+
+    README.md edited online with Bitbucket
+
+[33mcommit 31c7f4f72e8ef42df96628fb54db53dcd0761347[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Jan 26 15:39:07 2017 +0000
+
+    README.md edited online with Bitbucket
+
+[33mcommit 439f7172bd51699a3965009931c668a9c9448cf2[m
+Author: Louis Jenkins <LouisJenkinsCS@hotmail.com>
+Date:   Thu Jan 26 15:35:15 2017 +0000
+
+    README.md created online with Bitbucket

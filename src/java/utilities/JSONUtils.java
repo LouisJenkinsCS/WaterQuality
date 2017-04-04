@@ -31,6 +31,7 @@
 package utilities;
 
 import io.reactivex.Observable;
+import java.util.Collection;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -49,7 +50,13 @@ public class JSONUtils {
      * @param array JSONArray of data
      * @return Correctly typed Observables containing the contents of the array.
      */
-    public static Observable<JSONObject> toData(JSONArray array) {
+    public static Observable<JSONObject> flattenJSONArray(JSONArray array) {
         return Observable.fromIterable(array);
     } 
+    
+    public static JSONArray toJSONArray(Collection<JSONObject> objs) {
+        JSONArray arr = new JSONArray();
+        arr.addAll(objs);
+        return arr;
+    }
 }
