@@ -1199,7 +1199,7 @@ public class DatabaseManager
         Updates the description with dataName 'name' using the description 'desc'
         @return whether this operation was sucessful or not
     */
-    public static boolean updateDescription(String desc, String name)
+    public static boolean updateDescription(String desc, long id)
     {
         boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
@@ -1207,12 +1207,12 @@ public class DatabaseManager
         try
         {
             conn.setAutoCommit(false);
-            String updateSQL = "UPDATE DataDescriptions "
+            String updateSQL = "UPDATE data_descriptions "
                     + "SET description = ? "
-                    + "WHERE dataName = ?;";
+                    + "WHERE parameter_id = ?;";
             updateDesc = conn.prepareStatement(updateSQL);
             updateDesc.setString(1, desc);
-            updateDesc.setString(2, name);
+            updateDesc.setString(2, id + "");
             updateDesc.executeUpdate();
             conn.commit();
             status = true;
@@ -1220,7 +1220,7 @@ public class DatabaseManager
         catch(Exception e)
         {
             status = false;
-            LogError("Error updating description for \"" + name + "\": " + e);
+            LogError("Error updating description for \"" + id + "\": " + e);
             if(conn != null)
                 try
                 {
