@@ -19,16 +19,18 @@ public class JJAGS {
     private String script_file, data_file, init_file, mod_file;
     private String tmp_dir;
     private String dir_name;
+    private String out_dir;
     String jags_bin;
     
-    public JJAGS(String jagsbin, String tmpdir, String dir_name, String modelfile){
+    public JJAGS(String jagsbin, String tmpdir, String dir_name, String modelfile, String dataFile, String outdir){
         // Ontaining installation path of JAGS
         this.jags_bin = jagsbin;
         this.tmp_dir = tmpdir;
         this.dir_name = dir_name;
-        this.script_file = this.tmp_dir + "script.txt";
-        this.data_file = this.tmp_dir + "data.txt";
-        this.init_file = this.tmp_dir + "init.txt";
+        this.script_file = this.tmp_dir + "/script.txt";
+        this.data_file = dataFile;
+        this.init_file = this.tmp_dir + "/init.txt";
+        this.out_dir = outdir;
         //this.mod_file = this.tmp_dir + "model.txt";
         this.mod_file = modelfile;
         //System.out.println(this.script_file);
@@ -77,7 +79,7 @@ public class JJAGS {
                     + "update "+ nburnin +"\n"
                     + mon 
                     + "update " + niter + "\n"
-                    + "cd \"" + JJAGS.class.getResource("BASE/output/" + dir_name).getPath().substring(1) + "\"\n"
+                    + "cd \"" + out_dir + "\"\n"
                     + "coda *";
             //System.out.println(src);
             writer.write(src);
@@ -95,7 +97,7 @@ public class JJAGS {
         // Using multiple threads may solve the issue???
         String cmd = this.jags_bin + " " + script_file;
         System.out.println(cmd);
-        System.out.println(Paths.get(script_file.substring(0, script_file.indexOf("/")) + "\\").toFile().exists());
+//        System.out.println(Paths.get(script_file.substring(0, script_file.indexOf("/")) + "\\").toFile().exists());
         System.out.println("JAGS is running, be patient please...");
         try {
             ProcessBuilder pb = new ProcessBuilder()
