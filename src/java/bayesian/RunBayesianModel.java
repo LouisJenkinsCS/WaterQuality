@@ -8,7 +8,6 @@
  */
 package bayesian;
 import utilities.DataToCSV;
-import static database.DatabaseManager.LogError;
 import async.Data;
 import async.DataReceiver;
 import async.DataValue;
@@ -179,11 +178,11 @@ public class RunBayesianModel {
     * Or you can use a confid file but involving File IO Stream here.
     */
     private static String model_name = "BASE_metab_model_v2.1.txt";
-    private static String user_dir = RunBayesianModel.class.getResource(".").getPath().substring(1);
-    private static String base_dir = user_dir + "BASE\\";
-    private static String input_dir = base_dir + "input\\"; 
-    private static String output_dir = base_dir + "output\\";
-    private static String jsroot_dir = base_dir + "JSchart\\";
+//    private static String user_dir = RunBayesianModel.class.getResource(".").getPath().substring(1);
+//    private static String base_dir = user_dir + "BASE\\";
+//    private static String input_dir = base_dir + "input\\"; 
+//    private static String output_dir = base_dir + "output\\";
+//    private static String jsroot_dir = base_dir + "JSchart\\";
     private static String file_name = "";
     private static int interval = 600; // IMO, this variable is used to generate instant_rate table.
     public static final long PAR = 637957793;
@@ -203,8 +202,10 @@ public class RunBayesianModel {
         FileOperation fo = new FileOperation();
         
         Instant day = getFullDayOfData();
+        System.out.println(day.minus(Period.ofDays(1)).toEpochMilli());
         LocalDateTime dt = LocalDateTime.ofInstant(day, ZoneId.systemDefault());
         file_name = dt.getYear() + "_" + dt.getMonthValue() + "_" + dt.getDayOfMonth() + ".csv";
+        System.out.println(file_name);
         Data data = DataReceiver.getRemoteData(
                 day,
                 day.plus(Period.ofDays(1)),
@@ -241,7 +242,9 @@ public class RunBayesianModel {
             }
         }
         
-        throw new RuntimeException("Could not find a full day in " + attempts + " tries...");
+        DatabaseManager.LogError("Could not find a full day in " + attempts + " tries...");
+//        throw new RuntimeException("Could not find a full day in " + attempts + " tries...");
+        return null;
     }
     
     
@@ -267,17 +270,19 @@ public class RunBayesianModel {
     public static void LogException(Exception ex) {
         StringWriter errors = new StringWriter();
         ex.printStackTrace(new PrintWriter(errors));
-        LogError("Exception: " + ex.getClass().getName() + "\nStack Trace: " + errors.toString());
-        throw new RuntimeException(ex);
+        DatabaseManager.LogError("Exception: " + ex.getClass().getName() + "\nStack Trace: " + errors.toString());
+//        throw new RuntimeException(ex);
     }
     
     public static Observable<JSONObject> trialJAGS(Instant day) {
-        LocalDateTime dt = LocalDateTime.ofInstant(day, ZoneId.systemDefault());
-        file_name = dt.getYear() + "_" + dt.getMonthValue() + "_" + dt.getDayOfMonth() + ".csv";
+//        LocalDateTime dt = LocalDateTime.ofInstant(day, ZoneId.systemDefault());
+//        file_name = dt.getYear() + "_" + dt.getMonthValue() + "_" + dt.getDayOfMonth() + ".csv";
+        DatabaseManager.LogError("Insider of trialJAGS...");
         Data data = DataReceiver.getRemoteData(
                 day,
                 day.plus(Period.ofDays(1)),
                 PAR, HDO, Temp, Pressure);
+         DatabaseManager.LogError("Obtained deferred remote data...");
         
         try {
             //        System.out.println(DataToCSV.dataToCSV(data, true));
@@ -349,7 +354,8 @@ public class RunBayesianModel {
         // JAGS object
         // If you have path to jags in your PATH, you can use "jags" only without path to it.
         // ---- Windows JAGS ----
-         JJAGS jg = new JJAGS("\"C:\\Users\\lpj11535\\AppData\\Local\\JAGS\\JAGS-4.2.0\\x64\\bin\\jags.bat\"", temporary_directory.toString(), "BayesianModelData", temp_model.toString(), temp_data.toString(), output_directory.toString());
+        // Local: C:/Users/lpj11535/AppData/Local/JAGS/JAGS-4.2.0/x64/bin/jags.bat
+         JJAGS jg = new JJAGS("/usr/bin/jags", temporary_directory.toString(), "BayesianModelData", temp_model.toString(), temp_data.toString(), output_directory.toString());
         // ---- Linux JAGS ----
 //            JJAGS jg = new JJAGS("/usr/bin/jags", tmp_dir, base_dir + model_name);            
 
@@ -395,7 +401,7 @@ public class RunBayesianModel {
 //        fo.newFolder(output_dir + fname + "/jsdata");
 
         
-        LogError("Loading results from path: " + Paths.get(output_directory + "BayesianModelData"));
+        DatabaseManager.LogError("Loading results from path: " + Paths.get(output_directory + "/BayesianModelData"));
         resultLoader rl = new resultLoader(output_directory);
         return rl.parseJAGSOutput(content.nRow, nchains, niter, nthin);
 //        // Parsing all variables out from TXT outputs and create JS files for each

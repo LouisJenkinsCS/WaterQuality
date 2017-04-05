@@ -5,10 +5,13 @@
  * The outputs will be CODAindex and CODAchain files
  */
 package bayesian;
+import database.DatabaseManager;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -81,6 +84,7 @@ public class JJAGS {
                     + "update " + niter + "\n"
                     + "cd \"" + out_dir + "\"\n"
                     + "coda *";
+            DatabaseManager.LogError(src);
             //System.out.println(src);
             writer.write(src);
             writer.close();
@@ -96,20 +100,26 @@ public class JJAGS {
         // JAGS running the model chain by chain, thus more chains takes longer
         // Using multiple threads may solve the issue???
         String cmd = this.jags_bin + " " + script_file;
-        System.out.println(cmd);
+        DatabaseManager.LogError(cmd);
 //        System.out.println(Paths.get(script_file.substring(0, script_file.indexOf("/")) + "\\").toFile().exists());
         System.out.println("JAGS is running, be patient please...");
         try {
+            Path out = Files.createTempFile("jags-out", null);
             ProcessBuilder pb = new ProcessBuilder()
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .redirectError(out.toFile())
                     .command(this.jags_bin, script_file);            
             
-            System.out.println("Current Path: " + pb.directory());
+            DatabaseManager.LogError("Current Path: " + pb.directory());
             System.out.println("User Path: " + System.getProperty("user.dir"));
 //            System.exit(0);
             Process p = pb.start();
             
             p.waitFor();
+            
+            DatabaseManager.LogError("JAGS Output: " + new BufferedReader(
+                    new FileReader(out.toFile())
+                ).lines().collect(Collectors.joining("\n"))
+            );
             int i = p.exitValue();
             if (i == 0) {
                 System.out.println("Job done!");
@@ -119,7 +129,7 @@ public class JJAGS {
             p.destroy();
             p = null;
         } catch (Exception e) {
-            e.printStackTrace();
+            RunBayesianModel.LogException(e);
         }
     }
 }

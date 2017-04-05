@@ -37,7 +37,7 @@ function bayesianRequest() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     // Proof of Concept: Only obtains for a valid day
-    post("AdminServlet", {action: "getBayesian" }, function(resp) {
+    post("ControlServlet", {action: "getBayesian" }, function(resp) {
         document.getElementById("loader").style.cursor = "default";
         var response = JSON.parse(resp);
         $('#bayesian_day').datepicker("setDate", new Date(resp.date));

@@ -67,6 +67,9 @@ static {
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
         log("Action is: " + action);
+        if (action == null) {
+            return;
+        }
         
         /*
             Admin is manually inputting data into the ManualDataValues table
@@ -328,18 +331,7 @@ static {
             */
         }
         
-        else if (action.trim().equalsIgnoreCase("getBayesian")) {
-            Instant day = RunBayesianModel.getFullDayOfData().minus(Period.ofDays(1));
-            RunBayesianModel.trialJAGS(day)
-                    .map(obj -> {
-                        obj.put("date", day.getEpochSecond() * 1000);
-                        return obj;
-                    })
-                    .blockingSubscribe((JSONObject resp) -> { 
-                        response.getWriter().append(resp.toJSONString());
-                        System.out.println("Sent response...");
-                    });
-        }
+        
         else if (action.trim().equalsIgnoreCase("getSensorItems")) 
         {
             Observable.just(0)
