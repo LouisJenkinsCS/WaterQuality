@@ -13,11 +13,11 @@ var saved_index;
 function fillPageEditDesc()
 {
     var ALL_MASK = 3;
-    var parameterRequest = new ParameterRequest(ALL_MASK);
-    parameterRequest.action = "getParameters";
+    var parametersRequest = new ParametersRequest(ALL_MASK);
+    parametersRequest.action = "getParameters";
     var sample_desc = "Retrieved description goes here.";
 
-    post("AdminServlet", parameterRequest, function (response)
+    post("AdminServlet", parametersRequest, function (response)
     {
         var resp = new ParameterResponse(response);
 

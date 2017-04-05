@@ -133,7 +133,7 @@ public class LoginServlet extends HttpServlet
             User potentialUser = database.DatabaseManager.getUserByLoginName(username);
             if (potentialUser != null && !potentialUser.isLocked()) {
                 if (potentialUser.getAttemptedLoginCount() < loginAttempts) {
-                    User user = database.DatabaseManager.validateUser(username, security.SecurityCode.encryptSHA256(password + salt));
+                    User user = database.DatabaseManager.validateUser(username, password);
                     if (user != null) { //Password was valid for this user
                         //Thread Safe
                         synchronized(lock){

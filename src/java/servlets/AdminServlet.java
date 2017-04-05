@@ -142,7 +142,7 @@ static {
             }
             catch(Exception e)
             {
-                request.setAttribute("inputStatus","Error registering user: " + e);
+                request.setAttribute("status","Error registering user: " + e);
             }
         } 
         
@@ -631,7 +631,7 @@ static {
         
         else if (action.trim().equalsIgnoreCase("getRoles"))
         {
-            response.getWriter().append("Response");
+            response.getWriter().append(UserRole.getUserRoles().toJSONString());
         }
         
         else if (action.trim().equalsIgnoreCase("getParameters"))
