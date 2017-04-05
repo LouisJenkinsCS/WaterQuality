@@ -44,6 +44,8 @@ function bayesianRequest() {
 
         var dataSets;
         for (i = 0; i < response.data.length; i++) {
+            var param = "<input type='radio' name='" + response.data[i].name + "' onclick='' class='bayesian_data' id='" + response.data[i].name + "' value='data'>" + response.data[i].name + "<br>\n";
+            document.getElementById("bayesian_parameters").innerHTML += param;
             if (response.data[i].name == "DO Model") {
                 dataSets = response.data[i].dataSets;
                 break;
@@ -166,10 +168,6 @@ function openTab(evt, tabName) {
     document.getElementById(current + "_form").style.display = "block";
     //Sets a cookie so that the current tab can be remembered
     setCookie("id", current, 1);
-    if (current == "Table")
-        document.getElementById("exportbutton").style.display = "block";
-    else
-        document.getElementById("exportbutton").style.display = "none";
 }
 
 function fetchData(json) {
@@ -414,7 +412,14 @@ function fillTable(dataResp) {
     }
     //console.log(finalHtml);
     table.innerHTML = finalHtml;
-    $("#data_table").DataTable();
+    $("#data_table").DataTable({
+        dom: 'l<"#table_exports"B>frtip',
+        buttons: [
+            'excel',
+            'csv',
+            'pdf'
+        ]
+    });
 }
 
 /**The <code>openPoppup()</code> function simply opens a popped up
@@ -438,29 +443,6 @@ function openPopup() {
     }
 }
 
-/**The <code>exportTable()</function> taakes the innerHTML from the given 
- * <code>tableId</code> paramter and converts it to csv format. Then initiates
- * a download of a csv file
- * @param {type} tableId the id of the table being exported
- */
-function exportTable(tableId) {
-    var table = document.getElementById(tableId).innerHTML;
-    //converts the innerHTML of table into csv format
-    var data = table.replace(/<thead>/g, '').replace(/<\/thead>/g, '')
-            .replace(/<tbody>/g, '').replace(/<\/tbody>/g, '')
-            .replace(/<tr>/g, '').replace(/<\/tr>/g, '\r\n')
-            .replace(/,/g, '')
-            .replace(/<th>/g, '').replace(/<\/th>/g, ',')
-            .replace(/<td>/g, '').replace(/<\/td>/g, ',')
-            .replace(/\t/g, '')
-            .replace(/\n/g, '');
-    //creates a link to initiate a download of the csv formated data in a csv file
-    var downloadLink = document.createElement("a");
-    downloadLink.download = "tabledata.csv";
-    downloadLink.href = "data:application/csv," + encodeURI(data);
-    downloadLink.click();
-}
-
 //<code>load</code> makes sure that when the page is newly loaded it will do a
 //special action in the <code>fetchDataFunction</code> allowing it to generate
 //both the table and the graph
@@ -469,18 +451,24 @@ var load = true;
  * on load/refresh of a page by using setting them to Dewpoint
  */
 function startingData() {
-    post("AdminServlet", {action: "getParameters", data: 1}, function (resp) {
+    post("AdminServlet", {action: "getParameters", data: 3}, function (resp) {
 
         console.log(JSON.parse(resp));
         var data = JSON.parse(resp)["data"][0]["descriptors"];
         console.log(data);
         for (i = 0; i < data.length; i++) {
             descriptions[data[i].name] = data[i].description;
-            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
-            document.getElementById("graph_parameters").innerHTML += param;
-            document.getElementById("table_parameters").innerHTML += param;
+            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            document.getElementById("graph_sensor_parameters").innerHTML += param;
+            document.getElementById("table_sensor_parameters").innerHTML += param;
         }
-
+        data = JSON.parse(resp)["data"][1]["descriptors"];
+        for (i = 0; i < data.length; i++) {
+            descriptions[data[i].name] = data[i].description;
+            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            document.getElementById("graph_manual_parameters").innerHTML += param;
+            document.getElementById("table_manual_parameters").innerHTML += param;
+        }
         current = "Graph";
         var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
         graphcheckboxes[3].click();
@@ -497,9 +485,15 @@ function startingData() {
                 document.getElementById("GraphTab").click();
         }
     });
-
-
 }
+
+function setOnSelect(){
+    $("#graph_end_date").datetimepicker("option","onSelect",fetch);
+    $("#graph_start_date").datetimepicker("option","onSelect",fetch);
+    $("#table_end_date").datetimepicker("option","onSelect",fetch);
+    $("#table_start_date").datetimepicker("option","onSelect",fetch);
+}
+
 $(function () {
     var date = new Date();
 //            $( "#delete_endtime" ).timepicker();
@@ -524,14 +518,14 @@ $(function () {
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
-        altField: "#graph_start_time",
+        altField: "#graph_start_time"
     })
             .datepicker("setDate", date);
     $("#table_start_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
         timeFormat: 'hh:mm tt',
-        altField: "#table_start_time",
+        altField: "#table_start_time"
     })
             .datepicker("setDate", date);
     
@@ -544,8 +538,5 @@ $(function () {
         maxDate:bayesian_date
     })
             .datepicker("setDate",bayesian_date);
+    setOnSelect();
 });
-
-function fillBayesian(){
-    alert("Heres the bayesian");
-}
