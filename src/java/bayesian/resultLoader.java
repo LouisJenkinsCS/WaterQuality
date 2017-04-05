@@ -226,7 +226,7 @@ public class resultLoader {
             }
 
             List<Observable<String>> rawChains = Stream.of(bf_chains)
-                    .map(bf -> Observable.fromIterable(bf.lines().collect(Collectors.toList())).skipLast(1))
+                    .map(bf -> Observable.fromIterable(bf.lines().collect(Collectors.toList())))
                     .collect(Collectors.toList());
 
             // TODO: Test on Computation scheduler?
@@ -257,14 +257,14 @@ public class resultLoader {
                         if (group.getKey()) {
                             // Compute the DO model; we need to collect ALL DO Model data first to process however.
                             return group
-                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                     .buffer(Integer.MAX_VALUE)
                                     .flatMap(this::computeDOModel);
                         } else {
                             // Compute normal data set
                             return group
                                     .flatMap(triple -> Observable.just(triple)
-                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                             .flatMap(this::computeDataSets)
                                             .buffer(Integer.MAX_VALUE)
                                             .map(JSONUtils::toJSONArray)
@@ -350,14 +350,14 @@ public class resultLoader {
                         if (group.getKey()) {
                             // Compute the DO model; we need to collect ALL DO Model data first to process however.
                             return group
-                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                     .buffer(Integer.MAX_VALUE)
                                     .flatMap(this::computeDOModel);
                         } else {
                             // Compute normal data set
                             return group
                                     .flatMap(triple -> Observable.just(triple)
-                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                             .flatMap(this::computeDataSets)
                                             .buffer(Integer.MAX_VALUE)
                                             .map(JSONUtils::toJSONArray)

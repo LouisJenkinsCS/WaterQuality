@@ -94,8 +94,10 @@ public class ControlServlet extends HttpServlet {
             }
             return;
         } else if (action.trim().equalsIgnoreCase("getBayesian")) {
+            Long date = Long.parseLong(request.getParameter("data"));
             DatabaseManager.LogError("Inside of 'getBayesian'");
-            Instant day = Instant.ofEpochMilli(1488499200000L);
+            Instant day = Instant.ofEpochMilli(date).truncatedTo(ChronoUnit.DAYS);
+            System.out.println("Day Selected: " + day);
 //            try {
 //                day = RunBayesianModel.getFullDayOfData().minus(Period.ofDays(1));
 //            } catch (Exception ex) {

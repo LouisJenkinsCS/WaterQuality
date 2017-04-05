@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
@@ -184,7 +185,7 @@ public class RunBayesianModel {
 //    private static String output_dir = base_dir + "output\\";
 //    private static String jsroot_dir = base_dir + "JSchart\\";
     private static String file_name = "";
-    private static int interval = 600; // IMO, this variable is used to generate instant_rate table.
+    private static int interval = 900; // IMO, this variable is used to generate instant_rate table.
     public static final long PAR = 637957793;
     public static final long HDO = 1050296639;
     public static final long Temp = 639121399;
@@ -235,7 +236,7 @@ public class RunBayesianModel {
                     .count()
                     .blockingGet();
             
-            if (cnt == 92 * 4) {
+            if (cnt == 96 * 4) {
                 return day.minus(Period.ofDays(1));
             } else {
                 day = day.minus(Period.ofDays(1));
@@ -252,8 +253,11 @@ public class RunBayesianModel {
         // Already sorted by timestamp in ascending order.
         Instant time = values.get(0).getTimestamp().truncatedTo(ChronoUnit.DAYS);
         Instant endTime = values.get(0).getTimestamp().truncatedTo(ChronoUnit.DAYS).plus(Period.ofDays(1));
-        double lastValue = 0;
+        double lastValue = Double.NaN;
         List<Double> graphData = new ArrayList<>();
+        if (values.isEmpty()) {
+            return IntStream.range(0, 96).mapToDouble(n -> Double.NaN).mapToObj(Double::toString).collect(Collectors.joining(","));
+        }
         for (DataValue value : values) {
             while(value.getTimestamp().compareTo(time) != 0 && time.compareTo(endTime) <= 0) {
                 graphData.add(value.getValue());
@@ -327,6 +331,7 @@ public class RunBayesianModel {
                     return group.sorted()
                                 .map(dv -> dv.getId() == Pressure ? new DataValue(dv.getId(), dv.getTimestamp(), dv.getValue() * ATMOSPHERIC_CONVERSION_FACTOR) : dv)
                                 .buffer(Integer.MAX_VALUE)
+                                .defaultIfEmpty(new ArrayList<>())
                                 .map(RunBayesianModel::formatForDay)
                                 .map(header::concat);
                 })
@@ -335,7 +340,7 @@ public class RunBayesianModel {
                 .map(str -> str + "salinity <- c(" + IntStream.range(0, 96).map(x -> 0).mapToObj(Integer::toString).collect(Collectors.joining(",")) + ")")
                 .blockingGet();;
         
-        content.nRow = 92;
+        content.nRow = 96;
         // String cnt = content.read(input_dir + f.getName(), 3, 4);
         String datafile = "num.measurements <- c(" + content.nRow + ")\n"
                 + "interval <- c(" + interval + ")\n"
@@ -355,7 +360,7 @@ public class RunBayesianModel {
         // If you have path to jags in your PATH, you can use "jags" only without path to it.
         // ---- Windows JAGS ----
         // Local: C:/Users/lpj11535/AppData/Local/JAGS/JAGS-4.2.0/x64/bin/jags.bat
-         JJAGS jg = new JJAGS("/usr/bin/jags", temporary_directory.toString(), "BayesianModelData", temp_model.toString(), temp_data.toString(), output_directory.toString());
+         JJAGS jg = new JJAGS("\"C:/Users/lpj11535/AppData/Local/JAGS/JAGS-4.2.0/x64/bin/jags.bat\"", temporary_directory.toString(), "BayesianModelData", temp_model.toString(), temp_data.toString(), output_directory.toString());
         // ---- Linux JAGS ----
 //            JJAGS jg = new JJAGS("/usr/bin/jags", tmp_dir, base_dir + model_name);            
 

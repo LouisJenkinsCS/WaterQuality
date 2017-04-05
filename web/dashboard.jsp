@@ -148,11 +148,16 @@
                     
                 <form class="data_type_form" id="Bayesian_form">
                     
-                        <div id="dateselectordiv" onclick="bayesianDateLimits();">
+                        <div id="dateselectordiv">
                         <br>Bayesian Day:
                         <input class="dateselector" id="bayesian_date" type="text">
                         </div>
                         <br>
+                        <div style='text-align: center' >
+                        <select id="bayesian_options" style="display:none;">
+                            
+                        </select>
+                        </div>
                     <div class="data_type_submit" id="Bayesian_submit">
                         <input type="button" value="Bayesian" onclick="bayesianRequest()">
                     </div>
