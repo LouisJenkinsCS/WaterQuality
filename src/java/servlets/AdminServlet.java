@@ -638,6 +638,20 @@ static {
         {
             response.getWriter().append("Response");
         }
+        
+        //could also be done in LogoutServlet instead?
+        else if (action.trim().equalsIgnoreCase("logout"))
+        {
+            session.removeAttribute("user");//logout on server
+            session.invalidate();//clear session
+            //write the response as JSON. assume success.
+            JSONObject obj = new JSONObject();
+            JSONObject jObjStatus = new JSONObject();
+            jObjStatus.put("errorCode", "0");
+            jObjStatus.put("errorMsg", "Logout successful.");
+            obj.put("status",jObjStatus);
+            response.getWriter().append(obj.toJSONString());
+        }
 
     }
 
