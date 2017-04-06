@@ -44,8 +44,6 @@ function bayesianRequest() {
 
         var dataSets;
         for (i = 0; i < response.data.length; i++) {
-            var param = "<input type='radio' name='" + response.data[i].name + "' onclick='' class='bayesian_data' id='" + response.data[i].name + "' value='data'>" + response.data[i].name + "<br>\n";
-            document.getElementById("bayesian_parameters").innerHTML += param;
             if (response.data[i].name == "DO Model") {
                 dataSets = response.data[i].dataSets;
                 break;
