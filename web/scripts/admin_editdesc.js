@@ -2,6 +2,7 @@
 
 $.getScript("scripts/AJAX_magic.js", function () {});
 $.getScript("scripts/general.js", function () {});
+$.getScript("scripts/protocol.js", function () {});
 
 var edit_options = "";
 var cached_names = [];
@@ -13,7 +14,7 @@ var saved_index;
 function fillPageEditDesc()
 {
     var ALL_MASK = 3;
-    var parametersRequest = new ParametersRequest(ALL_MASK);
+    var parametersRequest = new ParameterRequest(ALL_MASK);
     parametersRequest.action = "getParameters";
     var sample_desc = "Retrieved description goes here.";
 
