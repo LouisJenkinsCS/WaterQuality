@@ -51,19 +51,17 @@ Current bugs:
         <img id="back_photo" src="images/Creek3.jpeg">
         <header class="banner"> 
             <div id="banner__text">Water Quality</div>
+            <a href="/WaterQuality/">
+                <button class="banner_buttons" id="button_logout" onclick="requestLogout">Logout</button>
+            </a>
+            <a href="/WaterQuality/">
+                <button class="banner_buttons" id="button_to_dashboard">Dashboard</button>
+            </a>
         </header>
         <section class = "content_box">
             <header class = "content_box__banner">
                     <span id="content_box__banner__text">
                         Administrative Functions
-                    </span>
-                    <span id="content_box__banner__buttons">
-                        <input type="button" id="button_to_dashboard"
-                               onclick="location.href='/WaterQuality/';" value="Dashboard" />
-                        <a href="javascript:void(0)">
-                            <img src="images/power-symbol-6-reduced.png"title="Logout"
-                                 id="button_logout" onclick="logout();"/>
-                        </a>
                     </span>
                 </div>
             </header>
@@ -182,9 +180,11 @@ Current bugs:
 
     </section> 
 
+    <script>
+        var ADMIN_SERVLET="AdminServlet";
+    </script>
 
     <script>
-        
         function handleClick(cb)
         {
             if (current == 'Graph') {
@@ -309,8 +309,28 @@ Current bugs:
                 document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
         }
 
-        function logout(){
-            
+        function requestLogout(){
+            var reqObj={"action" : "logout"};
+            post(ADMIN_SERVLET, reqObj, responseLogout);
+        }
+        
+        function responseLogout(response){
+            console.log(response.status);
+            if(response.status[0].errorCode==0)
+            {
+                alert("You have successfully been logged out.");
+                console.log("Logout successful.");
+                window.location.href="/WaterQuality/";
+            }
+            else{
+                var errorMsg="";       
+                for(var i=0; i<response.status.length; ++i){
+                    errorMsg+="Error Code: "+response.status[i].errorCode+" ";
+                    errorMsg+=response.status[i].errorMsg+"\n";
+                }
+                alert("Failed to logout\n"+errorMsg);
+                console.log("Logout failed.");
+            }
         }
     </script>
 </body>

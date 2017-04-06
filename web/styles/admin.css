@@ -1,7 +1,7 @@
 
 #banner__text
 {
-    display: inline;
+    position:absolute;
     font-family: "Arial", Helvetica, san-serif;
     font-weight: bold;    
     line-height: 50px;
@@ -59,15 +59,16 @@
 
 .banner{
     width: 100%;
-    min-width: 600px;
+    min-width: 1000px;
     text-align: center;
     height: 50px;
     background-color: #266B6B;
+    border-radius: 25px;
     margin-top: 0px;
     margin-right: 0px;
     margin-left: 0px;
     margin-bottom: 0px;
-    -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+     -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
 }
@@ -89,25 +90,6 @@
     color:white;
     font-family: "Arial", Helvetica, san-serif;
     font-weight: bold;
-}
-
-#button_to_dashboard{
-    border-radius: 5px;
-    border: 0;
-    width: 100px;
-    height:25px;
-    background: rgba(0, 0, 0, 0.3);
-}
-
-#button_to_dashboard:hover{
-    background: rgba(190, 190, 190, 0.3);
-}
-
-#button_logout{
-    opacity: 0.35;
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
 }
 
 .content_box{
@@ -311,4 +293,30 @@ button:hover,input[type = "submit"]:hover {
     resize: none;
     width: 100%;
     height: 30em;
+}
+
+.banner_buttons{
+    float:right;
+    margin-right: 25px;
+    position:relative;
+    border: 0;
+    width: 100px;
+    height:50px;
+    background-color: #266B6B;
+    margin-bottom:10px;
+    font-family: "Arial", Helvetica, san-serif;
+    font-size: 100%;
+    font-weight: bold;
+    color:white;
+}
+
+.banner_buttons:hover{
+    background-color:#5CB05C;
+}
+
+#button_to_dashboard{
+    margin-right:0px;
+}
+
+#button_logout{
 }

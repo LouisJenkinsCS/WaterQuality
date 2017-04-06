@@ -2,6 +2,8 @@
 package common;
 
 import java.io.Serializable;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import utilities.Debug;
 
 /**
@@ -19,31 +21,12 @@ public enum UserRole implements Serializable{
      */
     SystemAdmin("SystemAdmin"),
     
-  
-   /**
-     * A Faculty member can be an advisor or an instructor.  
-     * Faculty can check graduation 
-     * requirements and recommend courses to students. They can also 
-     * place students on wait lists. 
-     * 
-     */
-   Faculty("Faculty"),
-         
-    /**
-     * A user that works at the university. <code> Staff </code> can add 
-     * students to a wait list. 
-     */
-    Staff("Staff"),
+ 
     
     /**
      * A student at the university.
      */
-    Student("Student"),
-    
-    /**
-     * The default account, has very limited access.
-     */
-    Guest("Guest");
+    Student("Student");
     
     private final String roleName;
     
@@ -77,6 +60,19 @@ public enum UserRole implements Serializable{
             }
         }
         return (name);
+    }
+     
+    public static JSONObject getUserRoles () {
+        JSONObject roles = new JSONObject();
+        JSONArray rolesArr = new JSONArray();
+        JSONObject role;
+        for (UserRole e : UserRole.values ()) {
+            role = new JSONObject();
+            role.put("UserRole", e.getRoleName());
+            rolesArr.add(role);
+        }
+        roles.put("UserRoles", rolesArr);
+        return roles;
     }
 
      /**

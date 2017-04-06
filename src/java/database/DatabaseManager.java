@@ -777,7 +777,7 @@ public class DatabaseManager
         {
             //throws an error if a user without proper roles somehow invokes this function
             if(u.getUserRole() != common.UserRole.SystemAdmin)
-                throw new Exception("Attempted Data Deletion by Non-Admin");
+                throw new Exception("Attempted User Creation by Non-Admin");
             
             conn.setAutoCommit(false);
             String insertSQL = "INSERT INTO users (loginName,password,firstName,lastName,"

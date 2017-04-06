@@ -13,11 +13,11 @@ var saved_index;
 function fillPageEditDesc()
 {
     var ALL_MASK = 3;
-    var parameterRequest = new ParameterRequest(ALL_MASK);
-    parameterRequest.action = "getParameters";
+    var parametersRequest = new ParametersRequest(ALL_MASK);
+    parametersRequest.action = "getParameters";
     var sample_desc = "Retrieved description goes here.";
 
-    post("AdminServlet", parameterRequest, function (response)
+    post("AdminServlet", parametersRequest, function (response)
     {
         var resp = new ParameterResponse(response);
 
@@ -47,9 +47,8 @@ function fillPageEditDesc()
         $('#Edit_Description').append(
                 '<section class="section_edit_desc">' +
                 '<div class="large_text">Parameter to Edit:</div>' +
-                '<select id="edit_param">' + edit_options +
+                '<select id="edit_param" onchange="viewDescription()">' + edit_options +
                 '</select><br/><br/>' +
-                '<button type="button" onclick="viewDescription()">View Description</button><br/><br/>' +
                 '<button type="button" onclick="editDesc()">Submit Changes</button><br/><br/>' +
                 '</section>' +
                 '<section class="section_edit_desc">' +

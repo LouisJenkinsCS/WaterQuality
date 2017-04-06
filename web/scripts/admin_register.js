@@ -1,3 +1,6 @@
+$.getScript("scripts/AJAX_magic.js", function () {});
+$.getScript("scripts/general.js", function () {});
+
 var options_roles = "";
 
 function fillPageRegisterUser() {
@@ -19,31 +22,24 @@ function fillPageRegisterUser() {
 
     get("AdminServlet", rolesRequest, function (resp)
     {
-        console.log("resp: " + resp);
-        options_roles += '<option>';
-        options_roles += resp.toString();
-        options_roles += '</option>';
-        console.log("options_roles: " + options_roles);
-        buildForm(options_roles);
-    });
+        var roles = JSON.parse(resp)["UserRoles"];
+        for (var i = 0; i < roles.length; i++)
+        {
+            options_roles += '<option>';
+            options_roles += roles[i]["UserRole"];
+            options_roles += '</option>';
+        }
 
-    //options for role select should get a list of roles from the admin servlet
-    //instead.
-    //options_roles="<option value=\"administrator\">Administrator</option>";
-
-    //<form> tag might be removed when implementing AJAX (unsure).
-    function buildForm(options)
-    {
         $('#Register_User').append(
                 '<div class="large_text">Enter New User Information<br></div>'
                 + '<table id="table_register">'
                 + '  <tr>'
                 + '      <td>First Name: </td>'
-                + '      <td><input type="text" id="firstname"></td>'
+                + '      <td><input type="text" id="firstName"></td>'
                 + '  </tr>'
                 + '  <tr>'
                 + '      <td>Last Name: </td>'
-                + '      <td><input type="text" id="lastname"></td>'
+                + '      <td><input type="text" id="lastName"></td>'
                 + '  </tr>'
                 + '  <tr>'
                 + '      <td>Email: </td>'
@@ -63,13 +59,52 @@ function fillPageRegisterUser() {
                 + '  </tr>'
                 + '  <tr>'
                 + '      <td>Role: </td>'
-                + '      <td><select type="text" id="role">' + options + '</select></td>'
+                + '      <td><select id="userRole">' + options_roles + '</select></td>'
                 + '  </tr>'
                 + '  <tr>'
-                + '      <td><br><button type="button" onclick="registerUser()">Submit</td>'
+                + '      <td><button type="button" onclick="registerUser()">Submit</button></td>'
                 + '  </tr>'
                 + '</table>'
                 );
+    });
+
+    //options for role select should get a list of roles from the admin servlet
+    //instead.
+    //options_roles="<option value=\"administrator\">Administrator</option>";
+
+    //<form> tag might be removed when implementing AJAX (unsure).
+};
+
+function registerUser()
+{
+    if ($('#password').val() !== $('#confirmpassword').val())
+    {
+        window.alert("Your passwords do not match");
+        return;
     }
+
+    var registerUserRequest = {action: 'RegisterUser',
+        username: $('#username').val(),
+        password: $('#password').val(),
+        firstName: $('#firstName').val(),
+        lastName: $('#lastName').val(),
+        email: $('#email').val(),
+        userRole: $('#userRole').val()
+    };
+
+    post("AdminServlet", registerUserRequest, function (resp) {
+        var respData = JSON.parse(resp);
+        if (respData["status"] === "Success")
+        {
+            window.alert("User Register Successful");
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+            document.getElementById("confirmpassword").value = "";
+            document.getElementById("firstName").value = "";
+            document.getElementById("lastName").value = "";
+            document.getElementById("email").value = "";
+        }
+        else
+            window.alert("User Register Failed");
+    });
 }
-;
