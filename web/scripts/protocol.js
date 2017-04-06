@@ -34,10 +34,7 @@
  * This file contains types for the protocol used to communicate between JSP and Servlet.
  */
 
-function post(destination, data, callback) {
-    console.log("Sent to " + destination + ": " + JSON.stringify(data));
-    callback("");
-}
+
 
 function Request() {}
 

@@ -11,6 +11,7 @@ package bayesian;
 import io.reactivex.Observable;
 import io.reactivex.internal.functions.Functions;
 import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,82 +34,81 @@ import utilities.JSONUtils;
  */
 public class resultLoader {
 
-    protected String path;
     protected int nIndexRow = 0;
-
-    public resultLoader(String foldername) {
-        this.path = foldername;
+    protected Path path;
+    public resultLoader(Path path) {
+        this.path = path;
     }
 
-    public void JSONconvertIndex() {
-        /* Read the given List of String[]
-         * The first string of each entry is the name, then values
-         * Write the content to the specified file in JSON format
-         * This method will convert the outputs to JSON DIRECTLY.
-         */
-
-        try {
-            FileWriter writer = new FileWriter(this.path + "/" + "CODAIndex.json");
-            FileReader f = new FileReader(this.path + "/" + "CODAindex.txt");
-            BufferedReader bf = new BufferedReader(f);
-            writer.write("{\n");
-
-            // Read the content row by row
-            while (bf.ready()) {
-                this.nIndexRow += 1;
-                String[] row = bf.readLine().split(" ");
-                writer.write(row[0] + ":[");
-
-                for (int i = 1; i < row.length - 1; i++) {
-                    writer.write(row[i] + ", ");
-                }
-                writer.write(row[row.length - 1] + "]\n");
-            }
-
-            writer.write("}");
-
-            // Close the file
-            f.close();
-            writer.close();
-            //System.out.println(indexJSON);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void JSONconvertChain(int chainNum) {
-        /* 
-         * This method is similar to previous. But, due to
-         * the difference between Chain and Index, it will
-         * read different fields from the TXT output.
-         * This method will convert the outputs to JSON DIRECTLY.
-         */
-        try {
-            FileWriter writer = new FileWriter(this.path + "/" + "CODAchain" + chainNum + ".json");
-            FileReader f = new FileReader(this.path + "/" + "CODAchain" + chainNum + ".txt");
-            BufferedReader bf = new BufferedReader(f);
-            String[] row = bf.readLine().split("  ");
-            writer.write("{\n Values:[" + row[row.length - 1]);
-
-            // Read the content row by row
-            while (bf.ready()) {
-                row = bf.readLine().split("  ");
-                writer.write(", " + row[row.length - 1]);
-            }
-
-            writer.write("]\n}");
-
-            // Close the file
-            f.close();
-            writer.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
+//    public void JSONconvertIndex() {
+//        /* Read the given List of String[]
+//         * The first string of each entry is the name, then values
+//         * Write the content to the specified file in JSON format
+//         * This method will convert the outputs to JSON DIRECTLY.
+//         */
+//
+//        try {
+//            FileWriter writer = new FileWriter(this.path + "/" + "CODAIndex.json");
+//            FileReader f = new FileReader(this.path + "/" + "CODAindex.txt");
+//            BufferedReader bf = new BufferedReader(f);
+//            writer.write("{\n");
+//
+//            // Read the content row by row
+//            while (bf.ready()) {
+//                this.nIndexRow += 1;
+//                String[] row = bf.readLine().split(" ");
+//                writer.write(row[0] + ":[");
+//
+//                for (int i = 1; i < row.length - 1; i++) {
+//                    writer.write(row[i] + ", ");
+//                }
+//                writer.write(row[row.length - 1] + "]\n");
+//            }
+//
+//            writer.write("}");
+//
+//            // Close the file
+//            f.close();
+//            writer.close();
+//            //System.out.println(indexJSON);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+//
+//    public void JSONconvertChain(int chainNum) {
+//        /* 
+//         * This method is similar to previous. But, due to
+//         * the difference between Chain and Index, it will
+//         * read different fields from the TXT output.
+//         * This method will convert the outputs to JSON DIRECTLY.
+//         */
+//        try {
+//            FileWriter writer = new FileWriter(this.path + "/" + "CODAchain" + chainNum + ".json");
+//            FileReader f = new FileReader(this.path + "/" + "CODAchain" + chainNum + ".txt");
+//            BufferedReader bf = new BufferedReader(f);
+//            String[] row = bf.readLine().split("  ");
+//            writer.write("{\n Values:[" + row[row.length - 1]);
+//
+//            // Read the content row by row
+//            while (bf.ready()) {
+//                row = bf.readLine().split("  ");
+//                writer.write(", " + row[row.length - 1]);
+//            }
+//
+//            writer.write("]\n}");
+//
+//            // Close the file
+//            f.close();
+//            writer.close();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     public Observable<JSONObject> computeDataSets(List<Triplet<Double, Double, Double>> chains) {
         AtomicInteger currChain = new AtomicInteger(0);
@@ -202,7 +202,7 @@ public class resultLoader {
 
     public Observable<JSONObject> parseJAGSOutput(int Nmeasurements, int nchains, int niter, int nthin) {
         try {
-            System.out.println(this.path);
+//            System.out.println(this.path);
             FileReader f_index = new FileReader(this.path + "/" + "CODAindex.txt");
             BufferedReader bf_index = new BufferedReader(f_index);
 
@@ -226,7 +226,7 @@ public class resultLoader {
             }
 
             List<Observable<String>> rawChains = Stream.of(bf_chains)
-                    .map(bf -> Observable.fromIterable(bf.lines().collect(Collectors.toList())).skipLast(1))
+                    .map(bf -> Observable.fromIterable(bf.lines().collect(Collectors.toList())))
                     .collect(Collectors.toList());
 
             // TODO: Test on Computation scheduler?
@@ -257,14 +257,14 @@ public class resultLoader {
                         if (group.getKey()) {
                             // Compute the DO model; we need to collect ALL DO Model data first to process however.
                             return group
-                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                     .buffer(Integer.MAX_VALUE)
                                     .flatMap(this::computeDOModel);
                         } else {
                             // Compute normal data set
                             return group
                                     .flatMap(triple -> Observable.just(triple)
-                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                             .flatMap(this::computeDataSets)
                                             .buffer(Integer.MAX_VALUE)
                                             .map(JSONUtils::toJSONArray)
@@ -285,6 +285,7 @@ public class resultLoader {
                         return obj;
                     });
         } catch (IOException e) {
+            RunBayesianModel.LogException(e);
             throw new RuntimeException(e);
         }
     }
@@ -349,14 +350,14 @@ public class resultLoader {
                         if (group.getKey()) {
                             // Compute the DO model; we need to collect ALL DO Model data first to process however.
                             return group
-                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                    .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                     .buffer(Integer.MAX_VALUE)
                                     .flatMap(this::computeDOModel);
                         } else {
                             // Compute normal data set
                             return group
                                     .flatMap(triple -> Observable.just(triple)
-                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2() - 1))
+                                            .map(triplet -> chains.subList(triplet.getValue1() - 1, triplet.getValue2()))
                                             .flatMap(this::computeDataSets)
                                             .buffer(Integer.MAX_VALUE)
                                             .map(JSONUtils::toJSONArray)

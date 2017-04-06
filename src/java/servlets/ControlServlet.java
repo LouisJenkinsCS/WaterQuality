@@ -4,9 +4,13 @@ import async.Data;
 import async.DataParameter;
 import async.DataReceiver;
 import async.DataValue;
+import bayesian.RunBayesianModel;
+import database.DatabaseManager;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.time.Instant;
 import org.javatuples.Pair;
@@ -67,14 +71,16 @@ public class ControlServlet extends HttpServlet {
         database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
         common.User user = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
-
+        
+        DatabaseManager.LogError("Action is: " + action);
+        
         // Nothing was selected, go back to dashboard.
         if (action == null) {
             defaultHandler(request, response);
             return;
         }
 
-        log("Action is: " + action);
+        
         
         if (action.trim().equalsIgnoreCase("fetchQuery")) {
             String data = request.getParameter("query");
@@ -87,6 +93,36 @@ public class ControlServlet extends HttpServlet {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
             return;
+        } else if (action.trim().equalsIgnoreCase("getBayesian")) {
+            Long date = Long.parseLong(request.getParameter("data"));
+            DatabaseManager.LogError("Inside of 'getBayesian'");
+            Instant day = Instant.ofEpochMilli(date).truncatedTo(ChronoUnit.DAYS);
+            System.out.println("Day Selected: " + day);
+//            try {
+//                day = RunBayesianModel.getFullDayOfData().minus(Period.ofDays(1));
+//            } catch (Exception ex) {
+//                StringWriter errors = new StringWriter();
+//                ex.printStackTrace(new PrintWriter(errors));
+//                DatabaseManager.LogError("Exception: " + ex.getClass().getName() + "\nMessage: " + ex.getMessage() + "\nStack Trace: " + errors.toString());
+//                return;
+//            }
+            DatabaseManager.LogError("Day Selected: " + day);
+            try {
+            RunBayesianModel.trialJAGS(day)
+                    .map(obj -> {
+                        obj.put("date", day.getEpochSecond() * 1000);
+                        return obj;
+                    })
+                    .blockingSubscribe((JSONObject resp) -> { 
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+            } catch (Throwable t) {
+                StringWriter errors = new StringWriter();
+                t.printStackTrace(new PrintWriter(errors));
+                DatabaseManager.LogError("Exception: " + t.getClass().getName() + "\nMessage: " + t.getMessage() + "\nStack Trace: " + errors.toString());
+                throw t;
+            }
         }
     }
 

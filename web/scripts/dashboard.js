@@ -33,52 +33,99 @@ function fullCheck(id) {
     }
 }
 
+var bayesianMapping = [];
+
+function bayesianSetData() {
+             var selectBox = document.getElementById("bayesian_options");
+            var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+            var arr = bayesianMapping[selectedValue].data;
+            var datasets = bayesianMapping[selectedValue].datasets;
+            while (bayesianChart.series.length > 0) {
+                bayesianChart.series[0].remove(true);
+            }
+            for (var i = 0; i < arr.length; i++) {
+                bayesianChart.addSeries({
+    //                yAxis: i,
+                    name: datasets[i].name,
+                    data: arr[i]
+                }, false);
+    //            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
+            }
+            bayesianChart.redraw();
+         }
+
 function bayesianRequest() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     // Proof of Concept: Only obtains for a valid day
-    post("AdminServlet", {action: "getBayesian" }, function(resp) {
+    var date = $('#bayesian_date').datepicker("getDate");
+    post("ControlServlet", {action: "getBayesian", data: date.getTime() }, function(resp) {
+        while (bayesianChart.series.length > 0)
+            bayesianChart.series[0].remove(true);
+        
         document.getElementById("loader").style.cursor = "default";
         var response = JSON.parse(resp);
-        $('#bayesian_day').datepicker("setDate", new Date(resp.date));
-
+        
         var dataSets;
         for (i = 0; i < response.data.length; i++) {
-            if (response.data[i].name == "DO Model") {
-                dataSets = response.data[i].dataSets;
-                break;
+            document.getElementById("bayesian_options").innerHTML += "<option value='" + response.data[i].name + "'>" + response.data[i].name + "</option>";
+            dataSets = response.data[i].dataSets;
+            
+            var timestamp = response.date;
+            var arr = [];
+            var idx = 0;
+            console.log(timestamp);
+            for (j = 0; j < dataSets.length; j++) {
+                 var subArr = [];
+
+                for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
+                    subArr.push([timestamp, dataSets[j].dataValues[idx]]);
+
+                    idx++;
+    //                console.log(subArr);
+                }
+                arr.push(subArr);
+                idx = 0;
             }
+            
+            bayesianMapping[response.data[i].name] = { data: arr, datasets: dataSets };
         }
         
-        var timestamp = response.date;
-        var arr = [];
-        var idx = 0;
-        console.log(timestamp);
-        for (i = 0; i < dataSets.length; i++) {
-             var subArr = [];
-             
-            for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
-                subArr.push([timestamp, dataSets[i].dataValues[idx]]);
-                
-                idx++;
-//                console.log(subArr);
-            }
-            arr.push(subArr);
-            idx = 0;
-        }
+         document.getElementById("bayesian_options").onchange = bayesianSetData;
         
+        document.getElementById("bayesian_options").style.display = "inline-block";
+        $('#bayesian_options').val("DO Model");
         
-        console.log(arr);
-        for (var i = 0; i < arr.length; i++) {
-            bayesianChart.addSeries({
-//                yAxis: i,
-                name: dataSets[i].name,
-                data: arr[i]
-            }, false);
-//            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
-        }
-        
-        bayesianChart.redraw();
+        bayesianSetData();
+//        var timestamp = response.date;
+//        var arr = [];
+//        var idx = 0;
+//        console.log(timestamp);
+//        for (i = 0; i < dataSets.length; i++) {
+//             var subArr = [];
+//             
+//            for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
+//                subArr.push([timestamp, dataSets[i].dataValues[idx]]);
+//                
+//                idx++;
+////                console.log(subArr);
+//            }
+//            arr.push(subArr);
+//            idx = 0;
+//        }
+//        
+//        
+//        console.log(arr);
+//        for (var i = 0; i < arr.length; i++) {
+//            bayesianChart.addSeries({
+////                yAxis: i,
+//                name: dataSets[i].name,
+//                data: arr[i]
+//            }, false);
+////            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
+//        }
+//        
+//        bayesianChart.redraw();
     })
 }
 

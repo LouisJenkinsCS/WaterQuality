@@ -15,6 +15,9 @@
 <h2>Details</h2>
 <p>Type: ${pageContext.exception["class"]}</p>
 <p>Message: ${pageContext.exception.message}</p>
+Stack Trace:
+    <%((Exception) request.getAttribute("javax.servlet.error.exception")).printStackTrace(new java.io.PrintWriter(out)); %>
+
 
 </body>
 </html>

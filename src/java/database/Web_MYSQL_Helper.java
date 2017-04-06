@@ -36,24 +36,26 @@ public class Web_MYSQL_Helper {
     
     public static void initialize(){
       initialized = true;
-      String dir = null;
-        try {
-            dir = Web_MYSQL_Helper.class.getResource("../../config/General.properties").toURI().toString();
-            dir = dir.substring(6);
-            System.out.println("dir: " + dir);
-            } catch (URISyntaxException ex1) {
-                Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-      
-      
-      PropertyManager.configure(dir);
-      PropertyManager.setProperty("UseDBPooling", "no");
-      USE_DB_POOLING = PropertyManager.getProperty("UseDBPooling").equalsIgnoreCase("yes");
-      hostname = PropertyManager.getProperty("MySQLHostName").trim();
-      databaseName = PropertyManager.getProperty("DatabaseName").trim();
+//      String dir = null;
+//        try {
+//            dir = Web_MYSQL_Helper.class.getResource("../../config/General.properties").toURI().toString();
+//            dir = dir.substring(6);
+//            System.out.println("dir: " + dir);
+//            } catch (URISyntaxException ex1) {
+//                Logger.getLogger(Web_MYSQL_Helper.class.getName()).log(Level.SEVERE, null, ex1);
+//            }
+//      
+//      
+//      PropertyManager.configure(dir);
+//      PropertyManager.setProperty("UseDBPooling", "no");
+//      USE_DB_POOLING = PropertyManager.getProperty("UseDBPooling").equalsIgnoreCase("yes");
+//      hostname = PropertyManager.getProperty("MySQLHostName").trim();
+      hostname = "cs3db.bloomu.edu";
+      databaseName = "WaterQuality";
       databaseURL = mysqlPrefix + hostname + "/" + databaseName;
-      userName = PropertyManager.getProperty("MySQLUserName").trim();
-      password = PropertyManager.getProperty("MySQLPassword").trim();
+//      userName = PropertyManager.getProperty("MySQLUserName").trim();
+      userName = "waterquality";
+      password = "SoftwareEngineering2017";
     }
 
     /**
