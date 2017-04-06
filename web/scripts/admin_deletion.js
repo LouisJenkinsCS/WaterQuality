@@ -142,7 +142,8 @@ function loadDelete()
                 {title: "Date-Time"},
                 {title: "Name"},
                 {title: "Value"}
-            ]
+            ],
+            "order":[[0,"desc"]]
         });
 
 

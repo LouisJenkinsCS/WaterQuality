@@ -25,7 +25,8 @@ function fillPageErrors()
         columns: [
             {title: "Date-Time"},
             {title: "Error Message"}
-        ]
+        ],
+        "order":[[0,"desc"]]
     });
     
     $(function () 
