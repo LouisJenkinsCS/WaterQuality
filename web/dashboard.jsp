@@ -84,6 +84,8 @@
                     </table>
                 </div>
                 <div id="Bayesian" class="tabcontent">
+                    <div id="Bayesian_graph" class="tabcontent" style="display:none;"></div>
+                    <div id="bayesian_loader_div"><div id="bayesian_loader"></div><br>Loading...</div>
                 </div>
             </section>
 
@@ -148,16 +150,17 @@
                     
                 <form class="data_type_form" id="Bayesian_form">
                     
-                        <div id="dateselectordiv">
+                    <div id="dateselectordiv">
                         <br>Bayesian Day:
                         <input class="dateselector" id="bayesian_date" type="text">
-                        </div>
-                        <br>
-                        <div style='text-align: center' >
+                    </div>
+                    <br>
+                    <div style='text-align: center' >
                         <select id="bayesian_options" style="display:none;">
                             
                         </select>
-                        </div>
+                    </div>
+                    <br>
                     <div class="data_type_submit" id="Bayesian_submit">
                         <input type="button" value="Bayesian" onclick="bayesianRequest()">
                     </div>
@@ -336,7 +339,7 @@
             });
  
             // Setup chart, the data will be fed from the servlet through JSP (temporary)
-            var bayesianChart = Highcharts.chart('Bayesian', {
+            var bayesianChart = Highcharts.chart('Bayesian_graph', {
                 exporting: {
                     enabled:true,
                     buttons:{contextButton:{align:"left"}},

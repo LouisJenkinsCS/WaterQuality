@@ -57,6 +57,8 @@ function bayesianSetData() {
 function bayesianRequest() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
+    //Displays the bayesian loader which is a spinnning div
+    document.getElementById("bayesian_loader_div").style.display="inline-block";
     // Proof of Concept: Only obtains for a valid day
     var date = $('#bayesian_date').datepicker("getDate");
     post("ControlServlet", {action: "getBayesian", data: date.getTime() }, function(resp) {
@@ -64,6 +66,9 @@ function bayesianRequest() {
             bayesianChart.series[0].remove(true);
         
         document.getElementById("loader").style.cursor = "default";
+        //hides the loader and displays the graph
+        document.getElementById("bayesian_loader_div").style.display="none";
+        document.getElementById("Bayesian_graph").style.display="inline-block";
         var response = JSON.parse(resp);
         
         var dataSets;
