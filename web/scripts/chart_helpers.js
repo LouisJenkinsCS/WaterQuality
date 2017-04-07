@@ -34,11 +34,12 @@ function getTimeStamps(resp) {
     
     // We need to generate timestamps for all values, so we need to ensure we make
     // enough for the maximum.
-    var len = 0;
+    var len = -1;
     var data;
     for (i = 0; i < resp.data.length; i++) {
-        if (resp.data[i]["data"].length > len) {
-            data = resp.data[i]["data"];
+        if (resp.data[i]["dataValues"].length > len) {
+            len = resp.data[i]["dataValues"].length;
+            data = resp.data[i]["dataValues"];
         }
     }
     
@@ -55,7 +56,7 @@ function getDataValues(resp) {
     
     for (i = 0; i < resp.data.length; i++) {
         var paramData = [];
-        var param = resp.data[i]["data"];
+        var param = resp.data[i]["dataValues"];
         
         for (j = 0; j < param.length; j++) {
             paramData.push(param[j]["value"]);

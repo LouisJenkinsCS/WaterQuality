@@ -97,9 +97,8 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                                         .map(name -> {
                                             JSONObject obj = new JSONObject();
                                             // The key is the actual 'id' for the parameter.
-                                            obj.put("param", group.getKey());
-                                            obj.put("name", name);
-                                            obj.put("data", arr);
+                                            obj.put("id", group.getKey());
+                                            obj.put("dataValues", arr);
                                             return obj;
                                         })
                             )
@@ -117,7 +116,7 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                 .map((JSONArray arr) -> {
                     JSONObject response = new JSONObject();
                     
-                    response.put("resp", arr);
+                    response.put("data", arr);
                     return response;
                 });
     }
