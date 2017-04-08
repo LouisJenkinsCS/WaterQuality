@@ -291,13 +291,11 @@ input[type="checkbox"]:hover, input[type="datetime-local"]:hover{
     text-align:center;
 }
 
-#graph_sensor_parameters, #table_sensor_parameters{
+#graph_parameters, #table_parameters{
+    display:inline-block;
     float:left;
-}
-
-#graph_manual_parameters, #table_manual_parameters{
-    float:right;
-    margin-right:5px;
+    margin-left:2.5%;
+    margin-bottom: 2.5%
 }
 
 #bayesian_loader_div{
