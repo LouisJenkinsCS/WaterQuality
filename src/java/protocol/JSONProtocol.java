@@ -78,7 +78,7 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                             // DataValue -> JSONObject
                             .map((DataValue dv) -> {
                                 JSONObject dataField = new JSONObject();
-                                dataField.put("timestamp", dv.getTimestamp().getEpochSecond() * 1000);
+                                dataField.put("timestamp", dv.getTimestamp().getEpochSecond() * 1000 - (1000 * 60 * 60 * 4));
                                 dataField.put("value", dv.getValue());
                                 return dataField;
                             })

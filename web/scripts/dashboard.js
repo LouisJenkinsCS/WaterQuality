@@ -57,6 +57,8 @@ function bayesianSetData() {
 function bayesianRequest() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
+    //Hides the bayesian graph while waiting for the new one
+    document.getElementById("Bayesian_graph").style.display="none";
     //Displays the bayesian loader which is a spinnning div
     document.getElementById("bayesian_loader_div").style.display="inline-block";
     // Proof of Concept: Only obtains for a valid day
@@ -134,22 +136,16 @@ function bayesianRequest() {
     })
 }
 
-//<code>doCheck</code> tells the checkboxes if they need to check or uncheck
-//The default value is set to true so that first time it is clicked it resets
-var doCheck = true;
 /**
  * The <code>toggle</code> function checks or unchecks
- * all of the checkboxes in the table tab depending on the state of <code>doCheck</code>
+ * all of the checkboxes in the table tab depending on the state of <code>source</code>
+ * checkbox
  */
-function toggle() {
-    var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
+function toggle(id,source) {
+    var checkboxes = document.getElementById(id).querySelectorAll('input[type="checkbox"]');
     for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].checked = doCheck;
+        checkboxes[i].checked = source.checked;
     }
-    //Sets to the opposite of itself so that the next click will be the revers
-    doCheck = !doCheck;
-    //makes sure the <code>select_all_box</code>
-    //document.getElementById("select_all_box").checked=false;
 }
 
 /**Sets a cookie so that the current tab name can remembered for reloading the page
@@ -308,6 +304,8 @@ function handleClick(cb)
 }
 
 function fetch() {
+    var minutes = 1000 * 60;
+    var hours = minutes * 60;
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     if (current == "Graph") {
@@ -322,7 +320,7 @@ function fetch() {
     if (current == "Graph")
         var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
     if (current == "Table")
-        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([id="select_all_box"])');
+        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([class="select_all_box"])');
     //console.log("Start: " + startTime + " end: " + endTime);
     var numChecked = 0;
     for (var i = 0; i < checkboxes.length; i++) {
@@ -341,7 +339,8 @@ function fetch() {
         document.getElementById("loader").style.cursor = "default";
         return;
     }
-
+    startTime+=(hours*15.5);
+    endTime+=(hours*17.5);
     var request = new DataRequest(startTime, endTime, selected);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
@@ -427,15 +426,11 @@ function fillTable(dataResp) {
     }
     //since the dates are stored as epoch miliseconds this make sure the dates
     //are in the correct order
-    dates.sort(function (a, b) {
-        return a - b
-    });
+    dates.sort(function (a, b) {return a-b;});
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
-        var rowData = [];
         html.push("<td>" + formatDate(new Date(dates[i])) + "</td>");
-        rowData.push(formatDate(new Date(dates[i])));
         for (var j = 0; j < dataResp.data.length; j++) {
             var d = dataResp.data[j]["data"];
             if (i >= d.length) {
@@ -464,6 +459,7 @@ function fillTable(dataResp) {
     table.innerHTML = finalHtml;
     $("#data_table").DataTable({
         dom: 'l<"#table_exports"B>frtip',
+        aaSorting:[],
         buttons: [
             'excel',
             'csv',
@@ -524,7 +520,7 @@ function startingData() {
         graphcheckboxes[3].click();
 
         var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
-        tablecheckboxes[4].checked = true;
+        tablecheckboxes[5].checked = true;
         current = getCookie("id");
         if (getCookie("id") == "Table")
             document.getElementById("TableTab").click();
@@ -590,3 +586,7 @@ $(function () {
             .datepicker("setDate",bayesian_date);
     setOnSelect();
 });
+
+function showRecentData(){
+    
+}

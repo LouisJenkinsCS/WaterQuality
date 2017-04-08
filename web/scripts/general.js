@@ -60,7 +60,7 @@ function formatDate(date) {
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
-  var hour = pad((date.getHours() + 1) % 24, 2);
+  var hour = pad((date.getHours()) % 24, 2);
   var minute = pad((date.getMinutes())%60, 2);
   var am_pm = hour < 12 ? "AM" : "PM";
   if (hour > 12) {
