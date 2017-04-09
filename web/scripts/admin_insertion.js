@@ -241,7 +241,7 @@ function sendCSV()
             }
 
             //On every 10th iteration, a post is sent
-            if (((i - 1) % 10) === 0)
+            if (i % 10 === 0)
             {
                 post("AdminServlet", idr, function (resp) {
                     console.log("idr chunk " + i + ": " + JSON.stringify(idr));

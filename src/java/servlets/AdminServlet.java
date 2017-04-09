@@ -502,6 +502,7 @@ static {
         }
         else if (action.trim().equalsIgnoreCase("insertData")) {
             System.out.println("Test insertion got here");
+            System.out.println("Post data: " + request.getParameter("data"));
 //            Observable.just(request.getParameter("data"))
 //                    .map(req -> (JSONObject) new JSONParser().parse(req))
 //                    .map(obj -> (JSONArray) obj.get("data"))
