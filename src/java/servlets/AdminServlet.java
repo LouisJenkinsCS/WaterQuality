@@ -501,21 +501,21 @@ static {
                     
         }
         else if (action.trim().equalsIgnoreCase("insertData")) {
-            
-            Observable.just(request.getParameter("data"))
-                    .map(req -> (JSONObject) new JSONParser().parse(req))
-                    .map(obj -> (JSONArray) obj.get("data"))
-                    .flatMap(JSONUtils::flattenJSONArray)
-                    .flatMap(obj -> Observable.just(obj)
-                            .map(o -> (JSONArray) o.get("values"))
-                            .flatMap(JSONUtils::flattenJSONArray)
-                            .flatMap(o -> DatabaseManager
-                                    .parameterNameToId((String) o.get("name"))
-                                    .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), (double) o.get("value")))
-                            )
-                    )
-                    .subscribe(dv -> System.out.println("Insert for: " + dv));
-                    
+            System.out.println("Test insertion got here");
+//            Observable.just(request.getParameter("data"))
+//                    .map(req -> (JSONObject) new JSONParser().parse(req))
+//                    .map(obj -> (JSONArray) obj.get("data"))
+//                    .flatMap(JSONUtils::flattenJSONArray)
+//                    .flatMap(obj -> Observable.just(obj)
+//                            .map(o -> (JSONArray) o.get("values"))
+//                            .flatMap(JSONUtils::flattenJSONArray)
+//                            .flatMap(o -> DatabaseManager
+//                                    .parameterNameToId((String) o.get("name"))
+//                                    .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), (double) o.get("value")))
+//                            )
+//                    )
+//                    .subscribe(dv -> System.out.println("Insert for: " + dv));
+//                    
         }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 
         {
@@ -618,7 +618,8 @@ static {
         
         else if (action.trim().equalsIgnoreCase("insertCSV"))
         {
-            
+            int count = 0;
+            System.out.println("Received - c: " + count++);
         }
         
         else if (action.trim().equalsIgnoreCase("getRoles"))

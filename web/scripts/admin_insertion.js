@@ -38,16 +38,16 @@ function loadInsert()
 
     get("AdminServlet", parameterRequest, function (response)
     {
-        console.log("Response from admin_insertion: " + response);
+        //console.log("Response from admin_insertion: " + response);
         var resp = new ParameterResponse(response);
         //console.log("resp.data: " + JSON.stringify(resp.data));
         for (var k = 0; k < resp.data.length; k++)
         {
-            if(resp.data[k]["mask"] === 1)
+            if (resp.data[k]["mask"] === 1)
                 options_params += '<option disabled=true>-----Sensor Parameters-----</option>';
             else
                 options_params += '<option disabled=true>-----Manual Parameters-----</option>';
-            
+
             resp.descriptors = resp.data[k]["descriptors"];
             //console.log("resp.descriptors length: " + resp.descriptors.length);
             resp.names = [];
@@ -85,7 +85,8 @@ function loadInsert()
             + '<button type="button" onclick="removeLastInput()">x</button>'
             + '<button type="button" onclick="submitInput()">Submit</button>\n');
 
-};
+}
+;
 
 /**
  * Creates a row of input fields for the user to enter data into,
@@ -193,6 +194,7 @@ function submitInput()
 
 function sendCSV()
 {
+    console.log("Attempted to send");
     var lines;
     var file = $('#csv')[0].files[0];
     var fr = new FileReader();
@@ -212,12 +214,56 @@ function sendCSV()
         while (allTextLines.length) {
             lines.push(allTextLines.shift().split(','));
         }
-        console.log(lines);
+        console.log("Lines:" + lines);
+        useThese();
+    }
+    function useThese()
+    {
+        var headerArray = lines[0];
+        var NUM_OF_FIELDS = headerArray.length;
+        var paramList = [];
+        var timestamp;
+        var idr = new InsertDataRequest();
+
+        for (var i = 2; i < NUM_OF_FIELDS; i++)
+        {
+            paramList.push(headerArray[i]);
+        }
+
+        for (var i = 1; i < lines.length; i++)
+        {
+            timestamp = convertToEpochMs(lines[i][0], lines[i][1]);
+
+            for (var j = 2; j < paramList.length; j++)
+            {
+                var idv = new InsertDataValue(timestamp, lines[i][j]);
+                idr.queueInsertion(paramList[j], idv);
+            }
+
+            //On every 10th iteration, a post is sent
+            if (((i - 1) % 10) === 0)
+            {
+                post("AdminServlet", idr, function (resp) {
+                    console.log("idr chunk " + i + ": " + JSON.stringify(idr));
+                });
+                idr = new InsertDataRequest();
+            }
+        }
+
+        //If there was any leftover piece after a 10th iteration, it is sent here
+        if (idr.data.size !== 0)
+            post("AdminServlet", idr, function (resp) {
+                console.log("idr leftover " + i + ": " + JSON.stringify(idr));
+            });
+
+    }
+    function convertToEpochMs(date, time)
+    {
+        var epochMs;
+
+        epochMs = 120;
+
+        return epochMs;
     }
 
-    var sendRequest = {action: 'insertCSV', csvfile: lines};
-
-    post("AdminServlet", sendRequest, function (resp) {
-        alert("Posted successfully");
-    });
 }

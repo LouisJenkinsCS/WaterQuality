@@ -123,6 +123,68 @@ DeleteDataRequest.prototype.queueDeletion = function (name, range) {
 }
 
 
+class InsertDataValue{
+    constructor(timestamp, value) {
+        this.timestamp = timestamp;
+        this.value = value;
+    }
+}
+
+//function InsertDataValue(timestamp, value) {
+//    this.timestamp = timestamp;
+//    this.value = value;
+//}
+//
+//InsertDataValue.prototype = {}
+
+
+class InsertDataRequest {
+    constructor() {
+        this.action = "insertData";
+        this.data = [];
+    }
+
+    queueInsertion(name, valueObject)
+    {
+        // Append if already present
+        for (var i = 0; i < this.data.length; i++) {
+            if (this.data[i].name === name) {
+                this.data[i].values.push(valueObject);
+                return;
+            }
+        }
+        // Create a new object
+        this.data.push({name: name, values: [valueObject]});
+    }
+}
+
+//function InsertDataRequest(){
+//    this.action = "insertData";
+//    this.data = [];
+//}
+//
+//
+//InsertDataRequest.prototype.constructor()
+//{
+//    action = "insertData",
+//            data = []
+//}
+//
+//InsertDataRequest.prototype = {}
+//
+//InsertDataRequest.prototype.queueInsertion = function (name, valueObject) {
+//    // Append if already present
+//    for (var i = 0; i < this.data.length; i++) {
+//        if (data[i].name === name) {
+//            data[i].values.push(valueObject);
+//            return;
+//        }
+//    }
+//    // Create a new object
+//    this.data.push({name: name, values: [valueObject]});
+//}
+
+
 
 function DataResponse(json) {
     if (typeof json != "object") {
