@@ -1577,7 +1577,6 @@ public class DatabaseManager
     {
         PreparedStatement getUserByLogin = null;
         ResultSet selectedUser = null;
-        String salt = null;
         Connection conn = null;
         try
         {
@@ -1610,6 +1609,45 @@ public class DatabaseManager
             }
         }
         return false;
+    }
+    public static String getDataParameter(long id) 
+    {
+        PreparedStatement getDataParameter = null;
+        ResultSet selectedParameter = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String getSQL = "SELECT * FROM data_parameters WHERE id = ?;";
+            getDataParameter = conn.prepareStatement(getSQL);
+            getDataParameter.setString(1, id + "");
+            selectedParameter = getDataParameter.executeQuery();
+            if(selectedParameter.next())
+            {
+                return selectedParameter.getString("unit");
+            }
+        }
+        catch(SQLException e)
+        {
+            LogError("Error retrieving parameter with id " + id + ": " + e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(getDataParameter != null)
+                    getDataParameter.close();
+                if(selectedParameter != null)
+                    selectedParameter.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return null;
     }
     
 

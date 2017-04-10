@@ -4,6 +4,7 @@ $.getScript("scripts/general.js", function () {});
 var checkedBoxes = 0;
 var selected = [];
 var descriptions = [];
+var units = [];
 
 /**
  * The <code>fullCheck</code> function limits the number of data
@@ -256,7 +257,7 @@ function fetchData(json) {
                 name: data.data[i]["name"],
                 data: timeStampStr[i]
             }, false);
-            chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+            chart.yAxis[i].setTitle({text: data.data[i]["name"] + " (" + units[data.data[i]["name"]] + ")"});
         }
         if (data.data.length == 1)
             chart.yAxis[i].setTitle({text: ""});
@@ -276,7 +277,7 @@ function fetchData(json) {
                     name: data.data[i]["name"],
                     data: timeStampStr[i]
                 }, false);
-                chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+                chart.yAxis[i].setTitle({text: data.data[i]["name"] + " (" + units[data.data[i]["name"]] + ")"});
             }
             if (data.data.length == 1)
                 chart.yAxis[i].setTitle({text: ""});
@@ -305,7 +306,7 @@ function handleClick(cb)
 function fetch() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
-    if (current == "Graph") {
+    if (current === "Graph") {
         var startTime = new Date(document.getElementById("graph_start_date").value);
         if (startTime.dst())
             startTime = startTime.getTime() - 14400000;
@@ -327,14 +328,14 @@ function fetch() {
         startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
         endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
-    if (current == "Table") {
-        var startTime = new Date(document.getElementById("table_start_date").value).getTime();
+    if (current === "Table") {
+        var startTime = new Date(document.getElementById("table_start_date").value);
         if (startTime.dst())
             startTime = startTime.getTime() - 14400000;
         else
             startTime = startTime.getTime() - 18000000;
         
-        var endTime = new Date(document.getElementById("table_end_date").value).getTime();
+        var endTime = new Date(document.getElementById("table_end_date").value);
         if (endTime.dst())
             endTime = endTime.getTime() - 14400000;
         else
@@ -539,6 +540,7 @@ function startingData() {
         console.log(data);
         for (i = 0; i < data.length; i++) {
             descriptions[data[i].name] = data[i].description;
+            units[data[i].name] = data[i].unit;
             var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             document.getElementById("graph_sensor_parameters").innerHTML += param;
             document.getElementById("table_sensor_parameters").innerHTML += param;
@@ -546,6 +548,7 @@ function startingData() {
         data = JSON.parse(resp)["data"][1]["descriptors"];
         for (i = 0; i < data.length; i++) {
             descriptions[data[i].name] = data[i].description;
+            units[data[i].name] = data[i].unit;
             var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             document.getElementById("graph_manual_parameters").innerHTML += param;
             document.getElementById("table_manual_parameters").innerHTML += param;
