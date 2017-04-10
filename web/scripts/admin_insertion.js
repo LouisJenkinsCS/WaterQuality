@@ -38,7 +38,6 @@ function loadInsert()
 
     get("AdminServlet", parameterRequest, function (response)
     {
-        console.log("Response from admin_insertion: " + response);
         var resp = new ParameterResponse(response);
         //console.log("resp.data: " + JSON.stringify(resp.data));
         for (var k = 0; k < resp.data.length; k++)
@@ -212,7 +211,6 @@ function sendCSV()
         while (allTextLines.length) {
             lines.push(allTextLines.shift().split(','));
         }
-        console.log(lines);
     }
 
     var sendRequest = {action: 'insertCSV', csvfile: lines};

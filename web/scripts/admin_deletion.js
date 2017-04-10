@@ -88,11 +88,11 @@ function loadDelete()
         //console.log("resp.data: " + JSON.stringify(resp.data));
         for (var k = 0; k < resp.data.length; k++)
         {
-            if(resp.data[k]["mask"] === 1)
+            if (resp.data[k]["mask"] === 1)
                 del_options += '<option disabled=true>-----Sensor Parameters-----</option>';
             else
                 del_options += '<option disabled=true>-----Manual Parameters-----</option>';
-            
+
             resp.descriptors = resp.data[k]["descriptors"];
             //console.log("resp.descriptors length: " + resp.descriptors.length);
             resp.names = [];
@@ -142,7 +142,8 @@ function loadDelete()
                 {title: "Date-Time"},
                 {title: "Name"},
                 {title: "Value"}
-            ]
+            ],
+            "order": [[0, "desc"]]
         });
 
 
@@ -153,7 +154,6 @@ function loadDelete()
             $("#delete_enddate").datetimepicker({
                 controlType: 'select',
                 oneLine: true,
-                timeFormat: 'hh:mm tt',
                 altField: "#delete_endtime"
             })
                     .datepicker("setDate", date);
@@ -162,13 +162,12 @@ function loadDelete()
             $("#delete_startdate").datetimepicker({
                 controlType: 'select',
                 oneLine: true,
-                timeFormat: 'hh:mm tt',
                 altField: "#delete_starttime"
             })
                     .datepicker("setDate", date);
         });
 
-        console.log("del_options: " + del_options);
+
     });
 }
 
@@ -185,17 +184,34 @@ function filterData() {
 
     //The entered/selected parameters are stored
     var $paramName = $('#delete_param').val();
-    var $deleteStartDate = new Date($('#delete_startdate').val()).getTime();
-    var $deleteEndDate = new Date($('#delete_enddate').val()).getTime();
-    var $deleteStartTime = $('#delete_starttime').val();
-    var $deleteEndTime = $('#delete_endtime').val();
+     var deleteStartDate = new Date($('#errors_startdate').val());
+    if (deleteStartDate.dst())
+        deleteStartDate = deleteStartDate.getTime() - 14400000;
+    else
+        deleteStartDate = deleteStartDate.getTime() - 18000000;
+
+    var deleteStartTime = $('#errors_starttime').val();
+
+    var deleteEndDate = new Date($('#errors_enddate').val());
+    if (deleteEndDate.dst())
+        deleteEndDate = deleteEndDate.getTime() - 14400000;
+    else
+        deleteEndDate = deleteEndDate.getTime() - 18000000;
+
+    var deleteEndTime = $('#errors_endtime').val();
+
+    var starttime = deleteStartTime.split(':');
+    var endtime = deleteEndTime.split(':');
+
+    var startDateTime = new Date(deleteStartDate + starttime[0] * 3600000 + starttime[1] * 60000).getTime();
+    var endDateTime = new Date(deleteEndDate + endtime[0] * 3600000 + endtime[1] * 60000).getTime();
+    
 
 
-
-    var filterRequest = {action: 'getData',
+    var filterRequest = {action: 'getDataDeletion',
         parameter: $paramName,
-        start: $deleteStartDate,
-        end: $deleteEndDate,
+        start: startDateTime,
+        end: endDateTime,
     };
 
     /*
@@ -246,7 +262,7 @@ function filterData() {
             var dataValues = item.dataValues;
             for (var j = 0; j < dataValues.length; j++) {
                 item = dataValues[j];
-                dataTable.rows.add([[formatDate(new Date(item["timestamp"])), name, item["value"]]]);
+                dataTable.rows.add([[formatDateSimple(item["timestamp"]), name, item["value"]]]);
             }
         }
 
@@ -257,9 +273,8 @@ function filterData() {
 //        $('#delete_table').DataTable().destroy(true);
 //        $('#delete_table').append(htmlstring);
 //        $('#delete_table').DataTable();
-        $('#delete_table tbody').on( 'click', 'td', function () {
+        $('#delete_table tbody').on('click', 'td', function () {
             var cellData = dataTable.cell(this).data();
-            console.log("cellData" + cellData);
         });
 
 

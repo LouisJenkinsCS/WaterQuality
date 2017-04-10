@@ -2,7 +2,6 @@
 //This function simply pulls the AJAX_magic.js script
 //to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
-$.getScript("scripts/general.js", function () {});
 $.getScript("scripts/datetimepicker.js", function () {});
 
 function fillPageErrors()
@@ -25,18 +24,16 @@ function fillPageErrors()
         columns: [
             {title: "Date-Time"},
             {title: "Error Message"}
-        ]
+        ],
+        "order": [[0, "desc"]]
     });
-    
-    $(function () 
+
+    $(function ()
     {
         var date = new Date();
-        //$( "#delete_endtime" ).timepicker();
-        //$( "#delete_starttime" ).timepicker();
         $("#errors_enddate").datetimepicker({
             controlType: 'select',
             oneLine: true,
-            timeFormat: 'hh:mm tt',
             altField: "#errors_endtime"
         })
                 .datepicker("setDate", date);
@@ -45,76 +42,103 @@ function fillPageErrors()
         $("#errors_startdate").datetimepicker({
             controlType: 'select',
             oneLine: true,
-            timeFormat: 'hh:mm tt',
             altField: "#errors_starttime"
         })
                 .datepicker("setDate", date);
     });
-    
-    
-};
+
+
+}
+;
 
 function filterErrors()
-    {
+{
+    Date.prototype.dst = function () {
+        return this.getTimezoneOffset() < this.stdTimezoneOffset();
+    };
+    Date.prototype.stdTimezoneOffset = function () {
+        var jan = new Date(this.getFullYear(), 0, 1);
+        var jul = new Date(this.getFullYear(), 6, 1);
+        return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+    };
 
+    //To store the string to append to the document
+    var htmlstring = "";
 
-        //To store the string to append to the document
-        var htmlstring = "";
+    //The entered/selected parameters are stored
+    var deleteStartDate = new Date($('#errors_startdate').val());
+    if (deleteStartDate.dst())
+        deleteStartDate = deleteStartDate.getTime() - 14400000;
+    else
+        deleteStartDate = deleteStartDate.getTime() - 18000000;
 
-        //The entered/selected parameters are stored
-        var $deleteStartDate = new Date($('#errors_startdate').val()).getTime();
-        var $deleteEndDate = new Date($('#errors_enddate').val()).getTime();
+    var deleteStartTime = $('#errors_starttime').val();
 
-        var filterRequest = {action: 'getFilteredErrors',
-            start: $deleteStartDate,
-            end: $deleteEndDate
-        };
+    var deleteEndDate = new Date($('#errors_enddate').val());
+    if (deleteEndDate.dst())
+        deleteEndDate = deleteEndDate.getTime() - 14400000;
+    else
+        deleteEndDate = deleteEndDate.getTime() - 18000000;
 
-        /*
-         * POST request:
-         * {
-         *  action: 'getFilteredErrors',
-         *  startDate : '3/19/2017',
-         *  endDate : '3/20/2017',
-         *  startTime : '08:00',
-         *  endTime : '18:00'
-         * }
-         * 
-         * POST response:
-         * data: [
-         *  {
-         *      entryID : '1',
-         *      name : 'Soluble Reactive Phosphorus',
-         *      submittedBy : 'Test User',
-         *      date : '3/20/2017',
-         *      time : '08:30'
-         *      value : '4.0'
-         *  }
-         * ]
-         * 
-         */
-        post("AdminServlet", filterRequest, function (resp) {
-            if (resp.hasOwnProperty("status")) {
-                window.alert("Error Fetching Data from AdminServlet...\nError: \"" + resp.status + "\"");
-                return;
-            }
+    var deleteEndTime = $('#errors_endtime').val();
 
-            var dataTable = $('#error_table').DataTable();
+    var starttime = deleteStartTime.split(':');
+    var endtime = deleteEndTime.split(':');
 
-            dataTable.clear();
+    var startDateTime = new Date(deleteStartDate + starttime[0] * 3600000 + starttime[1] * 60000).getTime();
+    var endDateTime = new Date(deleteEndDate + endtime[0] * 3600000 + endtime[1] * 60000).getTime();
 
-            var errors = JSON.parse(resp)["errors"];
-            var htmlstring = '<thead><tr><th>Date-Time</th><th>Error Message</th></tr></thead>';
-            for (var i = 0; i < errors.length; i++)
-            {
-                var item = errors[i];
-                dataTable.rows.add([[formatDate(new Date(item["time"])),item["errorMessage"]]]);
-            }
-            dataTable.draw();
-            $('#error_table tbody').on('click', 'td', function () {
-                var cellData = dataTable.cell(this).data();
-                console.log("cellData" + cellData);
-            });
+    var filterRequest = {action: 'getFilteredErrors',
+        start: startDateTime,
+        end: endDateTime
+    };
 
+    /*
+     * POST request:
+     * {
+     *  action: 'getFilteredErrors',
+     *  startDate : '3/19/2017',
+     *  endDate : '3/20/2017',
+     *  startTime : '08:00',
+     *  endTime : '18:00'
+     * }
+     * 
+     * POST response:
+     * data: [
+     *  {
+     *      entryID : '1',
+     *      name : 'Soluble Reactive Phosphorus',
+     *      submittedBy : 'Test User',
+     *      date : '3/20/2017',
+     *      time : '08:30'
+     *      value : '4.0'
+     *  }
+     * ]
+     * 
+     */
+    post("AdminServlet", filterRequest, function (resp) {
+        if (resp.hasOwnProperty("status")) {
+            window.alert("Error Fetching Data from AdminServlet...\nError: \"" + resp.status + "\"");
+            return;
+        }
+
+        var dataTable = $('#error_table').DataTable();
+
+        dataTable.clear();
+
+        var errors = JSON.parse(resp)["errors"];
+        var htmlstring = '<thead><tr><th>Date-Time</th><th>Error Message</th></tr></thead>';
+        for (var i = 0; i < errors.length; i++)
+        {
+            var item = errors[i];
+            dataTable.rows.add([[formatDateSimple(item["time"]), item["errorMessage"]]]);
+        }
+        dataTable.draw();
+        $('#error_table tbody').on('click', 'td', function () {
+            var cellData = dataTable.cell(this).data();
+            console.log("cellData" + cellData);
         });
-    }
+
+    });
+
+}

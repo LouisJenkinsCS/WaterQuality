@@ -767,10 +767,10 @@ public class DatabaseManager
         Last login and attempted login are initiallized to now
         @return whether this function was successful or not
     */
-    public static boolean addNewUser(String username, String password, String firstName,
+    public static int addNewUser(String username, String password, String firstName,
             String lastName, String email, UserRole userRole, User u)
     {
-        boolean status;
+        int status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement insertUser = null;
         try
@@ -778,6 +778,9 @@ public class DatabaseManager
             //throws an error if a user without proper roles somehow invokes this function
             if(u.getUserRole() != common.UserRole.SystemAdmin)
                 throw new Exception("Attempted User Creation by Non-Admin");
+            
+            if(usernameExists(username))
+                return  2;
             
             conn.setAutoCommit(false);
             String insertSQL = "INSERT INTO users (loginName,password,firstName,lastName,"
@@ -802,11 +805,11 @@ public class DatabaseManager
             insertUser.setInt(12, 0);//login attempted count
             insertUser.executeUpdate();
             conn.commit();
-            status = true;
+            status = 1;
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
+            status = 0;
             LogError("Error Adding New User: " + ex);
             if(conn!=null)
             {
@@ -1092,7 +1095,7 @@ public class DatabaseManager
         try
         {
             conn = Web_MYSQL_Helper.getConnection();
-            password = security.SecurityCode.encryptSHA256(password+getSaltByLoginName(username));
+            password = security.SecurityCode.encryptSHA256(password + getSaltByLoginName(username));
             String getSQL = "SELECT * FROM users WHERE loginName = ? and password = ?;";
             selectUser = conn.prepareStatement(getSQL);
             selectUser.setString(1, username);
@@ -1414,6 +1417,8 @@ public class DatabaseManager
         Connection conn = null;
         try
         {
+            LogError("Lower Range: " + lower);
+            LogError("Upper Range: " + upper);
             conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from ErrorLogs where timeOccured >= ? AND timeOccured <= ?";
             selectErrors = conn.prepareStatement(query);
@@ -1566,6 +1571,45 @@ public class DatabaseManager
                 .blockingSubscribe(DatabaseManager::insertManualParameter);
         
         DatabaseManager.getRemoteParameterNames().map("Name: "::concat).blockingSubscribe(System.out::println);
+    }
+
+    private static boolean usernameExists(String username) 
+    {
+        PreparedStatement getUserByLogin = null;
+        ResultSet selectedUser = null;
+        String salt = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String getSQL = "SELECT * FROM users WHERE loginName = ?;";
+            getUserByLogin = conn.prepareStatement(getSQL);
+            getUserByLogin.setString(1, username);
+            selectedUser = getUserByLogin.executeQuery();
+            if(selectedUser.next())
+                return true;
+        }
+        catch(SQLException e)
+        {
+            LogError("Error checking if login name exists for \"" + username + "\": " + e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(getUserByLogin != null)
+                    getUserByLogin.close();
+                if(selectedUser != null)
+                    selectedUser.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return false;
     }
     
 
