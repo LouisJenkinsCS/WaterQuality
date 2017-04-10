@@ -35,7 +35,7 @@
  * @param {type} id
  */
 function setDate(date, id) {
-    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1)%60, 2) + ":" + pad(0, 2);
+    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1) % 60, 2) + ":" + pad(0, 2);
     document.getElementById(id).value = dateStr;
     console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
 }
@@ -51,21 +51,41 @@ function createDateAsUTC(date) {
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
 }
 
-function convertDateToUTC(date) { 
-    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
+function convertDateToUTC(date) {
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
 }
 
 function formatDate(date) {
-  date = convertDateToUTC(date);
-  var day = date.getDate();
-  var month = date.getMonth() + 1;
-  var year = date.getFullYear();
-  var hour = pad((date.getHours() + 1) % 24, 2);
-  var minute = pad((date.getMinutes())%60, 2);
-  var am_pm = hour < 12 ? "AM" : "PM";
-  if (hour > 12) {
-      hour -= 12;
-  }
-  
-  return month + "/" + day + "/" + year + " " + hour + ":" + minute + " " + am_pm;
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    var hour = pad((date.getHours() + 1) % 24, 2);
+    var minute = pad((date.getMinutes()) % 60, 2);
+    var am_pm = hour < 12 ? "AM" : "PM";
+    if (hour > 12) {
+        hour -= 12;
+    }
+
+    return month + "/" + day + "/" + year + " " + hour + ":" + minute + " " + am_pm;
 }
+
+function formatDateSimple(date) {
+    var day = date.substring(8, 10);
+    var month = date.substring(5, 7);
+    var year = date.substring(0, 4);
+    var hour = date.substring(11, 13);
+    var minute = date.substring(14, 16);
+    var second = date.substring(17, 19);
+
+    return month + "/" + day + "/" + year + " " + hour + ":" + minute + ":" + second;
+}
+
+Date.prototype.dst = function () {
+    return this.getTimezoneOffset() < this.stdTimezoneOffset();
+};
+
+Date.prototype.stdTimezoneOffset = function () {
+    var jan = new Date(this.getFullYear(), 0, 1);
+    var jul = new Date(this.getFullYear(), 6, 1);
+    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+};

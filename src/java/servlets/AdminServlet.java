@@ -65,7 +65,6 @@ public class AdminServlet extends HttpServlet {
         final Object lock = session.getId().intern();
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
-        log("Action is: " + action);
         if (action == null) {
             return;
         }
@@ -378,7 +377,75 @@ public class AdminServlet extends HttpServlet {
                 session.setAttribute("dateStatus", "Invalid Format on Lower or Upper Time Bound.");
             }
              */
-        } else if (action.trim().equalsIgnoreCase("getParameters")) {
+        }
+         else if (action.trim().equalsIgnoreCase("getDataDeletion")) {
+            String parameter = request.getParameter("parameter");
+            long start = Long.parseLong(request.getParameter("start"));
+            long end = Long.parseLong(request.getParameter("end"));
+
+            JSONObject empty = new JSONObject();
+            empty.put("data", new JSONArray());
+
+            Observable.just(parameter)
+                    .flatMap(param -> DatabaseManager.getDataValues(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end), param))
+                    .observeOn(Schedulers.computation())
+                    .groupBy(DataValue::getId)
+                    .flatMap((GroupedObservable<Long, DataValue> gdv)
+                            -> gdv.map((DataValue dv) -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("timestamp", dv.getTimestamp().toString());
+                        obj.put("value", dv.getValue());
+                        return obj;
+                    })
+                            .buffer(Integer.MAX_VALUE)
+                            .map((List<JSONObject> data) -> {
+                                JSONArray arr = new JSONArray();
+                                arr.addAll(data);
+                                return arr;
+                            })
+                            .flatMap((JSONArray arr)
+                                    -> DatabaseManager.parameterIdToName(gdv.getKey())
+                                    .doOnNext(System.out::println)
+                                    .map(name -> {
+                                        JSONObject obj = new JSONObject();
+                                        obj.put("dataValues", arr);
+                                        obj.put("name", name);
+                                        return obj;
+                                    })
+                            )
+                    )
+                    .buffer(Integer.MAX_VALUE)
+                    .map(list -> {
+                        JSONArray arr = new JSONArray();
+                        arr.addAll(list);
+                        return arr;
+                    })
+                    .map(arr -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("data", arr);
+                        return obj;
+                    })
+                    .defaultIfEmpty(EMPTY_RESULT)
+                    .blockingSubscribe(resp -> {
+                        response.getWriter().append(resp.toJSONString());
+                        System.out.println("Sent response...");
+                    });
+            /*
+            //We'll change to use this next group meeting
+            //Gets a list of data values within a time range for display on a chart so the user can select which ones to delete
+            String dataName = (String) request.getParameter("filterDataName"); //name of the data type to be filtered
+            String lower = (String) request.getParameter("filterLower"); //lower time bound in LocalDateTime format of the data
+            String upper = (String) request.getParameter("filterUpper"); //upper time bound in LocalDateTime format of the data
+            try
+            {
+                session.setAttribute("filteredData", DatabaseManager.getManualData(dataName,LocalDateTime.parse(lower),LocalDateTime.parse(upper)));
+            }
+            catch(DateTimeParseException e)
+            {
+                session.setAttribute("dateStatus", "Invalid Format on Lower or Upper Time Bound.");
+            }
+             */
+        }else if (action.trim().equalsIgnoreCase("getParameters")) {
             long type = Long.parseLong(request.getParameter("data"));
 
             Observable.just(type)
@@ -502,8 +569,8 @@ public class AdminServlet extends HttpServlet {
             try {
                 response.getWriter()
                         .append(DatabaseManager
-                                .getErrorsInRange(Instant.ofEpochMilli(Long.parseLong(request.getParameter("start"))).toString(),
-                                        Instant.ofEpochMilli(Long.parseLong(request.getParameter("end"))).toString())
+                                .getErrorsInRange(Instant.ofEpochMilli(Long.parseLong(request.getParameter("start"))).toString().substring(0,19),
+                                        Instant.ofEpochMilli(Long.parseLong(request.getParameter("end"))).toString().substring(0,19))
                                 .toJSONString());
             } catch (DateTimeParseException e) {
                 JSONObject obj = new JSONObject();
@@ -530,6 +597,26 @@ public class AdminServlet extends HttpServlet {
             jObjStatus.put("errorCode", "0");
             jObjStatus.put("errorMsg", "Logout successful.");
             obj.put("status", jObjStatus);
+            response.getWriter().append(obj.toJSONString());
+        }
+        else if(action.trim().equalsIgnoreCase("isUserLoggedIn"))
+        {
+            JSONObject obj = new JSONObject();
+            if(admin == null)
+            {
+                obj.put("isLoggedIn", 0);
+                obj.put("isAdmin", 0);
+            }
+            else
+            {
+                obj.put("isLoggedIn", 1);
+                if(admin.getUserRole() == UserRole.SystemAdmin)
+                {
+                    obj.put("isAdmin", 1);
+                }
+                else
+                    obj.put("isAdmin", 0);
+            }
             response.getWriter().append(obj.toJSONString());
         }
 

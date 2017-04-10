@@ -36,66 +36,66 @@ function fullCheck(id) {
 var bayesianMapping = [];
 
 function bayesianSetData() {
-             var selectBox = document.getElementById("bayesian_options");
-            var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-            var arr = bayesianMapping[selectedValue].data;
-            var datasets = bayesianMapping[selectedValue].datasets;
-            while (bayesianChart.series.length > 0) {
-                bayesianChart.series[0].remove(true);
-            }
-            for (var i = 0; i < arr.length; i++) {
-                bayesianChart.addSeries({
-    //                yAxis: i,
-                    name: datasets[i].name,
-                    data: arr[i]
-                }, false);
-    //            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
-            }
-            bayesianChart.redraw();
-         }
+    var selectBox = document.getElementById("bayesian_options");
+    var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+    var arr = bayesianMapping[selectedValue].data;
+    var datasets = bayesianMapping[selectedValue].datasets;
+    while (bayesianChart.series.length > 0) {
+        bayesianChart.series[0].remove(true);
+    }
+    for (var i = 0; i < arr.length; i++) {
+        bayesianChart.addSeries({
+            //                yAxis: i,
+            name: datasets[i].name,
+            data: arr[i]
+        }, false);
+        //            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
+    }
+    bayesianChart.redraw();
+}
 
 function bayesianRequest() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     // Proof of Concept: Only obtains for a valid day
     var date = $('#bayesian_date').datepicker("getDate");
-    post("ControlServlet", {action: "getBayesian", data: date.getTime() }, function(resp) {
+    post("ControlServlet", {action: "getBayesian", data: date.getTime()}, function (resp) {
         while (bayesianChart.series.length > 0)
             bayesianChart.series[0].remove(true);
-        
+
         document.getElementById("loader").style.cursor = "default";
         var response = JSON.parse(resp);
-        
+
         var dataSets;
         for (i = 0; i < response.data.length; i++) {
             document.getElementById("bayesian_options").innerHTML += "<option value='" + response.data[i].name + "'>" + response.data[i].name + "</option>";
             dataSets = response.data[i].dataSets;
-            
+
             var timestamp = response.date;
             var arr = [];
             var idx = 0;
             console.log(timestamp);
             for (j = 0; j < dataSets.length; j++) {
-                 var subArr = [];
+                var subArr = [];
 
                 for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
                     subArr.push([timestamp, dataSets[j].dataValues[idx]]);
 
                     idx++;
-    //                console.log(subArr);
+                    //                console.log(subArr);
                 }
                 arr.push(subArr);
                 idx = 0;
             }
-            
-            bayesianMapping[response.data[i].name] = { data: arr, datasets: dataSets };
+
+            bayesianMapping[response.data[i].name] = {data: arr, datasets: dataSets};
         }
-        
-         document.getElementById("bayesian_options").onchange = bayesianSetData;
-        
+
+        document.getElementById("bayesian_options").onchange = bayesianSetData;
+
         document.getElementById("bayesian_options").style.display = "inline-block";
         $('#bayesian_options').val("DO Model");
-        
+
         bayesianSetData();
 //        var timestamp = response.date;
 //        var arr = [];
@@ -306,12 +306,48 @@ function fetch() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     if (current == "Graph") {
-        var startTime = new Date(document.getElementById("graph_start_date").value).getTime();
-        var endTime = new Date(document.getElementById("graph_end_date").value).getTime();
+        var startTime = new Date(document.getElementById("graph_start_date").value);
+        if (startTime.dst())
+            startTime = startTime.getTime() - 14400000;
+        else
+            startTime = startTime.getTime() - 18000000;
+        
+        var endTime = new Date(document.getElementById("graph_end_date").value);
+        if (endTime.dst())
+            endTime = endTime.getTime() - 14400000;
+        else
+            endTime = endTime.getTime() - 18000000;
+
+        var graphStartTime = document.getElementById("graph_start_time").value;
+        var graphEndTime = document.getElementById("graph_end_time").value;
+        
+        var tempstart = graphStartTime.split(':');
+        var tempend = graphEndTime.split(':');
+        
+        startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
+        endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
     if (current == "Table") {
         var startTime = new Date(document.getElementById("table_start_date").value).getTime();
+        if (startTime.dst())
+            startTime = startTime.getTime() - 14400000;
+        else
+            startTime = startTime.getTime() - 18000000;
+        
         var endTime = new Date(document.getElementById("table_end_date").value).getTime();
+        if (endTime.dst())
+            endTime = endTime.getTime() - 14400000;
+        else
+            endTime = endTime.getTime() - 18000000;
+        
+        var tableStartTime = document.getElementById("table_start_time").value;
+        var tableEndTime = document.getElementById("table_end_time").value;
+        
+        var tempstart = tableStartTime.split(':');
+        var tempend = tableEndTime.split(':');
+        
+        startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
+        endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
     var selected = [];
     if (current == "Graph")
@@ -532,11 +568,11 @@ function startingData() {
     });
 }
 
-function setOnSelect(){
-    $("#graph_end_date").datetimepicker("option","onSelect",fetch);
-    $("#graph_start_date").datetimepicker("option","onSelect",fetch);
-    $("#table_end_date").datetimepicker("option","onSelect",fetch);
-    $("#table_start_date").datetimepicker("option","onSelect",fetch);
+function setOnSelect() {
+    $("#graph_end_date").datetimepicker("option", "onSelect", fetch);
+    $("#graph_start_date").datetimepicker("option", "onSelect", fetch);
+    $("#table_end_date").datetimepicker("option", "onSelect", fetch);
+    $("#table_start_date").datetimepicker("option", "onSelect", fetch);
 }
 
 $(function () {
@@ -546,14 +582,12 @@ $(function () {
     $("#graph_end_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
-        timeFormat: 'hh:mm tt',
         altField: "#graph_end_time"
     })
             .datepicker("setDate", date);
     $("#table_end_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
-        timeFormat: 'hh:mm tt',
         altField: "#table_end_time"
     })
             .datepicker("setDate", date);
@@ -562,26 +596,23 @@ $(function () {
     $("#graph_start_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
-        timeFormat: 'hh:mm tt',
         altField: "#graph_start_time"
     })
             .datepicker("setDate", date);
     $("#table_start_date").datetimepicker({
         controlType: 'select',
         oneLine: true,
-        timeFormat: 'hh:mm tt',
         altField: "#table_start_time"
     })
             .datepicker("setDate", date);
-    
-    var bayesian_date=new Date();
-    bayesian_date.setDate(bayesian_date.getDate()-1);
+
+    var bayesian_date = new Date();
+    bayesian_date.setDate(bayesian_date.getDate() - 1);
     $("#bayesian_date").datepicker({
         controlType: 'select',
         oneLine: true,
-        timeFormat: 'hh:mm tt',
-        maxDate:bayesian_date
+        maxDate: bayesian_date
     })
-            .datepicker("setDate",bayesian_date);
+            .datepicker("setDate", bayesian_date);
     setOnSelect();
 });
