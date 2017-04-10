@@ -581,6 +581,7 @@ public class AdminServlet extends HttpServlet {
         } //could also be done in LogoutServlet instead?
         else if (action.trim().equalsIgnoreCase("logout")) {
             session.removeAttribute("user");//logout on server
+            
             session.invalidate();//clear session
             //write the response as JSON. assume success.
             JSONObject obj = new JSONObject();

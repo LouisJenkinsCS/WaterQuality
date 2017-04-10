@@ -8,8 +8,6 @@ var tableSelected = [];
 var descriptions = [];
 // Names for DataParameters; (id -> name)
 var names = [];
-// Bayesian Model specific mappings; See below
-var bayesianMapping = [];
 
 /**
  * The <code>fullCheck</code> function limits the number of data
@@ -46,116 +44,10 @@ function tableChecked(id) {
     if (item.checked === true) {
         tableSelected.push(id);
     } else {
-        it = tableSelected.shift();
-        if (it != id) {
-            tableSelected.push(it);
-            tableSelected.shift();
+        if(tableSelected.indexOf(id)!=-1){
+            tableSelected.splice(tableSelected.indexOf(id),1);
         }
     }
-}
-
-
-
-
-function bayesianSetData() {
-    var selectBox = document.getElementById("bayesian_options");
-    var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-    var arr = bayesianMapping[selectedValue].data;
-    var datasets = bayesianMapping[selectedValue].datasets;
-    while (bayesianChart.series.length > 0) {
-        bayesianChart.series[0].remove(true);
-    }
-    for (var i = 0; i < arr.length; i++) {
-        bayesianChart.addSeries({
-            //                yAxis: i,
-            name: datasets[i].name,
-            data: arr[i]
-        }, false);
-        //            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
-    }
-    bayesianChart.redraw();
-}
-
-function bayesianRequest() {
-    //makes the cursor show loading when graph/table is being generated 
-    document.getElementById("loader").style.cursor = "progress";
-    //Hides the bayesian graph while waiting for the new one
-    document.getElementById("Bayesian_graph").style.display="none";
-    //Displays the bayesian loader which is a spinnning div
-    document.getElementById("bayesian_loader_div").style.display="inline-block";
-    // Proof of Concept: Only obtains for a valid day
-    var date = $('#bayesian_date').datepicker("getDate");
-    post("ControlServlet", {action: "getBayesian", data: date.getTime()}, function (resp) {
-        while (bayesianChart.series.length > 0)
-            bayesianChart.series[0].remove(true);
-
-        document.getElementById("loader").style.cursor = "default";
-        //hides the loader and displays the graph
-        document.getElementById("bayesian_loader_div").style.display="none";
-        document.getElementById("Bayesian_graph").style.display="inline-block";
-        var response = JSON.parse(resp);
-
-        var dataSets;
-        for (i = 0; i < response.data.length; i++) {
-            document.getElementById("bayesian_options").innerHTML += "<option value='" + response.data[i].name + "'>" + response.data[i].name + "</option>";
-            dataSets = response.data[i].dataSets;
-
-            var timestamp = response.date;
-            var arr = [];
-            var idx = 0;
-            console.log(timestamp);
-            for (j = 0; j < dataSets.length; j++) {
-                var subArr = [];
-
-                for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
-                    subArr.push([timestamp, dataSets[j].dataValues[idx]]);
-
-                    idx++;
-                    //                console.log(subArr);
-                }
-                arr.push(subArr);
-                idx = 0;
-            }
-
-            bayesianMapping[response.data[i].name] = {data: arr, datasets: dataSets};
-        }
-
-        document.getElementById("bayesian_options").onchange = bayesianSetData;
-
-        document.getElementById("bayesian_options").style.display = "inline-block";
-        $('#bayesian_options').val("DO Model");
-
-        bayesianSetData();
-//        var timestamp = response.date;
-//        var arr = [];
-//        var idx = 0;
-//        console.log(timestamp);
-//        for (i = 0; i < dataSets.length; i++) {
-//             var subArr = [];
-//             
-//            for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
-//                subArr.push([timestamp, dataSets[i].dataValues[idx]]);
-//                
-//                idx++;
-////                console.log(subArr);
-//            }
-//            arr.push(subArr);
-//            idx = 0;
-//        }
-//        
-//        
-//        console.log(arr);
-//        for (var i = 0; i < arr.length; i++) {
-//            bayesianChart.addSeries({
-////                yAxis: i,
-//                name: dataSets[i].name,
-//                data: arr[i]
-//            }, false);
-////            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
-//        }
-//        
-//        bayesianChart.redraw();
-    })
 }
 
 /**
@@ -168,6 +60,8 @@ function toggle(id,source) {
     for (var i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = source.checked;
     }
+    if(source.checked==false)
+            tableSelected=[];
 }
 
 /**Sets a cookie so that the current tab name can remembered for reloading the page
@@ -260,17 +154,13 @@ function fetchData(json) {
         }
     }}
     
-    
-    // Fill out parameters...
-    for (i = 0; i < data.data.length; i++) {
-        // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
-        document.getElementById("description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
-        document.getElementById("description").innerHTML += descriptions[data.data[i].id];
-    }
-    
     // Empty?
     if (data.data.length == 0) {
-        return;
+        if(current=="Table"){
+            fillTable(data);
+        }
+        else
+            return;
     }
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
@@ -328,6 +218,12 @@ function fetchData(json) {
             chart.redraw();
         }
     }
+    // Fill out parameters...
+    for (i = 0; i < data.data.length; i++) {
+        // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
+        document.getElementById("description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
+        document.getElementById("description").innerHTML += descriptions[data.data[i].id];
+    }
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor = "default";
 }
@@ -346,7 +242,6 @@ function handleClick(cb)
     } else {
         tableChecked(cb.id);
     }
-//                post("ControlServlet", {key: 'control', control: 'getDesc'});
 }
 
 function fetch() {
@@ -377,13 +272,13 @@ function fetch() {
         endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
     if (current == "Table") {
-        var startTime = new Date(document.getElementById("table_start_date").value).getTime();
+        var startTime = new Date(document.getElementById("table_start_date").value);
         if (startTime.dst())
             startTime = startTime.getTime() - 14400000;
         else
             startTime = startTime.getTime() - 18000000;
         
-        var endTime = new Date(document.getElementById("table_end_date").value).getTime();
+        var endTime = new Date(document.getElementById("table_end_date").value);
         if (endTime.dst())
             endTime = endTime.getTime() - 14400000;
         else
@@ -485,7 +380,9 @@ function fillTable(dataResp) {
 
     $("#data_table").DataTable().destroy();
     table.innerHTML = "";
-    
+    if(dataResp==null)
+    alert("hi");
+    //if(dataResp.data.length)
     // If there is a missing description for something selected, fill it ourselves...
     for (j = 0; j < tableSelected.length; j++) {
         var contains = false;
@@ -630,9 +527,7 @@ function startingData() {
         if (getCookie("id") == "Table")
             document.getElementById("TableTab").click();
         else {
-            if (getCookie("id") == "Bayesian")
-                document.getElementById("BayesianTab").click();
-            else
+            if(getCookie("id")=="Graph")
                 document.getElementById("GraphTab").click();
         }
     });
@@ -675,15 +570,6 @@ $(function () {
         altField: "#table_start_time"
     })
             .datepicker("setDate", date);
-
-    var bayesian_date = new Date();
-    bayesian_date.setDate(bayesian_date.getDate() - 1);
-    $("#bayesian_date").datepicker({
-        controlType: 'select',
-        oneLine: true,
-        maxDate: bayesian_date
-    })
-            .datepicker("setDate", bayesian_date);
     setOnSelect();
 });
 

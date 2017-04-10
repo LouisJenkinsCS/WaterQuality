@@ -48,9 +48,19 @@
             <button id="Login_Button">Login</button>
             </a>
             <a href="admin.jsp">
-            <button id="Admin_Button">Admin</button>
+                <button id="Admin_Button">Admin</button>
             </a>
         </header>
+            
+            <script>
+                if (${loggedIn}) {
+                    document.getElementById("Admin_Button").style.display = "inline-block";
+                    document.getElementById("Login_Button").style.display = "none";
+                } else {
+                    document.getElementById("Admin_Button").style.display = "none";
+                    document.getElementById("Login_Button").style.display = "inline-block";
+                }
+            </script>
         <section class = "content_container1" id = "dashboard_container">
             <header class = "content_title_bar" id="login_header">
                 <div class = "title" >
@@ -70,8 +80,6 @@
                                 console.log('SUCCESS');
                             });"
                            id="TableTab">Table</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Bayesian');"
-                           id="BayesianTab">Bayesian</a></li>
                 </ul>
                 <div id="Graph" class="tabcontent">
                 </div>
@@ -79,10 +87,6 @@
                     <table align="center" id="data_table" onclick="">
                         <thead><tr><th></th></tr></thead>
                     </table>
-                </div>
-                <div id="Bayesian" class="tabcontent">
-                    <div id="Bayesian_graph" class="tabcontent" style="display:inline-block;"></div>
-                    <div id="bayesian_loader_div"><div id="bayesian_loader"></div><br>Loading...</div>
                 </div>
             </section>
 
@@ -153,24 +157,6 @@
                         </div> 
                     </div>
                     <br>
-                </form>
-                    
-                <form class="data_type_form" id="Bayesian_form">
-                    
-                    <div id="dateselectordiv">
-                        <br>Bayesian Day:
-                        <input class="dateselector" id="bayesian_date" type="text">
-                    </div>
-                    <br>
-                    <div style='text-align: center' >
-                        <select id="bayesian_options" style="display:none;">
-                            
-                        </select>
-                    </div>
-                    <br>
-                    <div class="data_type_submit" id="Bayesian_submit">
-                        <input type="button" value="Bayesian" onclick="bayesianRequest()">
-                    </div>
                 </form>
             </aside><br>
 
@@ -293,76 +279,6 @@
                 },
                 title: {
                     text: 'Water Creek Parameter Values',
-                    x: -20 //center
-                },
-                subtitle: {
-                    text: 'Source: environet.com',
-                    x: -20
-                },
-                xAxis: {
-                    type: 'datetime',
-                    dateTimeLabelFormats: {
-                            millisecond: '%H:%M:%S.%L',
-                            second: '%H:%M:%S',
-                            minute: '%H:%M',
-                            hour: '%H:%M',
-                            day: '%m/%e',
-                            week: '%m/%b',
-                            month: '%b \'%Y',
-                            year: '%Y'
-                    },
-                    title: {
-                        text: 'Date'
-                    }
-                },
-                yAxis: [{
-                        title: {
-                            text: '',
-                            style: {color: '#7cb5ec'}
-                        },
-                        labels: {style: {color: '#7cb5ec'}},
-                        plotLines: [{
-                                value: 0,
-                                width: 1,
-                                color: '#808080'
-                            }]
-                    }, {// Secondary yAxis
-                        title: {
-                            text: ''
-                        },
-                        opposite: true
-                    }],
-                tooltip: {
-                    valueSuffix: ''
-                },
-                legend: {
-                    layout: 'vertical',
-                    align: 'right',
-                    verticalAlign: 'top',
-                    borderWidth: 0,
-                    floating: true
-                },
-                series: []
-            });
- 
-            // Setup chart, the data will be fed from the servlet through JSP (temporary)
-            var bayesianChart = Highcharts.chart('Bayesian_graph', {
-                exporting: {
-                    enabled:true,
-                    buttons:{contextButton:{align:"left"}},
-                    chartOptions: { // specific options for the exported image
-                        plotOptions: {
-                            series: {
-                                dataLabels: {
-                                    enabled: true
-                                }
-                            }
-                        }
-                    },
-                    fallbackToExportServer: false
-                },
-                title: {
-                    text: 'Bayesian Model',
                     x: -20 //center
                 },
                 subtitle: {
