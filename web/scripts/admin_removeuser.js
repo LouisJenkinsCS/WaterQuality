@@ -50,11 +50,11 @@ function requestGetUserList(){
 }
 function responseGetUserList(response) {
     //might first have to do response=JSON.parse(response);
-    console.log(response.status);
+    //console.log(response.status);
     response=getDummyDataUserList();
-    console.log(response.status);
+    //console.log(response.status);
     if(response.status[0].errorCode!=0) return;//error
-    console.log("User List Received:\n"+response.userList+"\n");
+    //console.log("User List Received:\n"+response.userList+"\n");
     for(var i=0; i<response.userList.length; ++i){
         var option=document.createElement("option");
         option.value=response.userList[i].username;

@@ -246,7 +246,7 @@ function sendCSV()
             //On every 10th iteration, a post is sent, use below..
             //check length of JSON.stringify(idr.data) > 4kb, send
 //            if ((i % 10 === 0) && (i !== paramList.length + 1))
-            if (JSON.stringify(obj).length > 128 * 1024)
+            if (JSON.stringify(obj).length > 16 * 1024)
             {
                 //console.log(idr);
                 
@@ -257,7 +257,7 @@ function sendCSV()
             }
         }
 
-        //If there was any leftover piece after a 10th iteration, it is sent here
+        //If there was any leftover piece it is sent here
         if (idr.data.length !== 0)
         {
             console.log(idr);

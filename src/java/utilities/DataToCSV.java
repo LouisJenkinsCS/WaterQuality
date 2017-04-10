@@ -6,8 +6,11 @@ import async.DataReceiver;
 import async.DataValue;
 import bayesian.RunBayesianModel;
 import io.reactivex.schedulers.Schedulers;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
 /* BSD 3-Clause License
@@ -61,7 +64,7 @@ public class DataToCSV {
                             .buffer(Integer.MAX_VALUE)
                             .map(list -> list.stream().map(Object::toString).collect(Collectors.joining(",")))
                             .map(line -> {
-                                LocalDateTime ldt = LocalDateTime.ofInstant(group.getKey(), ZoneId.systemDefault());
+                                LocalDateTime ldt = LocalDateTime.ofInstant(group.getKey(), ZoneId.of("Z"));
                                 String date = ldt.getMonthValue() + "/" + ldt.getDayOfMonth() + "/" + ldt.getYear();
                                 String time = ldt.getHour() + ":" + ldt.getMinute() + ":" + ldt.getSecond();
                                 return date + "," + time + "," + line;
@@ -82,4 +85,17 @@ public class DataToCSV {
                 .blockingFirst();
                 
     }
+    
+    
+    public static void main(String[] args) {
+        
+    long PAR = 637957793;
+    long HDO = 1050296639;
+    long Temp = 1050296629;
+    long Pressure = 639121405;
+
+    String dataString = dataToCSV(DataReceiver.getRemoteData(Instant.now().minus(Period.ofDays(3)).truncatedTo(ChronoUnit.DAYS), Instant.now().truncatedTo(ChronoUnit.DAYS), PAR, HDO, Temp, Pressure), true);
+        System.out.println(dataString);
+    }
+    
 }
