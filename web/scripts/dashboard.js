@@ -23,6 +23,7 @@ function fullCheck(id) {
     if (item.checked == true) {
         if (checkedBoxes < 2) {
             checkedBoxes++;
+            
             selected.push(id);
         } else {
             it = selected.shift();
@@ -244,19 +245,20 @@ function fetchData(json) {
     document.getElementById("description").innerHTML = "";
     
     // If there is a missing description for something selected, fill it ourselves...
+    if(current=="Graph"){
     for (j = 0; j < selected.length; j++) {
         var contains = false;
         for (i = 0; i < data.data.length; i++) {
-            if (selected[j] == data.data[i].id) {
+            if (selected[j].substring(6) == data.data[i].id) {
                 contains = true;
                 break;
             }
         }
         
         if (!contains) {
-            data.data.push({ id: selected[j], dataValues: []});
+            data.data.push({ id: selected[j].substring(6), dataValues: []});
         }
-    }
+    }}
     
     
     // Fill out parameters...
@@ -360,7 +362,7 @@ function fetch() {
         startTime = new Date(document.getElementById("table_start_date").value).getTime();
         var endTime = new Date(document.getElementById("table_end_date").value).getTime();
     }
-    var selected = [];
+    var selecteddata = [];
     if (current == "Graph")
         var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
     if (current == "Table")
@@ -370,7 +372,8 @@ function fetch() {
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked == true) {
             numChecked++;
-            selected.push(Number(checkboxes[i].name));
+            var name=checkboxes[i].name.substring(6);
+            selecteddata.push(Number(name));
         }
     }
 
@@ -384,7 +387,7 @@ function fetch() {
         return;
     }
     
-    var request = new DataRequest(startTime, endTime, selected);
+    var request = new DataRequest(startTime, endTime, selecteddata);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
 
@@ -412,7 +415,7 @@ function dateLimits() {
      document.getElementById("table_end_date").setAttribute("maxDate", dateStr);
      document.getElementById("table_start_date").setAttribute("maxDate", document.getElementById("table_end_date").value);
      document.getElementById("table_end_date").setAttribute("minDate", document.getElementById("table_start_date").value);*/
-    var selected = document.activeElement;
+    var active = document.activeElement;
     if ($("#graph_end_date").data("datepicker") != null) {
         $("#graph_end_date").datetimepicker("option", "maxDate", date);
     }
@@ -427,7 +430,7 @@ function dateLimits() {
         $("#table_start_date").datetimepicker("option", "maxDate", $("#table_end_date").datepicker("getDate"));
         $("#table_end_date").datetimepicker("option", "minDate", $("#table_start_date").datepicker("getDate"));
     }
-    $(selected).datepicker("show");
+    $(active).datepicker("show");
 }
 
 function pad(num, size) {
@@ -451,14 +454,14 @@ function fillTable(dataResp) {
     for (j = 0; j < tableSelected.length; j++) {
         var contains = false;
         for (i = 0; i < dataResp.data.length; i++) {
-            if (tableSelected[j] == dataResp.data[i].id) {
+            if (tableSelected[j].substring(6) == dataResp.data[i].id) {
                 contains = true;
                 break;
             }
         }
         
         if (!contains) {
-            dataResp.data.push({ id: tableSelected[j], dataValues: []});
+            dataResp.data.push({ id: tableSelected[j].substring(6), dataValues: []});
         }
     }
     
@@ -566,18 +569,20 @@ function startingData() {
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
             
-            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             document.getElementById("graph_sensor_parameters").innerHTML += param;
-            document.getElementById("table_sensor_parameters").innerHTML += param;
+            document.getElementById("table_sensor_parameters").innerHTML += tableparam;
         }
         data = JSON.parse(resp)["data"][1]["descriptors"];
         for (i = 0; i < data.length; i++) {
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
             
-            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             document.getElementById("graph_manual_parameters").innerHTML += param;
-            document.getElementById("table_manual_parameters").innerHTML += param;
+            document.getElementById("table_manual_parameters").innerHTML += tableparam;
         }
         current = "Graph";
         var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
