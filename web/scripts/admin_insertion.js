@@ -230,22 +230,26 @@ function sendCSV()
             paramList.push(headerArray[i]);
         }
 
-        for (var i = 1; i < lines.length; i++)
+        for (var i = 1; i < (lines.length - 1); i++)
         {
             timestamp = convertToEpochMs(lines[i][0], lines[i][1]);
 
             for (var j = 2; j < paramList.length; j++)
             {
-                if(lines[i][j] === "null" || lines[i][j] === null)
-                    break;
                 var idv = new InsertDataValue(timestamp, lines[i][j]);
+                console.log("Lines["+i+"]["+j+"]: " + lines[i][j]);
                 idr.queueInsertion(paramList[j], idv);
             }
-
-            //On every 10th iteration, a post is sent
-            if (i % 10 === 0)
+            
+            var obj = { action: "insertData", data: JSON.stringify(idr.data) };
+            
+            //On every 10th iteration, a post is sent, use below..
+            //check length of JSON.stringify(idr.data) > 4kb, send
+//            if ((i % 10 === 0) && (i !== paramList.length + 1))
+            if (JSON.stringify(obj).length > 128 * 1024)
             {
-                console.log(idr);
+                //console.log(idr);
+                
                 post("AdminServlet", { action: "insertData", data: JSON.stringify(idr.data) }, function (resp) {
                     console.log("idr chunk " + i + ": " + JSON.stringify(idr));
                 });
