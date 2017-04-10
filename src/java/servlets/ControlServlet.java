@@ -84,15 +84,16 @@ public class ControlServlet extends HttpServlet {
         
         if (action.trim().equalsIgnoreCase("fetchQuery")) {
             String data = request.getParameter("query");
-            System.out.println("Data Received: " + data);
+            JSONObject onEmpty = new JSONObject();
+            onEmpty.put("data", new JSONArray());
             JSONProtocol proto = new JSONProtocol();
             try {
                 proto.process((JSONObject) new JSONParser().parse(data))
+                        .defaultIfEmpty(onEmpty)
                         .blockingSubscribe(obj -> response.getWriter().append(obj.toJSONString()));
             } catch (ParseException ex) {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return;
         } else if (action.trim().equalsIgnoreCase("getBayesian")) {
             Long date = Long.parseLong(request.getParameter("data"));
             DatabaseManager.LogError("Inside of 'getBayesian'");

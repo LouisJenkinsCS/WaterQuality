@@ -3,7 +3,13 @@ $.getScript("scripts/general.js", function () {});
 
 var checkedBoxes = 0;
 var selected = [];
+var tableSelected = [];
+// Descriptions for DataParameters; (id -> description)
 var descriptions = [];
+// Names for DataParameters; (id -> name)
+var names = [];
+// Bayesian Model specific mappings; See below
+var bayesianMapping = [];
 
 /**
  * The <code>fullCheck</code> function limits the number of data
@@ -33,7 +39,22 @@ function fullCheck(id) {
     }
 }
 
-var bayesianMapping = [];
+function tableChecked(id) {
+    var item = document.getElementById(id);
+    var it;
+    if (item.checked === true) {
+        tableSelected.push(id);
+    } else {
+        it = tableSelected.shift();
+        if (it != id) {
+            tableSelected.push(it);
+            tableSelected.shift();
+        }
+    }
+}
+
+
+
 
 function bayesianSetData() {
              var selectBox = document.getElementById("bayesian_options");
@@ -217,16 +238,37 @@ function openTab(evt, tabName) {
 }
 
 function fetchData(json) {
-    var resp = new DataResponse(json);
-
-
-
-    // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
     var data = new DataResponse(json);
+    
+    // New data: Clear descriptions
     document.getElementById("description").innerHTML = "";
+    
+    // If there is a missing description for something selected, fill it ourselves...
+    for (j = 0; j < selected.length; j++) {
+        var contains = false;
+        for (i = 0; i < data.data.length; i++) {
+            if (selected[j] == data.data[i].id) {
+                contains = true;
+                break;
+            }
+        }
+        
+        if (!contains) {
+            data.data.push({ id: selected[j], dataValues: []});
+        }
+    }
+    
+    
+    // Fill out parameters...
     for (i = 0; i < data.data.length; i++) {
-        document.getElementById("description").innerHTML += "<center><h1>" + data.data[i].name + "</h1></center>";
-        document.getElementById("description").innerHTML += descriptions[data.data[i].name];
+        // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
+        document.getElementById("description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
+        document.getElementById("description").innerHTML += descriptions[data.data[i].id];
+    }
+    
+    // Empty?
+    if (data.data.length == 0) {
+        return;
     }
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
@@ -246,7 +288,7 @@ function fetchData(json) {
     //otherwise it goes to the else for normal page operation
     if (load == true) {
         load = false;//Sets <code>load</code> to false to continue normal operations
-        fillTable(resp);
+        fillTable(data);
 
         while (chart.series.length > 0)
             chart.series[0].remove(true);
@@ -254,10 +296,10 @@ function fetchData(json) {
         for (var i = 0; i < data.data.length; i++) {
             chart.addSeries({
                 yAxis: i,
-                name: data.data[i]["name"],
+                name: names[data.data[i].id],
                 data: timeStampStr[i]
             }, false);
-            chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+            chart.yAxis[i].setTitle({text: names[data.data[i].id]});
         }
         if (data.data.length == 1)
             chart.yAxis[i].setTitle({text: ""});
@@ -265,7 +307,7 @@ function fetchData(json) {
     } else {
         if (getCookie("id") == "Table")
             //document.getElementById("Table").innerHTML = table;
-            fillTable(resp);
+            fillTable(data);
         else {
             // Remove all series data
             while (chart.series.length > 0)
@@ -274,10 +316,10 @@ function fetchData(json) {
             for (var i = 0; i < data.data.length; i++) {
                 chart.addSeries({
                     yAxis: i,
-                    name: data.data[i]["name"],
+                    name: names[data.data[i].id],
                     data: timeStampStr[i]
                 }, false);
-                chart.yAxis[i].setTitle({text: data.data[i]["name"]});
+                chart.yAxis[i].setTitle({text: names[data.data[i].id]});
             }
             if (data.data.length == 1)
                 chart.yAxis[i].setTitle({text: ""});
@@ -299,6 +341,8 @@ function handleClick(cb)
     //If the current tab is the graph then it limits the number of boxes checked
     if (current == 'Graph') {
         fullCheck(cb.id);
+    } else {
+        tableChecked(cb.id);
     }
 //                post("ControlServlet", {key: 'control', control: 'getDesc'});
 }
@@ -402,20 +446,35 @@ function fillTable(dataResp) {
 
     $("#data_table").DataTable().destroy();
     table.innerHTML = "";
-
+    
+    // If there is a missing description for something selected, fill it ourselves...
+    for (j = 0; j < tableSelected.length; j++) {
+        var contains = false;
+        for (i = 0; i < dataResp.data.length; i++) {
+            if (tableSelected[j] == dataResp.data[i].id) {
+                contains = true;
+                break;
+            }
+        }
+        
+        if (!contains) {
+            dataResp.data.push({ id: tableSelected[j], dataValues: []});
+        }
+    }
+    
     var html = [];//Holds the table that will be created 
     var dates = [];//holds the array of all dates from all parameters 
     html.push("<table><thead><tr><th>TimeStamp</th>");
     //Adds the names to the header of the table 
     for (var i = 0; i < dataResp.data.length; i++) {
-        html.push("<th>" + dataResp.data[i]["name"] + "</th>");
+        html.push("<th>" + names[dataResp.data[i]["id"]] + "</th>");
     }
     html.push("</tr></thead><tbody>");
     //adds one of every date to the <code>dates</code> array
     //This ensures that every date that is used can be accounted for
     //also allows the handling of missing data
     for (var j = 0; j < dataResp.data.length; j++) {
-        var d = dataResp.data[j]["data"];
+        var d = dataResp.data[j]["dataValues"];
         for (var i = 0; i < d.length; i++) {
             var ts_val = d[i];
             if (dates.indexOf(ts_val["timestamp"]) == -1) {
@@ -432,7 +491,7 @@ function fillTable(dataResp) {
         html.push("<td><span>" + formatHiddenDate(new Date(dates[i]))
                 + "</span>" + formatDate(new Date(dates[i])) + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
-            var d = dataResp.data[j]["data"];
+            var d = dataResp.data[j]["dataValues"];
             if (i >= d.length) {
                 html.push("<td> N/A </td>");
                 continue;
@@ -503,14 +562,19 @@ function startingData() {
         var data = JSON.parse(resp)["data"][0]["descriptors"];
         console.log(data);
         for (i = 0; i < data.length; i++) {
-            descriptions[data[i].name] = data[i].description;
+            // Cache parameter descriptors
+            descriptions[data[i].id] = data[i].description;
+            names[data[i].id] = data[i].name;
+            
             var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             document.getElementById("graph_sensor_parameters").innerHTML += param;
             document.getElementById("table_sensor_parameters").innerHTML += param;
         }
         data = JSON.parse(resp)["data"][1]["descriptors"];
         for (i = 0; i < data.length; i++) {
-            descriptions[data[i].name] = data[i].description;
+            descriptions[data[i].id] = data[i].description;
+            names[data[i].id] = data[i].name;
+            
             var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             document.getElementById("graph_manual_parameters").innerHTML += param;
             document.getElementById("table_manual_parameters").innerHTML += param;
