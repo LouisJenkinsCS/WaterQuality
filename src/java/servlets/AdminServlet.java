@@ -501,24 +501,24 @@ static {
                     
         }
         else if (action.trim().equalsIgnoreCase("insertData")) {
-            System.out.println("Test insertion got here");
-            String piece = request.getParameter("data");
-            
-            System.out.println("Post data: " + piece);
-//            Observable.just(request.getParameter("data"))
-//                    .map(req -> (JSONObject) new JSONParser().parse(req))
-//                    .map(obj -> (JSONArray) obj.get("data"))
-//                    .flatMap(JSONUtils::flattenJSONArray)
-//                    .flatMap(obj -> Observable.just(obj)
-//                            .map(o -> (JSONArray) o.get("values"))
-//                            .flatMap(JSONUtils::flattenJSONArray)
-//                            .flatMap(o -> DatabaseManager
-//                                    .parameterNameToId((String) o.get("name"))
-//                                    .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), (double) o.get("value")))
-//                            )
-//                    )
-//                    .subscribe(dv -> System.out.println("Insert for: " + dv));
-//                    
+//            System.out.println("Test insertion got here");
+//            request.getParameterMap().keySet().forEach(System.out::println);
+            Observable.just(request.getParameter("data"))
+                    .map(req -> (JSONArray) new JSONParser().parse(req))
+                    .flatMap(JSONUtils::flattenJSONArray)
+                    .doOnNext(System.out::println)
+                    .flatMap(obj -> Observable.just(obj)
+                            .map(o -> (JSONArray) o.get("values"))
+                            .flatMap(JSONUtils::flattenJSONArray)
+                            .filter(o -> o.get("timestamp") != null && o.get("value") != null)
+                            .doOnNext(System.out::println)
+                            .flatMap(o -> DatabaseManager
+                                    .parameterNameToId((String) obj.get("name"))
+                                    .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), o.get("value") != null ? Double.parseDouble(o.get("value").toString()) : Double.NaN))
+                            )
+                    )
+                    .blockingSubscribe(dv -> System.out.println("Insert for: " + dv));
+                    
         }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 
         {

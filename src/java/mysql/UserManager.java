@@ -75,7 +75,7 @@ public class UserManager implements database.UserManager {
     @Override
     public User addUser(User user) {
         String sql = "INSERT INTO users (userNumber, loginName, userPassword, salt, firstName, lastName, emailAddress,"
-                + "userRole, lastLoginTime, loginCount) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?,?); ";
+                + "userRole, lastLoginTime, loginCount) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?); ";
         Connection conn = database.Web_MYSQL_Helper.getConnection();
 
         try {
@@ -93,6 +93,7 @@ public class UserManager implements database.UserManager {
             stmt2.executeUpdate();
 
         } catch (SQLException ex) {
+            ex.printStackTrace();
             WebErrorLogger.log(Level.SEVERE, "SQLException in addUser(User user) user="+user+" error: "+ex);
             Web_MYSQL_Helper.returnConnection(conn);
             return user;

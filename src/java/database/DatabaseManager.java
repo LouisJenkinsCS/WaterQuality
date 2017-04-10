@@ -1544,28 +1544,10 @@ public class DatabaseManager
     }
  
     public static void main(String[] args) {
-        DataReceiver
-                .getParameters()
-                .subscribeOn(Schedulers.computation())
-                .doOnNext(DatabaseManager::insertRemoteParameter)
-                .blockingSubscribe();
-        
-        System.out.println("Transactions Done...");
-        
-        io.reactivex.Observable
-                .just("resources/manual_entry_items.json")
-                .map(FileUtils::readAll)
-                .map(str -> (JSONObject) new JSONParser().parse(str))
-                .map(obj -> (JSONArray) obj.get("data"))
-                .flatMap(JSONUtils::flattenJSONArray)
-                .map((JSONObject obj) -> {
-                    DataParameter param = new DataParameter((String) obj.get("name"), (String) obj.get("description"));
-                    param.setUnit((String) obj.get("units"));
-                    return param;
-                })
-                .blockingSubscribe(DatabaseManager::insertManualParameter);
-        
-        DatabaseManager.getRemoteParameterNames().map("Name: "::concat).blockingSubscribe(System.out::println);
+        User u = new User();
+        u.setUserRole(UserRole.SystemAdmin);
+        addNewUser("root", "root", "Louis", "Jenkins", "", UserRole.SystemAdmin, u);
+
     }
     
 

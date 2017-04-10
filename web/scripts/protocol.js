@@ -123,7 +123,8 @@ DeleteDataRequest.prototype.queueDeletion = function (name, range) {
 }
 
 
-//class InsertDataValue{
+
+//class InsertDataValue {
 //    constructor(timestamp, value) {
 //        this.timestamp = timestamp;
 //        this.value = value;
@@ -166,8 +167,8 @@ function InsertDataRequest(){
 
 InsertDataRequest.prototype.constructor()
 {
-    action = "insertData",
-            data = []
+    this.action = "insertData",
+            this.data = []
 }
 
 InsertDataRequest.prototype = {}

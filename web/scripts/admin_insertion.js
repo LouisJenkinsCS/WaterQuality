@@ -236,7 +236,7 @@ function sendCSV()
 
             for (var j = 2; j < paramList.length; j++)
             {
-                if(lines[i][j] === null)
+                if(lines[i][j] === "null" || lines[i][j] === null)
                     break;
                 var idv = new InsertDataValue(timestamp, lines[i][j]);
                 idr.queueInsertion(paramList[j], idv);
@@ -245,8 +245,8 @@ function sendCSV()
             //On every 10th iteration, a post is sent
             if (i % 10 === 0)
             {
-                
-                post("AdminServlet", JSON.stringify(idr), function (resp) {
+                console.log(idr);
+                post("AdminServlet", { action: "insertData", data: JSON.stringify(idr.data) }, function (resp) {
                     console.log("idr chunk " + i + ": " + JSON.stringify(idr));
                 });
                 idr = new InsertDataRequest();
@@ -254,10 +254,13 @@ function sendCSV()
         }
 
         //If there was any leftover piece after a 10th iteration, it is sent here
-        if (idr.data.size !== 0)
-            post("AdminServlet", JSON.stringify(idr), function (resp) {
+        if (idr.data.length !== 0)
+        {
+            console.log(idr);
+            post("AdminServlet", { action: "insertData", data: JSON.stringify(idr.data) }, function (resp) {
                 console.log("idr leftover " + i + ": " + JSON.stringify(idr));
             });
+        }
 
     }
     function convertToEpochMs(date, time)
