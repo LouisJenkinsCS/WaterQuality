@@ -30,6 +30,8 @@
  */
 package async;
 
+import com.github.davidmoten.rx.jdbc.annotations.Column;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -61,7 +63,8 @@ public class DataValue implements Comparable<DataValue> {
         this.value = value;
         this.id = id;
     }
-
+    
+    @Column("parameter_id")
     public long getId() {
         return id;
     }
@@ -70,6 +73,7 @@ public class DataValue implements Comparable<DataValue> {
         this.id = id;
     }
 
+    @Column("time")
     public Instant getTimestamp() {
         return timestamp;
     }
@@ -77,9 +81,15 @@ public class DataValue implements Comparable<DataValue> {
     public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
-
+    
+    
     public Double getValue() {
         return value;
+    }
+    
+    @Column("value")
+    public BigDecimal getSerializableValue() {
+        return BigDecimal.valueOf(value);
     }
 
     public void setValue(Double value) {

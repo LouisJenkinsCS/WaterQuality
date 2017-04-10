@@ -6,27 +6,16 @@
 package servlets;
 
 import async.DataValue;
-import bayesian.RunBayesianModel;
 import common.UserRole;
 import database.DatabaseManager;
-import static database.DatabaseManager.LogError;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
-import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,13 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.javatuples.Quartet;
-import org.javatuples.Triplet;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import protocol.JSONProtocol;
-import utilities.FileUtils;
 import utilities.JSONUtils;
 
 /**
@@ -517,7 +502,9 @@ static {
                                     .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), o.get("value") != null ? Double.parseDouble(o.get("value").toString()) : Double.NaN))
                             )
                     )
-                    .blockingSubscribe(dv -> System.out.println("Insert for: " + dv));
+                    .buffer(Integer.MAX_VALUE)
+                    .flatMap(DatabaseManager::insertManualData)
+                    .blockingSubscribe(count -> System.out.println("Inserted " + count + " fields..."));
                     
         }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 
