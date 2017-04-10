@@ -313,7 +313,7 @@ function fetch() {
         var endTime = new Date(document.getElementById("graph_end_date").value).getTime();
     }
     if (current == "Table") {
-        var startTime = new Date(document.getElementById("table_start_date").value).getTime();
+        startTime = new Date(document.getElementById("table_start_date").value).getTime();
         var endTime = new Date(document.getElementById("table_end_date").value).getTime();
     }
     var selected = [];
@@ -339,8 +339,7 @@ function fetch() {
         document.getElementById("loader").style.cursor = "default";
         return;
     }
-    startTime+=(hours*15.5);
-    endTime+=(hours*17.5);
+    
     var request = new DataRequest(startTime, endTime, selected);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
@@ -430,7 +429,8 @@ function fillTable(dataResp) {
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
-        html.push("<td>" + formatDate(new Date(dates[i])) + "</td>");
+        html.push("<td><span>" + formatHiddenDate(new Date(dates[i]))
+                + "</span>" + formatDate(new Date(dates[i])) + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
             var d = dataResp.data[j]["data"];
             if (i >= d.length) {
@@ -588,5 +588,5 @@ $(function () {
 });
 
 function showRecentData(){
-    
+   
 }

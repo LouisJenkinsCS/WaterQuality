@@ -30,6 +30,10 @@ and open the template in the editor.
     overflow:auto;
 }
 
+table span{
+    display:none;
+}
+
 #data_table td ,#data_table th, #popup td ,#popup th{
     border: 1px solid #ddd;
     padding: 8px;

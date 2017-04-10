@@ -60,7 +60,7 @@ function formatDate(date) {
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
-  var hour = pad((date.getHours()) % 24, 2);
+  var hour = pad((date.getHours()+1) % 24, 2);
   var minute = pad((date.getMinutes())%60, 2);
   var am_pm = hour < 12 ? "AM" : "PM";
   if (hour > 12) {
@@ -68,4 +68,18 @@ function formatDate(date) {
   }
   
   return month + "/" + day + "/" + year + " " + hour + ":" + minute + " " + am_pm;
+}
+
+function formatHiddenDate(date) {
+  date = convertDateToUTC(date);
+  var day = pad(date.getDate(),2);
+  var month = pad(date.getMonth() + 1,2);
+  var year = date.getFullYear();
+  var hour = pad((date.getHours()+1) % 24, 2);
+  var minute = pad((date.getMinutes())%60, 2);
+  var am_pm = hour < 12 ? "AM" : "PM";
+  if (hour > 12) {
+      hour -= 12;
+  }
+  return year+""+month+""+day;
 }
