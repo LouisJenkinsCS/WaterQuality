@@ -32,12 +32,12 @@ function fillPageErrors()
     $(function () 
     {
         var date = new Date();
-        //$( "#delete_endtime" ).timepicker();
-        //$( "#delete_starttime" ).timepicker();
         $("#errors_enddate").datetimepicker({
             controlType: 'select',
             oneLine: true,
             timeFormat: 'hh:mm tt',
+            showTimezone:true,
+            timezone:-300,
             altField: "#errors_endtime"
         })
                 .datepicker("setDate", date);
@@ -47,6 +47,8 @@ function fillPageErrors()
             controlType: 'select',
             oneLine: true,
             timeFormat: 'hh:mm tt',
+            showTimezone:true,
+            timezone:-300,
             altField: "#errors_starttime"
         })
                 .datepicker("setDate", date);
@@ -65,7 +67,8 @@ function filterErrors()
         //The entered/selected parameters are stored
         var $deleteStartDate = new Date($('#errors_startdate').val()).getTime();
         var $deleteEndDate = new Date($('#errors_enddate').val()).getTime();
-
+        console.log($deleteStartDate);
+        console.log($deleteEndDate);
         var filterRequest = {action: 'getFilteredErrors',
             start: $deleteStartDate,
             end: $deleteEndDate

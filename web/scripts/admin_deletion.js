@@ -169,7 +169,7 @@ function loadDelete()
                     .datepicker("setDate", date);
         });
 
-        console.log("del_options: " + del_options);
+        
     });
 }
 
@@ -260,7 +260,6 @@ function filterData() {
 //        $('#delete_table').DataTable();
         $('#delete_table tbody').on( 'click', 'td', function () {
             var cellData = dataTable.cell(this).data();
-            console.log("cellData" + cellData);
         });
 
 
