@@ -26,8 +26,12 @@
         <script src="scripts/AJAX_magic.js"></script>
         <script src="scripts/dashboard.js"></script>
         
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.css"/>
-        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/se-1.2.0/datatables.min.css"/>
+ 
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/se-1.2.0/datatables.min.js"></script>
+        
+        <!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.css"/>
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.js"></script>-->
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="styles/datetimepicker.css" type="text/css">
         <script src="scripts/datetimepicker.js"></script>
@@ -71,16 +75,11 @@
                            id="TableTab">Table</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Bayesian');"
                            id="BayesianTab">Bayesian</a></li>
-                    <li>
-                        <button id="exportbutton"
-                            onclick="if(getCookie('id') == 'Table'){exportTable('data_table');}">
-                            Export</button>
-                    </li>
                 </ul>
                 <div id="Graph" class="tabcontent">
                 </div>
                 <div id="Table" class="tabcontent">
-                    <table align="center" id="data_table" onclick="openPopup()">
+                    <table align="center" id="data_table" onclick="">
                         <thead><tr><th></th></tr></thead>
                     </table>
                 </div>
@@ -112,13 +111,13 @@
                         <input class="dateselector" id="graph_end_time" type="text">
                         <!--<input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">-->
                     </div>
-                    <div id="graph_parameters">
+                    <div id="graph_sensor_parameters">
+                        Sensor Data <BR>
+                    </div>
+                    <div id="graph_manual_parameters">
+                        Manual Data <br>
                     </div>
                     <br>
-                    <div class="data_type_submit" id="Graph_submit">
-                        <input type="button" value="Graph" onclick="fetch()">
-                    </div>
-
                 </form>
                 <form class="data_type_form" id="Table_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
@@ -138,12 +137,13 @@
                         <input type="checkbox" onclick="toggle(); fetch();"id="select_all_box" value="select_all_data">
                         Select all
                     </div>
-                    <div id="table_parameters">
+                    <div id="table_sensor_parameters">
+                        Sensor Data<br>
+                    </div>
+                    <div id="table_manual_parameters">
+                        Manual Data<br>
                     </div>
                     <br>
-                    <div class="data_type_submit" id="Table_submit">
-                        <input type="button" value="Table" onclick="fetch()">
-                    </div>
                 </form>
                     
                 <form class="data_type_form" id="Bayesian_form">

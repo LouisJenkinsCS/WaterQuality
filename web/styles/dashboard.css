@@ -218,22 +218,6 @@ button:hover,input[type = "button"]:hover {
     cursor:pointer;
 }
 
-
-#exportbutton{
-    border: 0;
-    border-radius:0px;
-    width: 100px;
-    height:25px;
-    background: #266B6B;
-    margin-bottom:10px;
-    font-family: "Ariel", Helvetica, san-serif;
-    font-size:15px;
-    color:white;
-    width:auto;
-    height:25px;   
-    display:none;
-}
-
 .data_type_submit{
     text-align:center;
 }
@@ -299,4 +283,18 @@ input[type="checkbox"]:hover, input[type="datetime-local"]:hover{
 
 #loader{
     cursor:default;
+}
+
+#table_exports, #select_all_div{
+    display:inline-block;
+    text-align:center;
+}
+
+#graph_sensor_parameters, #table_sensor_parameters{
+    float:left;
+}
+
+#graph_manual_parameters, #table_manual_parameters{
+    float:right;
+    margin-right:5px;
 }
