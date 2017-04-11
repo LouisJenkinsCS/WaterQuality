@@ -3,8 +3,12 @@ $.getScript("scripts/general.js", function () {});
 
 var checkedBoxes = 0;
 var selected = [];
+var tableSelected = [];
+// Descriptions for DataParameters; (id -> description)
 var descriptions = [];
 var units = [];
+// Names for DataParameters; (id -> name)
+var names = [];
 
 /**
  * The <code>fullCheck</code> function limits the number of data
@@ -18,6 +22,7 @@ function fullCheck(id) {
     if (item.checked == true) {
         if (checkedBoxes < 2) {
             checkedBoxes++;
+            
             selected.push(id);
         } else {
             it = selected.shift();
@@ -34,118 +39,30 @@ function fullCheck(id) {
     }
 }
 
-var bayesianMapping = [];
-
-function bayesianSetData() {
-    var selectBox = document.getElementById("bayesian_options");
-    var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-    var arr = bayesianMapping[selectedValue].data;
-    var datasets = bayesianMapping[selectedValue].datasets;
-    while (bayesianChart.series.length > 0) {
-        bayesianChart.series[0].remove(true);
-    }
-    for (var i = 0; i < arr.length; i++) {
-        bayesianChart.addSeries({
-            //                yAxis: i,
-            name: datasets[i].name,
-            data: arr[i]
-        }, false);
-        //            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
-    }
-    bayesianChart.redraw();
-}
-
-function bayesianRequest() {
-    //makes the cursor show loading when graph/table is being generated 
-    document.getElementById("loader").style.cursor = "progress";
-    // Proof of Concept: Only obtains for a valid day
-    var date = $('#bayesian_date').datepicker("getDate");
-    post("ControlServlet", {action: "getBayesian", data: date.getTime()}, function (resp) {
-        while (bayesianChart.series.length > 0)
-            bayesianChart.series[0].remove(true);
-
-        document.getElementById("loader").style.cursor = "default";
-        var response = JSON.parse(resp);
-
-        var dataSets;
-        for (i = 0; i < response.data.length; i++) {
-            document.getElementById("bayesian_options").innerHTML += "<option value='" + response.data[i].name + "'>" + response.data[i].name + "</option>";
-            dataSets = response.data[i].dataSets;
-
-            var timestamp = response.date;
-            var arr = [];
-            var idx = 0;
-            console.log(timestamp);
-            for (j = 0; j < dataSets.length; j++) {
-                var subArr = [];
-
-                for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
-                    subArr.push([timestamp, dataSets[j].dataValues[idx]]);
-
-                    idx++;
-                    //                console.log(subArr);
-                }
-                arr.push(subArr);
-                idx = 0;
-            }
-
-            bayesianMapping[response.data[i].name] = {data: arr, datasets: dataSets};
+function tableChecked(id) {
+    var item = document.getElementById(id);
+    var it;
+    if (item.checked === true) {
+        tableSelected.push(id);
+    } else {
+        if(tableSelected.indexOf(id)!=-1){
+            tableSelected.splice(tableSelected.indexOf(id),1);
         }
-
-        document.getElementById("bayesian_options").onchange = bayesianSetData;
-
-        document.getElementById("bayesian_options").style.display = "inline-block";
-        $('#bayesian_options').val("DO Model");
-
-        bayesianSetData();
-//        var timestamp = response.date;
-//        var arr = [];
-//        var idx = 0;
-//        console.log(timestamp);
-//        for (i = 0; i < dataSets.length; i++) {
-//             var subArr = [];
-//             
-//            for (timestamp = response.date; timestamp < (response.date + 24 * 60 * 60 * 1000); timestamp += 15 * 60 * 1000) {
-//                subArr.push([timestamp, dataSets[i].dataValues[idx]]);
-//                
-//                idx++;
-////                console.log(subArr);
-//            }
-//            arr.push(subArr);
-//            idx = 0;
-//        }
-//        
-//        
-//        console.log(arr);
-//        for (var i = 0; i < arr.length; i++) {
-//            bayesianChart.addSeries({
-////                yAxis: i,
-//                name: dataSets[i].name,
-//                data: arr[i]
-//            }, false);
-////            bayesianChart.yAxis[i].setTitle({text: dataSets[i].name});
-//        }
-//        
-//        bayesianChart.redraw();
-    })
+    }
 }
 
-//<code>doCheck</code> tells the checkboxes if they need to check or uncheck
-//The default value is set to true so that first time it is clicked it resets
-var doCheck = true;
 /**
  * The <code>toggle</code> function checks or unchecks
- * all of the checkboxes in the table tab depending on the state of <code>doCheck</code>
+ * all of the checkboxes in the table tab depending on the state of <code>source</code>
+ * checkbox
  */
-function toggle() {
-    var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
+function toggle(id,source) {
+    var checkboxes = document.getElementById(id).querySelectorAll('input[type="checkbox"]');
     for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].checked = doCheck;
+        checkboxes[i].checked = source.checked;
     }
-    //Sets to the opposite of itself so that the next click will be the revers
-    doCheck = !doCheck;
-    //makes sure the <code>select_all_box</code>
-    //document.getElementById("select_all_box").checked=false;
+    if(source.checked==false)
+            tableSelected=[];
 }
 
 /**Sets a cookie so that the current tab name can remembered for reloading the page
@@ -217,16 +134,34 @@ function openTab(evt, tabName) {
 }
 
 function fetchData(json) {
-    var resp = new DataResponse(json);
-
-
-
-    // This is new: Once we get data via AJAX, it's as easy as plugging it into DataResponse.
     var data = new DataResponse(json);
+    
+    // New data: Clear descriptions
     document.getElementById("description").innerHTML = "";
-    for (i = 0; i < data.data.length; i++) {
-        document.getElementById("description").innerHTML += "<center><h1>" + data.data[i].name + "</h1></center>";
-        document.getElementById("description").innerHTML += descriptions[data.data[i].name];
+    
+    // If there is a missing description for something selected, fill it ourselves...
+    if(current=="Graph"){
+    for (j = 0; j < selected.length; j++) {
+        var contains = false;
+        for (i = 0; i < data.data.length; i++) {
+            if (selected[j].substring(6) == data.data[i].id) {
+                contains = true;
+                break;
+            }
+        }
+        
+        if (!contains) {
+            data.data.push({ id: selected[j].substring(6), dataValues: []});
+        }
+    }}
+    
+    // Empty?
+    if (data.data.length == 0) {
+        if(current=="Table"){
+            fillTable(data);
+        }
+        else
+            return;
     }
     var timeStamps = getTimeStamps(data);
     var timeStampStr = [];
@@ -246,7 +181,7 @@ function fetchData(json) {
     //otherwise it goes to the else for normal page operation
     if (load == true) {
         load = false;//Sets <code>load</code> to false to continue normal operations
-        fillTable(resp);
+        fillTable(data);
 
         while (chart.series.length > 0)
             chart.series[0].remove(true);
@@ -254,10 +189,10 @@ function fetchData(json) {
         for (var i = 0; i < data.data.length; i++) {
             chart.addSeries({
                 yAxis: i,
-                name: data.data[i]["name"],
+                name: names[data.data[i].id],
                 data: timeStampStr[i]
             }, false);
-            chart.yAxis[i].setTitle({text: data.data[i]["name"] + " (" + units[data.data[i]["name"]] + ")"});
+            chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
         }
         if (data.data.length == 1)
             chart.yAxis[i].setTitle({text: ""});
@@ -265,7 +200,7 @@ function fetchData(json) {
     } else {
         if (getCookie("id") == "Table")
             //document.getElementById("Table").innerHTML = table;
-            fillTable(resp);
+            fillTable(data);
         else {
             // Remove all series data
             while (chart.series.length > 0)
@@ -274,15 +209,21 @@ function fetchData(json) {
             for (var i = 0; i < data.data.length; i++) {
                 chart.addSeries({
                     yAxis: i,
-                    name: data.data[i]["name"],
+                    name: names[data.data[i].id],
                     data: timeStampStr[i]
                 }, false);
-                chart.yAxis[i].setTitle({text: data.data[i]["name"] + " (" + units[data.data[i]["name"]] + ")"});
+                chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
             }
             if (data.data.length == 1)
                 chart.yAxis[i].setTitle({text: ""});
             chart.redraw();
         }
+    }
+    // Fill out parameters...
+    for (i = 0; i < data.data.length; i++) {
+        // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
+        document.getElementById("description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
+        document.getElementById("description").innerHTML += descriptions[data.data[i].id];
     }
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor = "default";
@@ -299,11 +240,14 @@ function handleClick(cb)
     //If the current tab is the graph then it limits the number of boxes checked
     if (current == 'Graph') {
         fullCheck(cb.id);
+    } else {
+        tableChecked(cb.id);
     }
-//                post("ControlServlet", {key: 'control', control: 'getDesc'});
 }
 
 function fetch() {
+    var minutes = 1000 * 60;
+    var hours = minutes * 60;
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     if (current === "Graph") {
@@ -328,7 +272,7 @@ function fetch() {
         startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
         endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
-    if (current === "Table") {
+    if (current == "Table") {
         var startTime = new Date(document.getElementById("table_start_date").value);
         if (startTime.dst())
             startTime = startTime.getTime() - 14400000;
@@ -350,17 +294,18 @@ function fetch() {
         startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
         endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
-    var selected = [];
+    var selecteddata = [];
     if (current == "Graph")
         var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
     if (current == "Table")
-        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([id="select_all_box"])');
+        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([class="select_all_box"])');
     //console.log("Start: " + startTime + " end: " + endTime);
     var numChecked = 0;
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked == true) {
             numChecked++;
-            selected.push(Number(checkboxes[i].name));
+            var name=checkboxes[i].name.substring(6);
+            selecteddata.push(Number(name));
         }
     }
 
@@ -373,8 +318,8 @@ function fetch() {
         document.getElementById("loader").style.cursor = "default";
         return;
     }
-
-    var request = new DataRequest(startTime, endTime, selected);
+    
+    var request = new DataRequest(startTime, endTime, selecteddata);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
 
@@ -402,7 +347,7 @@ function dateLimits() {
      document.getElementById("table_end_date").setAttribute("maxDate", dateStr);
      document.getElementById("table_start_date").setAttribute("maxDate", document.getElementById("table_end_date").value);
      document.getElementById("table_end_date").setAttribute("minDate", document.getElementById("table_start_date").value);*/
-    var selected = document.activeElement;
+    var active = document.activeElement;
     if ($("#graph_end_date").data("datepicker") != null) {
         $("#graph_end_date").datetimepicker("option", "maxDate", date);
     }
@@ -417,7 +362,7 @@ function dateLimits() {
         $("#table_start_date").datetimepicker("option", "maxDate", $("#table_end_date").datepicker("getDate"));
         $("#table_end_date").datetimepicker("option", "minDate", $("#table_start_date").datepicker("getDate"));
     }
-    $(selected).datepicker("show");
+    $(active).datepicker("show");
 }
 
 function pad(num, size) {
@@ -436,20 +381,37 @@ function fillTable(dataResp) {
 
     $("#data_table").DataTable().destroy();
     table.innerHTML = "";
-
+    if(dataResp==null)
+    alert("hi");
+    //if(dataResp.data.length)
+    // If there is a missing description for something selected, fill it ourselves...
+    for (j = 0; j < tableSelected.length; j++) {
+        var contains = false;
+        for (i = 0; i < dataResp.data.length; i++) {
+            if (tableSelected[j].substring(6) == dataResp.data[i].id) {
+                contains = true;
+                break;
+            }
+        }
+        
+        if (!contains) {
+            dataResp.data.push({ id: tableSelected[j].substring(6), dataValues: []});
+        }
+    }
+    
     var html = [];//Holds the table that will be created 
     var dates = [];//holds the array of all dates from all parameters 
     html.push("<table><thead><tr><th>TimeStamp</th>");
     //Adds the names to the header of the table 
     for (var i = 0; i < dataResp.data.length; i++) {
-        html.push("<th>" + dataResp.data[i]["name"] + "</th>");
+        html.push("<th>" + names[dataResp.data[i]["id"]] + "</th>");
     }
     html.push("</tr></thead><tbody>");
     //adds one of every date to the <code>dates</code> array
     //This ensures that every date that is used can be accounted for
     //also allows the handling of missing data
     for (var j = 0; j < dataResp.data.length; j++) {
-        var d = dataResp.data[j]["data"];
+        var d = dataResp.data[j]["dataValues"];
         for (var i = 0; i < d.length; i++) {
             var ts_val = d[i];
             if (dates.indexOf(ts_val["timestamp"]) == -1) {
@@ -459,17 +421,14 @@ function fillTable(dataResp) {
     }
     //since the dates are stored as epoch miliseconds this make sure the dates
     //are in the correct order
-    dates.sort(function (a, b) {
-        return a - b
-    });
+    dates.sort(function (a, b) {return a-b;});
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
-        var rowData = [];
-        html.push("<td>" + formatDate(new Date(dates[i])) + "</td>");
-        rowData.push(formatDate(new Date(dates[i])));
+        html.push("<td><span>" + formatHiddenDate(new Date(dates[i]))
+                + "</span>" + formatDate(new Date(dates[i])) + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
-            var d = dataResp.data[j]["data"];
+            var d = dataResp.data[j]["dataValues"];
             if (i >= d.length) {
                 html.push("<td> N/A </td>");
                 continue;
@@ -496,6 +455,7 @@ function fillTable(dataResp) {
     table.innerHTML = finalHtml;
     $("#data_table").DataTable({
         dom: 'l<"#table_exports"B>frtip',
+        aaSorting:[],
         buttons: [
             'excel',
             'csv',
@@ -539,33 +499,40 @@ function startingData() {
         var data = JSON.parse(resp)["data"][0]["descriptors"];
         console.log(data);
         for (i = 0; i < data.length; i++) {
-            descriptions[data[i].name] = data[i].description;
+            // Cache parameter descriptors
+            descriptions[data[i].id] = data[i].description;
+            names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
-            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+          
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            
             document.getElementById("graph_sensor_parameters").innerHTML += param;
-            document.getElementById("table_sensor_parameters").innerHTML += param;
+            document.getElementById("table_sensor_parameters").innerHTML += tableparam;
         }
         data = JSON.parse(resp)["data"][1]["descriptors"];
         for (i = 0; i < data.length; i++) {
-            descriptions[data[i].name] = data[i].description;
+            descriptions[data[i].id] = data[i].description;
+            names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
-            var param = "<input type='checkbox' name='" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+          
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+          
             document.getElementById("graph_manual_parameters").innerHTML += param;
-            document.getElementById("table_manual_parameters").innerHTML += param;
+            document.getElementById("table_manual_parameters").innerHTML += tableparam;
         }
         current = "Graph";
         var graphcheckboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
         graphcheckboxes[3].click();
 
         var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
-        tablecheckboxes[4].checked = true;
+        tablecheckboxes[5].checked = true;
         current = getCookie("id");
         if (getCookie("id") == "Table")
             document.getElementById("TableTab").click();
         else {
-            if (getCookie("id") == "Bayesian")
-                document.getElementById("BayesianTab").click();
-            else
+            if(getCookie("id")=="Graph")
                 document.getElementById("GraphTab").click();
         }
     });
@@ -608,14 +575,9 @@ $(function () {
         altField: "#table_start_time"
     })
             .datepicker("setDate", date);
-
-    var bayesian_date = new Date();
-    bayesian_date.setDate(bayesian_date.getDate() - 1);
-    $("#bayesian_date").datepicker({
-        controlType: 'select',
-        oneLine: true,
-        maxDate: bayesian_date
-    })
-            .datepicker("setDate", bayesian_date);
     setOnSelect();
 });
+
+function showRecentData(){
+   
+}

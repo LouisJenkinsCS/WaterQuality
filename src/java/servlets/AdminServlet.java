@@ -6,27 +6,16 @@
 package servlets;
 
 import async.DataValue;
-import bayesian.RunBayesianModel;
 import common.UserRole;
 import database.DatabaseManager;
-import static database.DatabaseManager.LogError;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
-import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,13 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.javatuples.Quartet;
-import org.javatuples.Triplet;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import protocol.JSONProtocol;
-import utilities.FileUtils;
 import utilities.JSONUtils;
 
 /**
@@ -320,7 +305,6 @@ public class AdminServlet extends HttpServlet {
 
             Observable.just(parameter)
                     .flatMap(param -> DatabaseManager.getDataValues(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end), param))
-                    .observeOn(Schedulers.computation())
                     .groupBy(DataValue::getId)
                     .flatMap((GroupedObservable<Long, DataValue> gdv)
                             -> gdv.map((DataValue dv) -> {
@@ -357,7 +341,7 @@ public class AdminServlet extends HttpServlet {
                         obj.put("data", arr);
                         return obj;
                     })
-                    .defaultIfEmpty(EMPTY_RESULT)
+                    .defaultIfEmpty(empty)
                     .blockingSubscribe(resp -> {
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -449,6 +433,7 @@ public class AdminServlet extends HttpServlet {
             long type = Long.parseLong(request.getParameter("data"));
 
             Observable.just(type)
+                    // Bit 1 is SENSOR, bit 2 is MANUAL; Client can construct a mask by OR'ing them together.
                     .flatMap(typ -> Observable.merge(
                     (typ & 0x1) != 0 ? DatabaseManager.getRemoteParameterNames()
                                     .flatMap(name -> DatabaseManager.parameterNameToId(name)
@@ -483,15 +468,20 @@ public class AdminServlet extends HttpServlet {
                         return obj;
                     })
                     )
+                    // Collect both SENSOR and/or REMOTE data into a JSONArray
                     .buffer(Integer.MAX_VALUE)
                     .map(JSONUtils::toJSONArray)
+                    // Add to the root JSONObject's 'data' field.
                     .map(arr -> {
                         JSONObject obj = new JSONObject();
                         obj.put("data", arr);
                         return obj;
                     })
+                    // If NOTHING has been found (I.E: User gave bits that were not implemented), we return
+                    // an empty JSONObject in a format similar enough to not cause a crash (if implemented correctly
+                    // by the front-end).
                     .defaultIfEmpty(EMPTY_RESULT)
-                    .doOnNext(System.out::println)
+                    // Send response.
                     .blockingSubscribe(resp -> {
                         response.getWriter().append(resp.toJSONString());
                         System.out.println("Sent response...");
@@ -511,6 +501,7 @@ public class AdminServlet extends HttpServlet {
                     .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), (double) o.get("value")))
                     )
                     )
+                    // Not Implemented
                     .subscribe(dv -> System.out.println("Insert for: " + dv));
 
         } else if (action.trim().equalsIgnoreCase("deleteManualData")) {
@@ -589,6 +580,7 @@ public class AdminServlet extends HttpServlet {
         }
         else if (action.trim().equalsIgnoreCase("logout")) {
             session.removeAttribute("user");//logout on server
+            
             session.invalidate();//clear session
             //write the response as JSON. assume success.
             JSONObject obj = new JSONObject();
