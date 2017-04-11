@@ -228,29 +228,39 @@ function sendCSV()
         for (var i = 2; i < NUM_OF_FIELDS; i++)
         {
             paramList.push(headerArray[i]);
+            console.log(paramList);
         }
 
         for (var i = 1; i < (lines.length - 1); i++)
         {
             timestamp = convertToEpochMs(lines[i][0], lines[i][1]);
 
-            for (var j = 2; j < paramList.length; j++)
+            for (var j = 2; j < paramList.length + 2; j++)
             {
-                var idv = new InsertDataValue(timestamp, lines[i][j]);
-                console.log("Lines["+i+"]["+j+"]: " + lines[i][j]);
-                idr.queueInsertion(paramList[j], idv);
+                if (lines[i][j] !== "")
+                {
+                    var idv = new InsertDataValue(timestamp, lines[i][j]);
+                    //console.log("Lines["+i+"]["+j+"]: " + lines[i][j]);
+                    idr.queueInsertion(paramList[j - 2], idv);
+                }
+                else
+                {
+                    lines[i][j] = Number.NaN;
+                    console.log("NaN?" + lines[i][j]);
+                }
+                
             }
-            
-            var obj = { action: "insertData", data: JSON.stringify(idr.data) };
-            
+
+            var obj = {action: "insertData", data: JSON.stringify(idr.data)};
+
             //On every 10th iteration, a post is sent, use below..
             //check length of JSON.stringify(idr.data) > 4kb, send
 //            if ((i % 10 === 0) && (i !== paramList.length + 1))
-            if (JSON.stringify(obj).length > 16 * 1024)
+            if (JSON.stringify(obj).length > 8 * 1024)
             {
                 //console.log(idr);
-                
-                post("AdminServlet", { action: "insertData", data: JSON.stringify(idr.data) }, function (resp) {
+
+                post("AdminServlet", {action: "insertData", data: JSON.stringify(idr.data)}, function (resp) {
                     console.log("idr chunk " + i + ": " + JSON.stringify(idr));
                 });
                 idr = new InsertDataRequest();
@@ -261,10 +271,12 @@ function sendCSV()
         if (idr.data.length !== 0)
         {
             console.log(idr);
-            post("AdminServlet", { action: "insertData", data: JSON.stringify(idr.data) }, function (resp) {
+            post("AdminServlet", {action: "insertData", data: JSON.stringify(idr.data)}, function (resp) {
                 console.log("idr leftover " + i + ": " + JSON.stringify(idr));
             });
         }
+        
+        alert("Your insertion was successful!");
 
     }
     function convertToEpochMs(date, time)
