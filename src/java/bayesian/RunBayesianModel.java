@@ -360,7 +360,7 @@ public class RunBayesianModel {
         // If you have path to jags in your PATH, you can use "jags" only without path to it.
         // ---- Windows JAGS ----
         // Local: C:/Users/lpj11535/AppData/Local/JAGS/JAGS-4.2.0/x64/bin/jags.bat
-         JJAGS jg = new JJAGS("\"C:/Users/lpj11535/AppData/Local/JAGS/JAGS-4.2.0/x64/bin/jags.bat\"", temporary_directory.toString(), "BayesianModelData", temp_model.toString(), temp_data.toString(), output_directory.toString());
+         JJAGS jg = new JJAGS("\"C:/Users/ktc45622.BUAD/AppData/Local/JAGS/JAGS-4.2.0/x64/bin/jags.bat\"", temporary_directory.toString(), "BayesianModelData", temp_model.toString(), temp_data.toString(), output_directory.toString());
         // ---- Linux JAGS ----
 //            JJAGS jg = new JJAGS("/usr/bin/jags", tmp_dir, base_dir + model_name);            
 

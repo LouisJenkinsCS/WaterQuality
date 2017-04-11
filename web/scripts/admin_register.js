@@ -104,7 +104,9 @@ function registerUser()
             document.getElementById("lastName").value = "";
             document.getElementById("email").value = "";
         }
+        else if(respData["status"] === "Failed")
+            window.alert("User Register Failed. Check Error Logs");
         else
-            window.alert("User Register Failed");
+            window.alert(respData["status"]);
     });
 }

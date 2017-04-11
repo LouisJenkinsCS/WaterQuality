@@ -30,17 +30,15 @@ function fillPageEditDesc()
                 edit_options += '<option disabled=true>-----Manual Parameters-----</option>';
 
             resp.descriptors = resp.data[k]["descriptors"];
-            
-            var current_names = [];
+
             for (var i = 0; i < resp.descriptors.length; i++) {
                 resp.piece = resp.descriptors[i];
                 cached_ids.push(resp.piece["id"]);
                 cached_names.push(resp.piece["name"]);
-                current_names.push(resp.piece["name"]);
                 cached_Descriptions.push(resp.piece["description"]);
             }
 
-            (current_names).forEach(function (item) {
+            (cached_names).forEach(function (item) {
                 edit_options += '<option>';
                 edit_options += item;
                 edit_options += '</option>';

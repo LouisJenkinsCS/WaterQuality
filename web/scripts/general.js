@@ -60,7 +60,7 @@ function formatDate(date) {
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
-  var hour = pad((date.getHours() + 1) % 24, 2);
+  var hour = pad((date.getHours()+1) % 24, 2);
   var minute = pad((date.getMinutes())%60, 2);
   var am_pm = hour < 12 ? "AM" : "PM";
   if (hour > 12) {
@@ -69,3 +69,35 @@ function formatDate(date) {
   
   return month + "/" + day + "/" + year + " " + hour + ":" + minute + " " + am_pm;
 }
+
+function formatHiddenDate(date) {
+  date = convertDateToUTC(date);
+  var day = pad(date.getDate(),2);
+  var month = pad(date.getMonth() + 1,2);
+  var year = date.getFullYear();
+  var hour = pad((date.getHours()+1) % 24, 2);
+  var minute = pad((date.getMinutes())%60, 2);
+ 
+  return year+""+month+""+day+" "+hour+":"+minute;
+}
+
+function formatDateSimple(date) {
+    var day = date.substring(8, 10);
+    var month = date.substring(5, 7);
+    var year = date.substring(0, 4);
+    var hour = date.substring(11, 13);
+    var minute = date.substring(14, 16);
+    var second = date.substring(17, 19);
+
+    return month + "/" + day + "/" + year + " " + hour + ":" + minute + ":" + second;
+}
+
+Date.prototype.dst = function () {
+    return this.getTimezoneOffset() < this.stdTimezoneOffset();
+};
+
+Date.prototype.stdTimezoneOffset = function () {
+    var jan = new Date(this.getFullYear(), 0, 1);
+    var jul = new Date(this.getFullYear(), 6, 1);
+    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+};

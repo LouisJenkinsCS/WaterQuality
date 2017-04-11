@@ -52,7 +52,7 @@ Current bugs:
         <header class="banner"> 
             <div id="banner__text">Water Quality</div>
             <a href="/WaterQuality/">
-                <button class="banner_buttons" id="button_logout" onclick="requestLogout">Logout</button>
+                <button class="banner_buttons" id="button_logout" onclick="requestLogout()">Logout</button>
             </a>
             <a href="/WaterQuality/">
                 <button class="banner_buttons" id="button_to_dashboard">Dashboard</button>

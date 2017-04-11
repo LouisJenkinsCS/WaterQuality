@@ -27,11 +27,8 @@
         <script src="scripts/dashboard.js"></script>
         
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/se-1.2.0/datatables.min.css"/>
- 
-<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/se-1.2.0/datatables.min.js"></script>
-        
-        <!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.css"/>
-        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-html5-1.2.4/datatables.min.js"></script>-->
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/se-1.2.0/datatables.min.js"></script>
+        <script type="text/javascript" src="//cdn.datatables.net/plug-ins/1.10.13/sorting/date-euro.js"></script>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="styles/datetimepicker.css" type="text/css">
         <script src="scripts/datetimepicker.js"></script>
@@ -51,9 +48,19 @@
             <button id="Login_Button">Login</button>
             </a>
             <a href="admin.jsp">
-            <button id="Admin_Button">Admin</button>
+                <button id="Admin_Button">Admin</button>
             </a>
         </header>
+            
+            <script>
+                if (${loggedIn}) {
+                    document.getElementById("Admin_Button").style.display = "inline-block";
+                    document.getElementById("Login_Button").style.display = "none";
+                } else {
+                    document.getElementById("Admin_Button").style.display = "none";
+                    document.getElementById("Login_Button").style.display = "inline-block";
+                }
+            </script>
         <section class = "content_container1" id = "dashboard_container">
             <header class = "content_title_bar" id="login_header">
                 <div class = "title" >
@@ -73,8 +80,6 @@
                                 console.log('SUCCESS');
                             });"
                            id="TableTab">Table</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Bayesian');"
-                           id="BayesianTab">Bayesian</a></li>
                 </ul>
                 <div id="Graph" class="tabcontent">
                 </div>
@@ -82,8 +87,6 @@
                     <table align="center" id="data_table" onclick="">
                         <thead><tr><th></th></tr></thead>
                     </table>
-                </div>
-                <div id="Bayesian" class="tabcontent">
                 </div>
             </section>
 
@@ -111,11 +114,14 @@
                         <input class="dateselector" id="graph_end_time" type="text">
                         <!--<input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">-->
                     </div>
-                    <div id="graph_sensor_parameters">
-                        Sensor Data <BR>
-                    </div>
-                    <div id="graph_manual_parameters">
-                        Manual Data <br>
+                    <div id="graph_parameters">
+                        <div id="graph_sensor_parameters">
+                            Sensor Data <BR>
+                        </div>
+                        <br>
+                        <div id="graph_manual_parameters">
+                            Manual Data <br>
+                        </div>
                     </div>
                     <br>
                 </form>
@@ -134,33 +140,23 @@
                         <!--<input class="dateselector" id="table_end_date" name="table_start_date" type="datetime-local" min="" max="">-->
                     </div>
                     <div id="select_all_div">
-                        <input type="checkbox" onclick="toggle(); fetch();"id="select_all_box" value="select_all_data">
-                        Select all
+                        <input type="checkbox" onclick="toggle('Table_form',this); fetch();" class="select_all_box" value="select_all_data">
+                        Select All Data
                     </div>
-                    <div id="table_sensor_parameters">
-                        Sensor Data<br>
-                    </div>
-                    <div id="table_manual_parameters">
-                        Manual Data<br>
-                    </div>
-                    <br>
-                </form>
-                    
-                <form class="data_type_form" id="Bayesian_form">
-                    
-                        <div id="dateselectordiv">
-                        <br>Bayesian Day:
-                        <input class="dateselector" id="bayesian_date" type="text">
+                    <div id="table_parameters">
+                        <div id="table_sensor_parameters">
+                            Sensor Data<br>
+                            <input type="checkbox" onclick="toggle('table_sensor_parameters',this); fetch();"class="select_all_box" value="select_all_data">
+                            Select All Sensor Data<br>
                         </div>
                         <br>
-                        <div style='text-align: center' >
-                        <select id="bayesian_options" style="display:none;">
-                            
-                        </select>
-                        </div>
-                    <div class="data_type_submit" id="Bayesian_submit">
-                        <input type="button" value="Bayesian" onclick="bayesianRequest()">
+                        <div id="table_manual_parameters">
+                            Manual Data<br>
+                            <input type="checkbox" onclick="toggle('table_manual_parameters',this); fetch();"class="select_all_box" value="select_all_data">
+                            Select All Manual Data<br>
+                        </div> 
                     </div>
+                    <br>
                 </form>
             </aside><br>
 
@@ -283,76 +279,6 @@
                 },
                 title: {
                     text: 'Water Creek Parameter Values',
-                    x: -20 //center
-                },
-                subtitle: {
-                    text: 'Source: environet.com',
-                    x: -20
-                },
-                xAxis: {
-                    type: 'datetime',
-                    dateTimeLabelFormats: {
-                            millisecond: '%H:%M:%S.%L',
-                            second: '%H:%M:%S',
-                            minute: '%H:%M',
-                            hour: '%H:%M',
-                            day: '%m/%e',
-                            week: '%m/%b',
-                            month: '%b \'%Y',
-                            year: '%Y'
-                    },
-                    title: {
-                        text: 'Date'
-                    }
-                },
-                yAxis: [{
-                        title: {
-                            text: '',
-                            style: {color: '#7cb5ec'}
-                        },
-                        labels: {style: {color: '#7cb5ec'}},
-                        plotLines: [{
-                                value: 0,
-                                width: 1,
-                                color: '#808080'
-                            }]
-                    }, {// Secondary yAxis
-                        title: {
-                            text: ''
-                        },
-                        opposite: true
-                    }],
-                tooltip: {
-                    valueSuffix: ''
-                },
-                legend: {
-                    layout: 'vertical',
-                    align: 'right',
-                    verticalAlign: 'top',
-                    borderWidth: 0,
-                    floating: true
-                },
-                series: []
-            });
- 
-            // Setup chart, the data will be fed from the servlet through JSP (temporary)
-            var bayesianChart = Highcharts.chart('Bayesian', {
-                exporting: {
-                    enabled:true,
-                    buttons:{contextButton:{align:"left"}},
-                    chartOptions: { // specific options for the exported image
-                        plotOptions: {
-                            series: {
-                                dataLabels: {
-                                    enabled: true
-                                }
-                            }
-                        }
-                    },
-                    fallbackToExportServer: false
-                },
-                title: {
-                    text: 'Bayesian Model',
                     x: -20 //center
                 },
                 subtitle: {

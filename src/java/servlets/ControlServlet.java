@@ -1,40 +1,26 @@
 package servlets;
 
-import async.Data;
-import async.DataParameter;
-import async.DataReceiver;
-import async.DataValue;
 import bayesian.RunBayesianModel;
+import common.UserRole;
 import database.DatabaseManager;
-import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Timestamp;
 import java.time.Instant;
-import org.javatuples.Pair;
-import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.javatuples.Triplet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import protocol.JSONProtocol;
-import utilities.TimeStampFormatter;
 
 /**
  * <code>ControlServlet</code> is the main servlet that processes most
@@ -49,6 +35,8 @@ import utilities.TimeStampFormatter;
 public class ControlServlet extends HttpServlet {
 
     private void defaultHandler(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        common.User admin = (common.User) request.getSession(true).getAttribute("user");
+        request.setAttribute("loggedIn", admin == null ? false : admin.getUserRole() == UserRole.SystemAdmin ? true : false);
         request.getServletContext()
                 .getRequestDispatcher("/dashboard.jsp")
                 .forward(request, response);
@@ -84,15 +72,16 @@ public class ControlServlet extends HttpServlet {
         
         if (action.trim().equalsIgnoreCase("fetchQuery")) {
             String data = request.getParameter("query");
-            System.out.println("Data Received: " + data);
+            JSONObject onEmpty = new JSONObject();
+            onEmpty.put("data", new JSONArray());
             JSONProtocol proto = new JSONProtocol();
             try {
                 proto.process((JSONObject) new JSONParser().parse(data))
+                        .defaultIfEmpty(onEmpty)
                         .blockingSubscribe(obj -> response.getWriter().append(obj.toJSONString()));
             } catch (ParseException ex) {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return;
         } else if (action.trim().equalsIgnoreCase("getBayesian")) {
             Long date = Long.parseLong(request.getParameter("data"));
             DatabaseManager.LogError("Inside of 'getBayesian'");
