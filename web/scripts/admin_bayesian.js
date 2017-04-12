@@ -19,11 +19,10 @@ function fillBayesianContent()
 
     $(function () {
 
-        var min_date = new Date();                   //We want to set earliest date to 1/1/07
-        min_date.setDate(min_date.getDate() - 3650); //August 24th, 2015 is earliest date        
+        var min_date = new Date("January 1, 2007");//We want to set earliest date to 1/1/07
         
         var max_date = new Date();
-        max_date.setDate(max_date.getDate());
+        max_date.setDate(max_date.getDate() - 1);
 
 
         var date = new Date();
@@ -32,14 +31,16 @@ function fillBayesianContent()
         $("#bayesian_startdate").datepicker({
             controlType: 'select',
             oneLine: true,
-            minDate: min_date
+            minDate: min_date,
+            maxDate: max_date
         })
                 .datepicker("setDate", date);
         
         $("#bayesian_lastdate").datepicker({
             controlType: 'select',
             oneLine: true,
-            maxDate: max_date
+            minDate: min_date,
+            maxDate: date
         })
                 .datepicker("setDate", date);
 
@@ -49,11 +50,21 @@ function fillBayesianContent()
 function bayesianButton()
 {
     //Get time, date, barometric pressure, PAR, depth, Dissolved Oxygen(mg/L), water temp
-    //Fill missing data / Skip large blocks of missing data?
+    
+    var request = {
+        action: "getBayesianCSV", 
+        startDate: new Date($("#bayesian_startdate").val()).getTime(), 
+        endDate: new Date($("#bayesian_lastdate").val()).getTime() 
+    };
+    post("AdminServlet", request, request => {
+        var csvContent = "data:text/csv;charset=utf-8,";
+        var encodedUri = encodeURI(csvContent + request);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "bayesian_csv.csv");
+        document.body.appendChild(link); // Required for FF
 
-    /*var start = datepicker.starttime;
-     var end = datepicker.endtime;
-     var parameters = ids of [air pressure, par, depth, DO, water temp]
-     
-     var dr = new DataRequest(start, end, parameters);*/
+        link.click();
+    });
+        
 }
