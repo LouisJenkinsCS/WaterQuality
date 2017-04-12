@@ -7,11 +7,12 @@ $.getScript("scripts/datetimepicker.js", function () {});
 //del_options will hold the retrieved data names from
 //the table ManualDataNames
 var del_options = "";
-
+var firstLoad = true;
 
 //Called in admin.jsp to load this script
 function loadDelete()
 {
+
 
     //A request to the servlet is made to retrieve all parameter names
 
@@ -127,10 +128,10 @@ function loadDelete()
                 '<div id="dateInstructDiv">End Date:</div>' +
                 '<input class="dateselector" id="delete_enddate" type="text"> ' +
                 '<input class="dateselector" id="delete_endtime" type="text"></div>' +
-                '<div class="large_text">Parameter to delete:</div>' +
-                '<select id="delete_param">' + del_options +
+                '<br/><br/><div class="large_text">Parameter to delete:</div>' +
+                '<select id="delete_param" onchange="filterData()">' + del_options +
                 '</select><br/><br/>' +
-                '<button type="button" onclick="filterData()">Filter</button><br/><br/>' +
+                //'<button type="button" onclick="filterData()">Filter</button><br/><br/>' +
                 '<div class="large_text">Please select the data entry from below:</div>' +
                 '<table id="delete_table">' +
                 '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>' +
@@ -169,6 +170,7 @@ function loadDelete()
 
         //console.log("del_options: " + del_options);
     });
+    addClickListener();
 }
 
 /**
@@ -184,7 +186,7 @@ function filterData() {
 
     //The entered/selected parameters are stored
     var $paramName = $('#delete_param').val();
-     var deleteStartDate = new Date($('#errors_startdate').val());
+    var deleteStartDate = new Date($('#errors_startdate').val());
     if (deleteStartDate.dst())
         deleteStartDate = deleteStartDate.getTime() - 14400000;
     else
@@ -205,7 +207,7 @@ function filterData() {
 
     var startDateTime = new Date(deleteStartDate + starttime[0] * 3600000 + starttime[1] * 60000).getTime();
     var endDateTime = new Date(deleteEndDate + endtime[0] * 3600000 + endtime[1] * 60000).getTime();
-    
+
 
 
     var filterRequest = {action: 'getDataDeletion',
@@ -273,15 +275,27 @@ function filterData() {
 //        $('#delete_table').DataTable().destroy(true);
 //        $('#delete_table').append(htmlstring);
 //        $('#delete_table').DataTable();
-        $('#delete_table tbody').on('click', 'td', function () {
-            var cellData = dataTable.cell(this).data();
-        });
 
+        if (firstLoad) {
+            $('#delete_table tbody').on('click', 'tr', function () {
+                var cellData = dataTable.row(this).data()[0];
 
+                var dateString = new Date(cellData);
+                var epochMs = dateString.getTime();
+
+                console.log("Time: " + cellData);
+                console.log("In ms: " + epochMs);
+                firstLoad = false;
+
+            });
+
+        }
     });
 
 
+
 }
+
 
 /**
  * Upon submission, the user is prompted to confirm their selection. If
@@ -329,4 +343,23 @@ function deleteData() {
         alert(resp);
     });
 
+}
+
+function addClickListener() {
+//    var tableBookmark = $('#delete_table').bind('dblclick', function (event) {
+//        console.log($(event.target).parent().attr('id'));
+//    });
+
+
+    $('#delete_table tbody').on('click', 'tr', function () {
+        console.log("here");
+        var cellData = $('#delete_table').row(this).data()[0];
+
+        var dateString = new Date(cellData);
+        var epochMs = dateString.getTime();
+
+        console.log("Time: " + cellData);
+        console.log("In ms: " + epochMs);
+
+    });
 }

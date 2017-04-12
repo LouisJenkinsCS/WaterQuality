@@ -19,8 +19,9 @@ function fillBayesianContent()
 
     $(function () {
 
-        var min_date = new Date();                   //We want to set earliest date to 1/1/07
-        min_date.setDate(min_date.getDate() - 3650); //August 24th, 2015 is earliest date        
+        var min_date = new Date("January 1, 2007");
+        //We want to set earliest date to 1/1/07
+        //August 24th, 2015 is earliest date with recorded data
         
         var max_date = new Date();
         max_date.setDate(max_date.getDate());
