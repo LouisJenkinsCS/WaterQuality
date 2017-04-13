@@ -142,6 +142,15 @@ function loadDelete()
                 );
 
         $('#delete_table').DataTable({
+            columnDefs: [{
+                    orderable: false,
+                    className: 'select-checkbox',
+                    targets: 0
+                }],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
             columns: [
                 {title: "Date-Time"},
                 {title: "Name"},
@@ -284,20 +293,7 @@ function filterData() {
         // set onClick listener
         if (firstLoad && listenOK) {
 
-            $(document).ready(function () {
-                $('#delete_table').DataTable({
-                    columnDefs: [{
-                            orderable: false,
-                            className: 'select-checkbox',
-                            targets: 0
-                        }],
-                    select: {
-                        style: 'os',
-                        selector: 'td:first-child'
-                    },
-                    order: [[1, 'asc']]
-                });
-            });
+
 
             $('#delete_table tbody').on('click', 'tr', function () {
                 var timestamp = dataTable.row(this).data()[0];
