@@ -29,11 +29,17 @@ function fillPageRemoveUser() {
     //<form> tag might be removed when implementing AJAX (unsure).
     $('#Remove_User').append(
             '<div class=large_text>Select Users to Remove</div><br>'
-            + '<select id="select_user_list">'
-                +default_options
-            +'</select><br><br>'
+            + '<table id="user_table">' +
+            '<thead><tr><th>User Number</th><th>Login Name</th><th>First Name</th><th>Last Name</th><th>Email Address</th><th>Role</th></tr></thead>' +
+            '</table><br/>'
             + '<input type="submit" id="input_submit_remove_users" value="Remove Users" onclick="requestRemoveUsers">'
             );
+    $('#user_table').DataTable({
+        columns: [
+            {title: "Date-Time"},
+            {title: "Error Message"}
+        ]
+    });
     var userList = document.getElementById("select_user_list");
     userList.multiple = "multiple";
     //userList.size=15;
@@ -54,21 +60,39 @@ function responseGetUserList(response) {
     response=getDummyDataUserList();
     //console.log(response.status);
     if(response.status[0].errorCode!=0) return;//error
-    //console.log("User List Received:\n"+response.userList+"\n");
-    for(var i=0; i<response.userList.length; ++i){
-        var option=document.createElement("option");
-        option.value=response.userList[i].username;
-        var option_text=
-            padRight(PADDING,response.userList[i].username, PAD_USERID)
-            +PAD_BETWEEN
-            +padRight(PADDING,response.userList[i].role, PAD_ROLE)
-            +PAD_BETWEEN
-            +padRight(PADDING,response.userList[i].dateJoined, PAD_DATE)
-            +PAD_BETWEEN;
-        option.text=option_text;
-        document.getElementById("select_user_list").add(option);
-    }
+    console.log("User List Received:\n"+response.userList+"\n");
+    
+    var dataTable = $('#user_table').DataTable();
+
+        dataTable.clear();
+
+        var errors = JSON.parse(resp)["errors"];
+        var htmlstring = '<thead><tr><th>User Number</th><th>Login Name</th><th>First Name</th><th>Last Name</th><th>Email Address</th><th>Role</th></tr></thead>';
+        for (var i = 0; i < errors.length; i++)
+        {
+            var item = errors[i];
+            dataTable.rows.add([[formatDateSimple(item["time"]), item["errorMessage"]]]);
+        }
+        dataTable.draw();
+        $('#error_table tbody').on('click', 'td', function () {
+            var cellData = dataTable.cell(this).data();
+            console.log("cellData" + cellData);
+        });
+//    for(var i=0; i<response.userList.length; ++i){
+//        var option=document.createElement("option");
+//        option.value=response.userList[i].username;
+//        var option_text=
+//            padRight(PADDING,response.userList[i].username, PAD_USERID)
+//            +PAD_BETWEEN
+//            +padRight(PADDING,response.userList[i].role, PAD_ROLE)
+//            +PAD_BETWEEN
+//            +padRight(PADDING,response.userList[i].dateJoined, PAD_DATE)
+//            +PAD_BETWEEN;
+//        option.text=option_text;
+//        document.getElementById("select_user_list").add(option);
+//    }
 }
+
 function requestRemoveUsers(){
     //put selected usernames into an request object
     var reqObj={
@@ -88,7 +112,7 @@ function requestRemoveUsers(){
 }
 
 function responseRemoveUsers(response) {
-    //might first have to do response=JSON.parse(response);
+    response=JSON.parse(response);
     console.log(response.status);
     getDummyDataRemoveUsers();
     console.log(response.status);

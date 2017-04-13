@@ -1065,11 +1065,11 @@ public class DatabaseManager
             {
                 user = new JSONObject();
                 user.put("userNumber",selectedUsers.getString("userNumber"));
-                selectedUsers.getString("loginName");
-                selectedUsers.getString("lastName");
-                selectedUsers.getString("firstName");
-                selectedUsers.getString("emailAddress");
-                selectedUsers.getString("userRole");
+                user.put("loginName",selectedUsers.getString("loginName"));
+                user.put("lastName",selectedUsers.getString("lastName"));
+                user.put("firstName",selectedUsers.getString("firstName"));
+                user.put("emailAddress",selectedUsers.getString("emailAddress"));
+                user.put("userRole",selectedUsers.getString("userRole"));
                 userList.add(user);
             }
             userListFinal.put("users", userList);
