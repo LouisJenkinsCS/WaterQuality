@@ -35,6 +35,8 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.javatuples.Pair;
 
 /**
@@ -59,7 +61,9 @@ public class DataValue implements Comparable<DataValue> {
         // Example of timestamp can be seen here: 
         // https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418#file-environet_api_data_specific-json-L12
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
-        this.timestamp = format.parse(timestamp).toInstant();
+        ZonedDateTime utc = ZonedDateTime.ofInstant(format.parse(timestamp).toInstant(), ZoneOffset.UTC);
+        this.timestamp = utc.toInstant();
+//        this.timestamp = format.parse(timestamp).toInstant();
         this.value = value;
         this.id = id;
     }

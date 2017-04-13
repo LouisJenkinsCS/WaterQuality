@@ -102,7 +102,7 @@ var current;
  * @param {type} tabName the tab that the user is switching to
  */
 function openTab(evt, tabName) {
-    var i, tabcontent, tablinks, form;
+    var i, tabcontent, tablinks, form, descriptions;
     tabcontent = document.getElementsByClassName("tabcontent");
 
     //Makes all tabs not display anything
@@ -129,6 +129,12 @@ function openTab(evt, tabName) {
         form[i].style.display = "none";
     }
     document.getElementById(current + "_form").style.display = "block";
+    
+    descriptions = document.getElementsByClassName("description");
+    for (i = 0; i < descriptions.length; i++) {
+        descriptions[i].style.display = "none";
+    }
+    document.getElementById(current + "_description").style.display = "block";
     //Sets a cookie so that the current tab can be remembered
     setCookie("id", current, 1);
 }
@@ -137,7 +143,8 @@ function fetchData(json) {
     var data = new DataResponse(json);
     
     // New data: Clear descriptions
-    document.getElementById("description").innerHTML = "";
+    //document.getElementById("graph_description").innerHTML = "";
+    //document.getElementById("table_description").innerHTML = "";
     
     // If there is a missing description for something selected, fill it ourselves...
     if(current=="Graph"){
@@ -197,10 +204,27 @@ function fetchData(json) {
         if (data.data.length == 1)
             chart.yAxis[i].setTitle({text: ""});
         chart.redraw();
+        
+        document.getElementById("Graph_description").innerHTML="";
+        document.getElementById("Table_description").innerHTML="";
+        for (i = 0; i < data.data.length; i++) {
+            // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
+            document.getElementById("Graph_description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
+            document.getElementById("Graph_description").innerHTML += descriptions[data.data[i].id];
+            document.getElementById("Table_description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
+            document.getElementById("Table_description").innerHTML += descriptions[data.data[i].id];
+        }
     } else {
-        if (getCookie("id") == "Table")
+        if (getCookie("id") == "Table"){
             //document.getElementById("Table").innerHTML = table;
             fillTable(data);
+            document.getElementById("Table_description").innerHTML = "";
+            for (i = 0; i < data.data.length; i++) {
+                // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
+                document.getElementById("Table_description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
+                document.getElementById("Table_description").innerHTML += descriptions[data.data[i].id];
+            }
+        }
         else {
             // Remove all series data
             while (chart.series.length > 0)
@@ -217,14 +241,15 @@ function fetchData(json) {
             if (data.data.length == 1)
                 chart.yAxis[i].setTitle({text: ""});
             chart.redraw();
+            document.getElementById("Graph_description").innerHTML = "";
+            for (i = 0; i < data.data.length; i++) {
+                // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
+                document.getElementById("Graph_description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
+                document.getElementById("Graph_description").innerHTML += descriptions[data.data[i].id];
+            }
         }
     }
-    // Fill out parameters...
-    for (i = 0; i < data.data.length; i++) {
-        // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
-        document.getElementById("description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
-        document.getElementById("description").innerHTML += descriptions[data.data[i].id];
-    }
+    
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor = "default";
 }
@@ -246,8 +271,6 @@ function handleClick(cb)
 }
 
 function fetch() {
-    var minutes = 1000 * 60;
-    var hours = minutes * 60;
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     if (current === "Graph") {
@@ -318,7 +341,6 @@ function fetch() {
         document.getElementById("loader").style.cursor = "default";
         return;
     }
-    
     var request = new DataRequest(startTime, endTime, selecteddata);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
@@ -381,8 +403,6 @@ function fillTable(dataResp) {
 
     $("#data_table").DataTable().destroy();
     table.innerHTML = "";
-    if(dataResp==null)
-    alert("hi");
     //if(dataResp.data.length)
     // If there is a missing description for something selected, fill it ourselves...
     for (j = 0; j < tableSelected.length; j++) {
@@ -434,7 +454,7 @@ function fillTable(dataResp) {
                 continue;
             }
             var ts_val = d[i];
-            if (ts_val["timestamp"] != dates[i]) {
+            if (ts_val["timestamp"] !== dates[i]) {
                 html.push("<td> N/A </td>");
                 d.splice(i, 0, null);
             } else {
@@ -528,13 +548,17 @@ function startingData() {
 
         var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
         tablecheckboxes[5].checked = true;
-        current = getCookie("id");
+        if(getCookie("id")=="")
+            setCookie("id", current, 1);
+        else
+            current = getCookie("id");
         if (getCookie("id") == "Table")
             document.getElementById("TableTab").click();
         else {
             if(getCookie("id")=="Graph")
                 document.getElementById("GraphTab").click();
         }
+        checkuser();
     });
 }
 
@@ -577,7 +601,3 @@ $(function () {
             .datepicker("setDate", date);
     setOnSelect();
 });
-
-function showRecentData(){
-   
-}
