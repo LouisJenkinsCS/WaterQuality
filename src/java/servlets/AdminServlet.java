@@ -700,6 +700,7 @@ public class AdminServlet extends HttpServlet {
             long HDO = 1050296639;
             long Temp = 1050296629;
             long Pressure = 639121405;
+            long Depth = 1050296637;
 
             dataToCSV(DataReceiver
                             .getRemoteData(
@@ -708,7 +709,7 @@ public class AdminServlet extends HttpServlet {
                                             .truncatedTo(ChronoUnit.DAYS), 
                                     Instant.ofEpochMilli(end)
                                             .truncatedTo(ChronoUnit.DAYS), 
-                                    PAR, HDO, Temp, Pressure
+                                    PAR, HDO, Temp, Pressure, Depth
                             ))
                     .subscribeOn(Schedulers.computation())
                     .blockingSubscribe(resp -> 

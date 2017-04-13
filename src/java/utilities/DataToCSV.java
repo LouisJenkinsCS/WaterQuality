@@ -124,7 +124,7 @@ public class DataToCSV {
                     LocalDateTime ldt = LocalDateTime.ofInstant(groupedData.getKey(), ZoneId.of("Z"));
                     String date = ldt.getMonthValue() + "/" + ldt.getDayOfMonth() + "/" + ldt.getYear();
                     String time = ldt.getHour() + ":" + ldt.getMinute() + ":" + ldt.getSecond();
-                    return date + "," + time + "," + line;
+                    return date + " " + time + "," + line;
                 });
     }
     
@@ -144,7 +144,7 @@ public class DataToCSV {
                             .count()
                             .toObservable()
                             .flatMap((Long numberOfParameters) -> {
-                                if (numberOfParameters != 4) {
+                                if (numberOfParameters != 5) {
                                     System.out.println("Dropped for day: " + groupedByDay.getKey() + " with #Params: " + numberOfParameters);
                                     return Observable.empty();
                                 } else {
@@ -191,7 +191,7 @@ public class DataToCSV {
                         .map(DataReceiver::getParameterName)
                         .buffer(Integer.MAX_VALUE)
                         .map(list -> list.stream().collect(Collectors.joining(",")))
-                        .map(header -> "Date,Time," + header)
+                        .map(header -> "DateTime," + header)
                         .map(header -> header + "\n" + values)
                 );
     }
@@ -202,13 +202,14 @@ public class DataToCSV {
         long HDO = 1050296639;
         long Temp = 1050296629;
         long Pressure = 639121405;
+        long Depth = 1050296637;
 
         dataToCSV(
                 DataReceiver
                         .getRemoteData(
                                 Instant.now().minus(Period.ofDays(3)).truncatedTo(ChronoUnit.DAYS), 
                                 Instant.now().truncatedTo(ChronoUnit.DAYS).minusSeconds(15 * 60), 
-                                PAR, HDO, Temp, Pressure
+                                PAR, HDO, Temp, Pressure, Depth
                         )
         )
                 .blockingSubscribe(System.out::println);
