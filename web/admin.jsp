@@ -45,6 +45,11 @@ Current bugs:
         <script>
             function onLoad()
             {
+                document.getElementById("button_logout").disabled=true;
+                document.getElementById("button_to_dashboard").disabled=true;
+                sleep(900);
+                document.getElementById("button_logout").disabled=false;
+                document.getElementById("button_to_dashboard").disabled=false;
                 console.log("Page loaded!");
             }
         </script>
