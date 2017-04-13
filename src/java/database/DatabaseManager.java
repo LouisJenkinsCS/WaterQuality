@@ -749,6 +749,7 @@ public class DatabaseManager
                                 return db.select("select time, value from data_values where parameter_id = ?")
                                     .parameter(key)
                                     .getAs(Long.class, Double.class)
+                                     .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
                                     .map(pair -> new async.DataValue(key, Instant.ofEpochMilli(pair._1()), pair._2()));
                             }
                         })

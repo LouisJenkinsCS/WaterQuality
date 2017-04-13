@@ -70,11 +70,11 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
         return source.getData()
                 // Each id signifies a new parameter, and we need to separate the data values
                 // for each parameter.
+                .sorted()
                 .groupBy(DataValue::getId)
                 // For each group of DataValue (remember they are grouped by the parameter's id)
                 // we must construct a unique JSONObject, as per protocol.
                 .flatMap((GroupedObservable<Long, DataValue> group) -> group
-                            .sorted()
                             // DataValue -> JSONObject
                             .map((DataValue dv) -> {
                                 JSONObject dataField = new JSONObject();
@@ -105,6 +105,7 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                 )
                 // Obtains all JSONObjects containing the data values for each parameter.
                 .buffer(Integer.MAX_VALUE)
+                
                 // Same as before, construct a JSONArray from it.
                 .map((List<JSONObject> list) -> {
                     JSONArray arr = new JSONArray();

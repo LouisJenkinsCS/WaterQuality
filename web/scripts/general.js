@@ -60,7 +60,7 @@ function formatDate(date) {
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
-  var hour = pad((date.getHours()+1) % 24, 2);
+  var hour = pad((date.getHours()) % 24, 2);
   var minute = pad((date.getMinutes())%60, 2);
   var am_pm = hour < 12 ? "AM" : "PM";
   if (hour > 12) {
@@ -71,11 +71,11 @@ function formatDate(date) {
 }
 
 function formatHiddenDate(date) {
-  date = convertDateToUTC(date);
+  //date = convertDateToUTC(date);
   var day = pad(date.getDate(),2);
   var month = pad(date.getMonth() + 1,2);
   var year = date.getFullYear();
-  var hour = pad((date.getHours()+1) % 24, 2);
+  var hour = pad((date.getHours()) % 24, 2);
   var minute = pad((date.getMinutes())%60, 2);
  
   return year+""+month+""+day+" "+hour+":"+minute;
@@ -101,3 +101,12 @@ Date.prototype.stdTimezoneOffset = function () {
     var jul = new Date(this.getFullYear(), 6, 1);
     return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
 };
+
+function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds) {
+            break;
+        }
+    }
+}

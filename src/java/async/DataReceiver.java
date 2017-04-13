@@ -171,6 +171,7 @@ public class DataReceiver {
                 .fromArray(keys)
                 .flatMap((Long key) ->
                     getData(getParameterURL(start, end, key))
+                            .doOnNext(_i -> System.out.println(getParameterURL(start, end, key)))
 //                            .observeOn(Schedulers.computation())
                             // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
                             // We need to obtain the "data" parameter, which a JSONArray.

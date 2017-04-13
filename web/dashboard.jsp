@@ -40,7 +40,7 @@
         <title>Dashboard</title>
     </head>
     <!--<body id="loader" onload="checkUser(); startingData();">-->
-        <body id="loader" onload="startingData();">
+        <body id="loader" onload="blockButtons(); startingData();">
         <img id="backPhoto" src="images/Creek3.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
@@ -53,12 +53,24 @@
         </header>
             
             <script>
-                if (${loggedIn}) {
-                    document.getElementById("Admin_Button").style.display = "inline-block";
-                    document.getElementById("Login_Button").style.display = "none";
-                } else {
+                function blockButtons(){
+                    document.getElementById("Admin_Button").disabled = true;
+                    document.getElementById("Login_Button").disabled = true;
                     document.getElementById("Admin_Button").style.display = "none";
-                    document.getElementById("Login_Button").style.display = "inline-block";
+                    document.getElementById("Login_Button").style.display = "none";
+                }
+                function checkuser(){
+                    if (${loggedIn}) {
+                        document.getElementById("Admin_Button").disabled = false;
+                        document.getElementById("Login_Button").disabled = true;
+                        document.getElementById("Admin_Button").style.display = "inline-block";
+                        document.getElementById("Login_Button").style.display = "none";
+                    } else {
+                        document.getElementById("Admin_Button").disabled = true;
+                        document.getElementById("Login_Button").disabled = false;
+                        document.getElementById("Admin_Button").style.display = "none";
+                        document.getElementById("Login_Button").style.display = "inline-block";
+                    }
                 }
             </script>
         <section class = "content_container1" id = "dashboard_container">
@@ -171,24 +183,12 @@
                     </div>
                 </header>
 
-                <p id="tmp"> </p>
+                <p id="tmp"> 
                 <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
-                <div id="description"></div>
+                <div class="description" id="Graph_description"></div>
+                <div class="description" id="Table_description"></div>
             </section>
-            <!--The modal aka the popup for the table-->
-            <div id="myModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        Table Data
-                        <span class="close">&times;</span>
-                        
-                    </div>
-                    <div id="center">
-                    <div class="modal-body">
-                        <table id="popup" align="center"></table>
-                    </div></div>
-                </div>
-            </div>
+            
         </section>
                      
         <script>
