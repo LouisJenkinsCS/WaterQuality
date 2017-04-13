@@ -107,7 +107,7 @@ public class DataValue implements Comparable<DataValue> {
 
     @Override
     public String toString() {
-        return "DataValue{" + "id=" + id + ", timestamp=" + timestamp.toEpochMilli() + ", value=" + value + '}';
+        return "DataValue{" + "id=" + id + ", timestamp=" + timestamp + ", value=" + value + '}';
     }
     
     

@@ -27,13 +27,14 @@ Current bugs:
         <script src="scripts/admin_editdesc.js"></script>
         <script src="scripts/admin_deletion.js"></script>
         <script src="scripts/admin_errors.js"></script>
+        <script src="scripts/admin_bayesian.js"></script>
         <script src="scripts/AJAX_magic.js"></script>
         <script src="scripts/protocol.js"></script>
 
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        
-         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.css"/>
- 
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.css"/>
+
         <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-html5-1.2.4/b-print-1.2.4/r-2.1.1/se-1.2.0/datatables.min.js"></script>
         <noscript>
         <meta http-equiv="refresh" content="0; URL=/html/javascriptDisabled.html">
@@ -41,7 +42,7 @@ Current bugs:
         <title>Admin Page</title>
     </head>
     <body onload="onLoad();">
-        
+
         <script>
             function onLoad()
             {
@@ -65,9 +66,9 @@ Current bugs:
         </header>
         <section class = "content_box">
             <header class = "content_box__banner">
-                    <span id="content_box__banner__text">
-                        Administrative Functions
-                    </span>
+                <span id="content_box__banner__text">
+                    Administrative Functions
+                </span>
                 </div>
             </header>
             <div class="content_box__tab_bar"><!--this div is needed to make the ul into a bar-->
@@ -86,6 +87,8 @@ Current bugs:
                            id="EditTab">Edit Desc</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Errors'); hide();"
                            id="ErrorsTab">Errors</a></li>
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Bayesian'); hide();"
+                           id="BayesianTab">Bayesian</a></li>
                 </ul>
             </div>
             <!--Admin insertion-->
@@ -129,6 +132,10 @@ Current bugs:
                 <script>fillPageErrors();</script>
             </admincontent>
 
+            <admincontent id="Bayesian" class="tab_content">
+                <!--Bayesian Tab defined in admin_bayesian.js-->
+                <script>fillBayesianContent();</script>
+            </admincontent>
 
         </section>
 
@@ -186,7 +193,7 @@ Current bugs:
     </section> 
 
     <script>
-        var ADMIN_SERVLET="AdminServlet";
+        var ADMIN_SERVLET = "AdminServlet";
     </script>
 
     <script>
@@ -314,26 +321,25 @@ Current bugs:
                 document.getElementById("startdate").setAttribute("max", document.getElementById("enddate").value);
         }
 
-        function requestLogout(){
-            var reqObj={"action" : "logout"};
+        function requestLogout() {
+            var reqObj = {"action": "logout"};
             post(ADMIN_SERVLET, reqObj, responseLogout);
         }
-        
-        function responseLogout(response){
+
+        function responseLogout(response) {
             console.log(response.status);
-            if(response.status[0].errorCode==0)
+            if (response.status[0].errorCode == 0)
             {
                 alert("You have successfully been logged out.");
                 console.log("Logout successful.");
-                window.location.href="/WaterQuality/";
-            }
-            else{
-                var errorMsg="";       
-                for(var i=0; i<response.status.length; ++i){
-                    errorMsg+="Error Code: "+response.status[i].errorCode+" ";
-                    errorMsg+=response.status[i].errorMsg+"\n";
+                window.location.href = "/WaterQuality/";
+            } else {
+                var errorMsg = "";
+                for (var i = 0; i < response.status.length; ++i) {
+                    errorMsg += "Error Code: " + response.status[i].errorCode + " ";
+                    errorMsg += response.status[i].errorMsg + "\n";
                 }
-                alert("Failed to logout\n"+errorMsg);
+                alert("Failed to logout\n" + errorMsg);
                 console.log("Logout failed.");
             }
         }

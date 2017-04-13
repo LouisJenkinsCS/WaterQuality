@@ -5,6 +5,7 @@
  */
 package servlets;
 
+import async.DataReceiver;
 import async.DataValue;
 import common.UserRole;
 import database.DatabaseManager;
@@ -13,7 +14,9 @@ import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.Period;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -26,6 +29,7 @@ import org.javatuples.Quartet;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import static utilities.DataToCSV.dataToCSV;
 import utilities.JSONUtils;
 
 /**
@@ -492,12 +496,10 @@ public class AdminServlet extends HttpServlet {
             Observable.just(request.getParameter("data"))
                     .map(req -> (JSONArray) new JSONParser().parse(req))
                     .flatMap(JSONUtils::flattenJSONArray)
-                    .doOnNext(System.out::println)
                     .flatMap(obj -> Observable.just(obj)
                             .map(o -> (JSONArray) o.get("values"))
                             .flatMap(JSONUtils::flattenJSONArray)
                             .filter(o -> o.get("timestamp") != null && o.get("value") != null)
-                            .doOnNext(System.out::println)
                             .flatMap(o -> DatabaseManager
                                     .parameterNameToId((String) obj.get("name"))
                                     .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), o.get("value") != null ? Double.parseDouble(o.get("value").toString()) : Double.NaN))
@@ -505,7 +507,7 @@ public class AdminServlet extends HttpServlet {
                     )
                     .buffer(Integer.MAX_VALUE)
                     .flatMap(DatabaseManager::insertManualData)
-                    .blockingSubscribe(count -> System.out.println("Inserted " + count + " fields..."));
+                    .blockingSubscribe();
                     
         }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 
@@ -622,6 +624,31 @@ public class AdminServlet extends HttpServlet {
                     obj.put("isAdmin", 0);
             }
             response.getWriter().append(obj.toJSONString());
+        } else if (action.trim().equalsIgnoreCase("getBayesianCSV")) {
+            Long start = Long.parseLong(request.getParameter("startDate"));
+            Long end = Long.parseLong(request.getParameter("endDate"));
+            System.out.println("start: " + start + ", end: " + end);
+            
+            long PAR = 637957793;
+            long HDO = 1050296639;
+            long Temp = 1050296629;
+            long Pressure = 639121405;
+
+            dataToCSV(DataReceiver
+                            .getRemoteData(
+                                    Instant
+                                            .ofEpochMilli(start)
+                                            .truncatedTo(ChronoUnit.DAYS), 
+                                    Instant.ofEpochMilli(end)
+                                            .truncatedTo(ChronoUnit.DAYS), 
+                                    PAR, HDO, Temp, Pressure
+                            ))
+                    .subscribeOn(Schedulers.computation())
+                    .blockingSubscribe(resp -> 
+                            response
+                            .getWriter()
+                            .append(resp)
+                    );
         }
 
     }
