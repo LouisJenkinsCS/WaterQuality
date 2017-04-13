@@ -9,6 +9,7 @@ $.getScript("scripts/datetimepicker.js", function () {});
 var del_options = "";
 var firstLoad = true;
 var listenOK = false;
+var epochMs;
 
 //Called in admin.jsp to load this script
 function loadDelete()
@@ -48,8 +49,7 @@ function loadDelete()
     parameterRequest.action = "getParameters";
 
 
-    post("AdminServlet", parameterRequest, function (response)
-    {
+    post("AdminServlet", parameterRequest, function (response) {
 //        response = {
 //            "data": [
 //                {
@@ -90,8 +90,7 @@ function loadDelete()
         //console.log("resp.data: " + JSON.stringify(resp.data));
         for (var k = 0; k < resp.data.length; k++)
         {
-            if (resp.data[k]["mask"] === 1)
-            {
+            if (resp.data[k]["mask"] === 1) {
                 del_options += '<option disabled selected hidden>Please Choose...</option>';
                 del_options += '<option disabled>-----Sensor Parameters-----</option>';
             } else
@@ -190,7 +189,7 @@ function filterData() {
     //The entered/selected parameters are stored
     var $paramName = $('#delete_param').val();
     var deleteStartDate = new Date($('#delete_startdate').val());
-    
+
     /*
      * Due to difference in local time and UTC, we need to do some
      * hard-coding changes to the times...
@@ -217,7 +216,8 @@ function filterData() {
     var endDateTime = new Date(deleteEndDate + endtime[0] * 3600000 + endtime[1] * 60000).getTime();
 
 
-    var filterRequest = {action: 'getDataDeletion',
+    var filterRequest = {
+        action: 'getDataDeletion',
         parameter: $paramName,
         start: startDateTime,
         end: endDateTime
@@ -264,8 +264,7 @@ function filterData() {
         // Rows are added to the DataTable in a loop
         var data = JSON.parse(resp)["data"];
         var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
-        for (var i = 0; i < data.length; i++)
-        {
+        for (var i = 0; i < data.length; i++) {
             var item = data[i];
             var name = item.name;
             var dataValues = item.dataValues;
@@ -278,19 +277,52 @@ function filterData() {
 
         dataTable.draw();
 
+        var ddr = new DeleteDataRequest();
+
         // If the DataTable is being generated for the first time
         // and the condition for listenOK is still true,
         // set onClick listener
-        if (firstLoad && listenOK)
-        {
+        if (firstLoad && listenOK) {
+
+            $(document).ready(function () {
+                $('#delete_table').DataTable({
+                    columnDefs: [{
+                            orderable: false,
+                            className: 'select-checkbox',
+                            targets: 0
+                        }],
+                    select: {
+                        style: 'os',
+                        selector: 'td:first-child'
+                    },
+                    order: [[1, 'asc']]
+                });
+            });
+
             $('#delete_table tbody').on('click', 'tr', function () {
-                var cellData = dataTable.row(this).data()[0];
+                var timestamp = dataTable.row(this).data()[0];
+                var paramName = dataTable.row(this).data()[1];
 
-                var dateString = new Date(cellData);
-                var epochMs = dateString.getTime();
+                var dateString = new Date(timestamp);
+                epochMs = dateString.getTime();
 
-                console.log("Time: " + cellData);
-                console.log("In ms: " + epochMs);
+                //if(!(dataTable.row(this).classList.contains('highlight'))) {       
+                //highlight row
+                var datarow = dataTable.row(this).index().row;
+                console.log("datarow: " + datarow);
+                var nodes = $(dataTable.row(datarow).nodes());
+                nodes.css("background-color", "gray");
+                //clicked = true;
+                ddr.queueDeletion(paramName, epochMs);
+                //} else {
+                //ddr.popDeletion(ts, pn);
+                //unhighlight row
+                //clicked = false;
+                //}
+
+//                console.log("Time: " + timestamp);
+//                console.log("In ms: " + epochMs);
+//                console.log("Parameter: " + paramName);
                 firstLoad = false;
 
             });
@@ -325,14 +357,20 @@ function filterData() {
 function deleteData() {
 
     var $idList;// = Array of IDs
+    var ddr = new DeleteDataRequest();
+    var $param = $('#deleteparam').val();
+    var epoch = epochMs;
 
     //TODO loop through listed entries, pass $(#entryID) of each selected
     //entry to variable entryIDs
 
     var deleteRequest = {
         action: "RemoveData",
-        entryIDs: $idList
+        parameter: $param,
+        time: epoch
     };
+
+    //ddr.queueDeletion($param, epoch);
 
     //TODO confirm with the user that they're sure the selections
     //are correct - on OK, continue to POST request
@@ -341,16 +379,18 @@ function deleteData() {
     //before firing off the request for sure
     post("AdminServlet", deleteRequest, function (resp) {
         alert(resp);
+        //Data shown has to be refreshed after deletion occurs
+        filterData();
     });
 }
 
 /*
  * The DatePickers are initialized here
  */
-function createDatePickers()
-{
+function createDatePickers() {
+
     var date = new Date();
-    
+
     // The default time range is a month before
     // the current date to today's date
     $("#delete_enddate").datetimepicker({
@@ -368,7 +408,7 @@ function createDatePickers()
         altField: "#delete_starttime"
     })
             .datepicker("setDate", date);
-    
+
     changeOnSelect();
 }
 
@@ -378,8 +418,8 @@ function createDatePickers()
  * sets an onSelect listener to call filterData() whenever a
  * new date or time is selected.
  */
-function changeOnSelect()
-{
+function changeOnSelect() {
+
     $("#delete_enddate").datetimepicker("option", "onSelect", filterData);
     $("#delete_startdate").datetimepicker("option", "onSelect", filterData);
 }
@@ -389,7 +429,6 @@ function changeOnSelect()
  * that a parameter has been selected. If no parameter is selected,
  * the onClick listener should NOT be set.
  */
-function setListenOK()
-{
+function setListenOK() {
     listenOK = true;
 }
