@@ -496,12 +496,10 @@ public class AdminServlet extends HttpServlet {
             Observable.just(request.getParameter("data"))
                     .map(req -> (JSONArray) new JSONParser().parse(req))
                     .flatMap(JSONUtils::flattenJSONArray)
-                    .doOnNext(System.out::println)
                     .flatMap(obj -> Observable.just(obj)
                             .map(o -> (JSONArray) o.get("values"))
                             .flatMap(JSONUtils::flattenJSONArray)
                             .filter(o -> o.get("timestamp") != null && o.get("value") != null)
-                            .doOnNext(System.out::println)
                             .flatMap(o -> DatabaseManager
                                     .parameterNameToId((String) obj.get("name"))
                                     .map(id -> new DataValue(id, Instant.ofEpochMilli((long) o.get("timestamp")), o.get("value") != null ? Double.parseDouble(o.get("value").toString()) : Double.NaN))
@@ -509,7 +507,7 @@ public class AdminServlet extends HttpServlet {
                     )
                     .buffer(Integer.MAX_VALUE)
                     .flatMap(DatabaseManager::insertManualData)
-                    .blockingSubscribe(count -> System.out.println("Inserted " + count + " fields..."));
+                    .blockingSubscribe();
                     
         }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 

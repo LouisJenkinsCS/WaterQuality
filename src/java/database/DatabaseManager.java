@@ -277,7 +277,7 @@ public class DatabaseManager
         
         
         Observable.from(data)
-                .flatMap(dv -> db.update("insert into data_values (time, value, parameter_id) values (?, ?, ?)")
+                .flatMap(dv -> db.update("replace into data_values (time, value, parameter_id) values (?, ?, ?)")
                         .parameter(Timestamp.from(dv.getTimestamp()))
                         .parameter(dv.getValue())
                         .parameter(dv.getId())
@@ -286,10 +286,6 @@ public class DatabaseManager
                 .reduce(0, (x, y) -> x + y)
                 .subscribeOn(rx.schedulers.Schedulers.computation())
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
-//        db.update("insert into data_values (time, value, parameter_id) values (?, ?, ?)")
-//                .parameterTransformer()
-//                .subscribeOn(rx.schedulers.Schedulers.computation())
-//                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;
     }
