@@ -57,12 +57,16 @@ import java.util.stream.IntStream;
  */
 public class DataToCSV {
     
+    /**
+     * Fills values that are absent for a day.
+     * @param values DataValues
+     * @return Modified stream that fills in all days.
+     */
     private static Observable<DataValue> fillForDay(GroupedObservable<Long, DataValue> values) {
         return values
                 .buffer(Integer.MAX_VALUE)
                 .flatMap((List<DataValue> allDataValues) -> {
                     allDataValues.sort(DataValue::compareTo);
-                    System.out.println("Processing list of size: " + allDataValues.size());
                     if (allDataValues.size() == 95) {
                         return Observable.fromIterable(allDataValues);
                     }
@@ -72,7 +76,6 @@ public class DataToCSV {
                     List<DataValue> graphData = new ArrayList<>();
                     for (DataValue value : allDataValues) {
                         while (value.getTimestamp().compareTo(time) != 0 && time.compareTo(endTime) <= 0) {
-                            System.out.println("Added for " + values.getKey() + " because " + value.getTimestamp() + " < " + time);
                             graphData.add(new DataValue(values.getKey(), time, value.getValue()));
                             time = time.plus(Duration.ofMinutes(15));
                         }
@@ -83,8 +86,6 @@ public class DataToCSV {
                     
                     List<DataValue> c = new ArrayList<>(graphData);
                     c.removeAll(allDataValues);
-                    System.out.println("Filling for: " + values.getKey() + ", # of Values: " 
-                            + graphData.size() + ", Delta: " + (graphData.size() - allDataValues.size()) + "\n" + c);
 
                     return Observable.fromIterable(graphData);
                 });
@@ -147,7 +148,6 @@ public class DataToCSV {
                                     System.out.println("Dropped for day: " + groupedByDay.getKey() + " with #Params: " + numberOfParameters);
                                     return Observable.empty();
                                 } else {
-                                    System.out.println("Approved for day: " + groupedByDay.getKey());
                                     return cachedDataValues;
                                 }
                             });
@@ -165,16 +165,26 @@ public class DataToCSV {
      */
     public static Observable<String> dataToCSV(Data source) {
         return source.getData()
+                // If a day is empty, we drop it entirely.
+                // Note: compose() on the entire stream
                 .compose(DataToCSV::dropEmptyDays)
+                // If values are missing for a day (which is extremely often) we fill them
+                // with the next matching value.
                 .compose(DataToCSV::fillForDays)
-                // Format row
+                // Format row; each row is related by timestamp
                 .groupBy(DataValue::getTimestamp)
+                // Sort time in ascending order, as groupBy can leave data unordered
                 .sorted((g1, g2) -> g1.getKey().compareTo(g2.getKey()))
                 .flatMap(DataToCSV::formatRow)
+                // Get all rows
                 .buffer(Integer.MAX_VALUE)
+                // Concatenate all of them, line by line
                 .map(list -> list.stream().collect(Collectors.joining("\n")))
+                // Now, given the body, we need to obtain the headers. Since we discarded
+                // the DataValues for their row contents. Since we guaranteed that the above
+                // rows are generated sorted by their identifiers, we can deterministically create
+                // their respective headers by reusing the cached DataValues.
                 .flatMap(values -> source.getData()
-                        .sorted()
                         .map(DataValue::getId)
                         .sorted()
                         .distinct()

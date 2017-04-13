@@ -645,6 +645,7 @@ public class AdminServlet extends HttpServlet {
                                             .truncatedTo(ChronoUnit.DAYS), 
                                     PAR, HDO, Temp, Pressure
                             ))
+                    .subscribeOn(Schedulers.computation())
                     .blockingSubscribe(resp -> 
                             response
                             .getWriter()

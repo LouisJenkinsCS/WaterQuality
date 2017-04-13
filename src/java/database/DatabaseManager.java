@@ -6,10 +6,8 @@ package database;
 import async.DataParameter;
 import async.DataReceiver;
 import common.DataValue;
-import common.ErrorMessage;
 import common.User;
 import common.UserRole;
-import io.reactivex.schedulers.Schedulers;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,18 +20,12 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import rx.Observable;
 import security.SecurityCode;
-import utilities.FileUtils;
-import utilities.JSONUtils;
 
 /**
  *
