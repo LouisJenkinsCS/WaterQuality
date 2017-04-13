@@ -636,9 +636,7 @@ public class AdminServlet extends HttpServlet {
             long Temp = 1050296629;
             long Pressure = 639121405;
 
-            response
-                    .getWriter()
-                    .append(dataToCSV(DataReceiver
+            dataToCSV(DataReceiver
                             .getRemoteData(
                                     Instant
                                             .ofEpochMilli(start)
@@ -646,7 +644,11 @@ public class AdminServlet extends HttpServlet {
                                     Instant.ofEpochMilli(end)
                                             .truncatedTo(ChronoUnit.DAYS), 
                                     PAR, HDO, Temp, Pressure
-                            ), false)
+                            ))
+                    .blockingSubscribe(resp -> 
+                            response
+                            .getWriter()
+                            .append(resp)
                     );
         }
 
