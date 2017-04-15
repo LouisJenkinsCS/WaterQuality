@@ -12,11 +12,11 @@ $.getScript("scripts/general.js", function () {});
 function fillPageRemoveUser() {
 
     $('#Remove_User').append(
-            '<div class=large_text>Select Users to Remove</div><br>'
-            + '<input type="submit" id="input_submit_refresh_users" value="Refresh" onclick="refreshUsers()">'
+            '<div class=large_text>Select Users to Remove</div>'
+            + '<input type="submit" id="input_submit_refresh_users" value="Refresh" onclick="refreshUsers()"><br><br/>'
             + '<table id="user_table">' +
             '<thead><tr><th>User Number</th><th>Login Name</th><th>First Name</th><th>Last Name</th><th>Email Address</th><th>Role</th></tr></thead>' +
-            '</table><br/>'
+            '</table>'
             + '<input type="submit" id="input_submit_remove_users" value="Remove Users" onclick="removeUsers()">'
             );
     $('#user_table').DataTable({
