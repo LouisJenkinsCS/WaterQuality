@@ -42,6 +42,11 @@
     color: white;
 }
 
+#table_register {
+    background-color:#266B6B;
+    color: white;
+}
+
 #user_table td, #user_table th, #delete_table td, #delete_table th, #error_table td, #error_table th{
     border: 1px solid #ddd;
     padding: 8px;
@@ -115,7 +120,7 @@
     margin-left: auto;
     margin-right: auto;
     min-width: 600px;
-    max-width: 800px;
+    max-width: 900px;
     border-radius: 20px;
     border: 2px solid;
     background: rgba(114,154,154,.75);
@@ -232,6 +237,7 @@ input[type="submit"]{
     width: 100px;
     height:25px;
     background: #266B6B;
+    color:white;
 }
 
 .themed_button{

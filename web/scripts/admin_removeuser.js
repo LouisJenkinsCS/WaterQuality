@@ -21,12 +21,12 @@ function fillPageRemoveUser() {
             );
     $('#user_table').DataTable({
         columns: [
-            {title: "userNumber"},
-            {title: "loginName"},
-            {title: "firstName"},
-            {title: "lastName"},
-            {title: "emailAddress"},
-            {title: "userRole"}
+            {title: "User ID"},
+            {title: "Login Name"},
+            {title: "First Name"},
+            {title: "Last Name"},
+            {title: "EmailAddress"},
+            {title: "Role"}
         ],
         select: 'multi'
     });
