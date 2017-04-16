@@ -134,19 +134,27 @@ public class AdminServlet extends HttpServlet {
             If an error arises, etcStatus is set with a suggested cause.
          */ else if (action.trim().equalsIgnoreCase("RemoveUser")) {
             try {
-                boolean userRemovalStatus = DatabaseManager.deleteUser(Integer.parseInt((String) request.getParameter("userDeletionID")),
+                String userIDsTemp = request.getParameter("userDeletionIDs");
+                String [] userIDs = userIDsTemp.split(",");
+                
+                int [] userIntIDs = new int[userIDs.length];
+                for(int i = 0; i < userIDs.length; i++)
+                    userIntIDs[i] = Integer.parseInt(userIDs[i]);
+                
+                
+                int userRemovalStatus = DatabaseManager.deleteUsers(userIntIDs,
                         admin);
-                if (userRemovalStatus) {
+                if (userRemovalStatus == userIntIDs.length) {
                     JSONObject obj = new JSONObject();
-                    obj.put("status", "Success");
+                    obj.put("status", "Successfully Deleted Users");
                     response.getWriter().append(obj.toJSONString());
                 } else {
                     JSONObject obj = new JSONObject();
-                    obj.put("status", "Failed");
+                    obj.put("status", userIntIDs.length - userRemovalStatus + " deletions failed, check the error logs");
                     response.getWriter().append(obj.toJSONString());
                 }
             } catch (Exception e) {
-                request.setAttribute("userDeletionStatus", "Error: Did you not check any boxes for deletion?");
+                request.setAttribute("status", "Oops, an error occured. Check the error logs");
             }
         } /*
             Admin is setting the user's status to locked, preventing them from logging in
@@ -156,7 +164,7 @@ public class AdminServlet extends HttpServlet {
             If an error arises, etcStatus is set with a suggested cause.
          */ else if (action.trim().equalsIgnoreCase("LockUser")) {
             try {
-                boolean lockStatus = DatabaseManager.deleteUser(Integer.parseInt((String) request.getParameter("userLockID")),
+                boolean lockStatus = DatabaseManager.lockUser(Integer.parseInt((String) request.getParameter("userLockID")),
                         admin);
                 if (lockStatus) {
                     session.setAttribute("lockStatus", "User Deletion Successful");
@@ -174,7 +182,7 @@ public class AdminServlet extends HttpServlet {
             If an error arises, etcStatus is set with a suggested cause.
          */ else if (action.trim().equalsIgnoreCase("UnlockUser")) {
             try {
-                boolean unlockStatus = DatabaseManager.deleteUser(Integer.parseInt((String) request.getParameter("userUnlockID")),
+                boolean unlockStatus = DatabaseManager.unlockUser(Integer.parseInt((String) request.getParameter("userUnlockID")),
                         admin);
                 if (unlockStatus) {
                     session.setAttribute("unlockStatus", "User Unlock Successful");

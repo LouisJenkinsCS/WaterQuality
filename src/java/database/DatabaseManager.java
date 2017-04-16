@@ -588,9 +588,9 @@ public class DatabaseManager
         @param u the user who is doing the deletion
         @return whether this function was successful or not
     */
-    public static boolean deleteUser(int userID, User u)
+    public static int deleteUsers(int [] userIDs, User u)
     {
-        boolean status;
+        int successfulDeletions = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement deleteUser = null;
         try
@@ -598,21 +598,25 @@ public class DatabaseManager
             //throws an error if a user without proper roles somehow invokes this function
             if(u.getUserRole() != common.UserRole.SystemAdmin)
                 throw new Exception("Attempted User Deletion by Non-Admin");
-            if(userID == u.getUserNumber())
-                throw new Exception("User Attempting to delete self");
             conn.setAutoCommit(false);
             String deleteSQL = "Delete from users where userNumber = ?";
-                
             deleteUser = conn.prepareStatement(deleteSQL);
-            deleteUser.setInt(1, userID);
-            deleteUser.executeUpdate();
-            conn.commit();
-            status = true;
+            for(int userID : userIDs)
+            {
+                if(userID == u.getUserNumber())
+                    LogError("Error Deleting User: User Attempting to delete self");
+                else
+                {
+                    deleteUser.setInt(1, userID);
+                    deleteUser.executeUpdate();
+                    conn.commit();
+                    successfulDeletions++;
+                }
+            }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
-            LogError("Error Manualing Deleting User: " + ex);
+            LogError("Error Deleting User: " + ex);
             if(conn!=null)
             {
                 try
@@ -639,7 +643,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection: " + excep);
             }
         }
-        return status;
+        return successfulDeletions;
     }
     
     /*

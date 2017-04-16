@@ -42,6 +42,29 @@
     color: white;
 }
 
+#table_register {
+    background-color:#266B6B;
+    color: white;
+}
+
+#user_table td, #user_table th, #delete_table td, #delete_table th, #error_table td, #error_table th{
+    border: 1px solid #ddd;
+    padding: 8px;
+    align-content: center;
+}
+
+#user_table tr:nth-child(even),#delete_table tr:nth-child(even), #error_table tr:nth-child(even){background-color: #f2f2f2;}
+
+#user_table tr:hover, #delete_table tr:hover, #error_table tr:hover{background-color: #ddd;}
+
+#user_table th,#delete_table th,#error_table th{
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: #266B6B;;
+    color: white;
+}
+
 #back_photo
 {
     left: 0px;
@@ -97,7 +120,7 @@
     margin-left: auto;
     margin-right: auto;
     min-width: 600px;
-    max-width: 800px;
+    max-width: 900px;
     border-radius: 20px;
     border: 2px solid;
     background: rgba(114,154,154,.75);
@@ -214,7 +237,7 @@ input[type="submit"]{
     width: 100px;
     height:25px;
     background: #266B6B;
-    margin-left: 100px;
+    color:white;
 }
 
 .themed_button{

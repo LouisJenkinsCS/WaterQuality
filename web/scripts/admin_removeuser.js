@@ -7,167 +7,125 @@
 //This function simply pulls the AJAX_magic.js script
 //to allow the current script to use AJAX functions
 $.getScript("scripts/AJAX_magic.js", function () {});
-
-var SERVLET="AdminServlet";
-var ACTION_GET_USERS='getUserList';
-var ACTION_REMOVE_USERS='removeUsers';
-var PAD_USERID=20;
-var PAD_BETWEEN=2;
-var PAD_ROLE=13;
-var PAD_DATE=8;
-var OPTION_LENGTH=PAD_USERID+PAD_BETWEEN*3+PAD_ROLE+PAD_DATE;
-var PADDING = Array(OPTION_LENGTH).join(' ');//warning: assumes that Array is initially null/undefined (blank) in each position.
-var arrSelectedUsernames = new Array();
-var default_options='<option>[no users loaded]</option>';
+$.getScript("scripts/general.js", function () {});
 
 function fillPageRemoveUser() {
 
-    //maybe we could also display their role and date of creation.
-    //this will have to be a formatted string with a set number of characters 
-    //for each field so they appear to be in columns.
-    
-    //<form> tag might be removed when implementing AJAX (unsure).
     $('#Remove_User').append(
-            '<div class=large_text>Select Users to Remove</div><br>'
+            '<div class=large_text>Select Users to Remove</div>'
+            + '<input type="submit" id="input_submit_refresh_users" value="Refresh" onclick="refreshUsers()"><br><br/>'
             + '<table id="user_table">' +
             '<thead><tr><th>User Number</th><th>Login Name</th><th>First Name</th><th>Last Name</th><th>Email Address</th><th>Role</th></tr></thead>' +
-            '</table><br/>'
-            + '<input type="submit" id="input_submit_remove_users" value="Remove Users" onclick="requestRemoveUsers">'
+            '</table>'
+            + '<input type="submit" id="input_submit_remove_users" value="Remove Users" onclick="removeUsers()">'
             );
     $('#user_table').DataTable({
         columns: [
-            {title: "Date-Time"},
-            {title: "Error Message"}
-        ]
+            {title: "User ID"},
+            {title: "Login Name"},
+            {title: "First Name"},
+            {title: "Last Name"},
+            {title: "EmailAddress"},
+            {title: "Role"}
+        ],
+        select: 'multi'
     });
-    var userList = document.getElementById("select_user_list");
-    userList.multiple = "multiple";
-    //userList.size=15;
-    
-    requestGetUserList();//call to server
-    
-    document.getElementById('input_submit_remove_users').addEventListener("click", requestRemoveUsers, false);
-}
 
-//also updates select_user_list options upon receiving response.
-function requestGetUserList(){
-    var reqObj={action: ACTION_GET_USERS};
-    post(SERVLET, reqObj, responseGetUserList);
-}
-function responseGetUserList(response) {
-    //might first have to do response=JSON.parse(response);
-    //console.log(response.status);
-    response=getDummyDataUserList();
-    //console.log(response.status);
-    if(response.status[0].errorCode!=0) return;//error
-    console.log("User List Received:\n"+response.userList+"\n");
-    
-    var dataTable = $('#user_table').DataTable();
+    var getUsersRequest = {action: 'getUserList'};
+
+    post("AdminServlet", getUsersRequest, function (resp) {
+        if (resp.hasOwnProperty("status")) {
+            window.alert(resp.status);
+            return;
+        }
+
+        var dataTable = $('#user_table').DataTable();
 
         dataTable.clear();
 
-        var errors = JSON.parse(resp)["errors"];
+        var users = JSON.parse(resp)["users"];
         var htmlstring = '<thead><tr><th>User Number</th><th>Login Name</th><th>First Name</th><th>Last Name</th><th>Email Address</th><th>Role</th></tr></thead>';
-        for (var i = 0; i < errors.length; i++)
+        for (var i = 0; i < users.length; i++)
         {
-            var item = errors[i];
-            dataTable.rows.add([[formatDateSimple(item["time"]), item["errorMessage"]]]);
+            var item = users[i];
+            dataTable.rows.add([[item["userNumber"], item["loginName"], item["firstName"], item["lastName"], item["emailAddress"], item["userRole"]]]);
         }
         dataTable.draw();
-        $('#error_table tbody').on('click', 'td', function () {
-            var cellData = dataTable.cell(this).data();
-            console.log("cellData" + cellData);
-        });
-//    for(var i=0; i<response.userList.length; ++i){
-//        var option=document.createElement("option");
-//        option.value=response.userList[i].username;
-//        var option_text=
-//            padRight(PADDING,response.userList[i].username, PAD_USERID)
-//            +PAD_BETWEEN
-//            +padRight(PADDING,response.userList[i].role, PAD_ROLE)
-//            +PAD_BETWEEN
-//            +padRight(PADDING,response.userList[i].dateJoined, PAD_DATE)
-//            +PAD_BETWEEN;
-//        option.text=option_text;
-//        document.getElementById("select_user_list").add(option);
-//    }
-}
 
-function requestRemoveUsers(){
-    //put selected usernames into an request object
-    var reqObj={
-	"action" : ACTION_REMOVE_USERS,
-	"usersSelected" : []//to be filled dynamically below
-    };
-    var allOptions=document.getElementById("select_user_list").options;
-    arrSelectedUsernames=new Array();
-    allOptions.forEach(function(option) {
-        if(option.selected){
-            arrSelectedUsernames.push(option.value);
-            reqObj.usersSelected.push({"userID":option.value});
-        }
-        //could use reqObj["usersSelected"].push() instead.
     });
-    post(SERVLET, reqObj, responseRemoveUsers);//when to use post vs. get?
+
 }
 
-function responseRemoveUsers(response) {
-    response=JSON.parse(response);
-    console.log(response.status);
-    getDummyDataRemoveUsers();
-    console.log(response.status);
-    if(response.status[0].errorCode!=0) return;//error
-    alert("The selected users have been successfully removed.");
-    requestGetUserList();//update the list.
-};
+function removeUsers() {
 
-/**
- * helper function for testing.
- * @returns {respObj} A object containing a sample response.
- */
-function getDummyDataUserList(){
-    var respObj={
-        "status" :[
-          {
-            "errorCode" : "0",
-            "errorMsg" : "[THIS IS A LOCAL DUMMY] User list received successfully."
-          }
-        ],
-        "userList" : [
-          {
-            "username" : "User9403",
-            "role" : "Administrator",
-                "dateJoined" : "01/01/2017"
-          },
-          {
-            "username" : "User0822",
-            "role" : "Administrator",
-                "dateJoined" : "01/02/2017"
-          }
-        ]
+    var table = $('#user_table').DataTable();
+    var selectedCells = table.rows('.selected').data();
+    var userIDs = "";
+    for (var i = 0; i < selectedCells.length; i++)
+    {
+        userIDs += selectedCells[i][0] + ",";
+    }
+
+
+    var removeUsers = {
+        action: 'RemoveUser',
+        userDeletionIDs: userIDs
     };
-    return respObj;
+
+    post("AdminServlet", removeUsers, function (response) {
+        var respData = JSON.parse(response);
+        window.alert(respData["status"]);
+
+        $("#user_table").DataTable().destroy();
+
+        var getUsersRequest = {action: 'getUserList'};
+
+        post("AdminServlet", getUsersRequest, function (resp) {
+            if (resp.hasOwnProperty("status")) {
+                window.alert(resp.status);
+                return;
+            }
+
+            var dataTable = $('#user_table').DataTable();
+
+            dataTable.clear();
+
+            var users = JSON.parse(resp)["users"];
+            var htmlstring = '<thead><tr><th>User Number</th><th>Login Name</th><th>First Name</th><th>Last Name</th><th>Email Address</th><th>Role</th></tr></thead>';
+            for (var i = 0; i < users.length; i++)
+            {
+                var item = users[i];
+                dataTable.rows.add([[item["userNumber"], item["loginName"], item["firstName"], item["lastName"], item["emailAddress"], item["userRole"]]]);
+            }
+            dataTable.draw();
+
+        });
+    });
 }
-function getDummyDataRemoveUsers(){
-    var respObj={"status" : [
-        {
-          "errorCode" : "0",
-          "errorMsg" : "[LOCAL DUMMY DATA] Selected users were successfully removed."//this message could be client-side only.
+
+function refreshUsers() {
+    $("#data_table").DataTable().destroy();
+
+    var getUsersRequest = {action: 'getUserList'};
+
+    post("AdminServlet", getUsersRequest, function (resp) {
+        if (resp.hasOwnProperty("status")) {
+            window.alert(resp.status);
+            return;
         }
-      ]
-    };
-    return respObj;
-}
 
-/**
- * A helper function for aligning columns.
- * Adds padding to the right of str with characters from pStr for a total length
- *  of len.
- * @param {string} pStr A string of filler-characters to use as padding.
- * @param {string} str The original non-padded string to be padded.
- * @param {int} len The width in units of characters.
- * @returns {string} The resulting padded string.
- */
-function padRight(pStr, str, len){
-    return (str+pStr).slice(0, len);
+        var dataTable = $('#user_table').DataTable();
+
+        dataTable.clear();
+
+        var users = JSON.parse(resp)["users"];
+        var htmlstring = '<thead><tr><th>User Number</th><th>Login Name</th><th>First Name</th><th>Last Name</th><th>Email Address</th><th>Role</th></tr></thead>';
+        for (var i = 0; i < users.length; i++)
+        {
+            var item = users[i];
+            dataTable.rows.add([[item["userNumber"], item["loginName"], item["firstName"], item["lastName"], item["emailAddress"], item["userRole"]]]);
+        }
+        dataTable.draw();
+
+    });
 }
