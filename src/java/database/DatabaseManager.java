@@ -6,10 +6,8 @@ package database;
 import async.DataParameter;
 import async.DataReceiver;
 import common.DataValue;
-import common.ErrorMessage;
 import common.User;
 import common.UserRole;
-import io.reactivex.schedulers.Schedulers;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,18 +20,12 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import rx.Observable;
 import security.SecurityCode;
-import utilities.FileUtils;
-import utilities.JSONUtils;
 
 /**
  *
@@ -285,7 +277,7 @@ public class DatabaseManager
         
         
         Observable.from(data)
-                .flatMap(dv -> db.update("insert into data_values (time, value, parameter_id) values (?, ?, ?)")
+                .flatMap(dv -> db.update("replace into data_values (time, value, parameter_id) values (?, ?, ?)")
                         .parameter(Timestamp.from(dv.getTimestamp()))
                         .parameter(dv.getValue())
                         .parameter(dv.getId())
@@ -294,10 +286,7 @@ public class DatabaseManager
                 .reduce(0, (x, y) -> x + y)
                 .subscribeOn(rx.schedulers.Schedulers.computation())
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
-//        db.update("insert into data_values (time, value, parameter_id) values (?, ?, ?)")
-//                .parameterTransformer()
-//                .subscribeOn(rx.schedulers.Schedulers.computation())
-//                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
+
         
         return results;
     }
@@ -749,6 +738,7 @@ public class DatabaseManager
                                 return db.select("select time, value from data_values where parameter_id = ?")
                                     .parameter(key)
                                     .getAs(Long.class, Double.class)
+                                     .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
                                     .map(pair -> new async.DataValue(key, Instant.ofEpochMilli(pair._1()), pair._2()));
                             }
                         })
@@ -1076,11 +1066,11 @@ public class DatabaseManager
             {
                 user = new JSONObject();
                 user.put("userNumber",selectedUsers.getString("userNumber"));
-                selectedUsers.getString("loginName");
-                selectedUsers.getString("lastName");
-                selectedUsers.getString("firstName");
-                selectedUsers.getString("emailAddress");
-                selectedUsers.getString("userRole");
+                user.put("loginName",selectedUsers.getString("loginName"));
+                user.put("lastName",selectedUsers.getString("lastName"));
+                user.put("firstName",selectedUsers.getString("firstName"));
+                user.put("emailAddress",selectedUsers.getString("emailAddress"));
+                user.put("userRole",selectedUsers.getString("userRole"));
                 userList.add(user);
             }
             userListFinal.put("users", userList);

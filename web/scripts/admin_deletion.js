@@ -285,6 +285,15 @@ function filterData() {
 
 
         dataTable.draw();
+        
+//        console.log(htmlstring);
+//         
+//        $('#delete_table').DataTable().destroy(true);
+//        $('#delete_table').append(htmlstring);
+//        $('#delete_table').DataTable();
+        $('#delete_table tbody').on('click', 'td', function () {
+            var cellData = dataTable.cell(this).data();
+        });
 
         var ddr = new DeleteDataRequest();
 

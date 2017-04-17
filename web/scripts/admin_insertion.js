@@ -103,7 +103,6 @@ function sendCSV() {
         //console.log("Lines:" + lines);
         useThese();
     }
-
     function useThese() {
 
         var headerArray = lines[0];
