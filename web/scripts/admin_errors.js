@@ -50,9 +50,6 @@ function fillPageErrors()
 
 function filterErrors()
 {
-    //To store the string to append to the document
-    var htmlstring = "";
-
     //The entered/selected parameters are stored
     var deleteStartDate = new Date($('#errors_startdate').val());
     if (deleteStartDate.dst())
@@ -92,7 +89,7 @@ function filterErrors()
         dataTable.clear();
 
         var errors = JSON.parse(resp)["errors"];
-        var htmlstring = '<thead><tr><th>Date-Time</th><th>Error Message</th></tr></thead>';
+
         for (var i = 0; i < errors.length; i++)
         {
             var item = errors[i];

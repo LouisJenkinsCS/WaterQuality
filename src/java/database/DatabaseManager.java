@@ -874,9 +874,9 @@ public class DatabaseManager
         @param u the user doing the locking
         @return whether this function was successful or not
     */
-    public static boolean lockUser(int userID, User u)
+    public static int lockUser(int [] userIDs, User u)
     {
-        boolean status;
+        int successfulLocks = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement lockUser = null;
         try
@@ -892,15 +892,38 @@ public class DatabaseManager
           
             
             lockUser = conn.prepareStatement(modifySQL);
-            lockUser.setInt(1, userID);
-            lockUser.executeUpdate();
-            conn.commit();
-            status = true;
+            
+            for(int userID : userIDs)
+            {
+                if(userID == u.getUserNumber())
+                    LogError("Error Locking User: User Attempting to Lock Self");
+                else
+                {
+                    try
+                    {
+                        lockUser.setInt(1, userID);
+                        lockUser.executeUpdate();
+                        conn.commit();
+                        successfulLocks++;
+                    }
+                    catch(Exception e)
+                    {
+                        LogError("Error Locking User with ID: " + userID + ": " + e);
+                        try
+                        {
+                            conn.rollback();
+                        }
+                        catch(SQLException excep)
+                        {
+                            LogError("Rollback unsuccessful: " + excep);
+                        }
+                    }
+                }
+            }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
-            LogError("Error Locking User #" + userID + ": " + ex);
+            LogError("Error Locking Users: " + ex);
             if(conn!=null)
             {
                 try
@@ -927,7 +950,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection:" + excep);
             }
         }
-        return status;
+        return successfulLocks;
     }
     
     /*
@@ -936,9 +959,9 @@ public class DatabaseManager
         @param u the user doing the unlocking
         @return whether this function was successful or not
     */
-    public static boolean unlockUser(int userID, User u)
+    public static int unlockUser(int [] userIDs, User u)
     {
-        boolean status;
+        int successfulUnlocks = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement unlockUser = null;
         try
@@ -954,15 +977,32 @@ public class DatabaseManager
           
             
             unlockUser = conn.prepareStatement(modifySQL);
-            unlockUser.setInt(1, userID);
-            unlockUser.executeUpdate();
-            conn.commit();
-            status = true;
+            for(int userID : userIDs)
+            {
+                try
+                {
+                    unlockUser.setInt(1, userID);
+                    unlockUser.executeUpdate();
+                    conn.commit();
+                    successfulUnlocks++;
+                }
+                catch(Exception e)
+                {
+                    LogError("Error Unlocking User with ID: " + userID + ": " + e);
+                    try
+                    {
+                        conn.rollback();
+                    }
+                    catch(SQLException excep)
+                    {
+                        LogError("Rollback unsuccessful: " + excep);
+                    }
+                }
+            }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
-            LogError("Error Unlocking User #" + userID + ": " + ex);
+            LogError("Error Unlocking Users: " + ex);
             if(conn!=null)
             {
                 try
@@ -989,7 +1029,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection: " + excep);
             }
         }
-        return status;
+        return successfulUnlocks;
     }
     
     
@@ -1079,6 +1119,7 @@ public class DatabaseManager
                 user.put("loginName",selectedUsers.getString("loginName"));
                 user.put("lastName",selectedUsers.getString("lastName"));
                 user.put("firstName",selectedUsers.getString("firstName"));
+                user.put("locked",selectedUsers.getString("locked"));
                 user.put("emailAddress",selectedUsers.getString("emailAddress"));
                 user.put("userRole",selectedUsers.getString("userRole"));
                 userList.add(user);
