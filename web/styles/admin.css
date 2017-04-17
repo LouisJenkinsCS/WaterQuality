@@ -55,6 +55,8 @@
 
 #user_table tr:nth-child(even),#delete_table tr:nth-child(even), #error_table tr:nth-child(even){background-color: #f2f2f2;}
 
+#user_table tr:nth-child(even).selected,#delete_table tr:nth-child(even).selected{background-color:#acbad4;}
+
 #user_table tr:hover, #delete_table tr:hover, #error_table tr:hover{background-color: #ddd;}
 
 #user_table th,#delete_table th,#error_table th{

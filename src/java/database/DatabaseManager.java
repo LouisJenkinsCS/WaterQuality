@@ -20,6 +20,7 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
@@ -39,6 +40,11 @@ import security.SecurityCode;
  */
 public class DatabaseManager 
 {
+    /*
+        A list of strings that have the batch commands for undoing certain
+        tasks like deleting users or data.
+    */
+    //private static LinkedList<String> UNDOLIST = new LinkedList();
     
     /*
         Creates the data value table
@@ -1438,8 +1444,6 @@ public class DatabaseManager
         Connection conn = null;
         try
         {
-            LogError("Lower Range: " + lower);
-            LogError("Upper Range: " + upper);
             conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from ErrorLogs where timeOccured >= ? AND timeOccured <= ?";
             selectErrors = conn.prepareStatement(query);
@@ -1568,13 +1572,6 @@ public class DatabaseManager
                 .compose(db.commitOnComplete_())
                 .subscribe();
     }
- 
-    public static void main(String[] args) {
-        User u = new User();
-        u.setUserRole(UserRole.SystemAdmin);
-        addNewUser("root", "root", "Louis", "Jenkins", "", UserRole.SystemAdmin, u);
-
-    }
 
     private static boolean usernameExists(String username) 
     {
@@ -1613,6 +1610,7 @@ public class DatabaseManager
         }
         return false;
     }
+    
     public static String getDataParameter(long id) 
     {
         PreparedStatement getDataParameter = null;
@@ -1652,6 +1650,45 @@ public class DatabaseManager
         }
         return null;
     }
-    
+    /*
+    public static boolean undoDatabaseFunction()
+    {
+        Statement undo = null;
+        Connection conn = null;
+        String undoSQL = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            undoSQL = UNDOLIST.pop();
+            undo = conn.createStatement();
+            undo.executeUpdate(undoSQL);
+            return true;
+        }
+        catch(SQLException e)
+        {
+            LogError("Error undoing command: " + undoSQL);
+            return false;
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(undo != null)
+                    undo.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+    }
+    */
+    public static void main(String[] args) {
+        User u = new User();
+        u.setUserRole(UserRole.SystemAdmin);
+        addNewUser("root", "root", "Louis", "Jenkins", "", UserRole.SystemAdmin, u);
 
+    }
 }

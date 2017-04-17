@@ -76,8 +76,6 @@ function removeUsers() {
         var respData = JSON.parse(response);
         window.alert(respData["status"]);
 
-        $("#user_table").DataTable().destroy();
-
         var getUsersRequest = {action: 'getUserList'};
 
         post("AdminServlet", getUsersRequest, function (resp) {
@@ -104,7 +102,6 @@ function removeUsers() {
 }
 
 function refreshUsers() {
-    $("#data_table").DataTable().destroy();
 
     var getUsersRequest = {action: 'getUserList'};
 
