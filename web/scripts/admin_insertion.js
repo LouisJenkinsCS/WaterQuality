@@ -81,7 +81,7 @@ function loadInsert() {
 
 function sendCSV() {
 
-    console.log("Attempted to send");
+    //console.log("Attempted to send");
     var lines;
     var file = $('#csv')[0].files[0];
     var fr = new FileReader();
@@ -114,7 +114,7 @@ function sendCSV() {
         for (var i = 1; i < NUM_OF_FIELDS; i++) //i = 2 -> i = 1
         {
             paramList.push(headerArray[i]);
-            console.log(paramList);
+            //console.log(paramList);
         }
 
         for (var i = 1; i < (lines.length - 1); i++) {
@@ -125,7 +125,7 @@ function sendCSV() {
 
                 if (lines[i][j] !== "") {
                     var idv = new InsertDataValue(timestamp, lines[i][j]);
-                    console.log("Lines["+i+"]["+j+"]: " + lines[i][j]);
+                    //console.log("Lines["+i+"]["+j+"]: " + lines[i][j]);
                     idr.queueInsertion(paramList[j - 1], idv); //j - 2 -> j - 1
                 } else {
                     lines[i][j] = Number.NaN;

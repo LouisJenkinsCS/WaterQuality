@@ -223,7 +223,7 @@ public class AdminServlet extends HttpServlet {
          */ else if (action.trim().equalsIgnoreCase("editParamDesc")) {
             try {
                 boolean editDescStatus = DatabaseManager.updateDescription((String) request.getParameter("desc"),
-                        Long.parseLong(request.getParameter("desc_id")));
+                        Long.parseLong(request.getParameter("desc_id")), (String) request.getParameter("name"));
                 if (editDescStatus) {
                     JSONObject obj = new JSONObject();
                     obj.put("status", "Success");
