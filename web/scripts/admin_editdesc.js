@@ -11,7 +11,7 @@ var cached_Descriptions = [];
 var saved_id;
 var saved_index;
 
-function fillPageEditDesc()
+function fillPageEditParams()
 {
     var ALL_MASK = 3;
     var parametersRequest = new ParameterRequest(ALL_MASK);
@@ -50,7 +50,7 @@ function fillPageEditDesc()
             });
         }
 
-        $('#Edit_Description').append(
+        $('#Edit_Params').append(
                 '<section class="section_edit_desc">' +
                 '<div class="large_text">Parameter to Edit:</div>' +
                 '<select id="edit_param" onchange="viewDescription()">' + edit_options +
@@ -58,8 +58,9 @@ function fillPageEditDesc()
                 '<button type="button" onclick="editDesc()">Submit Changes</button><br/><br/>' +
                 '</section>' +
                 '<section class="section_edit_desc">' +
-                '<textarea id="paramchange">' + param_change + '</textarea>' +
-                '<div class=large_text>Description</div><br>' +
+                '<div class=large_text>Name</div>' +
+                '<input type="text" id="paramchange" size="30" value="Name will go here"><br/><br/>' +
+                '<div class=large_text>Description</div>' +
                 '<textarea name="desc" id="textarea_desc" form="form_edit_desc">' +
                 sample_desc +
                 '</textarea><br><br>' +
