@@ -53,6 +53,8 @@
     align-content: center;
 }
 
+
+
 #user_table tr:nth-child(even),#delete_table tr:nth-child(even), #error_table tr:nth-child(even){background-color: #f2f2f2;}
 
 #user_table tr:nth-child(even).selected,#delete_table tr:nth-child(even).selected{background-color:#acbad4;}
