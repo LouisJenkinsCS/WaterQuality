@@ -24,7 +24,7 @@ function fillPageErrors()
             {title: "Date-Time"},
             {title: "Error Message"}
         ],
-        "order": [[0, "desc"]]
+        "order": [[ 0, "desc" ]]
     });
 
 
@@ -81,8 +81,6 @@ function filterErrors()
         end: endDateTime
     };
     
-    $("#error_table").DataTable().destroy();
-    
     post("AdminServlet", filterRequest, function (resp) {
         if (resp.hasOwnProperty("status")) {
             window.alert("Error Fetching Data from AdminServlet...\nError: \"" + resp.status + "\"");
@@ -100,6 +98,7 @@ function filterErrors()
             var item = errors[i];
             dataTable.rows.add([[formatDateSimple(item["time"]), item["errorMessage"]]]);
         }
+       
         dataTable.draw();
     });
 
