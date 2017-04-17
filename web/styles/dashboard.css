@@ -155,7 +155,6 @@ description boxes */
 
 /* Styles the description box */
 #dashboard_data_description{
-    text-align:center;
     display:inline-block;
     margin-left:1%;
     margin-top:10px;
@@ -164,6 +163,14 @@ description boxes */
     min-width:600px;
     width:60%;
     font-family: "Ariel", Helvetica, san-serif;
+}
+
+.description{
+    margin-left: 1%;
+    margin-right: 1%;
+    text-align:justify;
+    display:none;
+    text-align-last: center;
 }
 
 /* Style the list */
@@ -247,22 +254,7 @@ button:hover,input[type = "button"]:hover {
     text-align: center;
 }
 
-#Login_Button{
-    float:right;
-    margin-right: 25px;
-    position:relative;
-    border: 0;
-    width: 100px;
-    height:50px;
-    background-color: #266B6B;
-    margin-bottom:10px;
-    font-family: "Ariel", Helvetica, san-serif;
-    font-size: 100%;
-    font-weight: bold;
-    color:white;
-}
-
-#Admin_Button{
+#Admin_Button,#Login_Button{
     float:right;
     margin-right: 25px;
     position:relative;
