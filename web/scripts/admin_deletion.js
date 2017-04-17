@@ -56,7 +56,7 @@ function loadDelete()
                 '</select><br/><br/>' +
                 '<div class="large_text">Please select the data entry from below:</div>' +
                 '<table id="delete_table">' +
-                '<thead><tr><th>Date-Time</th><th>Actual-Time</th><th>Name</th><th>Value</th></tr></thead>' +
+                '<thead><tr><th>Date-Time</th>' /*+ <th>Actual-Time</th> + */ + '<th>Name</th><th>Value</th></tr></thead>' +
                 '</table><br/>' +
                 '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
                 );
@@ -64,7 +64,7 @@ function loadDelete()
         $('#delete_table').DataTable({
             columns: [
                 {title: "Date-Time"},
-                {title: "Actual-Time"},
+                //{title: "Actual-Time"},
                 {title: "Name"},
                 {title: "Value"}
             ],
@@ -126,12 +126,15 @@ function filterData() {
         var data = JSON.parse(resp)["data"];
         var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
         for (var i = 0; i < data.length; i++) {
-            var item = data[i];
-            var name = item.name;
-            var dataValues = item.dataValues;
-            for (var j = 0; j < dataValues.length; j++) {
-                item = dataValues[j];
-                dataTable.rows.add([[formatDateSimple(item["timestamp"]), item["timestamp"], name, item["value"]]]);
+            if(i !== 1){
+                var item = data[i];
+                var name = item.name;
+                var dataValues = item.dataValues;
+                for (var j = 0; j < dataValues.length; j++) {
+                    if(j !== 1){
+                    item = dataValues[j];
+                    dataTable.rows.add([[formatDateSimple(item["timestamp"]),/* item["timestamp"],*/ name, item["value"]]]);}
+                }
             }
         }
 

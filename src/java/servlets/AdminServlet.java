@@ -274,7 +274,7 @@ public class AdminServlet extends HttpServlet {
          */ else if (action.trim().equalsIgnoreCase("editParamDesc")) {
             try {
                 boolean editDescStatus = DatabaseManager.updateDescription((String) request.getParameter("desc"),
-                        Long.parseLong(request.getParameter("desc_id")));
+                        Long.parseLong(request.getParameter("desc_id")), (String) request.getParameter("name"));
                 if (editDescStatus) {
                     JSONObject obj = new JSONObject();
                     obj.put("status", "Success");
@@ -552,7 +552,7 @@ public class AdminServlet extends HttpServlet {
                     });
 
         } else if (action.trim().equalsIgnoreCase("insertData")) {
-
+            
             Observable.just(request.getParameter("data"))
                     .map(req -> (JSONArray) new JSONParser().parse(req))
                     .flatMap(JSONUtils::flattenJSONArray)
@@ -567,8 +567,9 @@ public class AdminServlet extends HttpServlet {
                             )
                     )
                     .buffer(Integer.MAX_VALUE)
+                    .doOnNext(System.out::println)
                     .flatMap(DatabaseManager::insertManualData)
-                    .blockingSubscribe();
+                    .blockingSubscribe(updated -> System.out.println("Updated # of Rows: " + updated));
                     
         }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 
