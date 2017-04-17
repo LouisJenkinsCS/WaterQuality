@@ -54,7 +54,7 @@ Current bugs:
                 console.log("Page loaded!");
             }
         </script>
-        <img id="back_photo" src="images/Creek3.jpeg">
+        <img id="back_photo" src="images/Creek.jpeg">
         <header class="banner"> 
             <div id="banner__text">Water Quality</div>
             <a href="/WaterQuality/">
@@ -83,8 +83,8 @@ Current bugs:
                            id="RegisterTab">Register User</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Remove_User'); hide();"
                            id="RemoveTab">Manage Users</a></li>
-                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Edit_Description'); hide();"
-                           id="EditTab">Edit Desc</a></li>
+                    <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Edit_Params'); hide();"
+                           id="EditTab">Edit Parameters</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Errors'); hide();"
                            id="ErrorsTab">Errors</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Bayesian'); hide();"
@@ -122,9 +122,9 @@ Current bugs:
             </admincontent>
 
 
-            <admincontent id="Edit_Description" class="tab_content">
-                <!--Edit Desc Tab defined in admin_editdesc.js-->
-                <script>fillPageEditDesc();</script>
+            <admincontent id="Edit_Params" class="tab_content">
+                <!--Edit Params Tab defined in admin_editdesc.js-->
+                <script>fillPageEditParams();</script>
             </admincontent>
 
             <admincontent id="Errors" class="tab_content">
