@@ -56,7 +56,7 @@ function loadDelete()
                 '</select><br/><br/>' +
                 '<div class="large_text">Please select the data entry from below:</div>' +
                 '<table id="delete_table">' +
-                '<thead><tr><th>Date-Time</th>' /*+ <th>Actual-Time</th> + */ + '<th>Name</th><th>Value</th></tr></thead>' +
+                '<thead><tr><th>Date-Time</th><th>Actual-Time</th><th>Name</th><th>Value</th></tr></thead>' +
                 '</table><br/>' +
                 '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
                 );
@@ -64,7 +64,7 @@ function loadDelete()
         $('#delete_table').DataTable({
             columns: [
                 {title: "Date-Time"},
-                //{title: "Actual-Time"},
+                {title: "Actual-Time"},
                 {title: "Name"},
                 {title: "Value"}
             ],
@@ -126,16 +126,12 @@ function filterData() {
         var data = JSON.parse(resp)["data"];
         var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
         for (var i = 0; i < data.length; i++) {
-            if(i !== 1){
                 var item = data[i];
                 var name = item.name;
                 var dataValues = item.dataValues;
                 for (var j = 0; j < dataValues.length; j++) {
-                    if(j !== 1){
                     item = dataValues[j];
-                    dataTable.rows.add([[formatDateSimple(item["timestamp"]),/* item["timestamp"],*/ name, item["value"]]]);}
-                }
-            }
+                    dataTable.rows.add([[formatDateSimple(item["timestamp"]),item["timestamp"], name, item["value"]]]);}
         }
 
 
@@ -148,19 +144,19 @@ function deleteData() {
 
     var table = $('#delete_table').DataTable();
     var selectedCells = table.rows('.selected').data();
-    var deletionIDs = "";
+    var deletionIDs = [];
     for (var i = 0; i < selectedCells.length; i++)
     {
-        deletionIDs += selectedCells[i][1] + ",";
+        deletionIDs.push(selectedCells[i][1]);
     }
 
-    var deleteRequest = {
-        action: "RemoveData",
-        parameter: $('#delete_param').val(),
-        time: deletionIDs
-    };
+//    var deleteRequest = {
+//        action: "RemoveData",
+//        parameter: $('#delete_param').val(),
+//        time: deletionIDs
+//    };
 
-    post("AdminServlet", deleteRequest, function (resp) {
+    post("AdminServlet", { action: "RemoveData", data: JSON.stringify({parameter: $('#delete_param').val(), time: deletionIDs}) }, function (resp) {
         alert(resp);
         //Data shown has to be refreshed after deletion occurs
         filterData();
