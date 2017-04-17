@@ -54,7 +54,7 @@ public class AdminServlet extends HttpServlet {
         final Object lock = session.getId().intern();
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
-        if(admin.isLocked())
+        if(admin != null && admin.isLocked())
             action = "logout";
         
         if (action == null) {
