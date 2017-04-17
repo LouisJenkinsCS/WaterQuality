@@ -5,6 +5,7 @@ package database;
 
 import async.DataParameter;
 import async.DataReceiver;
+import com.github.davidmoten.rx.Schedulers;
 import common.DataValue;
 import common.User;
 import common.UserRole;
@@ -20,8 +21,10 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -722,40 +725,42 @@ public class DatabaseManager
         Database db = Database.from(Web_MYSQL_Helper.getConnection());
         PublishSubject<async.DataValue> results = PublishSubject.create();
         Subject<async.DataValue> serializedResults = results.toSerialized();
-        
-        db.select("select id from data_parameters where name = ?")
+        long id = db.select("select id from data_parameters where name = ?")
                 .parameter(name)
                 .getAs(Long.class)
-                .doOnNext(System.out::println)
-                .subscribeOn(rx.schedulers.Schedulers.computation())
-                .flatMap(key -> db.select("select source from remote_data_parameters where parameter_id = ?")
-                        .parameter(key)
-                        .count()
-                        .flatMap(cnt -> {
-                            // Is it a remote data value?
-                            if (cnt != 0) {
-                                return db.select("select source from remote_data_parameters where parameter_id = ?")
-                                        .parameter(key)
-                                        .getAs(Long.class)
-                                        .flatMap(remoteKey -> Observable
-                                                .from(DataReceiver.getRemoteData(start, end, remoteKey)
-                                                        .getRawData()
-                                                        .stream()
-                                                        .map(dv -> new async.DataValue(key, dv.getTimestamp(), dv.getValue()))
-                                                        .collect(Collectors.toList())
-                                                ));
-                            } else {
-                                return db.select("select time, value from data_values where parameter_id = ?")
-                                    .parameter(key)
-                                    .getAs(Long.class, Double.class)
-                                     .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
-                                    .map(pair -> new async.DataValue(key, Instant.ofEpochMilli(pair._1()), pair._2()));
-                            }
-                        })
-                )
+                .toBlocking()
+                .single();
+        
+        db.select("select source from remote_data_parameters where parameter_id = ?")
+                .parameter(id)
+                .count()
+                .subscribeOn(Schedulers.computation())
+                .flatMap(cnt -> {
+                    // Is it a remote data value?
+                    if (cnt != 0) {
+                        return db.select("select source from remote_data_parameters where parameter_id = ?")
+                                .parameter(id)
+                                .getAs(Long.class)
+                                .flatMap(remoteKey -> Observable
+                                        .from(DataReceiver
+                                                .getRemoteData(start, end, remoteKey)
+                                                .getRawData()
+                                                .stream()
+                                                .map(dv -> new async.DataValue(id, dv.getTimestamp(), dv.getValue()))
+                                                .collect(Collectors.toList())
+                                        )
+                                ); 
+                    } else {
+                        return db.select("select time, value from data_values where parameter_id = ?")
+                            .parameter(id)
+                            .getAs(Long.class, Double.class)
+                             .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
+                            .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
+                    }
+                })
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
-        return results;
+        return results.compose(DataFilter.getFilter(id)::filter);
     }
     
     /*
@@ -775,7 +780,18 @@ public class DatabaseManager
                 .flatMap(cnt -> {
                     // Is it a remote data value?
                     if (cnt != 0) {
-                        return Observable.from(DataReceiver.getRemoteData(start, end, id).getRawData());
+                        return db.select("select source from remote_data_parameters where parameter_id = ?")
+                                .parameter(id)
+                                .getAs(Long.class)
+                                .flatMap(remoteKey -> Observable
+                                        .from(DataReceiver
+                                                .getRemoteData(start, end, remoteKey)
+                                                .getRawData()
+                                                .stream()
+                                                .map(dv -> new async.DataValue(id, dv.getTimestamp(), dv.getValue()))
+                                                .collect(Collectors.toList())
+                                        )
+                                );              
                     } else {
                         return db.select("select time, value from data_values where parameter_id = ?")
                             .parameter(id)

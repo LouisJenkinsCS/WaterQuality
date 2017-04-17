@@ -37,8 +37,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -50,9 +53,19 @@ public class DataFilter {
     private static DataFilter INSTANCE = new DataFilter(); 
     
     public AtomicReference<Set<Long>> filter = new AtomicReference<>(new TreeSet<>());
+    public static Map<Long, DataFilter> INSTANCES = new ConcurrentHashMap<>();
     
     private DataFilter() {
         
+    }
+    
+    public static DataFilter getFilter(long id) {
+        if (!INSTANCES.containsKey(id)) {
+            INSTANCES.putIfAbsent(id, new DataFilter());
+            System.out.println("Created filter for id: " + id);
+        }
+        
+        return INSTANCES.get(id);
     }
     
     /**
@@ -75,6 +88,10 @@ public class DataFilter {
         while (true) {
             // Read...
             Set<Long> currentFilter = filter.get();
+            if (currentFilter.containsAll(times)) {
+                return;
+            }
+            
             // Copy..
             Set<Long> localFilter = new TreeSet<>(currentFilter);
             localFilter.addAll(times);
@@ -83,6 +100,8 @@ public class DataFilter {
                 break;
             }
         }
+        
+        System.out.println("Added Dates: " + times);
     }
     
     public Observable<DataValue> filter(Observable<DataValue> data) {
