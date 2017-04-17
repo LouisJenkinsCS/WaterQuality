@@ -56,7 +56,7 @@ function convertDateToUTC(date) {
 }
 
 function formatDate(date) {
-  date = convertDateToUTC(date);
+  //date = convertDateToUTC(date);
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
@@ -71,7 +71,7 @@ function formatDate(date) {
 }
 
 function formatHiddenDate(date) {
-  //date = convertDateToUTC(date);
+  date = convertDateToUTC(date);
   var day = pad(date.getDate(),2);
   var month = pad(date.getMonth() + 1,2);
   var year = date.getFullYear();
