@@ -214,7 +214,7 @@ function sendCSV()
         while (allTextLines.length) {
             lines.push(allTextLines.shift().split(','));
         }
-        console.log("Lines:" + lines);
+//        console.log("Lines:" + lines);
         useThese();
     }
     function useThese()
@@ -228,7 +228,7 @@ function sendCSV()
         for (var i = 2; i < NUM_OF_FIELDS; i++)
         {
             paramList.push(headerArray[i]);
-            console.log(paramList);
+//            console.log(paramList);
         }
 
         for (var i = 1; i < (lines.length - 1); i++)
@@ -246,7 +246,7 @@ function sendCSV()
                 else
                 {
                     lines[i][j] = Number.NaN;
-                    console.log("NaN?" + lines[i][j]);
+//                    console.log("NaN?" + lines[i][j]);
                 }
                 
             }
@@ -261,7 +261,7 @@ function sendCSV()
                 //console.log(idr);
 
                 post("AdminServlet", {action: "insertData", data: JSON.stringify(idr.data)}, function (resp) {
-                    console.log("idr chunk " + i + ": " + JSON.stringify(idr));
+//                    console.log("idr chunk " + i + ": " + JSON.stringify(idr));
                 });
                 idr = new InsertDataRequest();
             }
@@ -270,9 +270,9 @@ function sendCSV()
         //If there was any leftover piece it is sent here
         if (idr.data.length !== 0)
         {
-            console.log(idr);
+//            console.log(idr);
             post("AdminServlet", {action: "insertData", data: JSON.stringify(idr.data)}, function (resp) {
-                console.log("idr leftover " + i + ": " + JSON.stringify(idr));
+//                console.log("idr leftover " + i + ": " + JSON.stringify(idr));
             });
         }
         

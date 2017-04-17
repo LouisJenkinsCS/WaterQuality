@@ -89,11 +89,11 @@
                         is called, posting a message to the server log.-->
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table');
                             post_get('POST', 'ControlServlet', {control: 'test', value: 'Hello, world'}, function () {
-                                console.log('SUCCESS');
+//                                console.log('SUCCESS');
                             });"
                            id="TableTab">Table</a></li>
                 </ul>
-                <div id="Graph" class="tabcontent">
+                <div id="Graph" class="tabcontent" style="width:auto; height:auto;">
                 </div>
                 <div id="Table" class="tabcontent">
                     <table align="center" id="data_table" onclick="">
@@ -331,6 +331,6 @@
                 series: []
             });
         </script>
-        <script>
+        <script>            
         </script>
     </body>

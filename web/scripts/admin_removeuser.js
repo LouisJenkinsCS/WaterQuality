@@ -89,9 +89,9 @@ function requestRemoveUsers(){
 
 function responseRemoveUsers(response) {
     //might first have to do response=JSON.parse(response);
-    console.log(response.status);
+//    console.log(response.status);
     getDummyDataRemoveUsers();
-    console.log(response.status);
+//    console.log(response.status);
     if(response.status[0].errorCode!=0) return;//error
     alert("The selected users have been successfully removed.");
     requestGetUserList();//update the list.

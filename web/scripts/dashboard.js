@@ -9,6 +9,7 @@ var descriptions = [];
 var units = [];
 // Names for DataParameters; (id -> name)
 var names = [];
+var interval=setInterval(getMostRecent(),1000*60*5);
 
 /**
  * The <code>fullCheck</code> function limits the number of data
@@ -117,7 +118,7 @@ function openTab(evt, tabName) {
     }
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
-
+    
     //<code>current</code>holds the current <code>tabName</code>
     //This is done because we need to limit the number of boxes checked
     //for the Graph tab and not the Table tab
@@ -137,6 +138,10 @@ function openTab(evt, tabName) {
     document.getElementById(current + "_description").style.display = "block";
     //Sets a cookie so that the current tab can be remembered
     setCookie("id", current, 1);
+    
+    //fixes the issue that the chart doesnt show when page is rezied
+    chart.reflow();
+    chart.redraw();
 }
 
 function fetchData(json) {
@@ -268,6 +273,9 @@ function handleClick(cb)
     } else {
         tableChecked(cb.id);
     }
+    fetch();
+    getMostRecent();
+    clearInterval(interval);
 }
 
 function fetch() {
@@ -515,17 +523,19 @@ var load = true;
 function startingData() {
     post("AdminServlet", {action: "getParameters", data: 3}, function (resp) {
 
-        console.log(JSON.parse(resp));
+//        console.log(JSON.parse(resp));
         var data = JSON.parse(resp)["data"][0]["descriptors"];
-        console.log(data);
+//        console.log(data);
         for (i = 0; i < data.length; i++) {
             // Cache parameter descriptors
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
           
-            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
-            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this);' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this);' class='sensor_data' id='table_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
             
             document.getElementById("graph_sensor_parameters").innerHTML += param;
             document.getElementById("table_sensor_parameters").innerHTML += tableparam;
@@ -536,8 +546,10 @@ function startingData() {
             names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
           
-            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
-            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this);' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this);' class='manual_data' id='table_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
           
             document.getElementById("graph_manual_parameters").innerHTML += param;
             document.getElementById("table_manual_parameters").innerHTML += tableparam;
@@ -601,3 +613,21 @@ $(function () {
             .datepicker("setDate", date);
     setOnSelect();
 });
+
+function getMostRecent(){
+    post("ControlServlet", {action: "getMostRecent"}, function (resp) {
+        var data=JSON.parse(resp)["data"];
+        /*
+         * getMostRecent
+         * {data:[{
+         *  id:
+         *  time:
+         *  value:
+         *  }]
+         *  }
+         */
+        for(var i=0; i<data.length; i++){
+            document.getElementById("recent_"+data[i].id).innerHTML=data[i].time+" "+data[i].value;
+        }
+    });
+}

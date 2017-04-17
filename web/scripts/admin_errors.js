@@ -136,7 +136,7 @@ function filterErrors()
         dataTable.draw();
         $('#error_table tbody').on('click', 'td', function () {
             var cellData = dataTable.cell(this).data();
-            console.log("cellData" + cellData);
+//            console.log("cellData" + cellData);
         });
 
     });
