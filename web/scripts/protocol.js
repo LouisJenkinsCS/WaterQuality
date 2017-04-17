@@ -78,28 +78,11 @@ function ParameterResponse(json)
     }
     // Obtain data from response as JSONArray
     this.data = json["data"];
-//    console.log("this.data: " + JSON.stringify(this.data));
-//    this.descriptors = this.data[0]["descriptors"];
-//    console.log("this.descriptors length: " + this.descriptors.length);
-//    this.names = [];
-//
-//    for (var i = 0; i < this.descriptors.length; i++) {
-//        this.piece = this.descriptors[i];
-//        console.log("this.piece: " + JSON.stringify(this.piece));
-//        this.names.push(this.piece["name"]);
-//        console.log("this.names contains:" + JSON.stringify(this.names))
-//    }
 }
 
-
-function DeleteDataRange(start, end) {
-    this.start = start;
-    this.end = end;
-}
-
-DeleteDataRange.prototype = {}
 
 function DeleteDataRequest() {
+    this.action = "RemoveData";
     this.data = [];
 }
 
@@ -109,17 +92,80 @@ DeleteDataRequest.prototype.toString = function () {
     return this.data;
 }
 
-DeleteDataRequest.prototype.queueDeletion = function (name, range) {
+DeleteDataRequest.prototype.queueDeletion = function (name, ms) {
     // Append if already present
     for (i = 0; i < this.data.length; i++) {
         if (data[i].name === name) {
-            data[i].timeRange.push(range);
+            data[i].times.push(ms);
             return;
         }
     }
 
     // Create new...
-    this.data.push({name: name, timeRange: [range]});
+    this.data.push({name: name, times: [ms]});
+}
+
+
+
+//class InsertDataValue {
+//    constructor(timestamp, value) {
+//        this.timestamp = timestamp;
+//        this.value = value;
+//    }
+//}
+
+function InsertDataValue(timestamp, value) {
+    this.timestamp = timestamp;
+    this.value = parseFloat(value);
+}
+
+InsertDataValue.prototype = {}
+
+
+//class InsertDataRequest {
+//    constructor() {
+//        this.action = "insertData";
+//        this.data = [];
+//    }
+//
+//    queueInsertion(name, valueObject)
+//    {
+//        // Append if already present
+//        for (var i = 0; i < this.data.length; i++) {
+//            if (this.data[i].name === name) {
+//                this.data[i].values.push(valueObject);
+//                return;
+//            }
+//        }
+//        // Create a new object
+//        this.data.push({name: name, values: [valueObject]});
+//    }
+//}
+
+function InsertDataRequest(){
+    this.action = "insertData";
+    this.data = [];
+}
+
+
+InsertDataRequest.prototype.constructor()
+{
+    this.action = "insertData",
+            this.data = []
+}
+
+InsertDataRequest.prototype = {}
+
+InsertDataRequest.prototype.queueInsertion = function (name, valueObject) {
+    // Append if already present
+    for (var i = 0; i < this.data.length; i++) {
+        if (this.data[i].name === name) {
+            this.data[i].values.push(valueObject);
+            return;
+        }
+    }
+    // Create a new object
+    this.data.push({name: name, values: [valueObject]});
 }
 
 

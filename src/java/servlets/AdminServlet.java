@@ -77,15 +77,16 @@ public class AdminServlet extends HttpServlet {
             If an error arises, etcStatus is set with a suggested cause
          */ else if (action.trim().equalsIgnoreCase("RemoveData")) {
             try {
-                boolean dataRemovalStatus = DatabaseManager.manualDeletion(Integer.parseInt((String) request.getParameter("dataDeletionID")),
-                        admin);
-                if (dataRemovalStatus) {
-                    session.setAttribute("dataDeletionStatus", "Data Deletion Successful");
-                } else {
-                    session.setAttribute("dataDeletionStatus", "Data Deletion Unsuccessful");
-                }
+                response.getWriter().append("This is your response. Success.");
+//                boolean dataRemovalStatus = DatabaseManager.manualDeletion(Integer.parseInt((String) request.getParameter("dataDeletionID")),
+//                        admin);
+//                if (dataRemovalStatus) {
+//                    session.setAttribute("dataDeletionStatus", "Data Deletion Successful");
+//                } else {
+//                    session.setAttribute("dataDeletionStatus", "Data Deletion Unsuccessful");
+//                }
             } catch (Exception e) {
-                request.setAttribute("dataDeletionStatus", "Error: Did you not check any boxes for deletion?");
+                request.setAttribute("dataDeletionStatus", "Error: Did you not select something for deletion?");
             }
         } /*
             Admin is registering a new user to the Users table
@@ -504,6 +505,7 @@ public class AdminServlet extends HttpServlet {
             Observable.just(request.getParameter("data"))
                     .map(req -> (JSONArray) new JSONParser().parse(req))
                     .flatMap(JSONUtils::flattenJSONArray)
+                    .doOnNext(System.out::println)
                     .flatMap(obj -> Observable.just(obj)
                             .map(o -> (JSONArray) o.get("values"))
                             .flatMap(JSONUtils::flattenJSONArray)

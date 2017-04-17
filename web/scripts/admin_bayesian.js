@@ -50,6 +50,7 @@ function fillBayesianContent()
 function bayesianButton()
 {
     //Get time, date, barometric pressure, PAR, depth, Dissolved Oxygen(mg/L), water temp
+
     
     var request = {
         action: "getBayesianCSV", 

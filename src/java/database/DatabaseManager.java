@@ -292,6 +292,7 @@ public class DatabaseManager
                 .reduce(0, (x, y) -> x + y)
                 .subscribeOn(rx.schedulers.Schedulers.computation())
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
+
         
         return results;
     }

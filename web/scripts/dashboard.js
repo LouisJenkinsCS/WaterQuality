@@ -143,6 +143,7 @@ function fetchData(json) {
     var data = new DataResponse(json);
     
     // New data: Clear descriptions
+
     //document.getElementById("graph_description").innerHTML = "";
     //document.getElementById("table_description").innerHTML = "";
     
@@ -218,6 +219,7 @@ function fetchData(json) {
         if (getCookie("id") == "Table"){
             //document.getElementById("Table").innerHTML = table;
             fillTable(data);
+
             document.getElementById("Table_description").innerHTML = "";
             for (i = 0; i < data.data.length; i++) {
                 // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
@@ -271,6 +273,8 @@ function handleClick(cb)
 }
 
 function fetch() {
+    var minutes = 1000 * 60;
+    var hours = minutes * 60;
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     if (current === "Graph") {
@@ -548,6 +552,7 @@ function startingData() {
 
         var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
         tablecheckboxes[5].checked = true;
+
         if(getCookie("id")=="")
             setCookie("id", current, 1);
         else
