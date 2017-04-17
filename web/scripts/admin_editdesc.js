@@ -60,7 +60,7 @@ function fillPageEditDesc()
                 '<section class="section_edit_desc">' +
                 '<textarea id="paramchange">' + param_change + '</textarea>' +
                 '<div class=large_text>Description</div><br>' +
-        '<textarea name="desc" id="textarea_desc" form="form_edit_desc">' +
+                '<textarea name="desc" id="textarea_desc" form="form_edit_desc">' +
                 sample_desc +
                 '</textarea><br><br>' +
                 '</section>'
@@ -100,10 +100,10 @@ function editDesc()
 
     post("AdminServlet", editRequest, function (resp) {
         var respData = JSON.parse(resp);
-        if (respData["status"] === "Success")
-            window.alert("Description Update Successful");
-        else
-        {
+        if (respData["status"] === "Success") {
+            window.alert("Description update successful. The page will now reload.");
+            location.reload();
+        } else {
             window.alert("Description Update Failed");
             alert(editRequest.editDescStatus);
         }

@@ -72,7 +72,7 @@ function loadInsert() {
             + '<button type="button" onclick="sendCSV()">Submit</button><br/>'
             + '<h3>Please refer to the example below to format your .csv file '
             + 'appropriately.</h3>'
-            + '<img  id="csv_image" border="0" src="images/ExampleInput.JPG">'
+            + '<img  id="csv_image" border="0" src="images/exampleInput.PNG">'
             + '<h5>Please do not include units of measurement in '
             + 'your file. Metric units are used, and are displayed on the Dashboard.</h5>'
             )
