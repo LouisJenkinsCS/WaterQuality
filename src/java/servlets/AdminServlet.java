@@ -54,6 +54,9 @@ public class AdminServlet extends HttpServlet {
         final Object lock = session.getId().intern();
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
+        if(admin.isLocked())
+            action = "logout";
+        
         if (action == null) {
             return;
         }
@@ -78,15 +81,24 @@ public class AdminServlet extends HttpServlet {
          */ else if (action.trim().equalsIgnoreCase("RemoveData")) {
             try {
                 response.getWriter().append("This is your response. Success.");
-//                boolean dataRemovalStatus = DatabaseManager.manualDeletion(Integer.parseInt((String) request.getParameter("dataDeletionID")),
-//                        admin);
-//                if (dataRemovalStatus) {
-//                    session.setAttribute("dataDeletionStatus", "Data Deletion Successful");
-//                } else {
-//                    session.setAttribute("dataDeletionStatus", "Data Deletion Unsuccessful");
-//                }
+                /*
+                String tempIDs = request.getParameter("deletionIDs");
+                String [] dataDeletionTimes = tempIDs.split(",");
+                
+                int successfulDeletions = DatabaseManager.manualDeletion(dataDeletionTimes, (String) request.getParamter("parameter"),
+                        admin);
+                if (successfulDeletions == dataDeletionTimes.length) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("status", "Data Deletion Successful");
+                    response.getWriter().append(obj.toJSONString());
+                } else {
+                    JSONObject obj = new JSONObject();
+                    obj.put("status", dataDeletionTimes.length - successfulDeletions + " deletions failed, check the error logs");
+                    response.getWriter().append(obj.toJSONString());
+                }
+                */
             } catch (Exception e) {
-                request.setAttribute("dataDeletionStatus", "Error: Did you not select something for deletion?");
+                request.setAttribute("status", "Error: " + e);
             }
         } /*
             Admin is registering a new user to the Users table
@@ -165,15 +177,26 @@ public class AdminServlet extends HttpServlet {
             If an error arises, etcStatus is set with a suggested cause.
          */ else if (action.trim().equalsIgnoreCase("LockUser")) {
             try {
-                boolean lockStatus = DatabaseManager.lockUser(Integer.parseInt((String) request.getParameter("userLockID")),
+                String userIDsTemp = request.getParameter("userLockIDs");
+                String [] userIDs = userIDsTemp.split(",");
+                
+                int [] userIntIDs = new int[userIDs.length];
+                for(int i = 0; i < userIDs.length; i++)
+                    userIntIDs[i] = Integer.parseInt(userIDs[i]);
+                
+                int successfulLocks = DatabaseManager.lockUser(userIntIDs,
                         admin);
-                if (lockStatus) {
-                    session.setAttribute("lockStatus", "User Deletion Successful");
+                if (successfulLocks == userIntIDs.length) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("status", "Locking Users Successful");
+                    response.getWriter().append(obj.toJSONString());
                 } else {
-                    session.setAttribute("lockStatus", "User Deletion Unsuccessful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status", userIntIDs.length - successfulLocks + " locks failed, check the error logs");
+                    response.getWriter().append(obj.toJSONString());
                 }
             } catch (Exception e) {
-                request.setAttribute("lockStatus", "Error: Did you not check any boxes for locking?");
+                request.setAttribute("status", "Error: " + e);
             }
         } /*
             Admin is unlocking a user, allowing them to log in once again
@@ -183,15 +206,26 @@ public class AdminServlet extends HttpServlet {
             If an error arises, etcStatus is set with a suggested cause.
          */ else if (action.trim().equalsIgnoreCase("UnlockUser")) {
             try {
-                boolean unlockStatus = DatabaseManager.unlockUser(Integer.parseInt((String) request.getParameter("userUnlockID")),
+                String userIDsTemp = request.getParameter("userUnlockIDs");
+                String [] userIDs = userIDsTemp.split(",");
+                
+                int [] userIntIDs = new int[userIDs.length];
+                for(int i = 0; i < userIDs.length; i++)
+                    userIntIDs[i] = Integer.parseInt(userIDs[i]);
+                
+                int successfulUnlocks = DatabaseManager.unlockUser(userIntIDs,
                         admin);
-                if (unlockStatus) {
-                    session.setAttribute("unlockStatus", "User Unlock Successful");
+                if (successfulUnlocks == userIntIDs.length) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("status", "Unlocking Users Successful");
+                    response.getWriter().append(obj.toJSONString());
                 } else {
-                    session.setAttribute("unlockStatus", "User Unlock Unsuccessful");
+                    JSONObject obj = new JSONObject();
+                    obj.put("status", userIntIDs.length - successfulUnlocks + " unlocks failed, check the error logs");
+                    response.getWriter().append(obj.toJSONString());
                 }
             } catch (Exception e) {
-                request.setAttribute("unlockStatus", "Error: Did you not check any boxes for unlocking?");
+                request.setAttribute("status", "Error: " + e);
             }
         } /*
             Gets the description of the parameter selected on the page

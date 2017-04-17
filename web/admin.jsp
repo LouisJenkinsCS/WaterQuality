@@ -82,7 +82,7 @@ Current bugs:
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Register_User'); hide();"
                            id="RegisterTab">Register User</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Remove_User'); hide();"
-                           id="RemoveTab">Remove User</a></li>
+                           id="RemoveTab">Manage Users</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Edit_Description'); hide();"
                            id="EditTab">Edit Desc</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Errors'); hide();"
