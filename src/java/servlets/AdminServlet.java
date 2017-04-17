@@ -89,10 +89,8 @@ public class AdminServlet extends HttpServlet {
                 Observable.just(req)
                         .map(o -> (JSONArray) o.get("time"))
                         .map(arr -> arr.stream().mapToLong(o -> (Long) Instant.parse((String) o).toEpochMilli()).boxed().collect(Collectors.toSet()))
-                        .doOnNext(arr -> System.out.println("Time: " + arr))
                         .blockingSubscribe(allTimes -> DatabaseManager
                                 .parameterNameToId((String) req.get("parameter"))
-                                .doOnNext(System.out::println)
                                 .subscribe(id -> DataFilter
                                         .getFilter(id)
                                         .add((Set<Long>) allTimes)
