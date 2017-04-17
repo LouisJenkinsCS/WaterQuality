@@ -1276,21 +1276,29 @@ public class DatabaseManager
         boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement updateDesc = null;
+        PreparedStatement updateName = null;
         try
         {
             conn.setAutoCommit(false);
-            String updateSQL = "UPDATE data_descriptions "
+            String updateDescSQL = "UPDATE data_descriptions "
                     + "SET description = ? "
-                    + "WHERE parameter_id = ?;"
-                    + "UPDATE data_parameters "
-                    + "SET name = ? "
                     + "WHERE parameter_id = ?;";
-            updateDesc = conn.prepareStatement(updateSQL);
+                    
+            String updateNameSQL = "UPDATE data_parameters "
+                    + "SET name = ? "
+                    + "WHERE id = ?;";
+            
+            updateDesc = conn.prepareStatement(updateDescSQL);
             updateDesc.setString(1, desc);
             updateDesc.setString(2, id + "");
-            updateDesc.setString(3, name);
-            updateDesc.setString(4, id + "");
+            
+            updateName = conn.prepareStatement(updateNameSQL);
+            updateName.setString(1, name);
+            updateName.setString(2, id + "");
+            
             updateDesc.executeUpdate();
+            updateName.executeUpdate();
+            
             conn.commit();
             status = true;
         }

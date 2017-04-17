@@ -103,7 +103,10 @@ function editDesc()
         if (respData["status"] === "Success")
             window.alert("Description Update Successful");
         else
+        {
             window.alert("Description Update Failed");
+            alert(editRequest.editDescStatus);
+        }
     });
 }
 
