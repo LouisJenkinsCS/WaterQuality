@@ -111,7 +111,7 @@ function sendCSV() {
         var timestamp;
         var idr = new InsertDataRequest();
 
-        for (var i = 2; i < NUM_OF_FIELDS; i++)
+        for (var i = 1; i < NUM_OF_FIELDS; i++) //i = 2 -> i = 1
         {
             paramList.push(headerArray[i]);
             console.log(paramList);
@@ -119,13 +119,14 @@ function sendCSV() {
 
         for (var i = 1; i < (lines.length - 1); i++) {
 
-            timestamp = convertToEpochMs(lines[i][0], lines[i][1]);
+            timestamp = convertToEpochMs(lines[i][0], "12:00:00 PM");
 
-            for (var j = 2; j < paramList.length + 2; j++) {
+            for (var j = 1; j < paramList.length + 1; j++) { //j = 2 -> j = 1 //length + 2 -> length + 1
 
                 if (lines[i][j] !== "") {
                     var idv = new InsertDataValue(timestamp, lines[i][j]);
-                    idr.queueInsertion(paramList[j - 2], idv);
+                    console.log("Lines["+i+"]["+j+"]: " + lines[i][j]);
+                    idr.queueInsertion(paramList[j - 1], idv); //j - 2 -> j - 1
                 } else {
                     lines[i][j] = Number.NaN;
                 }
