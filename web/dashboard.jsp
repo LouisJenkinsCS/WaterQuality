@@ -41,7 +41,7 @@
     </head>
     <!--<body id="loader" onload="checkUser(); startingData();">-->
         <body id="loader" onload="blockButtons(); startingData();">
-        <img id="backPhoto" src="images/Creek3.jpeg">
+        <img id="backPhoto" src="images/Creek.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
             <a href="loginScreen.jsp">
@@ -96,6 +96,7 @@
                 <div id="Graph" class="tabcontent">
                 </div>
                 <div id="Table" class="tabcontent">
+                    <h4 align="center">Excel and PDF downloads require Adobe Flash</h4>
                     <table align="center" id="data_table" onclick="">
                         <thead><tr><th></th></tr></thead>
                     </table>

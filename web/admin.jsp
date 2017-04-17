@@ -54,7 +54,7 @@ Current bugs:
                 console.log("Page loaded!");
             }
         </script>
-        <img id="back_photo" src="images/Creek3.jpeg">
+        <img id="back_photo" src="images/Creek.jpeg">
         <header class="banner"> 
             <div id="banner__text">Water Quality</div>
             <a href="/WaterQuality/">
