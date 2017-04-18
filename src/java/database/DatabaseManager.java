@@ -5,6 +5,7 @@ package database;
 
 import async.DataParameter;
 import async.DataReceiver;
+import com.github.davidmoten.rx.Schedulers;
 import common.DataValue;
 import common.User;
 import common.UserRole;
@@ -20,7 +21,10 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,6 +43,11 @@ import security.SecurityCode;
  */
 public class DatabaseManager 
 {
+    /*
+        A list of strings that have the batch commands for undoing certain
+        tasks like deleting users or data.
+    */
+    //private static LinkedList<String> UNDOLIST = new LinkedList();
     
     /*
         Creates the data value table
@@ -286,6 +295,7 @@ public class DatabaseManager
                 .reduce(0, (x, y) -> x + y)
                 .subscribeOn(rx.schedulers.Schedulers.computation())
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
+
         
         return results;
     }
@@ -472,9 +482,9 @@ public class DatabaseManager
         @param u the user doing the deletion
         @return whether this function was successful or not
     */
-    public static boolean manualDeletion(int entryID, User u)
+    public static int manualDeletion(String [] dataDeletionTimes, int parameterID, User u)
     {
-        boolean status;
+        int successfulDeletions = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement deleteData = null;
         try
@@ -483,17 +493,36 @@ public class DatabaseManager
             if(u.getUserRole() != common.UserRole.SystemAdmin)
                 throw new Exception("Attempted Data Deletion by Non-Admin");
             conn.setAutoCommit(false);
-            String deleteSQL = "Delete from DataValues where entryID = ?";
-                
+            String deleteSQL = "Delete from data_values where time = ? and id = ?";
             deleteData = conn.prepareStatement(deleteSQL);
-            deleteData.setInt(1, entryID);
-            deleteData.executeUpdate();
-            conn.commit();
-            status = true;
+            deleteData.setInt(2, parameterID);
+            
+            for(String deletionTime : dataDeletionTimes)
+            try
+                {
+                    deletionTime = deletionTime.substring(0,deletionTime.length()-1);
+                    deletionTime = deletionTime.replace('T', ' ');
+                    
+                    deleteData.setString(1, deletionTime);
+                    deleteData.executeUpdate();
+                    conn.commit();
+                    successfulDeletions++;
+                }
+                catch(Exception e)
+                {
+                    LogError("Error Deleting Data with ID:" + parameterID + "at time: " + deletionTime + ": " + e);
+                    try
+                    {
+                        conn.rollback();
+                    }
+                    catch(SQLException excep)
+                    {
+                        LogError("Rollback unsuccessful: " + excep);
+                    }
+                }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
             LogError("Error Manualing Deleting Data: " + ex);
             if(conn!=null)
             {
@@ -521,7 +550,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection: " + excep);
             }
         }
-        return status;
+        return successfulDeletions;
     }
     
     /*
@@ -588,9 +617,9 @@ public class DatabaseManager
         @param u the user who is doing the deletion
         @return whether this function was successful or not
     */
-    public static boolean deleteUser(int userID, User u)
+    public static int deleteUsers(int [] userIDs, User u)
     {
-        boolean status;
+        int successfulDeletions = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement deleteUser = null;
         try
@@ -598,21 +627,25 @@ public class DatabaseManager
             //throws an error if a user without proper roles somehow invokes this function
             if(u.getUserRole() != common.UserRole.SystemAdmin)
                 throw new Exception("Attempted User Deletion by Non-Admin");
-            if(userID == u.getUserNumber())
-                throw new Exception("User Attempting to delete self");
             conn.setAutoCommit(false);
             String deleteSQL = "Delete from users where userNumber = ?";
-                
             deleteUser = conn.prepareStatement(deleteSQL);
-            deleteUser.setInt(1, userID);
-            deleteUser.executeUpdate();
-            conn.commit();
-            status = true;
+            for(int userID : userIDs)
+            {
+                if(userID == u.getUserNumber())
+                    LogError("Error Deleting User: User Attempting to delete self");
+                else
+                {
+                    deleteUser.setInt(1, userID);
+                    deleteUser.executeUpdate();
+                    conn.commit();
+                    successfulDeletions++;
+                }
+            }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
-            LogError("Error Manualing Deleting User: " + ex);
+            LogError("Error Deleting User: " + ex);
             if(conn!=null)
             {
                 try
@@ -639,7 +672,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection: " + excep);
             }
         }
-        return status;
+        return successfulDeletions;
     }
     
     /*
@@ -711,40 +744,42 @@ public class DatabaseManager
         Database db = Database.from(Web_MYSQL_Helper.getConnection());
         PublishSubject<async.DataValue> results = PublishSubject.create();
         Subject<async.DataValue> serializedResults = results.toSerialized();
-        
-        db.select("select id from data_parameters where name = ?")
+        long id = db.select("select id from data_parameters where name = ?")
                 .parameter(name)
                 .getAs(Long.class)
-                .doOnNext(System.out::println)
-                .subscribeOn(rx.schedulers.Schedulers.computation())
-                .flatMap(key -> db.select("select source from remote_data_parameters where parameter_id = ?")
-                        .parameter(key)
-                        .count()
-                        .flatMap(cnt -> {
-                            // Is it a remote data value?
-                            if (cnt != 0) {
-                                return db.select("select source from remote_data_parameters where parameter_id = ?")
-                                        .parameter(key)
-                                        .getAs(Long.class)
-                                        .flatMap(remoteKey -> Observable
-                                                .from(DataReceiver.getRemoteData(start, end, remoteKey)
-                                                        .getRawData()
-                                                        .stream()
-                                                        .map(dv -> new async.DataValue(key, dv.getTimestamp(), dv.getValue()))
-                                                        .collect(Collectors.toList())
-                                                ));
-                            } else {
-                                return db.select("select time, value from data_values where parameter_id = ?")
-                                    .parameter(key)
-                                    .getAs(Long.class, Double.class)
-                                     .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
-                                    .map(pair -> new async.DataValue(key, Instant.ofEpochMilli(pair._1()), pair._2()));
-                            }
-                        })
-                )
+                .toBlocking()
+                .single();
+        
+        db.select("select source from remote_data_parameters where parameter_id = ?")
+                .parameter(id)
+                .count()
+                .subscribeOn(Schedulers.computation())
+                .flatMap(cnt -> {
+                    // Is it a remote data value?
+                    if (cnt != 0) {
+                        return db.select("select source from remote_data_parameters where parameter_id = ?")
+                                .parameter(id)
+                                .getAs(Long.class)
+                                .flatMap(remoteKey -> Observable
+                                        .from(DataReceiver
+                                                .getRemoteData(start, end, remoteKey)
+                                                .getRawData()
+                                                .stream()
+                                                .map(dv -> new async.DataValue(id, dv.getTimestamp(), dv.getValue()))
+                                                .collect(Collectors.toList())
+                                        )
+                                ); 
+                    } else {
+                        return db.select("select time, value from data_values where parameter_id = ?")
+                            .parameter(id)
+                            .getAs(Long.class, Double.class)
+                             .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
+                            .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
+                    }
+                })
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
-        return results;
+        return results.compose(DataFilter.getFilter(id)::filter);
     }
     
     /*
@@ -764,7 +799,18 @@ public class DatabaseManager
                 .flatMap(cnt -> {
                     // Is it a remote data value?
                     if (cnt != 0) {
-                        return Observable.from(DataReceiver.getRemoteData(start, end, id).getRawData());
+                        return db.select("select source from remote_data_parameters where parameter_id = ?")
+                                .parameter(id)
+                                .getAs(Long.class)
+                                .flatMap(remoteKey -> Observable
+                                        .from(DataReceiver
+                                                .getRemoteData(start, end, remoteKey)
+                                                .getRawData()
+                                                .stream()
+                                                .map(dv -> new async.DataValue(id, dv.getTimestamp(), dv.getValue()))
+                                                .collect(Collectors.toList())
+                                        )
+                                );              
                     } else {
                         return db.select("select time, value from data_values where parameter_id = ?")
                             .parameter(id)
@@ -863,9 +909,9 @@ public class DatabaseManager
         @param u the user doing the locking
         @return whether this function was successful or not
     */
-    public static boolean lockUser(int userID, User u)
+    public static int lockUser(int [] userIDs, User u)
     {
-        boolean status;
+        int successfulLocks = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement lockUser = null;
         try
@@ -881,15 +927,38 @@ public class DatabaseManager
           
             
             lockUser = conn.prepareStatement(modifySQL);
-            lockUser.setInt(1, userID);
-            lockUser.executeUpdate();
-            conn.commit();
-            status = true;
+            
+            for(int userID : userIDs)
+            {
+                if(userID == u.getUserNumber())
+                    LogError("Error Locking User: User Attempting to Lock Self");
+                else
+                {
+                    try
+                    {
+                        lockUser.setInt(1, userID);
+                        lockUser.executeUpdate();
+                        conn.commit();
+                        successfulLocks++;
+                    }
+                    catch(Exception e)
+                    {
+                        LogError("Error Locking User with ID: " + userID + ": " + e);
+                        try
+                        {
+                            conn.rollback();
+                        }
+                        catch(SQLException excep)
+                        {
+                            LogError("Rollback unsuccessful: " + excep);
+                        }
+                    }
+                }
+            }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
-            LogError("Error Locking User #" + userID + ": " + ex);
+            LogError("Error Locking Users: " + ex);
             if(conn!=null)
             {
                 try
@@ -916,7 +985,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection:" + excep);
             }
         }
-        return status;
+        return successfulLocks;
     }
     
     /*
@@ -925,9 +994,9 @@ public class DatabaseManager
         @param u the user doing the unlocking
         @return whether this function was successful or not
     */
-    public static boolean unlockUser(int userID, User u)
+    public static int unlockUser(int [] userIDs, User u)
     {
-        boolean status;
+        int successfulUnlocks = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement unlockUser = null;
         try
@@ -943,15 +1012,32 @@ public class DatabaseManager
           
             
             unlockUser = conn.prepareStatement(modifySQL);
-            unlockUser.setInt(1, userID);
-            unlockUser.executeUpdate();
-            conn.commit();
-            status = true;
+            for(int userID : userIDs)
+            {
+                try
+                {
+                    unlockUser.setInt(1, userID);
+                    unlockUser.executeUpdate();
+                    conn.commit();
+                    successfulUnlocks++;
+                }
+                catch(Exception e)
+                {
+                    LogError("Error Unlocking User with ID: " + userID + ": " + e);
+                    try
+                    {
+                        conn.rollback();
+                    }
+                    catch(SQLException excep)
+                    {
+                        LogError("Rollback unsuccessful: " + excep);
+                    }
+                }
+            }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
-            LogError("Error Unlocking User #" + userID + ": " + ex);
+            LogError("Error Unlocking Users: " + ex);
             if(conn!=null)
             {
                 try
@@ -978,7 +1064,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection: " + excep);
             }
         }
-        return status;
+        return successfulUnlocks;
     }
     
     
@@ -1065,11 +1151,12 @@ public class DatabaseManager
             {
                 user = new JSONObject();
                 user.put("userNumber",selectedUsers.getString("userNumber"));
-                selectedUsers.getString("loginName");
-                selectedUsers.getString("lastName");
-                selectedUsers.getString("firstName");
-                selectedUsers.getString("emailAddress");
-                selectedUsers.getString("userRole");
+                user.put("loginName",selectedUsers.getString("loginName"));
+                user.put("lastName",selectedUsers.getString("lastName"));
+                user.put("firstName",selectedUsers.getString("firstName"));
+                user.put("locked",selectedUsers.getString("locked"));
+                user.put("emailAddress",selectedUsers.getString("emailAddress"));
+                user.put("userRole",selectedUsers.getString("userRole"));
                 userList.add(user);
             }
             userListFinal.put("users", userList);
@@ -1219,21 +1306,34 @@ public class DatabaseManager
         Updates the description with dataName 'name' using the description 'desc'
         @return whether this operation was sucessful or not
     */
-    public static boolean updateDescription(String desc, long id)
+    public static boolean updateDescription(String desc, long id, String name)
     {
         boolean status;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement updateDesc = null;
+        PreparedStatement updateName = null;
         try
         {
             conn.setAutoCommit(false);
-            String updateSQL = "UPDATE data_descriptions "
+            String updateDescSQL = "UPDATE data_descriptions "
                     + "SET description = ? "
                     + "WHERE parameter_id = ?;";
-            updateDesc = conn.prepareStatement(updateSQL);
+                    
+            String updateNameSQL = "UPDATE data_parameters "
+                    + "SET name = ? "
+                    + "WHERE id = ?;";
+            
+            updateDesc = conn.prepareStatement(updateDescSQL);
             updateDesc.setString(1, desc);
             updateDesc.setString(2, id + "");
+            
+            updateName = conn.prepareStatement(updateNameSQL);
+            updateName.setString(1, name);
+            updateName.setString(2, id + "");
+            
             updateDesc.executeUpdate();
+            updateName.executeUpdate();
+            
             conn.commit();
             status = true;
         }
@@ -1434,8 +1534,6 @@ public class DatabaseManager
         Connection conn = null;
         try
         {
-            LogError("Lower Range: " + lower);
-            LogError("Upper Range: " + upper);
             conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from ErrorLogs where timeOccured >= ? AND timeOccured <= ?";
             selectErrors = conn.prepareStatement(query);
@@ -1564,13 +1662,6 @@ public class DatabaseManager
                 .compose(db.commitOnComplete_())
                 .subscribe();
     }
- 
-    public static void main(String[] args) {
-        User u = new User();
-        u.setUserRole(UserRole.SystemAdmin);
-        addNewUser("root", "root", "Louis", "Jenkins", "", UserRole.SystemAdmin, u);
-
-    }
 
     private static boolean usernameExists(String username) 
     {
@@ -1609,6 +1700,7 @@ public class DatabaseManager
         }
         return false;
     }
+    
     public static String getDataParameter(long id) 
     {
         PreparedStatement getDataParameter = null;
@@ -1648,6 +1740,85 @@ public class DatabaseManager
         }
         return null;
     }
-    
-   
+    /*
+    public static boolean undoDatabaseFunction()
+    {
+        Statement undo = null;
+        Connection conn = null;
+        String undoSQL = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            undoSQL = UNDOLIST.pop();
+            undo = conn.createStatement();
+            undo.executeUpdate(undoSQL);
+            return true;
+        }
+        catch(SQLException e)
+        {
+            LogError("Error undoing command: " + undoSQL);
+            return false;
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(undo != null)
+                    undo.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+    }
+    */
+    public static void main(String[] args) {
+        User u = new User();
+        u.setUserRole(UserRole.SystemAdmin);
+        addNewUser("root", "root", "Louis", "Jenkins", "", UserRole.SystemAdmin, u);
+
+    }
+
+    public static boolean isUserLocked(User admin) 
+    {
+        if(admin == null)
+            return false;
+        PreparedStatement getUserByLogin = null;
+        ResultSet selectedUser = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String getSQL = "SELECT * FROM users WHERE loginName = ?;";
+            getUserByLogin = conn.prepareStatement(getSQL);
+            getUserByLogin.setString(1, admin.getLoginName());
+            selectedUser = getUserByLogin.executeQuery();
+            selectedUser.next();
+            return selectedUser.getString("locked").equals("1");
+        }
+        catch(SQLException e)
+        {
+            LogError("Error checking if user is locked: " + e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(getUserByLogin != null)
+                    getUserByLogin.close();
+                if(selectedUser != null)
+                    selectedUser.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return false;
+    }
 }

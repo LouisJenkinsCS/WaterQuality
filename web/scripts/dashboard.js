@@ -245,6 +245,7 @@ function fetchData(json) {
     var data = new DataResponse(json);
     
     // New data: Clear descriptions
+
     //document.getElementById("graph_description").innerHTML = "";
     //document.getElementById("table_description").innerHTML = "";
     
@@ -320,6 +321,7 @@ function fetchData(json) {
         if (getCookie("id") == "Table"){
             //document.getElementById("Table").innerHTML = table;
             fillTable(data);
+
             document.getElementById("Table_description").innerHTML = "";
             for (i = 0; i < data.data.length; i++) {
                 // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
@@ -456,8 +458,13 @@ function fillTable(dataResp) {
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
-        html.push("<td><span>" + dates[i]
-                + "</span>" + formatDate(new Date(dates[i])) + "</td>");
+        var tempDate = dates[i];
+        if(new Date(tempDate).dst())
+            tempDate = tempDate - 14400000;
+        else
+            tempDate = tempDate - 18000000;
+        html.push("<td><span>" + formatHiddenDate(new Date(tempDate))
+                + "</span>" + formatDate(new Date(tempDate)) + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
             var d = dataResp.data[j]["dataValues"];
             if (i >= d.length) {
@@ -550,6 +557,7 @@ function startingData() {
 
         var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
         tablecheckboxes[5].checked = true;
+
         if(getCookie("id")=="")
             setCookie("id", current, 1);
         else

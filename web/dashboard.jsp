@@ -23,7 +23,7 @@
         <script src="http://code.highcharts.com/modules/offline-exporting.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
-        <script src="scripts/AJAX_magic.js"></script>
+        <script src="scripts/AJAX_functions.js"></script>
         <script src="scripts/dashboard.js"></script>
         
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/se-1.2.0/datatables.min.css"/>
@@ -41,7 +41,7 @@
     </head>
     <!--<body id="loader" onload="checkUser(); startingData();">-->
         <body id="loader" onload="blockButtons(); startingData();">
-        <img id="backPhoto" src="images/Creek3.jpeg">
+        <img id="backPhoto" src="images/Creek.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
             <a href="loginScreen.jsp">
@@ -114,7 +114,8 @@
                 </div>
                 <!--The contents of the table tab-->
                 <div id="Table" class="tabcontent">
-                    <table align="center" id="data_table">
+                    <h4 align="center">Excel and PDF downloads require Adobe Flash</h4>
+                    <table align="center" id="data_table" onclick="">
                         <thead><tr><th></th></tr></thead>
                     </table>
                 </div>

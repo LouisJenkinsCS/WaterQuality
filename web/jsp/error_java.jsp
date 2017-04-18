@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>MyHusky Scheduling Tools</title>
+    <title>Water Quality Project</title>
     <link rel="stylesheet" href="styles/main.css" type="text/css"/>
 </head>
 <body>

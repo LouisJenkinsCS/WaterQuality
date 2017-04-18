@@ -1,7 +1,7 @@
 /* 
  * Author: Brandon Meglathery
  * 
- * Javascript defining a generic AJAX function
+ * Javascript defining generic AJAX functions
  */
 
 /*

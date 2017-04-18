@@ -13,7 +13,7 @@
         <header class="title_bar_container">
             <div id="HeaderText">Reset Password Page</div>
         </header>
-        <img id="backPhoto" src="./images/Creek3.jpeg"> <%--Sets the background--%>
+        <img id="backPhoto" src="./images/Creek.jpeg"> <%--Sets the background--%>
            
         <section class = "content_container" id = "login_container">
 

@@ -17,7 +17,7 @@
         <header class="title_bar_container"> 
             <div id="HeaderText">Water Quality Login Page</div>
         </header>
-        <img id="backPhoto" src="images/Creek3.jpeg">
+        <img id="backPhoto" src="images/Creek.jpeg">
         
         <%--Container for the login menu--%>
         <section class = "content_container" id = "login_container">

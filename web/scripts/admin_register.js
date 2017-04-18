@@ -1,4 +1,4 @@
-$.getScript("scripts/AJAX_magic.js", function () {});
+$.getScript("scripts/AJAX_functions.js", function () {});
 $.getScript("scripts/general.js", function () {});
 
 var options_roles = "";
@@ -61,10 +61,9 @@ function fillPageRegisterUser() {
                 + '      <td>Role: </td>'
                 + '      <td><select id="userRole">' + options_roles + '</select></td>'
                 + '  </tr>'
-                + '  <tr>'
-                + '      <td><button type="button" onclick="registerUser()">Submit</button></td>'
-                + '  </tr>'
                 + '</table>'
+                + '<br>'
+                + '<input type="submit" id="register_user" value="Register User" onclick="registerUser()">'
                 );
     });
 

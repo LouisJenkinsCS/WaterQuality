@@ -18,7 +18,7 @@ Date:   Thu Mar 2 22:35:53 2017 -0500
     
     * AJAX generic function defined!
     
-    The generic AJAX function is defined in AJAX_magic.js
+    The generic AJAX function is defined in AJAX_functions.js
     
     ControlServlet and dashboard are updated for testing passing data
     between the two pages using the new function defined above.
@@ -183,7 +183,7 @@ Date:   Thu Mar 2 22:05:44 2017 -0500
     
     * AJAX generic function defined!
     
-    The generic AJAX function is defined in AJAX_magic.js
+    The generic AJAX function is defined in AJAX_functions.js
     
     ControlServlet and dashboard are updated for testing passing data
     between the two pages using the new function defined above.
@@ -286,7 +286,7 @@ Date:   Wed Mar 1 18:08:58 2017 -0500
     
     * AJAX generic function defined!
     
-    The generic AJAX function is defined in AJAX_magic.js
+    The generic AJAX function is defined in AJAX_functions.js
     
     ControlServlet and dashboard are updated for testing passing data
     between the two pages using the new function defined above.
@@ -384,7 +384,7 @@ Date:   Wed Mar 1 10:29:11 2017 -0500
     
     * AJAX generic function defined!
     
-    The generic AJAX function is defined in AJAX_magic.js
+    The generic AJAX function is defined in AJAX_functions.js
     
     ControlServlet and dashboard are updated for testing passing data
     between the two pages using the new function defined above.
@@ -455,7 +455,7 @@ Date:   Mon Feb 27 22:09:06 2017 -0500
 
     AJAX generic function defined! (#64)
     
-    The generic AJAX function is defined in AJAX_magic.js
+    The generic AJAX function is defined in AJAX_functions.js
     
     ControlServlet and dashboard are updated for testing passing data
     between the two pages using the new function defined above.
