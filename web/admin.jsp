@@ -19,6 +19,8 @@ Current bugs:
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <!--<script src="https://code.jquery.com/jquery-1.12.4.js"></script>-->
+        <script src="https://cdn.datatables.net/1.10.14/js/jquery.dataTables.min.js"></script>
         <link rel="stylesheet" href="styles/datetimepicker.css" type="text/css">
         <script src="scripts/datetimepicker.js"></script>
         <script src="scripts/admin_insertion.js"></script>
@@ -28,8 +30,9 @@ Current bugs:
         <script src="scripts/admin_deletion.js"></script>
         <script src="scripts/admin_errors.js"></script>
         <script src="scripts/admin_bayesian.js"></script>
-        <script src="scripts/AJAX_magic.js"></script>
+        <script src="scripts/AJAX_functions.js"></script>
         <script src="scripts/protocol.js"></script>
+        <script src="scripts/general.js"></script>
 
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
@@ -46,11 +49,11 @@ Current bugs:
         <script>
             function onLoad()
             {
-                document.getElementById("button_logout").disabled=true;
-                document.getElementById("button_to_dashboard").disabled=true;
+                document.getElementById("button_logout").disabled = true;
+                document.getElementById("button_to_dashboard").disabled = true;
                 sleep(900);
-                document.getElementById("button_logout").disabled=false;
-                document.getElementById("button_to_dashboard").disabled=false;
+                document.getElementById("button_logout").disabled = false;
+                document.getElementById("button_to_dashboard").disabled = false;
                 console.log("Page loaded!");
             }
         </script>

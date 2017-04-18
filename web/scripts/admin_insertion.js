@@ -1,6 +1,6 @@
-//This function simply pulls the AJAX_magic.js script
+//This function simply pulls the AJAX_functions.js script
 //to allow the current script to use AJAX functions
-$.getScript("scripts/AJAX_magic.js", function () {});
+$.getScript("scripts/AJAX_functions.js", function () {});
 
 ////insertionid changes with each new field created
 //for unique entries

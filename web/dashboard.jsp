@@ -23,7 +23,7 @@
         <script src="http://code.highcharts.com/modules/offline-exporting.js"></script>
         <script src="scripts/chart_helpers.js"></script>
         <script src="scripts/protocol.js"></script>
-        <script src="scripts/AJAX_magic.js"></script>
+        <script src="scripts/AJAX_functions.js"></script>
         <script src="scripts/dashboard.js"></script>
         
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/b-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/se-1.2.0/datatables.min.css"/>
