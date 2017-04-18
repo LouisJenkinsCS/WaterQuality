@@ -95,7 +95,7 @@ public class AdminServlet extends HttpServlet {
                 JSONObject req = (JSONObject) new JSONParser().parse(request.getParameter("data"));
                 Observable.just(req)
                         .map(o -> (JSONArray) o.get("time"))
-                        .map(arr -> arr.stream().mapToLong(o -> (Long) Instant.parse((String) o).toEpochMilli()).boxed().collect(Collectors.toSet()))
+                        .map(arr -> arr.stream().mapToLong(o -> (Long) o).boxed().collect(Collectors.toSet()))
                         .blockingSubscribe(allTimes -> DatabaseManager
                                 .parameterNameToId((String) req.get("parameter"))
                                 .subscribe(id -> DataFilter

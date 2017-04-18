@@ -163,7 +163,7 @@ function deleteData() {
         alert(resp);
         //Data shown has to be refreshed after deletion occurs
         filterData();
-    });*/
+    });
 }
 
 /*
