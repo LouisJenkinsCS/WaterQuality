@@ -8,6 +8,7 @@ package servlets;
 import async.DataReceiver;
 import async.DataValue;
 import common.UserRole;
+import database.DataFilter;
 import database.DatabaseManager;
 import io.reactivex.Observable;
 import io.reactivex.observables.GroupedObservable;
@@ -19,6 +20,9 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -87,7 +91,18 @@ public class AdminServlet extends HttpServlet {
             If an error arises, etcStatus is set with a suggested cause
          */ else if (action.trim().equalsIgnoreCase("RemoveData")) {
             try {
-                response.getWriter().append("This is your response. Success.");
+//                response.getWriter().append("This is your response. Success.");
+                JSONObject req = (JSONObject) new JSONParser().parse(request.getParameter("data"));
+                Observable.just(req)
+                        .map(o -> (JSONArray) o.get("time"))
+                        .map(arr -> arr.stream().mapToLong(o -> (Long) Instant.parse((String) o).toEpochMilli()).boxed().collect(Collectors.toSet()))
+                        .blockingSubscribe(allTimes -> DatabaseManager
+                                .parameterNameToId((String) req.get("parameter"))
+                                .subscribe(id -> DataFilter
+                                        .getFilter(id)
+                                        .add((Set<Long>) allTimes)
+                                )
+                        );
                 /*
                 String tempIDs = request.getParameter("deletionIDs");
                 String [] dataDeletionTimes = tempIDs.split(",");
@@ -264,7 +279,7 @@ public class AdminServlet extends HttpServlet {
          */ else if (action.trim().equalsIgnoreCase("editParamDesc")) {
             try {
                 boolean editDescStatus = DatabaseManager.updateDescription((String) request.getParameter("desc"),
-                        Long.parseLong(request.getParameter("desc_id")));
+                        Long.parseLong(request.getParameter("desc_id")), (String) request.getParameter("name"));
                 if (editDescStatus) {
                     JSONObject obj = new JSONObject();
                     obj.put("status", "Success");
@@ -305,7 +320,7 @@ public class AdminServlet extends HttpServlet {
                     .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe((JSONObject resp) -> {
                         response.getWriter().append(resp.toJSONString());
-                        System.out.println("Sent response...");
+//                        System.out.println("Sent response...");
                     });
 
             /*
@@ -335,7 +350,7 @@ public class AdminServlet extends HttpServlet {
                     .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe((JSONObject resp) -> {
                         response.getWriter().append(resp.toJSONString());
-                        System.out.println("Sent response...");
+//                        System.out.println("Sent response...");
                     });
 
             /*
@@ -375,7 +390,7 @@ public class AdminServlet extends HttpServlet {
                             })
                             .flatMap((JSONArray arr)
                                     -> DatabaseManager.parameterIdToName(gdv.getKey())
-                                    .doOnNext(System.out::println)
+//                                    .doOnNext(System.out::println)
                                     .map(name -> {
                                         JSONObject obj = new JSONObject();
                                         obj.put("dataValues", arr);
@@ -398,7 +413,7 @@ public class AdminServlet extends HttpServlet {
                     .defaultIfEmpty(empty)
                     .blockingSubscribe(resp -> {
                         response.getWriter().append(resp.toJSONString());
-                        System.out.println("Sent response...");
+//                        System.out.println("Sent response...");
                     });
             /*
             //We'll change to use this next group meeting
@@ -443,7 +458,7 @@ public class AdminServlet extends HttpServlet {
                             })
                             .flatMap((JSONArray arr)
                                     -> DatabaseManager.parameterIdToName(gdv.getKey())
-                                    .doOnNext(System.out::println)
+//                                    .doOnNext(System.out::println)
                                     .map(name -> {
                                         JSONObject obj = new JSONObject();
                                         obj.put("dataValues", arr);
@@ -466,7 +481,7 @@ public class AdminServlet extends HttpServlet {
                     .defaultIfEmpty(EMPTY_RESULT)
                     .blockingSubscribe(resp -> {
                         response.getWriter().append(resp.toJSONString());
-                        System.out.println("Sent response...");
+//                        System.out.println("Sent response...");
                     });
             /*
             //We'll change to use this next group meeting
@@ -538,15 +553,15 @@ public class AdminServlet extends HttpServlet {
                     // Send response.
                     .blockingSubscribe(resp -> {
                         response.getWriter().append(resp.toJSONString());
-                        System.out.println("Sent response...");
+//                        System.out.println("Sent response...");
                     });
 
         } else if (action.trim().equalsIgnoreCase("insertData")) {
-
+            
             Observable.just(request.getParameter("data"))
                     .map(req -> (JSONArray) new JSONParser().parse(req))
                     .flatMap(JSONUtils::flattenJSONArray)
-                    .doOnNext(System.out::println)
+//                    .doOnNext(System.out::println)
                     .flatMap(obj -> Observable.just(obj)
                             .map(o -> (JSONArray) o.get("values"))
                             .flatMap(JSONUtils::flattenJSONArray)
@@ -557,8 +572,9 @@ public class AdminServlet extends HttpServlet {
                             )
                     )
                     .buffer(Integer.MAX_VALUE)
+                    .doOnNext(System.out::println)
                     .flatMap(DatabaseManager::insertManualData)
-                    .blockingSubscribe();
+                    .blockingSubscribe(updated -> System.out.println("Updated # of Rows: " + updated));
                     
         }
         else if (action.trim().equalsIgnoreCase("deleteManualData")) 

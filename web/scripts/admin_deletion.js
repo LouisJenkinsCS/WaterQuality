@@ -146,23 +146,22 @@ function deleteData() {
 
     var table = $('#delete_table').DataTable();
     var selectedCells = table.rows('.selected').data();
-    var deletionIDs = "";
+    var deletionIDs = [];
     for (var i = 0; i < selectedCells.length; i++)
     {
-        deletionIDs += selectedCells[i][1] + ",";
+        deletionIDs.push(selectedCells[i][1]);
     }
-    
-    var deleteRequest = {
-        action: "RemoveData",
-        parameter: cached_deletion_ids.get($('#delete_param').val()),
-        time: deletionIDs
-    };
-    console.log(deleteRequest);
-    /*
-    post("AdminServlet", deleteRequest, function (resp) {
-        var respData = JSON.parse(resp);
-        window.alert(respData["status"]);
-        
+
+
+//    var deleteRequest = {
+//        action: "RemoveData",
+//        parameter: $('#delete_param').val(),
+//        time: deletionIDs
+//    };
+
+    post("AdminServlet", { action: "RemoveData", data: JSON.stringify({parameter: $('#delete_param').val(), time: deletionIDs}) }, function (resp) {
+        alert(resp);
+        //Data shown has to be refreshed after deletion occurs
         filterData();
     });*/
 }
