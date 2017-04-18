@@ -20,7 +20,7 @@ function fillBayesianContent() {
             + '<br/><br/>'
             + '<div>Click the button below to download your selected '
             + 'day\'s data. Data parameters downloaded are:</div></div>'
-            + 'Time, Date, Barometric pressure, PAR, Depth, Dissolved oxygen, '
+            + 'Timestamp, Barometric pressure, PAR, Depth, Dissolved oxygen, '
             + 'and Water temperature.<br/><br/>'
             + '<button type="button" onclick="bayesianButton()">Download</button>'
             );

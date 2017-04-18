@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
@@ -738,6 +739,18 @@ public class DatabaseManager
             }
         }
         return graphData;
+    }
+    
+    public static Optional<Long> remoteSourceToDatabaseId(Long id) {
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        return  db.select("select parameter_id from remote_data_parameters where source = ?")
+                .parameter(id)
+                .getAs(Long.class)
+                .map(Optional::of)
+                .toBlocking()
+                .singleOrDefault(Optional.empty());
+                
+                
     }
     
     public static io.reactivex.Observable<async.DataValue> getDataValues(Instant start, Instant end, String name) {

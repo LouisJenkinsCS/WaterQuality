@@ -191,7 +191,7 @@ public class DataToCSV {
                         .map(DataReceiver::getParameterName)
                         .buffer(Integer.MAX_VALUE)
                         .map(list -> list.stream().collect(Collectors.joining(",")))
-                        .map(header -> "DateTime," + header)
+                        .map(header -> "Timestamp," + header)
                         .map(header -> header + "\n" + values)
                 );
     }

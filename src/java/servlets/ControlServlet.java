@@ -1,13 +1,17 @@
 package servlets;
 
+import async.DataReceiver;
 import bayesian.RunBayesianModel;
+import com.github.davidmoten.rx.util.Pair;
 import common.UserRole;
 import database.DatabaseManager;
+import io.reactivex.Observable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -16,11 +20,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.javatuples.Triplet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import protocol.JSONProtocol;
+import utilities.JSONUtils;
+import static utilities.TimestampUtils.toUTCInstant;
 
 /**
  * <code>ControlServlet</code> is the main servlet that processes most
@@ -65,6 +72,7 @@ public class ControlServlet extends HttpServlet {
             defaultHandler(request, response);
             return;
         }
+        
 
         if (action.trim().equalsIgnoreCase("fetchQuery")) {
             String data = request.getParameter("query");
@@ -78,6 +86,51 @@ public class ControlServlet extends HttpServlet {
             } catch (ParseException ex) {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+        /*
+         * getMostRecent
+         * {data:[{
+         *  id:
+         *  time:
+         *  value:
+         *  }]
+         *  }
+         */
+        else if (action.trim().equalsIgnoreCase("getMostRecent")) {
+            DataReceiver.getData(DataReceiver.LATEST_DATE_URL)
+                    .map((JSONObject obj) -> (JSONArray) obj.get("data"))
+                    .flatMap(JSONUtils::flattenJSONArray)
+                    .doOnNext(System.out::println)
+                    .map((JSONObject obj) -> Triplet.with((Long) obj.get("id"), (Double) obj.get("value"), toUTCInstant((String) obj.get("timestamp")).toEpochMilli()))
+                    .flatMap((Triplet<Long, Double, Long> triplet) -> Observable
+                            .just(triplet.getValue0())
+                            .map(DatabaseManager::remoteSourceToDatabaseId)
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .map(triplet::setAt0)
+                    )
+                    .doOnNext(System.out::println)
+                    .map((Triplet<Long, Double, Long> triplet) -> {
+                        JSONObject obj = new JSONObject();
+                        obj.put("id", triplet.getValue0());
+                        obj.put("time", triplet.getValue2());
+                        obj.put("value", triplet.getValue1());
+                        return obj;
+                    })
+                    .doOnNext(System.out::println)
+                    .buffer(Integer.MAX_VALUE)
+                    .map(JSONUtils::toJSONArray)
+                    .map((JSONArray arr) -> {
+                        JSONObject resp = new JSONObject();
+                        resp.put("data", arr);
+                        return resp;
+                    })
+                    .doOnNext(System.out::println)
+                    .blockingSubscribe(obj -> response.getWriter().append(obj.toJSONString()));
+                    
+                    
+                    
+                    
         }
     }
 

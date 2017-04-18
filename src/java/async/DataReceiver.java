@@ -70,6 +70,8 @@ import utilities.JSONUtils;
  */
 public class DataReceiver {
     
+    public static final String LATEST_DATE_URL = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
+    
     // TODO: Quit being lazy and create a single map which holds the data needed
     // The keys are the exact same, and only differ in values.
     private static final Map<Long, DataParameter> PARAMETER_MAP = new HashMap<>();
@@ -98,11 +100,9 @@ public class DataReceiver {
         // This is the URL used to obtain ALL data for the sensor within the past
         // 15 minutes. This is important as, again, it holds ALL of the data. So
         // we can use this to construct our map. 
-        String url = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
-
         // We want to make some API calls next. Given the above URL, we can then
         // make a connection and obtain the JSON data sent.
-        getData(url)
+        getData(LATEST_DATE_URL)
                 // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
                 // We need to obtain the "data" parameter, which a JSONArray.
                 .map((JSONObject obj) -> (JSONArray) obj.get("data"))
@@ -137,6 +137,8 @@ public class DataReceiver {
                     parameters.remove(param);
                 });
     }
+    
+    
     
     /**
      * Obtain all sensor parameter names.

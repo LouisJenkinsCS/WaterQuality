@@ -616,6 +616,7 @@ $(function () {
 
 function getMostRecent(){
     post("ControlServlet", {action: "getMostRecent"}, function (resp) {
+        console.log(resp);
         var data=JSON.parse(resp)["data"];
         /*
          * getMostRecent
