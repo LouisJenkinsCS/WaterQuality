@@ -237,12 +237,6 @@ function fetch() {
         document.getElementById("loader").style.cursor = "default";
         return;
     }
-    var date=new Date();
-    //ofset is number of minutes so you multiply 1000*60 since that is one minute
-    //by the offset to get the epoch milisecond equivalent of the offset
-    var offset=1000*60*date.getTimezoneOffset();
-    startTime+=offset;
-    endTime+=offset;
     var request = new DataRequest(startTime, endTime, selecteddata);
     post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
