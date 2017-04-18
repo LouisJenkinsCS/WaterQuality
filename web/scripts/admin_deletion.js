@@ -69,7 +69,7 @@ function loadDelete()
                 {title: "Name"},
                 {title: "Value"}
             ],
-            "order": [[0, "desc"]],
+            "order": [[1, "desc"]],
             select: 'multi'
         });
 
