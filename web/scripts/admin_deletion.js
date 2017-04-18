@@ -25,7 +25,7 @@ function loadDelete() {
     parameterRequest.action = "getParameters";
 
     post("AdminServlet", parameterRequest, function (response) {
-//        
+        
         var resp = new ParameterResponse(response);
 
         /*
@@ -163,17 +163,11 @@ function deleteData() {
     var selectedCells = table.rows('.selected').data();
     var deletionIDs = [];
     for (var i = 0; i < selectedCells.length; i++)
-    {
         deletionIDs.push(selectedCells[i][1]);
-    }
 
-//    var deleteRequest = {
-//        action: "RemoveData",
-//        parameter: $('#delete_param').val(),
-//        time: deletionIDs
-//    };
-
-    post("AdminServlet", { action: "RemoveData", data: JSON.stringify({parameter: $('#delete_param').val(), time: deletionIDs}) }, function (resp) {
+    post("AdminServlet", 
+    {action: "RemoveData", data: JSON.stringify({parameter: $('#delete_param').val(), time: deletionIDs})},
+    function (resp) {
         alert(resp);
         //Data shown has to be refreshed after deletion occurs
         filterData();
