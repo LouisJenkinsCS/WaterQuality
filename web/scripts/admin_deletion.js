@@ -141,13 +141,12 @@ function filterData() {
         var data = JSON.parse(resp)["data"];
         var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
         for (var i = 0; i < data.length; i++) {
-            var item = data[i];
-            var name = item.name;
-            var dataValues = item.dataValues;
-            for (var j = 0; j < dataValues.length; j++) {
-                item = dataValues[j];
-                dataTable.rows.add([[formatDateSimple(item["timestamp"]), item["timestamp"], name, item["value"]]]);
-            }
+                var item = data[i];
+                var name = item.name;
+                var dataValues = item.dataValues;
+                for (var j = 0; j < dataValues.length; j++) {
+                    item = dataValues[j];
+                    dataTable.rows.add([[formatDateSimple(item["timestamp"]),item["timestamp"], name, item["value"]]]);}
         }
 
         dataTable.draw();
@@ -162,19 +161,19 @@ function filterData() {
 function deleteData() {
     var table = $('#delete_table').DataTable();
     var selectedCells = table.rows('.selected').data();
-    var deletionIDs = "";
-    
-    for (var i = 0; i < selectedCells.length; i++) {
-        deletionIDs += selectedCells[i][1] + ",";
+    var deletionIDs = [];
+    for (var i = 0; i < selectedCells.length; i++)
+    {
+        deletionIDs.push(selectedCells[i][1]);
     }
 
-    var deleteRequest = {
-        action: "RemoveData",
-        parameter: $('#delete_param').val(),
-        time: deletionIDs
-    };
+//    var deleteRequest = {
+//        action: "RemoveData",
+//        parameter: $('#delete_param').val(),
+//        time: deletionIDs
+//    };
 
-    post("AdminServlet", deleteRequest, function (resp) {
+    post("AdminServlet", { action: "RemoveData", data: JSON.stringify({parameter: $('#delete_param').val(), time: deletionIDs}) }, function (resp) {
         alert(resp);
         //Data shown has to be refreshed after deletion occurs
         filterData();
