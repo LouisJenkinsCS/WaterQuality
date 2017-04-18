@@ -58,8 +58,15 @@ public class AdminServlet extends HttpServlet {
         final Object lock = session.getId().intern();
         common.User admin = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
-        if(admin != null && admin.isLocked())
-            action = "logout";
+        
+        if(DatabaseManager.isUserLocked(admin))
+        {
+            session.removeAttribute("user");//logout on server
+            
+            session.invalidate();
+            response.sendRedirect(request.getContextPath() + "/WaterQuality/");
+            return;
+        }
         
         if (action == null) {
             return;
@@ -88,7 +95,7 @@ public class AdminServlet extends HttpServlet {
                 JSONObject req = (JSONObject) new JSONParser().parse(request.getParameter("data"));
                 Observable.just(req)
                         .map(o -> (JSONArray) o.get("time"))
-                        .map(arr -> arr.stream().mapToLong(o -> (Long) Instant.parse((String) o).toEpochMilli()).boxed().collect(Collectors.toSet()))
+                        .map(arr -> arr.stream().mapToLong(o -> (Long) o).boxed().collect(Collectors.toSet()))
                         .blockingSubscribe(allTimes -> DatabaseManager
                                 .parameterNameToId((String) req.get("parameter"))
                                 .subscribe(id -> DataFilter
@@ -100,7 +107,7 @@ public class AdminServlet extends HttpServlet {
                 String tempIDs = request.getParameter("deletionIDs");
                 String [] dataDeletionTimes = tempIDs.split(",");
                 
-                int successfulDeletions = DatabaseManager.manualDeletion(dataDeletionTimes, (String) request.getParamter("parameter"),
+                int successfulDeletions = DatabaseManager.manualDeletion(dataDeletionTimes, Integer.parseInt((String)request.getParameter("parameter")),
                         admin);
                 if (successfulDeletions == dataDeletionTimes.length) {
                     JSONObject obj = new JSONObject();
@@ -439,7 +446,7 @@ public class AdminServlet extends HttpServlet {
                     .flatMap((GroupedObservable<Long, DataValue> gdv)
                             -> gdv.map((DataValue dv) -> {
                         JSONObject obj = new JSONObject();
-                        obj.put("timestamp", dv.getTimestamp().toString());
+                        obj.put("timestamp", dv.getTimestamp().toEpochMilli());
                         obj.put("value", dv.getValue());
                         return obj;
                     })

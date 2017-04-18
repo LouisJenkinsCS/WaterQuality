@@ -5,6 +5,7 @@ $.getScript("scripts/general.js", function () {});
 $.getScript("scripts/datetimepicker.js", function () {});
 
 var del_options = "";
+var cached_deletion_ids = new Map();
 
 function loadDelete()
 {
@@ -31,9 +32,9 @@ function loadDelete()
 
             for (var i = 0; i < resp.descriptors.length; i++) {
                 resp.piece = resp.descriptors[i];
-                //console.log("resp.piece: " + JSON.stringify(resp.piece));
+                cached_deletion_ids.set(resp.piece["name"],resp.piece["id"]);
                 resp.names.push(resp.piece["name"]);
-                //console.log("resp.names contains:" + JSON.stringify(resp.names))
+                
             }
 
             (resp.names).forEach(function (item) {
@@ -58,7 +59,7 @@ function loadDelete()
                 '<table id="delete_table">' +
                 '<thead><tr><th>Date-Time</th><th>Actual-Time</th><th>Name</th><th>Value</th></tr></thead>' +
                 '</table><br/>' +
-                '<button type="button" onclick="deleteData()">Delete</button><br/><br/>'
+                '<input type="submit" id="delete_data" value="Delete Data" onclick="deleteData()">'
                 );
 
         $('#delete_table').DataTable({
@@ -68,7 +69,7 @@ function loadDelete()
                 {title: "Name"},
                 {title: "Value"}
             ],
-            "order": [[0, "desc"]],
+            "order": [[1, "desc"]],
             select: 'multi'
         });
 
@@ -124,14 +125,15 @@ function filterData() {
 
         // Rows are added to the DataTable in a loop
         var data = JSON.parse(resp)["data"];
-        var htmlstring = '<thead><tr><th>Date-Time</th><th>Name</th><th>Value</th></tr></thead>';
+        
         for (var i = 0; i < data.length; i++) {
-                var item = data[i];
-                var name = item.name;
-                var dataValues = item.dataValues;
-                for (var j = 0; j < dataValues.length; j++) {
-                    item = dataValues[j];
-                    dataTable.rows.add([[formatDateSimple(item["timestamp"]),item["timestamp"], name, item["value"]]]);}
+            var item = data[i];
+            var name = item.name;
+            var dataValues = item.dataValues;
+            for (var j = 0; j < dataValues.length; j++) {
+                item = dataValues[j];
+                dataTable.rows.add([[formatDateSimple2(new Date(item["timestamp"])), item["timestamp"], name, item["value"]]]);
+            }
         }
 
 
@@ -149,6 +151,7 @@ function deleteData() {
     {
         deletionIDs.push(selectedCells[i][1]);
     }
+
 
 //    var deleteRequest = {
 //        action: "RemoveData",

@@ -449,8 +449,13 @@ function fillTable(dataResp) {
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
-        html.push("<td><span>" + formatHiddenDate(new Date(dates[i]))
-                + "</span>" + formatDate(new Date(dates[i])) + "</td>");
+        var tempDate = dates[i];
+        if(new Date(tempDate).dst())
+            tempDate = tempDate - 14400000;
+        else
+            tempDate = tempDate - 18000000;
+        html.push("<td><span>" + formatHiddenDate(new Date(tempDate))
+                + "</span>" + formatDate(new Date(tempDate)) + "</td>");
         for (var j = 0; j < dataResp.data.length; j++) {
             var d = dataResp.data[j]["dataValues"];
             if (i >= d.length) {

@@ -21,12 +21,14 @@ public enum UserRole implements Serializable{
      */
     SystemAdmin("SystemAdmin"),
     
- 
-    
     /**
      * A student at the university.
      */
-    Student("Student");
+    Student("Student"),
+    /**
+     * Unregistered User
+     */
+    Guest("Guest");
     
     private final String roleName;
     

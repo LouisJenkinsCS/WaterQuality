@@ -36,7 +36,7 @@
  * @param {type} id
  */
 function setDate(date, id) {
-    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1)%60, 2) + ":" + pad(0, 2);
+    var dateStr = date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + "T" + pad((date.getHours() + 1) % 24, 2) + ":" + pad((date.getMinutes() + 1) % 60, 2) + ":" + pad(0, 2);
     document.getElementById(id).value = dateStr;
     console.log("id: " + id + ", date: " + date, ", datestr: " + dateStr);
 }
@@ -52,34 +52,34 @@ function createDateAsUTC(date) {
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
 }
 
-function convertDateToUTC(date) { 
-    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
+function convertDateToUTC(date) {
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
 }
 
 function formatDate(date) {
-  date = convertDateToUTC(date);
-  var day = date.getDate();
-  var month = date.getMonth() + 1;
-  var year = date.getFullYear();
-  var hour = pad((date.getHours()) % 24, 2);
-  var minute = pad((date.getMinutes())%60, 2);
-  var am_pm = hour < 12 ? "AM" : "PM";
-  if (hour > 12) {
-      hour -= 12;
-  }
-  
-  return month + "/" + day + "/" + year + " " + hour + ":" + minute + " " + am_pm;
+    date = convertDateToUTC(date);
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    var hour = pad((date.getHours()) % 24, 2);
+    var minute = pad((date.getMinutes()) % 60, 2);
+    var am_pm = hour < 12 ? "AM" : "PM";
+    if (hour > 12) {
+        hour -= 12;
+    }
+
+    return month + "/" + day + "/" + year + " " + hour + ":" + minute + " " + am_pm;
 }
 
 function formatHiddenDate(date) {
-  //date = convertDateToUTC(date);
-  var day = pad(date.getDate(),2);
-  var month = pad(date.getMonth() + 1,2);
-  var year = date.getFullYear();
-  var hour = pad((date.getHours()) % 24, 2);
-  var minute = pad((date.getMinutes())%60, 2);
- 
-  return year+""+month+""+day+" "+hour+":"+minute;
+    //date = convertDateToUTC(date);
+    var day = pad(date.getDate(), 2);
+    var month = pad(date.getMonth() + 1, 2);
+    var year = date.getFullYear();
+    var hour = pad((date.getHours()) % 24, 2);
+    var minute = pad((date.getMinutes()) % 60, 2);
+
+    return year + "" + month + "" + day + " " + hour + ":" + minute;
 }
 
 function formatDateSimple(date) {
@@ -91,6 +91,12 @@ function formatDateSimple(date) {
     var second = date.substring(17, 19);
 
     return month + "/" + day + "/" + year + " " + hour + ":" + minute + ":" + second;
+}
+
+function formatDateSimple2(date2) {
+    var date = date2.toString();
+    var date = date.substring(4,24);
+    return date;
 }
 
 Date.prototype.dst = function () {
