@@ -31,6 +31,7 @@ public class User implements Comparable<User>, Serializable {
     public User() {
         firstName = "";
         lastName = "";
+        userRole = UserRole.Guest;
     }
 
     /**
