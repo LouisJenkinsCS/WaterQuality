@@ -22,7 +22,7 @@ function fullCheck(id) {
     if (item.checked == true) {
         if (checkedBoxes < 2) {
             checkedBoxes++;
-            
+
             selected.push(id);
         } else {
             it = selected.shift();
@@ -45,8 +45,8 @@ function tableChecked(id) {
     if (item.checked === true) {
         tableSelected.push(id);
     } else {
-        if(tableSelected.indexOf(id)!=-1){
-            tableSelected.splice(tableSelected.indexOf(id),1);
+        if (tableSelected.indexOf(id) != -1) {
+            tableSelected.splice(tableSelected.indexOf(id), 1);
         }
     }
 }
@@ -56,13 +56,13 @@ function tableChecked(id) {
  * all of the checkboxes in the table tab depending on the state of <code>source</code>
  * checkbox
  */
-function toggle(id,source) {
+function toggle(id, source) {
     var checkboxes = document.getElementById(id).querySelectorAll('input[type="checkbox"]');
     for (var i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = source.checked;
     }
-    if(source.checked==false)
-            tableSelected=[];
+    if (source.checked == false)
+        tableSelected = [];
 }
 
 /**Sets a cookie so that the current tab name can remembered for reloading the page
@@ -129,7 +129,7 @@ function openTab(evt, tabName) {
         form[i].style.display = "none";
     }
     document.getElementById(current + "_form").style.display = "block";
-    
+
     descriptions = document.getElementsByClassName("description");
     for (i = 0; i < descriptions.length; i++) {
         descriptions[i].style.display = "none";
@@ -141,34 +141,34 @@ function openTab(evt, tabName) {
 
 function fetchData(json) {
     var data = new DataResponse(json);
-    
+
     // New data: Clear descriptions
 
     //document.getElementById("graph_description").innerHTML = "";
     //document.getElementById("table_description").innerHTML = "";
-    
+
     // If there is a missing description for something selected, fill it ourselves...
-    if(current=="Graph"){
-    for (j = 0; j < selected.length; j++) {
-        var contains = false;
-        for (i = 0; i < data.data.length; i++) {
-            if (selected[j].substring(6) == data.data[i].id) {
-                contains = true;
-                break;
+    if (current == "Graph") {
+        for (j = 0; j < selected.length; j++) {
+            var contains = false;
+            for (i = 0; i < data.data.length; i++) {
+                if (selected[j].substring(6) == data.data[i].id) {
+                    contains = true;
+                    break;
+                }
+            }
+
+            if (!contains) {
+                data.data.push({id: selected[j].substring(6), dataValues: []});
             }
         }
-        
-        if (!contains) {
-            data.data.push({ id: selected[j].substring(6), dataValues: []});
-        }
-    }}
-    
+    }
+
     // Empty?
     if (data.data.length == 0) {
-        if(current=="Table"){
+        if (current == "Table") {
             fillTable(data);
-        }
-        else
+        } else
             return;
     }
     var timeStamps = getTimeStamps(data);
@@ -200,14 +200,17 @@ function fetchData(json) {
                 name: names[data.data[i].id],
                 data: timeStampStr[i]
             }, false);
-            chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
+            if (names[data.data[i].id] === "pH")
+                chart.yAxis[i].setTitle({text: names[data.data[i].id]});
+            else
+                chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
         }
         if (data.data.length == 1)
             chart.yAxis[i].setTitle({text: ""});
         chart.redraw();
-        
-        document.getElementById("Graph_description").innerHTML="";
-        document.getElementById("Table_description").innerHTML="";
+
+        document.getElementById("Graph_description").innerHTML = "";
+        document.getElementById("Table_description").innerHTML = "";
         for (i = 0; i < data.data.length; i++) {
             // The server gives us the identifier, not the name, and so we need to do a lookup in our own map.
             document.getElementById("Graph_description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
@@ -216,7 +219,7 @@ function fetchData(json) {
             document.getElementById("Table_description").innerHTML += descriptions[data.data[i].id];
         }
     } else {
-        if (getCookie("id") == "Table"){
+        if (getCookie("id") == "Table") {
             //document.getElementById("Table").innerHTML = table;
             fillTable(data);
 
@@ -226,8 +229,7 @@ function fetchData(json) {
                 document.getElementById("Table_description").innerHTML += "<center><h1>" + names[data.data[i].id] + "</h1></center>";
                 document.getElementById("Table_description").innerHTML += descriptions[data.data[i].id];
             }
-        }
-        else {
+        } else {
             // Remove all series data
             while (chart.series.length > 0)
                 chart.series[0].remove(true);
@@ -238,7 +240,10 @@ function fetchData(json) {
                     name: names[data.data[i].id],
                     data: timeStampStr[i]
                 }, false);
-                chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
+                if (names[data.data[i].id] === "pH")
+                    chart.yAxis[i].setTitle({text: names[data.data[i].id]});
+                else
+                    chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
             }
             if (data.data.length == 1)
                 chart.yAxis[i].setTitle({text: ""});
@@ -251,7 +256,7 @@ function fetchData(json) {
             }
         }
     }
-    
+
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor = "default";
 }
@@ -283,7 +288,7 @@ function fetch() {
             startTime = startTime.getTime() - 14400000;
         else
             startTime = startTime.getTime() - 18000000;
-        
+
         var endTime = new Date(document.getElementById("graph_end_date").value);
         if (endTime.dst())
             endTime = endTime.getTime() - 14400000;
@@ -292,10 +297,10 @@ function fetch() {
 
         var graphStartTime = document.getElementById("graph_start_time").value;
         var graphEndTime = document.getElementById("graph_end_time").value;
-        
+
         var tempstart = graphStartTime.split(':');
         var tempend = graphEndTime.split(':');
-        
+
         startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
         endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
@@ -305,19 +310,19 @@ function fetch() {
             startTime = startTime.getTime() - 14400000;
         else
             startTime = startTime.getTime() - 18000000;
-        
+
         var endTime = new Date(document.getElementById("table_end_date").value);
         if (endTime.dst())
             endTime = endTime.getTime() - 14400000;
         else
             endTime = endTime.getTime() - 18000000;
-        
+
         var tableStartTime = document.getElementById("table_start_time").value;
         var tableEndTime = document.getElementById("table_end_time").value;
-        
+
         var tempstart = tableStartTime.split(':');
         var tempend = tableEndTime.split(':');
-        
+
         startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
         endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
@@ -331,7 +336,7 @@ function fetch() {
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked == true) {
             numChecked++;
-            var name=checkboxes[i].name.substring(6);
+            var name = checkboxes[i].name.substring(6);
             selecteddata.push(Number(name));
         }
     }
@@ -417,12 +422,12 @@ function fillTable(dataResp) {
                 break;
             }
         }
-        
+
         if (!contains) {
-            dataResp.data.push({ id: tableSelected[j].substring(6), dataValues: []});
+            dataResp.data.push({id: tableSelected[j].substring(6), dataValues: []});
         }
     }
-    
+
     var html = [];//Holds the table that will be created 
     var dates = [];//holds the array of all dates from all parameters 
     html.push("<table><thead><tr><th>TimeStamp</th>");
@@ -445,12 +450,14 @@ function fillTable(dataResp) {
     }
     //since the dates are stored as epoch miliseconds this make sure the dates
     //are in the correct order
-    dates.sort(function (a, b) {return a-b;});
+    dates.sort(function (a, b) {
+        return a - b;
+    });
     //Adds all the values to the <code>html</code> array for the table
     for (var i = 0; i < dates.length; i++) {
         html.push("<tr>");
         var tempDate = dates[i];
-        if(new Date(tempDate).dst())
+        if (new Date(tempDate).dst())
             tempDate = tempDate - 14400000;
         else
             tempDate = tempDate - 18000000;
@@ -484,7 +491,7 @@ function fillTable(dataResp) {
     table.innerHTML = finalHtml;
     $("#data_table").DataTable({
         dom: 'l<"#table_exports"B>frtip',
-        aaSorting:[],
+        aaSorting: [],
         buttons: [
             'excel',
             'csv',
@@ -532,10 +539,10 @@ function startingData() {
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
-          
+
             var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
-            
+
             document.getElementById("graph_sensor_parameters").innerHTML += param;
             document.getElementById("table_sensor_parameters").innerHTML += tableparam;
         }
@@ -544,10 +551,10 @@ function startingData() {
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
-          
+
             var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
             var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
-          
+
             document.getElementById("graph_manual_parameters").innerHTML += param;
             document.getElementById("table_manual_parameters").innerHTML += tableparam;
         }
@@ -558,14 +565,14 @@ function startingData() {
         var tablecheckboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]');
         tablecheckboxes[5].checked = true;
 
-        if(getCookie("id")=="")
+        if (getCookie("id") == "")
             setCookie("id", current, 1);
         else
             current = getCookie("id");
         if (getCookie("id") == "Table")
             document.getElementById("TableTab").click();
         else {
-            if(getCookie("id")=="Graph")
+            if (getCookie("id") == "Graph")
                 document.getElementById("GraphTab").click();
         }
         checkuser();
@@ -596,7 +603,7 @@ $(function () {
     })
             .datepicker("setDate", date);
 
-    date.setMonth(date.getMonth() - 1);
+    date.setDate(date.getDate() - 7);
     $("#graph_start_date").datetimepicker({
         controlType: 'select',
         oneLine: true,

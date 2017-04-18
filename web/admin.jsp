@@ -91,7 +91,7 @@ Current bugs:
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Errors'); hide();"
                            id="ErrorsTab">Errors</a></li>
                     <li><a href="javascript:void(0)" class="tabs" onclick="openTab(event, 'Bayesian'); hide();"
-                           id="BayesianTab">Bayesian</a></li>
+                           id="BayesianTab">Stream Metabolism</a></li>
                 </ul>
             </div>
             <!--Admin insertion-->
