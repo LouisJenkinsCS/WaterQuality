@@ -252,6 +252,8 @@ button:hover,input[type = "button"]:hover {
     width:auto;
     min-width: 57.7%;
     text-align: center;
+    min-height: 425px;
+    height:auto;
 }
 
 #Admin_Button,#Login_Button{

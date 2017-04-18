@@ -9,6 +9,8 @@ var descriptions = [];
 var units = [];
 // Names for DataParameters; (id -> name)
 var names = [];
+//creates the interval to call getMostRecent every 5 minutes
+var interval=setInterval(getMostRecent(),1000*60*5);
 
 /**
  * The <code>fullCheck</code> function limits the number of data
@@ -117,7 +119,7 @@ function openTab(evt, tabName) {
     }
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
-
+    
     //<code>current</code>holds the current <code>tabName</code>
     //This is done because we need to limit the number of boxes checked
     //for the Graph tab and not the Table tab
@@ -137,6 +139,106 @@ function openTab(evt, tabName) {
     document.getElementById(current + "_description").style.display = "block";
     //Sets a cookie so that the current tab can be remembered
     setCookie("id", current, 1);
+    
+    //fixes the issue that the chart doesnt show when page is rezied
+    chart.reflow();
+    chart.redraw();
+}
+
+/**The <code>handleClick</code> function handles any and hall actions that need
+ * to be done upon clicking of checkbox <code>cb</code>
+ * 
+ * @param {type} cb
+ * @returns {undefined}
+ */
+function handleClick(cb)
+{
+    //If the current tab is the graph then it limits the number of boxes checked
+    if (current == 'Graph') {
+        fullCheck(cb.id);
+    } else {
+        tableChecked(cb.id);
+    }
+    fetch();
+    //updates the most recent data for all parameters and then clears the
+    //interval so it resets the time til the next call
+    getMostRecent();
+    clearInterval(interval);
+}
+
+function fetch() {
+    //makes the cursor show loading when graph/table is being generated 
+    document.getElementById("loader").style.cursor = "progress";
+    if (current === "Graph") {
+        var startTime = new Date(document.getElementById("graph_start_date").value);
+        if (startTime.dst())
+            startTime = startTime.getTime() - 14400000;
+        else
+            startTime = startTime.getTime() - 18000000;
+        
+        var endTime = new Date(document.getElementById("graph_end_date").value);
+        if (endTime.dst())
+            endTime = endTime.getTime() - 14400000;
+        else
+            endTime = endTime.getTime() - 18000000;
+
+        var graphStartTime = document.getElementById("graph_start_time").value;
+        var graphEndTime = document.getElementById("graph_end_time").value;
+        
+        var tempstart = graphStartTime.split(':');
+        var tempend = graphEndTime.split(':');
+        
+        startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
+        endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
+    }
+    if (current == "Table") {
+        var startTime = new Date(document.getElementById("table_start_date").value);
+        if (startTime.dst())
+            startTime = startTime.getTime() - 14400000;
+        else
+            startTime = startTime.getTime() - 18000000;
+        
+        var endTime = new Date(document.getElementById("table_end_date").value);
+        if (endTime.dst())
+            endTime = endTime.getTime() - 14400000;
+        else
+            endTime = endTime.getTime() - 18000000;
+        
+        var tableStartTime = document.getElementById("table_start_time").value;
+        var tableEndTime = document.getElementById("table_end_time").value;
+        
+        var tempstart = tableStartTime.split(':');
+        var tempend = tableEndTime.split(':');
+        
+        startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
+        endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
+    }
+    var selecteddata = [];
+    if (current == "Graph")
+        var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
+    if (current == "Table")
+        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([class="select_all_box"])');
+    //console.log("Start: " + startTime + " end: " + endTime);
+    var numChecked = 0;
+    for (var i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked == true) {
+            numChecked++;
+            var name=checkboxes[i].name.substring(6);
+            selecteddata.push(Number(name));
+        }
+    }
+
+    //checks if there are no data points selected
+    if (numChecked == 0) {
+        //if in the table tab the table will be set to null
+        if (current == "Table")
+            document.getElementById("data_table").innerHTML = null;
+        //Returns the cursor to default so it doesnt get stuck on loading
+        document.getElementById("loader").style.cursor = "default";
+        return;
+    }
+    var request = new DataRequest(startTime, endTime, selecteddata);
+    post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
 
 function fetchData(json) {
@@ -254,99 +356,6 @@ function fetchData(json) {
     
     //sets the cursor back to default after the graph/table is done being generated
     document.getElementById("loader").style.cursor = "default";
-}
-
-/**The <code>handleClick</code> function handles any and hall actions that need
- * to be done upon clicking of checkbox <code>cb</code>
- * 
- * @param {type} cb
- * @returns {undefined}
- */
-function handleClick(cb)
-{
-    //If the current tab is the graph then it limits the number of boxes checked
-    if (current == 'Graph') {
-        fullCheck(cb.id);
-    } else {
-        tableChecked(cb.id);
-    }
-}
-
-function fetch() {
-    var minutes = 1000 * 60;
-    var hours = minutes * 60;
-    //makes the cursor show loading when graph/table is being generated 
-    document.getElementById("loader").style.cursor = "progress";
-    if (current === "Graph") {
-        var startTime = new Date(document.getElementById("graph_start_date").value);
-        if (startTime.dst())
-            startTime = startTime.getTime() - 14400000;
-        else
-            startTime = startTime.getTime() - 18000000;
-        
-        var endTime = new Date(document.getElementById("graph_end_date").value);
-        if (endTime.dst())
-            endTime = endTime.getTime() - 14400000;
-        else
-            endTime = endTime.getTime() - 18000000;
-
-        var graphStartTime = document.getElementById("graph_start_time").value;
-        var graphEndTime = document.getElementById("graph_end_time").value;
-        
-        var tempstart = graphStartTime.split(':');
-        var tempend = graphEndTime.split(':');
-        
-        startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
-        endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
-    }
-    if (current == "Table") {
-        var startTime = new Date(document.getElementById("table_start_date").value);
-        if (startTime.dst())
-            startTime = startTime.getTime() - 14400000;
-        else
-            startTime = startTime.getTime() - 18000000;
-        
-        var endTime = new Date(document.getElementById("table_end_date").value);
-        if (endTime.dst())
-            endTime = endTime.getTime() - 14400000;
-        else
-            endTime = endTime.getTime() - 18000000;
-        
-        var tableStartTime = document.getElementById("table_start_time").value;
-        var tableEndTime = document.getElementById("table_end_time").value;
-        
-        var tempstart = tableStartTime.split(':');
-        var tempend = tableEndTime.split(':');
-        
-        startTime = new Date(startTime + tempstart[0] * 3600000 + tempstart[1] * 60000).getTime();
-        endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
-    }
-    var selecteddata = [];
-    if (current == "Graph")
-        var checkboxes = document.getElementById("Graph_form").querySelectorAll('input[type="checkbox"]');
-    if (current == "Table")
-        var checkboxes = document.getElementById("Table_form").querySelectorAll('input[type="checkbox"]:not([class="select_all_box"])');
-    //console.log("Start: " + startTime + " end: " + endTime);
-    var numChecked = 0;
-    for (var i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i].checked == true) {
-            numChecked++;
-            var name=checkboxes[i].name.substring(6);
-            selecteddata.push(Number(name));
-        }
-    }
-
-    //checks if there are no data points selected
-    if (numChecked == 0) {
-        //if in the table tab the table will be set to null
-        if (current == "Table")
-            document.getElementById("data_table").innerHTML = null;
-        //Returns the cursor to default so it doesnt get stuck on loading
-        document.getElementById("loader").style.cursor = "default";
-        return;
-    }
-    var request = new DataRequest(startTime, endTime, selecteddata);
-    post("ControlServlet", {action: "fetchQuery", query: JSON.stringify(request)}, fetchData);
 }
 
 /**Sets the default dates for the date selectors
@@ -480,38 +489,25 @@ function fillTable(dataResp) {
         //console.log(str);
         finalHtml += str;
     }
-    //console.log(finalHtml);
+    
     table.innerHTML = finalHtml;
+    //creates the datatables api for the data in the table
     $("#data_table").DataTable({
-        dom: 'l<"#table_exports"B>frtip',
-        aaSorting:[],
+        //the options for the API chooses what to display
+        //l- number of rows displayed selector
+        //B- the export buttons
+        //f- filtering of the input
+        //t- the actual table
+        //i- information about how many entries are in the table
+        //p- control for switching to the next page of rows
+        dom: 'l<"#table_exports"B>ftip',
+        //displays the buttons for exporting
         buttons: [
             'excel',
             'csv',
             'pdf'
         ]
     });
-}
-
-/**The <code>openPoppup()</code> function simply opens a popped up
- * version of the data table when <code>data_table</code> is clicked 
- * so that the user can more easily see the data 
- */
-function openPopup() {
-    var modal = document.getElementById("myModal");
-    var span = document.getElementsByClassName("close")[0];
-    var table = document.getElementById("data_table");
-    var popup = document.getElementById("popup");
-
-
-    popup.innerHTML = table.innerHTML;
-    modal.style.display = "block";
-
-    $(popup).DataTable();
-    span.onclick = function () {
-        modal.style.display = "none";
-        $(popup).DataTable().destroy();
-    }
 }
 
 //<code>load</code> makes sure that when the page is newly loaded it will do a
@@ -524,17 +520,19 @@ var load = true;
 function startingData() {
     post("AdminServlet", {action: "getParameters", data: 3}, function (resp) {
 
-        console.log(JSON.parse(resp));
+//        console.log(JSON.parse(resp));
         var data = JSON.parse(resp)["data"][0]["descriptors"];
-        console.log(data);
+//        console.log(data);
         for (i = 0; i < data.length; i++) {
             // Cache parameter descriptors
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
           
-            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
-            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='sensor_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this);' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this);' class='sensor_data' id='table_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
             
             document.getElementById("graph_sensor_parameters").innerHTML += param;
             document.getElementById("table_sensor_parameters").innerHTML += tableparam;
@@ -545,8 +543,10 @@ function startingData() {
             names[data[i].id] = data[i].name;
             units[data[i].name] = data[i].unit;
           
-            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
-            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this); fetch();' class='manual_data' id='table_" + data[i].id + "' value='data'>" + data[i].name + "<br>\n";
+            var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this);' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
+            var tableparam = "<input type='checkbox' name='table_" + data[i].id + "' onclick='handleClick(this);' class='manual_data' id='table_" + data[i].id + "' value='data'>" + data[i].name 
+                    + "<span id='recent_"+data[i].id+"'></span><br>\n";
           
             document.getElementById("graph_manual_parameters").innerHTML += param;
             document.getElementById("table_manual_parameters").innerHTML += tableparam;
@@ -572,11 +572,13 @@ function startingData() {
     });
 }
 
-function setOnSelect() {
-    $("#graph_end_date").datetimepicker("option", "onSelect", fetch);
-    $("#graph_start_date").datetimepicker("option", "onSelect", fetch);
-    $("#table_end_date").datetimepicker("option", "onSelect", fetch);
-    $("#table_start_date").datetimepicker("option", "onSelect", fetch);
+/**Sets the <code>onClose</code> property of each datpicker to call fetch
+ */
+function setOnClose() {
+    $("#graph_end_date").datetimepicker("option", "onClose", fetch);
+    $("#graph_start_date").datetimepicker("option", "onClose", fetch);
+    $("#table_end_date").datetimepicker("option", "onClose", fetch);
+    $("#table_start_date").datetimepicker("option", "onClose", fetch);
 }
 
 $(function () {
@@ -609,5 +611,23 @@ $(function () {
         altField: "#table_start_time"
     })
             .datepicker("setDate", date);
-    setOnSelect();
+    setOnClose();
 });
+
+function getMostRecent(){
+    post("ControlServlet", {action: "getMostRecent"}, function (resp) {
+        var data=JSON.parse(resp)["data"];
+        /*
+         * getMostRecent
+         * {data:[{
+         *  id:
+         *  time:
+         *  value:
+         *  }]
+         *  }
+         */
+        for(var i=0; i<data.length; i++){
+            document.getElementById("recent_"+data[i].id).innerHTML=data[i].time+" "+data[i].value;
+        }
+    });
+}

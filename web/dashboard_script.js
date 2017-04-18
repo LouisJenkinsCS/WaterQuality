@@ -18,7 +18,7 @@ $('#data_submit').on('click', function () {
         url: 'http://rest.learncode.academy/api/Brandons/friends',
         data: data,
         success: function () {
-            console.log('Connected');
+//            console.log('Connected');
         },
         error: function () {
             alert('Error connecting');
