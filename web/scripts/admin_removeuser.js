@@ -4,9 +4,9 @@
  add a confirmation once the server successfully removes the users.
  */
 
-//This function simply pulls the AJAX_magic.js script
+//This function simply pulls the AJAX_functions.js script
 //to allow the current script to use AJAX functions
-$.getScript("scripts/AJAX_magic.js", function () {});
+$.getScript("scripts/AJAX_functions.js", function () {});
 $.getScript("scripts/general.js", function () {});
 
 function fillPageRemoveUser() {

@@ -1,4 +1,4 @@
-$.getScript("scripts/AJAX_magic.js", function () {});
+$.getScript("scripts/AJAX_functions.js", function () {});
 $.getScript("scripts/general.js", function () {});
 
 var options_roles = "";
