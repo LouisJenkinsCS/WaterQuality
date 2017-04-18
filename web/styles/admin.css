@@ -65,8 +65,8 @@
     display: inline-block;
 }
 
-.align_center{
-    text-align: center;
+#register_user{
+    margin-left: 105px;
 }
 
 #table_register{

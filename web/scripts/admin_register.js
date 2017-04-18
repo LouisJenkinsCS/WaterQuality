@@ -64,9 +64,7 @@ function fillPageRegisterUser() {
                 + '  </tr>'
                 + '</table>'
                 + '<br>'
-                + '<span class="align_center">'
                 + '<input type="submit" id="register_user" value="Register User" onclick="registerUser()">'
-                + '</span>'
                 + '<br><br>'
                 + '</div>'
                 );
