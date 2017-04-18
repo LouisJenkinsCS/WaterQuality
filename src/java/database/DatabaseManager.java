@@ -482,9 +482,9 @@ public class DatabaseManager
         @param u the user doing the deletion
         @return whether this function was successful or not
     */
-    public static boolean manualDeletion(int entryID, User u)
+    public static int manualDeletion(String [] dataDeletionTimes, int parameterID, User u)
     {
-        boolean status;
+        int successfulDeletions = 0;
         Connection conn = Web_MYSQL_Helper.getConnection();
         PreparedStatement deleteData = null;
         try
@@ -493,17 +493,36 @@ public class DatabaseManager
             if(u.getUserRole() != common.UserRole.SystemAdmin)
                 throw new Exception("Attempted Data Deletion by Non-Admin");
             conn.setAutoCommit(false);
-            String deleteSQL = "Delete from DataValues where entryID = ?";
-                
+            String deleteSQL = "Delete from data_values where time = ? and id = ?";
             deleteData = conn.prepareStatement(deleteSQL);
-            deleteData.setInt(1, entryID);
-            deleteData.executeUpdate();
-            conn.commit();
-            status = true;
+            deleteData.setInt(2, parameterID);
+            
+            for(String deletionTime : dataDeletionTimes)
+            try
+                {
+                    deletionTime = deletionTime.substring(0,deletionTime.length()-1);
+                    deletionTime = deletionTime.replace('T', ' ');
+                    
+                    deleteData.setString(1, deletionTime);
+                    deleteData.executeUpdate();
+                    conn.commit();
+                    successfulDeletions++;
+                }
+                catch(Exception e)
+                {
+                    LogError("Error Deleting Data with ID:" + parameterID + "at time: " + deletionTime + ": " + e);
+                    try
+                    {
+                        conn.rollback();
+                    }
+                    catch(SQLException excep)
+                    {
+                        LogError("Rollback unsuccessful: " + excep);
+                    }
+                }
         }
         catch (Exception ex)//SQLException ex 
         {
-            status = false;
             LogError("Error Manualing Deleting Data: " + ex);
             if(conn!=null)
             {
@@ -531,7 +550,7 @@ public class DatabaseManager
                 LogError("Error closing statement or connection: " + excep);
             }
         }
-        return status;
+        return successfulDeletions;
     }
     
     /*
@@ -1761,5 +1780,45 @@ public class DatabaseManager
         u.setUserRole(UserRole.SystemAdmin);
         addNewUser("root", "root", "Louis", "Jenkins", "", UserRole.SystemAdmin, u);
 
+    }
+
+    public static boolean isUserLocked(User admin) 
+    {
+        if(admin == null)
+            return false;
+        PreparedStatement getUserByLogin = null;
+        ResultSet selectedUser = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String getSQL = "SELECT * FROM users WHERE loginName = ?;";
+            getUserByLogin = conn.prepareStatement(getSQL);
+            getUserByLogin.setString(1, admin.getLoginName());
+            selectedUser = getUserByLogin.executeQuery();
+            selectedUser.next();
+            return selectedUser.getString("locked").equals("1");
+        }
+        catch(SQLException e)
+        {
+            LogError("Error checking if user is locked: " + e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(getUserByLogin != null)
+                    getUserByLogin.close();
+                if(selectedUser != null)
+                    selectedUser.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return false;
     }
 }

@@ -45,7 +45,11 @@ function getTimeStamps(resp) {
     
     // Create X-Axis timestamps enough for all
     for (i = 0; i < data.length; i++) {
-        arr.push(data[i]["timestamp"]);
+        if (new Date(data[i]["timestamp"]).dst())
+            arr.push(data[i]["timestamp"] - 14400000);
+        else
+            arr.push(data[i]["timestamp"] - 18000000);
+        
     }
     
     return arr;

@@ -40,12 +40,16 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -166,11 +170,14 @@ public class DataReceiver {
     }
     
     public static Data getRemoteData(Instant start, Instant end, Long ...keys) {
+        final Instant newStart = TimeZone.getDefault().inDaylightTime(Date.from(start)) ? start.plus(Duration.ofHours(4)) : start.plus(Duration.ofHours(5));
+        final Instant newEnd = TimeZone.getDefault().inDaylightTime(Date.from(end)) ? end.plus(Duration.ofHours(4)) : end.plus(Duration.ofHours(5));
+        
         return new Data(Observable
                 // For each key
                 .fromArray(keys)
                 .flatMap((Long key) ->
-                    getData(getParameterURL(start, end, key))
+                    getData(getParameterURL(newStart, newEnd, key))
                             // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
                             // We need to obtain the "data" parameter, which a JSONArray.
                             .map((JSONObject obj) -> (JSONArray) obj.get("data"))
