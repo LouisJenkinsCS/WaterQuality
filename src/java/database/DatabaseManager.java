@@ -783,8 +783,10 @@ public class DatabaseManager
                                         )
                                 ); 
                     } else {
-                        return db.select("select time, value from data_values where parameter_id = ?")
+                        return db.select("select time, value from data_values where parameter_id = ? and time < ? and time > ?")
                             .parameter(id)
+                            .parameter(Timestamp.from(end))
+                            .parameter(Timestamp.from(start))
                             .getAs(Long.class, Double.class)
                              .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
                             .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
@@ -825,8 +827,10 @@ public class DatabaseManager
                                         )
                                 );              
                     } else {
-                        return db.select("select time, value from data_values where parameter_id = ?")
+                       return db.select("select time, value from data_values where parameter_id = ? and time < ? and time > ?")
                             .parameter(id)
+                            .parameter(Timestamp.from(end))
+                            .parameter(Timestamp.from(start))
                             .getAs(Long.class, Double.class)
                             .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
                     }
