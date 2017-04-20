@@ -53,19 +53,35 @@
         </header>
             
             <script>
+                /**the <code>blockButtons</code> function prevents the use of 
+                 * the admin abnd login button so that a user does not click
+                 * either button too quickly since that causes and issue
+                 */
                 function blockButtons(){
                     document.getElementById("Admin_Button").disabled = true;
                     document.getElementById("Login_Button").disabled = true;
                     document.getElementById("Admin_Button").style.display = "none";
                     document.getElementById("Login_Button").style.display = "none";
                 }
+                /**the <code>checkuser</code> function checks whether or not the
+                 * user is logged in as an admin and if they are then the admin 
+                 * button is displayed otherwise the login button is displayed
+                 */
                 function checkuser(){
                     if (${loggedIn}) {
+                        //The user is logged in as an admin so it
+                        //enables the <code>Admin_button</code> and changes the
+                        //display so that the user can see it and click it
+                        //also disables and hides the <code>Login_button</code>
                         document.getElementById("Admin_Button").disabled = false;
                         document.getElementById("Login_Button").disabled = true;
                         document.getElementById("Admin_Button").style.display = "inline-block";
                         document.getElementById("Login_Button").style.display = "none";
                     } else {
+                        //the user is not logged in as an admin so it
+                        //enables the <code>Login_button</code> and changes the
+                        //display so that the user can see it and click it
+                        //also disables and hides the <code>Admin_button</code>
                         document.getElementById("Admin_Button").disabled = true;
                         document.getElementById("Login_Button").disabled = false;
                         document.getElementById("Admin_Button").style.display = "none";
@@ -73,6 +89,8 @@
                     }
                 }
             </script>
+        <!--The <code>dashboard_container</code> sections holds all of other 
+            sections on the dashboard page-->
         <section class = "content_container1" id = "dashboard_container">
             <header class = "content_title_bar" id="login_header">
                 <div class = "title" >
@@ -80,21 +98,21 @@
                 </div>
             </header>
             
+            <!--This section contains the different tabs that can be 
+                displayed (table and graph)-->
             <section class = "content_container2" id = "graph_container">
+                <!--The table contains the links which opens the selected tab
+                    by calling the openTab() function-->
                 <ul class="tab">
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph');"
                            id="GraphTab">Graph</a></li>
-                    <!--The table tab is used as the test event to pass information via a generic AJAX function
-                        in this case passing a POST request to ControlServlet. Upon success, the callback function
-                        is called, posting a message to the server log.-->
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table');
-                            post_get('POST', 'ControlServlet', {control: 'test', value: 'Hello, world'}, function () {
-                                console.log('SUCCESS');
-                            });"
-                           id="TableTab">Table</a></li>
+                           "id="TableTab">Table</a></li>
                 </ul>
-                <div id="Graph" class="tabcontent">
+                <!--The contents of the Graph tab-->
+                <div id="Graph" class="tabcontent" style="width:auto; height:auto;">
                 </div>
+                <!--The contents of the table tab-->
                 <div id="Table" class="tabcontent">
                     <h4 align="center">Excel and PDF downloads require Adobe Flash</h4>
                     <table align="center" id="data_table" onclick="">
@@ -103,16 +121,16 @@
                 </div>
             </section>
 
+            <!--This contains the forms for selecting date range and parameters
+                for each of the tabs in the <code>graph_container</code> section-->
             <aside class = "content_container2" id = "dashboard_data_container">
                 <header class = "content_title_bar" id="login_header">
                     <div class = "title" >
                         Data Type
                     </div>
                 </header>
-                <%--The <code>data_type_form</code> allows the user to select
-                    the desired data to be outputed into either a table or
-                    a graph
-                --%>
+                <!--The <code>Graph_form</code> is the form for selecting date 
+                    range and parameters for the graph tab-->
                 <form class="data_type_form" id="Graph_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
                     </br>
@@ -138,6 +156,8 @@
                     </div>
                     <br>
                 </form>
+                <!--The <code>Table_form</code> is the form for selecting date 
+                    range and parameters for the table tab-->
                 <form class="data_type_form" id="Table_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
                     </br>
@@ -145,12 +165,10 @@
                         Start Date:
                         <input class="dateselector" id="table_start_date" type="text">
                         <input class="dateselector" id="table_start_time" type="text">
-                        <!--<input class="dateselector" id="table_start_date" name="table_start_date"type="datetime-local" min="" max="">-->
                         </BR>to</BR>
                         End Date:
                         <input class="dateselector" id="table_end_date" type="text">
                         <input class="dateselector" id="table_end_time" type="text">
-                        <!--<input class="dateselector" id="table_end_date" name="table_start_date" type="datetime-local" min="" max="">-->
                     </div>
                     <div id="select_all_div">
                         <input type="checkbox" onclick="toggle('Table_form',this); fetch();" class="select_all_box" value="select_all_data">
@@ -185,7 +203,11 @@
                 </header>
 
                 <p id="tmp"> 
-                <!--datadesc is supposed to act the same as DummyData, it's the placeholder for the information from ControlServlet-->
+                <!--The <code>Graph_description</code> contains the descriptions
+                    of selected data for the graph tab while the <code>Table_description</code>
+                    contains the descriptions of selected data from the table tab.
+                    Whichever tab is open is the description that is displayed
+                    while the other description is hidden.-->
                 <div class="description" id="Graph_description"></div>
                 <div class="description" id="Table_description"></div>
             </section>
@@ -332,6 +354,6 @@
                 series: []
             });
         </script>
-        <script>
+        <script>            
         </script>
     </body>

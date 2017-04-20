@@ -42,11 +42,6 @@
     color: white;
 }
 
-#table_register {
-    background-color:#266B6B;
-    color: white;
-}
-
 #user_table td, #user_table th, #delete_table td, #delete_table th, #error_table td, #error_table th{
     border: 1px solid #ddd;
     padding: 8px;
@@ -132,6 +127,38 @@
     -moz-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
     font-family: "Arial", Helvetica, san-serif;
+}
+
+.themed_container__header{
+    background-color: #266B6B;
+    text-align: center;
+    height: 25px;
+    color: white;
+    font-weight: bold;
+    border-top-right-radius:17px;
+    border-top-left-radius: 17px;
+    line-height: 25px;
+    font-family: "Arial", Helvetica, san-serif;
+    font-weight: bold;
+}
+.themed_container{
+    background-color: #FFF2D7;
+    color: black;
+    font-weight: bold;
+    border-radius: 20px;
+    border: 2px solid #000;
+}
+
+.fixed_width{
+    display: inline-block;
+}
+
+#register_user{
+    margin-left: 105px;
+}
+
+#table_register{
+    padding: 8px;
 }
 
 /*not currently used on this page*/

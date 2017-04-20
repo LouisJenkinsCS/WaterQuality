@@ -330,11 +330,11 @@ Current bugs:
         }
 
         function responseLogout(response) {
-            console.log(response.status);
+//            console.log(response.status);
             if (response.status[0].errorCode == 0)
             {
                 alert("You have successfully been logged out.");
-                console.log("Logout successful.");
+//                console.log("Logout successful.");
                 window.location.href = "/WaterQuality/";
             } else {
                 var errorMsg = "";
@@ -343,7 +343,7 @@ Current bugs:
                     errorMsg += response.status[i].errorMsg + "\n";
                 }
                 alert("Failed to logout\n" + errorMsg);
-                console.log("Logout failed.");
+//                console.log("Logout failed.");
             }
         }
     </script>

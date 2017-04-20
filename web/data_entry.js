@@ -47,11 +47,11 @@ $friends.delegate('.remove', 'click', function () {
         success: function () {
             $li.fadeOut(600, function () {
                 $li.remove();
-                console.log('Friend deleted successfully :(');
+//                console.log('Friend deleted successfully :(');
             });
         },
         failure: function () {
-            console.log('Error, id: ' + $li.data("id"));
+//            console.log('Error, id: ' + $li.data("id"));
         }
     });
 });
