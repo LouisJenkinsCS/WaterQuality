@@ -31,7 +31,8 @@ function fillPageRegisterUser() {
         }
 
         $('#Register_User').append(
-                '<div class="large_text">Enter New User Information<br></div>'
+                '<div class="themed_container fixed_width">'
+                + '<div class="themed_container__header">Enter New User Information</div>'
                 + '<table id="table_register">'
                 + '  <tr>'
                 + '      <td>First Name: </td>'
@@ -64,6 +65,8 @@ function fillPageRegisterUser() {
                 + '</table>'
                 + '<br>'
                 + '<input type="submit" id="register_user" value="Register User" onclick="registerUser()">'
+                + '<br><br>'
+                + '</div>'
                 );
     });
 
