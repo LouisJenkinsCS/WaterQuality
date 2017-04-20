@@ -786,10 +786,11 @@ public class DatabaseManager
                         return db.select("select time, value from data_values where parameter_id = ?")
                             .parameter(id)
                             .getAs(Long.class, Double.class)
-                             .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
+                            .sorted((p1, p2) -> p1._1().compareTo(p2._1()))
                             .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
                     }
                 })
+                .filter((async.DataValue dv) -> dv.getTimestamp().isAfter(start) && dv.getTimestamp().isBefore(end))
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results.compose(DataFilter.getFilter(id)::filter);
@@ -831,6 +832,7 @@ public class DatabaseManager
                             .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
                     }
                 })
+                .filter((async.DataValue dv) -> dv.getTimestamp().isAfter(start) && dv.getTimestamp().isBefore(end))
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results;

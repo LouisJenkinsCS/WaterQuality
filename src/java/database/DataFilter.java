@@ -32,6 +32,7 @@ package database;
 
 import async.DataReceiver;
 import async.DataValue;
+import com.github.davidmoten.rx.jdbc.Database;
 import io.reactivex.Observable;
 import java.time.Duration;
 import java.time.Instant;
@@ -100,6 +101,14 @@ public class DataFilter {
                 break;
             }
         }
+        
+        Database db = Database.from(Web_MYSQL_Helper.getConnection());
+        db.update("lock table data_filter write").execute();
+        Set<Long> currentFilter = filter.get();
+        
+        db.update("unlock tables");
+        
+        
         
         System.out.println("Added Dates: " + times);
     }
