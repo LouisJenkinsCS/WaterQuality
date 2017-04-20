@@ -170,18 +170,9 @@ function fetch() {
     //makes the cursor show loading when graph/table is being generated 
     document.getElementById("loader").style.cursor = "progress";
     if (current === "Graph") {
-        var startTime = new Date(document.getElementById("graph_start_date").value);
-        if (startTime.dst())
-            startTime = startTime.getTime() - 14400000;
-        else
-            startTime = startTime.getTime() - 18000000;
+        var startTime = new Date(document.getElementById("graph_start_date").value).getTime();
+        var endTime = new Date(document.getElementById("graph_end_date").value).getTime();
         
-        var endTime = new Date(document.getElementById("graph_end_date").value);
-        if (endTime.dst())
-            endTime = endTime.getTime() - 14400000;
-        else
-            endTime = endTime.getTime() - 18000000;
-
         var graphStartTime = document.getElementById("graph_start_time").value;
         var graphEndTime = document.getElementById("graph_end_time").value;
         
@@ -192,17 +183,8 @@ function fetch() {
         endTime = new Date(endTime + tempend[0] * 3600000 + tempend[1] * 60000).getTime();
     }
     if (current == "Table") {
-        var startTime = new Date(document.getElementById("table_start_date").value);
-        if (startTime.dst())
-            startTime = startTime.getTime() - 14400000;
-        else
-            startTime = startTime.getTime() - 18000000;
-        
-        var endTime = new Date(document.getElementById("table_end_date").value);
-        if (endTime.dst())
-            endTime = endTime.getTime() - 14400000;
-        else
-            endTime = endTime.getTime() - 18000000;
+        var startTime = new Date(document.getElementById("table_start_date").value).getTime();
+        var endTime = new Date(document.getElementById("table_end_date").value).getTime();
         
         var tableStartTime = document.getElementById("table_start_time").value;
         var tableEndTime = document.getElementById("table_end_time").value;
