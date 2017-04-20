@@ -46,12 +46,12 @@ function fillPageRemoveUser() {
         dataTable.clear();
 
         var users = JSON.parse(resp)["users"];
-        
+
         for (var i = 0; i < users.length; i++)
         {
             var item = users[i];
             var locked = item["locked"];
-            if(locked === "0")
+            if (locked === "0")
                 locked = "False";
             else
                 locked = "True";
@@ -72,19 +72,21 @@ function removeUsers() {
     {
         userIDs += selectedCells[i][0] + ",";
     }
+    if (confirm("Are you sure you'd like to delete " + selectedCells.length + " user(s)?"))
+    {
 
+        var removeUsers = {
+            action: 'RemoveUser',
+            userDeletionIDs: userIDs
+        };
 
-    var removeUsers = {
-        action: 'RemoveUser',
-        userDeletionIDs: userIDs
-    };
+        post("AdminServlet", removeUsers, function (response) {
+            var respData = JSON.parse(response);
+            window.alert(respData["status"]);
 
-    post("AdminServlet", removeUsers, function (response) {
-        var respData = JSON.parse(response);
-        window.alert(respData["status"]);
-
-        refreshUsers();
-    });
+            refreshUsers();
+        });
+    }
 }
 
 function lockUsers() {
@@ -154,7 +156,7 @@ function refreshUsers() {
         {
             var item = users[i];
             var locked = item["locked"];
-            if(locked === "0")
+            if (locked === "0")
                 locked = "False";
             else
                 locked = "True";

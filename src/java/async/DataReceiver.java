@@ -172,14 +172,12 @@ public class DataReceiver {
     }
     
     public static Data getRemoteData(Instant start, Instant end, Long ...keys) {
-        final Instant newStart = TimeZone.getDefault().inDaylightTime(Date.from(start)) ? start.plus(Duration.ofHours(4)) : start.plus(Duration.ofHours(5));
-        final Instant newEnd = TimeZone.getDefault().inDaylightTime(Date.from(end)) ? end.plus(Duration.ofHours(4)) : end.plus(Duration.ofHours(5));
         
         return new Data(Observable
                 // For each key
                 .fromArray(keys)
                 .flatMap((Long key) ->
-                    getData(getParameterURL(newStart, newEnd, key))
+                    getData(getParameterURL(start, end, key))
                             // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
                             // We need to obtain the "data" parameter, which a JSONArray.
                             .map((JSONObject obj) -> (JSONArray) obj.get("data"))

@@ -26,7 +26,7 @@ function loadDelete() {
     parameterRequest.action = "getParameters";
 
     post("AdminServlet", parameterRequest, function (response) {
-        
+
         var resp = new ParameterResponse(response);
 
         /*
@@ -45,8 +45,8 @@ function loadDelete() {
 
             for (var i = 0; i < resp.descriptors.length; i++) {
                 resp.piece = resp.descriptors[i];
-                cached_deletion_ids.set(resp.piece["name"],resp.piece["id"]);
-                resp.names.push(resp.piece["name"]);                
+                cached_deletion_ids.set(resp.piece["name"], resp.piece["id"]);
+                resp.names.push(resp.piece["name"]);
             }
 
             (resp.names).forEach(function (item) {
@@ -70,7 +70,7 @@ function loadDelete() {
                 '</select><br/><br/>' +
                 '<div class="large_text">Please select the data entry from below:</div>' +
                 '<table id="delete_table">' +
-                '<thead><tr><th>Date-Time</th><th>Actual-Time</th><th>Name</th><th>Value</th></tr></thead>' +
+                '<thead><tr><th>Date-Time</th><th>Millisecond Time</th><th>Name</th><th>Value</th></tr></thead>' +
                 '</table><br/>' +
                 '<input type="submit" id="delete_data" value="Delete Data" onclick="deleteData()">'
                 );
@@ -79,14 +79,14 @@ function loadDelete() {
         $('#delete_table').DataTable({
             columns: [
                 {title: "Date-Time"},
-                {title: "Actual-Time"},
+                {title: "Millisecond Time"},
                 {title: "Name"},
                 {title: "Value"}
             ],
             "order": [[1, "desc"]],
             select: 'multi'
         });
-        
+
         createDatePickers();
     });
 }
@@ -101,17 +101,8 @@ function filterData() {
     // The entered/selected parameter is stored
     var $paramName = $('#delete_param').val();
 
-    var deleteStartDate = new Date($('#delete_startdate').val());
-    if (deleteStartDate.dst())
-        deleteStartDate = deleteStartDate.getTime() - 14400000;
-    else
-        deleteStartDate = deleteStartDate.getTime() - 18000000;
-    
-    var deleteEndDate = new Date($('#delete_enddate').val());
-    if (deleteEndDate.dst())
-        deleteEndDate = deleteEndDate.getTime() - 14400000;
-    else
-        deleteEndDate = deleteEndDate.getTime() - 18000000;
+    var deleteStartDate = new Date($('#delete_startdate').val()).getTime();
+    var deleteEndDate = new Date($('#delete_enddate').val()).getTime();
     
     var deleteStartTime = $('#delete_starttime').val();
     var deleteEndTime = $('#delete_endtime').val();
@@ -121,8 +112,8 @@ function filterData() {
 
     var startDateTime = new Date(deleteStartDate + starttime[0] * 3600000 + starttime[1] * 60000).getTime();
     var endDateTime = new Date(deleteEndDate + endtime[0] * 3600000 + endtime[1] * 60000).getTime();
-    
-    
+
+
     var filterRequest = {
         action: 'getDataDeletion',
         parameter: $paramName,
@@ -141,7 +132,7 @@ function filterData() {
 
         // Rows are added to the DataTable in a loop
         var data = JSON.parse(resp)["data"];
-        
+
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             var name = item.name;
@@ -167,14 +158,17 @@ function deleteData() {
     var deletionIDs = [];
     for (var i = 0; i < selectedCells.length; i++)
         deletionIDs.push(selectedCells[i][1]);
+    if (confirm("Are you sure you'd like to delete " + deletionIDs.length + " data value(s)?"))
+    {
+        post("AdminServlet",
+                {action: "RemoveData", data: JSON.stringify({parameter: $('#delete_param').val(), time: deletionIDs})},
+                function (resp) {
+                    alert(resp);
+                    //Data shown has to be refreshed after deletion occurs
+                    filterData();
+                });
+    }
 
-    post("AdminServlet", 
-    {action: "RemoveData", data: JSON.stringify({parameter: $('#delete_param').val(), time: deletionIDs})},
-    function (resp) {
-        alert(resp);
-        //Data shown has to be refreshed after deletion occurs
-        filterData();
-    });
 }
 
 /*
@@ -191,8 +185,8 @@ function createDatePickers() {
     })
             .datepicker("setDate", date);
 
-    date.setMonth(date.getMonth() - 1);
-    
+     date.setDate(date.getDate() - 7);
+
     $("#delete_startdate").datetimepicker({
         controlType: 'select',
         oneLine: true,
