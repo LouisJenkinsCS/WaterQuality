@@ -139,7 +139,6 @@ function sendCSV() {
             //check length of JSON.stringify(idr.data) > 4kb, send
 //            if ((i % 10 === 0) && (i !== paramList.length + 1))
             if (JSON.stringify(obj).length > 8 * 1024) {
-                console.log(idr.data);
                 post("AdminServlet", {action: "insertData", data: JSON.stringify(idr.data)}, function (resp) {
                     //console.log("idr chunk " + i + ": " + JSON.stringify(idr));
                 });
@@ -150,7 +149,6 @@ function sendCSV() {
 
         //If there was any leftover piece it is sent here
         if (idr.data.length !== 0) {
-            console.log(idr.data);
             post("AdminServlet", {action: "insertData", data: JSON.stringify(idr.data)}, function (resp) {
                 //console.log("idr leftover " + i + ": " + JSON.stringify(idr));
             });
