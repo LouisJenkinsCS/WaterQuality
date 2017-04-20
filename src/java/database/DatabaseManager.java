@@ -855,54 +855,9 @@ public class DatabaseManager
                             .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
                     }
                 })
-                .filter((async.DataValue dv) -> dv.getTimestamp().isAfter(start) && dv.getTimestamp().isBefore(end))
                 .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
         
         return results.compose(DataFilter.getFilter(id)::filter);
-    }
-    
-    /*
-        Returns a list of all data
-        @param name the name of the data type for which data is being requested
-    */
-    public static io.reactivex.Observable<async.DataValue> getDataValues(Instant start, Instant end, long id) {
-        Database db = Database.from(Web_MYSQL_Helper.getConnection());
-        PublishSubject<async.DataValue> results = PublishSubject.create();
-        Subject<async.DataValue> serializedResults = results.toSerialized();
-        
-        db.select("select source from remote_data_parameters where parameter_id = ?")
-                .parameter(id)
-                .count()
-                .doOnNext(System.out::println)
-                .subscribeOn(rx.schedulers.Schedulers.computation())
-                .flatMap(cnt -> {
-                    // Is it a remote data value?
-                    if (cnt != 0) {
-                        return db.select("select source from remote_data_parameters where parameter_id = ?")
-                                .parameter(id)
-                                .getAs(Long.class)
-                                .flatMap(remoteKey -> Observable
-                                        .from(DataReceiver
-                                                .getRemoteData(start, end, remoteKey)
-                                                .getRawData()
-                                                .stream()
-                                                .map(dv -> new async.DataValue(id, dv.getTimestamp(), dv.getValue()))
-                                                .collect(Collectors.toList())
-                                        )
-                                );              
-                    } else {
-                       return db.select("select time, value from data_values where parameter_id = ? and time < ? and time > ?")
-                            .parameter(id)
-                            .parameter(Timestamp.from(end))
-                            .parameter(Timestamp.from(start))
-                            .getAs(Long.class, Double.class)
-                            .map(pair -> new async.DataValue(id, Instant.ofEpochMilli(pair._1()), pair._2()));
-                    }
-                })
-                .filter((async.DataValue dv) -> dv.getTimestamp().isAfter(start) && dv.getTimestamp().isBefore(end))
-                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
-        
-        return results;
     }
     
     
