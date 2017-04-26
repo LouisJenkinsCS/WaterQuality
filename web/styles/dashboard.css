@@ -31,7 +31,7 @@ and open the template in the editor.
 }
 
 table span{
-    display:none;
+    /*display:none;*/
 }
 
 #data_table td ,#data_table th, #popup td ,#popup th{
@@ -330,6 +330,65 @@ input[type="checkbox"]:hover, input[type="datetime-local"]:hover{
     height: 200px;
     animation: spin 2s linear infinite;
 }
+
+body {
+    margin: 0;
+    font-family: 'Lato', sans-serif;
+  }
+
+  .overlay {
+    float: top;
+    height: 16.1803399%;
+    width: 100%;
+    position: relative;
+    /*z-index: 0;*/
+    top: 0;
+    left: 0;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.9);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: 0.5s;
+  }
+
+  .overlay-content {
+    padding: auto;
+    position: relative;
+    top: 0%;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .overlay p {
+    padding: 8px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+  }
+
+  .overlay .closebtn {
+    position: absolute;
+    top: 20px;
+    right: 45px;
+    font-size: 60px;
+  }
+
+  @media screen and (max-height: 450px) {
+    .overlay {
+      overflow-y: auto;
+    }
+    .overlay p {
+      font-size: 20px
+    }
+    .overlay .closebtn {
+      font-size: 40px;
+      top: 15px;
+      right: 35px;
+    }
+  }
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
