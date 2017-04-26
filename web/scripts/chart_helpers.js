@@ -55,6 +55,20 @@ function getTimeStamps(resp) {
     return arr;
 }
 
+function getDataValuesFor(dataValues) {
+    var arr = [];
+    
+    for (i = 0; i < dataValues.length; i++) {
+        var timestamp = new Date(dataValues[i]["timestamp"]).dst() ?
+            dataValues[i]["timestamp"] - 14400000 : dataValues[i]["timestamp"] - 18000000;
+        var value = dataValues[i]["value"];
+        
+        arr.push([timestamp, value]);
+    }
+    
+    return arr;
+}
+
 function getDataValues(resp) {
     var arr = [];
     

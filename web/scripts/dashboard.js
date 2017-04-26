@@ -283,10 +283,11 @@ function fetchData(json) {
             chart.series[0].remove(true);
 
         for (var i = 0; i < data.data.length; i++) {
+            console.log(getDataValuesFor(data.data[i]["dataValues"]));
             chart.addSeries({
                 yAxis: i,
                 name: names[data.data[i].id],
-                data: timeStampStr[i]
+                data: getDataValuesFor(data.data[i]["dataValues"])
             }, false);
             if (names[data.data[i].id] === "pH")
                 chart.yAxis[i].setTitle({text: names[data.data[i].id]});
@@ -336,7 +337,7 @@ function fetchData(json) {
                 chart.addSeries({
                     yAxis: i,
                     name: names[data.data[i].id],
-                    data: timeStampStr[i]
+                    data: getDataValuesFor(data.data[i]["dataValues"])
                 }, false);
                 if (names[data.data[i].id] === "pH")
                     chart.yAxis[i].setTitle({text: names[data.data[i].id]});
