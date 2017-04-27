@@ -540,8 +540,10 @@ function startingData() {
             names[data[i].id] = data[i].name;
             units[data[i].id] = [ { unit: data[i].unit, conversion: x => x } ];
             
-            if (data[i].name.includes("Temperature")) {
+            if (data[i].name.includes("Temperature") || data[i].name === "Dewpoint") {
                 units[data[i].id].push({ unit: "F", conversion: x => x * 1.8 + 32 });
+            } else if (data[i].name === "Depth") {
+                units[data[i].id].push({ unit: "ft", conversion: x => x * 3.28084 });
             }
             
             var tableRef = document.getElementById('sensor_formatted_table').getElementsByTagName('tbody')[0];
