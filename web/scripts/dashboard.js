@@ -20,6 +20,9 @@ var interval=setInterval(getMostRecent(),1000*60*5);
  */
 function fullCheck(id) {
     var item = document.getElementById(id);
+    if (item.nodeName === "SELECT") {
+        return;
+    }
     var it;
     if (item.checked == true) {
         if (checkedBoxes < 2) {
@@ -283,16 +286,16 @@ function fetchData(json) {
             chart.series[0].remove(true);
 
         for (var i = 0; i < data.data.length; i++) {
-            console.log(getDataValuesFor(data.data[i]["dataValues"]));
+            var currentSelectedUnit = document.getElementById("graph_unit_selection_" + data.data[i].id).selectedIndex;
             chart.addSeries({
                 yAxis: i,
                 name: names[data.data[i].id],
-                data: getDataValuesFor(data.data[i]["dataValues"])
+                data: getDataValuesFor(data.data[i]["dataValues"], units[data.data[i].id][currentSelectedUnit].conversion)
             }, false);
             if (names[data.data[i].id] === "pH")
                 chart.yAxis[i].setTitle({text: names[data.data[i].id]});
             else
-                chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
+                chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[data.data[i].id][currentSelectedUnit].unit + ")"});
         }
         if (data.data.length == 1)
             chart.yAxis[i].setTitle({text: ""});
@@ -334,15 +337,16 @@ function fetchData(json) {
                 chart.series[0].remove(true);
 
             for (var i = 0; i < data.data.length; i++) {
+                var currentSelectedUnit = document.getElementById("graph_unit_selection_" + data.data[i].id).selectedIndex;
                 chart.addSeries({
                     yAxis: i,
                     name: names[data.data[i].id],
-                    data: getDataValuesFor(data.data[i]["dataValues"])
+                    data: getDataValuesFor(data.data[i]["dataValues"], units[data.data[i].id][currentSelectedUnit].conversion)
                 }, false);
                 if (names[data.data[i].id] === "pH")
                     chart.yAxis[i].setTitle({text: names[data.data[i].id]});
                 else
-                    chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[names[data.data[i].id]] + ")"});
+                    chart.yAxis[i].setTitle({text: names[data.data[i].id] + " (" + units[data.data[i].id][currentSelectedUnit].unit + ")"});
             }
             if (data.data.length == 1)
                 chart.yAxis[i].setTitle({text: ""});
@@ -534,7 +538,11 @@ function startingData() {
             // Cache parameter descriptors
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
-            units[data[i].name] = data[i].unit;
+            units[data[i].id] = [ { unit: data[i].unit, conversion: x => x } ];
+            
+            if (data[i].name.includes("Temperature")) {
+                units[data[i].id].push({ unit: "F", conversion: x => x * 1.8 + 32 });
+            }
             
             var tableRef = document.getElementById('sensor_formatted_table').getElementsByTagName('tbody')[0];
             
@@ -544,7 +552,14 @@ function startingData() {
             // Insert a cell in the row at index 0
             var newCell  = newRow.insertCell(0);
             newCell.innerHTML = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this);' class='sensor_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name;
-            newCell = newRow.insertCell(1).innerHTML = data[i].unit;
+            
+                    
+            var unit_selection = "<select onchange='handleClick(this);' id='graph_unit_selection_" + data[i].id + "'>";
+            for (k = 0; k < units[data[i].id].length; k++) {
+                var unitObj = units[data[i].id][k];
+                unit_selection += "<option value='" + unitObj.unit + "'" + (k === 0 ? "selected='selected'" : "") + ">" + unitObj.unit + "</option>";
+            }
+            newCell = newRow.insertCell(1).innerHTML = unit_selection;
             newCell = newRow.insertCell(2);
             newCell.innerHTML = "<span class='recent_sensor_"+data[i].id+"'></span>";
 
@@ -560,7 +575,9 @@ function startingData() {
         for (i = 0; i < data.length; i++) {
             descriptions[data[i].id] = data[i].description;
             names[data[i].id] = data[i].name;
-            units[data[i].name] = data[i].unit;
+            units[data[i].id] = [ { unit: data[i].unit, conversion: x => x } ];
+            
+            
           
             
             var param = "<input type='checkbox' name='graph_" + data[i].id + "' onclick='handleClick(this);' class='manual_data' id='graph_" + data[i].id + "' value='data'>" + data[i].name 

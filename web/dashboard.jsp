@@ -159,7 +159,7 @@
                     </div>
                     <div id="graph_parameters">
                         <div id="graph_sensor_parameters">
-                            Sensor Data<BR>
+                            <center>Sensor Data</center><BR>
                             <table id="sensor_formatted_table" style="border: solid black 1px">
                                 <thead>
                                     <tr>
@@ -181,7 +181,7 @@
                         </div>
                         <br>
                         <div id="graph_manual_parameters">
-                            Manual Data <br>
+                            <center>Manual Data</center> <br>
                         </div>
                     </div>
                     <br>
@@ -206,13 +206,13 @@
                     </div>
                     <div id="table_parameters">
                         <div id="table_sensor_parameters">
-                            Sensor Data<br>
+                            <center>Sensor Data</center><br>
                             <input type="checkbox" onclick="toggle('table_sensor_parameters',this); fetch();"class="select_all_box" value="select_all_data">
                             Select All Sensor Data<br>
                         </div>
                         <br>
                         <div id="table_manual_parameters">
-                            Manual Data<br>
+                            <center>Manual Data</center><br>
                             <input type="checkbox" onclick="toggle('table_manual_parameters',this); fetch();"class="select_all_box" value="select_all_data">
                             Select All Manual Data<br>
                         </div> 
@@ -372,7 +372,8 @@
                         opposite: true
                     }],
                 tooltip: {
-                    valueSuffix: ''
+                    valueSuffix: '',
+                    valueDecimals: 2
                 },
                 legend: {
                     layout: 'vertical',
