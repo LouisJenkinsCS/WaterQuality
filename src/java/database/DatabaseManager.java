@@ -5,8 +5,8 @@ package database;
 
 import async.DataParameter;
 import async.DataReceiver;
+import async.DataValue;
 import com.github.davidmoten.rx.Schedulers;
-import common.DataValue;
 import common.User;
 import common.UserRole;
 import java.sql.Connection;
@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import com.github.davidmoten.rx.jdbc.Database;
 import com.github.davidmoten.rx.util.Pair;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.sql.Timestamp;
@@ -29,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -36,156 +41,24 @@ import rx.Observable;
 import security.SecurityCode;
 
 /**
- *
- * NOTE: rxjava-jdbc uses rxjava 1.0, while we use rxjava 2.0. Both are not truly
- * compatible with each other, and so we must be explicit with the actual return types.
- * Luckily this is no actual issue and extremely trivial performance loss, as we can
- * easily just create a rxjava 2.0 Observable that accepts the emissions from the
- * rxjava 1.0 Observables.
+ * DatabaseManager provides a simple interface to the database. The database manager
+ * will service all requests asynchronously through RxJava's Observable interface.
  * 
  * @author Tyler Mutzek & Louis Jenkins
  */
-public class DatabaseManager 
-{
-    /*
-        A list of strings that have the batch commands for undoing certain
-        tasks like deleting users or data.
-    */
-    //private static LinkedList<String> UNDOLIST = new LinkedList();
+public class DatabaseManager {
     
     /*
-        Creates the data value table
-        entryID is the unique id number of the data value
-        dataName is the name of the data type (e.g. Temperature)
-        units is the units associated with the data value
-        sensor is the name of the sensor that recorded the data value
-        timeRecorded is a the time the data was recorded
-        dataValue is the value of the of data recorded
-        delta is the difference between this data value and the last
+        Below, we cache some commonly-used values in memory here, of which is used atomically. 
+        We utilize a RCU (Read-Copy-Update) strategy, as it greatly improves read performance, 
+        especially with writes being very seldom.
     */
-    public static void createDataValueTable()    
-    {
-        Statement createTable = null;
-        Connection conn = null;
-        try
-        {
-            conn = Web_MYSQL_Helper.getConnection();
-            createTable = conn.createStatement();
-            String createSQL = "Create Table IF NOT EXISTS DataValues("
-                    + "entryID INT primary key AUTO_INCREMENT,"
-                    + "dataName varchar(40),"
-                    + "units varchar(10),"
-                    + "sensor varchar(20),"
-                    + "timeRecorded varchar(25),"
-                    + "dataValue FLOAT(3),"
-                    + "delta FLOAT(8)"
-                    + ");";
-            createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
-                    createTable.close();
-                if(conn != null)
-                    Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
-                LogError("Error closing statement:" + e);
-            }
-        }
-    }
+    // (id <--> name) 
+    public static volatile AtomicReference<ImmutableBiMap<Long, String>> atomicParameterMappings = new AtomicReference<>(ImmutableBiMap.of());
     
-    /*
-        Creates the manual data value table
-        entryID is the unique id number of the data value
-        dataName is the name of the data type (e.g. Temperature)
-        units is the units associated with the data value
-        submittedBy is the name of the user that recorded the data value
-        timeRecorded is a the time the data was recorded
-        dataValue is the value of the of data recorded
-    */
-    public static void createManualDataValueTable()    
-    {
-        Statement createTable = null;
-        Connection conn = null;
-        try
-        {
-            conn = Web_MYSQL_Helper.getConnection();
-            createTable = conn.createStatement();
-            String createSQL = "Create Table IF NOT EXISTS ManualDataValues("
-                    + "entryID INT primary key AUTO_INCREMENT,"
-                    + "dataName varchar(40),"
-                    + "units varchar(10),"
-                    + "submittedBy varchar(20),"
-                    + "timeRecorded varchar(25),"
-                    + "dataValue FLOAT(3)"
-                    + ");";
-            createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error creating Manual Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
-                    createTable.close();
-                if(conn != null)
-                    Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
-                LogError("Error closing statement:" + e);
-            }
-        }
-    }
-    
-    /*
-        Creates the data description table
-        dataName is the data type of the data value (e.g. Temperature)
-        description is the description of this data type
-    */
-    public static void createDataDescriptionTable()    
-    {
-        Statement createTable = null;
-        Connection conn = null;
-        try
-        {
-            conn = Web_MYSQL_Helper.getConnection();
-            createTable = conn.createStatement();
-            String createSQL = "Create Table IF NOT EXISTS DataDescriptions("
-                    + "dataName varchar(40) primary key,"
-                    + "description varchar(500)"
-                    + ");";
-            createTable.executeUpdate(createSQL);
-        }
-        catch (SQLException ex)//SQLException ex 
-        {
-            LogError("Error creating Data Description Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
-                    createTable.close();
-                if(conn != null)
-                    Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
-                LogError("Error closing statement: " + e);
-            }
-        }
+    static {
+        updateParameterMappings();
+        System.out.println("Updated Parameter Mappings!\n\n\n\n\n\n");
     }
     
     /*
@@ -283,11 +156,12 @@ public class DatabaseManager
         }
     }
     
-    public static long insertData(List<async.DataValue> data) {
+    // TODO: Convert!
+    public static long insertData(List<DataValue> data) {
         Database db = Database.from(Web_MYSQL_Helper.getConnection());
         Map<Long, Long> sourceToDatabaseIdMap = new HashMap<>();
         Observable.from(data)
-                .map(async.DataValue::getId)
+                .map(DataValue::getId)
                 .distinct()
                 .flatMap(id -> db.select("select parameter_id from remote_data_parameters where source = ?")
                         .parameter(id)
@@ -365,112 +239,17 @@ public class DatabaseManager
     }
     
     public static io.reactivex.Observable<Long> parameterNameToId(String name) {
-         Database db = Database.from(Web_MYSQL_Helper.getConnection());
-        PublishSubject<Long> results = PublishSubject.create();
-        Subject<Long> serializedResults = results.toSerialized();
-        
-        db.select("select id from data_parameters where name = ?")
-                .parameter(name)
-                .getAs(Long.class)
-                .subscribeOn(rx.schedulers.Schedulers.computation())
-                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
-        
-        return results;
+        ImmutableBiMap<String, Long> currentMapping = atomicParameterMappings.get().inverse();
+        Long id = currentMapping.get(name);
+        return id == null ? io.reactivex.Observable.empty() : io.reactivex.Observable.just(id);
     }
     
     public static io.reactivex.Observable<String> parameterIdToName(Long id) {
-         Database db = Database.from(Web_MYSQL_Helper.getConnection());
-        PublishSubject<String> results = PublishSubject.create();
-        Subject<String> serializedResults = results.toSerialized();
-        
-        db.select("select name from data_parameters where id = ?")
-                .parameter(id)
-                .getAs(String.class)
-                .subscribeOn(rx.schedulers.Schedulers.computation())
-                .subscribe(serializedResults::onNext, serializedResults::onError, () -> { serializedResults.onComplete(); Web_MYSQL_Helper.returnConnection(db.getConnectionProvider().get());});
-        
-        return results;
+        ImmutableBiMap<Long, String> currentMapping = atomicParameterMappings.get();
+        String name = currentMapping.get(id);
+        return name == null ? io.reactivex.Observable.empty() : io.reactivex.Observable.just(name);
     }
     
-    
-    /*
-        A table consisting only of the unique data names of all data
-    
-        This table is important for making the code modular as instead of hard
-        coding a list of buttons for displaying a graph for each data type,
-        a list of all data types can be obtained from this table and used to 
-        produce said buttons, allowing for new data types pulled from netronix
-        to automatically be accounted for everywhere it would be desirable to have
-        access to them.
-    */
-    public static void createDataNamesTable()    
-    {
-        Statement createTable = null;
-        Connection conn = null;
-        try
-        {
-            conn = Web_MYSQL_Helper.getConnection();
-            createTable = conn.createStatement();
-            String createSQL = "Create Table IF NOT EXISTS DataNames("
-                    + "dataName varchar(40) primary key"
-                    + ");";
-            createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error creating DataNames Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
-                    createTable.close();
-                if(conn != null)
-                    Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
-                LogError("Error closing statement: " + e);
-            }
-        }
-    }
-    
-    /*
-        Same purpose as DataNames table except for manual data
-    */
-    public static void createManualDataNamesTable()    
-    {
-        Statement createTable = null;
-        Connection conn = null;
-        try
-        {
-            conn = Web_MYSQL_Helper.getConnection();
-            createTable = conn.createStatement();
-            String createSQL = "Create Table IF NOT EXISTS ManualDataNames("
-                    + "dataName varchar(100) primary key"
-                    + ");";
-            createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
-        {
-            LogError("Error creating ManualDataNames Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
-                    createTable.close();
-                if(conn != null)
-                    Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
-                LogError("Error closing statement: " + e);
-            }
-        }
-    }
     
     /*
         Allows an admin to insert data into the data values table
@@ -739,51 +518,34 @@ public class DatabaseManager
         return successfulDeletions;
     }
     
-    /*
-        Returns a list of data within a certain time range
-        @param name the name of the data type for which data is being requested
-        @param lower the lower range of the time
-        @param upper the upper range of the time
-    */
-    public static ArrayList<DataValue> getGraphData(String name, LocalDateTime lower, LocalDateTime upper)
-    {
-        ArrayList<DataValue> graphData = new ArrayList<>();
-        PreparedStatement selectData = null;
-        ResultSet dataRange = null;
+    /**
+     * Updates the current parameter mappings. This is a serialized procedure as the
+     * interleaving of potentially two or more writers could cause the in-memory copy
+     * to be out of date (I.E: Race Condition). Readers can still atomically obtain the
+     * cached mappings atomically, and so there is no consequence.
+     */
+    public static synchronized void updateParameterMappings() {
+        PreparedStatement selectMappings = null;
+        ResultSet mappingResults = null;
         Connection conn = null;
         try
         {
             conn = Web_MYSQL_Helper.getConnection();
-            String query = "Select * from DataValues Where dataName = ?"
-                + " AND timeRecorded >= ? AND timeRecorded <= ?;";
-            selectData = conn.prepareStatement(query);
-            selectData.setString(1, name);
-            selectData.setString(2, lower+"");
-            selectData.setString(3, upper+"");
-            dataRange = selectData.executeQuery();
+            String query = "select id, name from data_parameters";
+            selectMappings = conn.prepareStatement(query);
+            mappingResults = selectMappings.executeQuery();
             
-            int entryID;
-            String units;
-            LocalDateTime time;
-            float value;
-            float delta;
-            String sensor;
-            while(dataRange.next())
-            {
-                entryID = dataRange.getInt(1);
-                name = dataRange.getString(2);
-                units = dataRange.getString(3);
-                sensor = dataRange.getString(4);
-                time = LocalDateTime.parse(dataRange.getString(5));
-                value = dataRange.getFloat(6);
-                delta = dataRange.getFloat(7);
-                DataValue dV = new DataValue(entryID,name,units,sensor,time,value,delta);
-                graphData.add(dV);
+            BiMap<Long, String> mappings = HashBiMap.create();
+            while(mappingResults.next()) {
+                mappings.put(mappingResults.getLong(1), mappingResults.getString(2));
             }
+            
+           DatabaseManager.atomicParameterMappings.set(ImmutableBiMap.copyOf(mappings));
+           System.out.println("Set: " + mappings);
         }
         catch (Exception ex)//SQLException ex 
         {
-            LogError("Error Retrieving Graph Data: " + ex);
+            LogError("Error Updating Parameter Mappings: " + ex);
         }
         finally
         {
@@ -791,17 +553,16 @@ public class DatabaseManager
             {
                 if(conn != null)
                     Web_MYSQL_Helper.returnConnection(conn);
-                if(selectData != null)
-                    selectData.close();
-                if(dataRange != null)
-                    dataRange.close();
+                if(selectMappings != null)
+                    selectMappings.close();
+                if(mappingResults != null)
+                    mappingResults.close();
             }
             catch(SQLException excep)
             {
                 LogError("Error closing statement or result set: " + excep);
             }
         }
-        return graphData;
     }
     
     public static Optional<Long> remoteSourceToDatabaseId(Long id) {
