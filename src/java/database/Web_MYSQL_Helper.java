@@ -50,15 +50,15 @@ public class Web_MYSQL_Helper {
 //      PropertyManager.setProperty("UseDBPooling", "no");
 //      USE_DB_POOLING = PropertyManager.getProperty("UseDBPooling").equalsIgnoreCase("yes");
 //      hostname = PropertyManager.getProperty("MySQLHostName").trim();
-//      hostname = "cs3db.bloomu.edu";
-      hostname = "127.0.0.1";
+      hostname = "cs3db.bloomu.edu";
+//      hostname = "127.0.0.1";
       databaseName = "WaterQuality";
       databaseURL = mysqlPrefix + hostname + "/" + databaseName;
 //      userName = PropertyManager.getProperty("MySQLUserName").trim();
-//      userName = "waterquality";
-      userName = "root";
-//      password = "SoftwareEngineering2017";
-      password = "root";
+      userName = "waterquality";
+//      userName = "root";
+      password = "SoftwareEngineering2017";
+//      password = "root";
     }
 
     /**
