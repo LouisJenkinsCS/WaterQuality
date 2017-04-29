@@ -574,7 +574,6 @@ function startingData() {
     $("#Graph").resize(() => {
         chart.redraw();
         chart.reflow();
-        console.log("Resized graph...");
     })
     // Stickies the admin notes to top of screen...
     new Waypoint.Sticky({
@@ -740,7 +739,6 @@ $(function () {
 
 function getMostRecent(){
     post("DataServlet", {action: "getMostRecent"}, function (resp) {
-        console.log(resp);
         var data=JSON.parse(resp)["data"];
         /*
          * getMostRecent

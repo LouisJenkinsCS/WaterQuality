@@ -109,7 +109,6 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                                             })
                                             
                             )
-                        .doOnNext(System.out::println)
                 )
                 // Obtains all JSONObjects containing the data values for each parameter.
                 .buffer(Integer.MAX_VALUE)

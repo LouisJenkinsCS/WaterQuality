@@ -235,7 +235,7 @@ InsertDataRequest.prototype.queueInsertion = function (name, valueObject) {
 
 function DataResponse(json) {
     if (typeof json != "object") {
-        console.log(json);
+//        console.log(json);
         json = JSON.parse(json);
     }
     

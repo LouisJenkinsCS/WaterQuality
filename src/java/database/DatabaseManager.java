@@ -389,9 +389,7 @@ public class DatabaseManager {
                     .getRemoteData(start, end, remoteId)
                     .getData()
                     .map((DataValue dv) -> new DataValue(id, dv.getTimestamp(), dv.getValue()))
-                    .toObservable()
-                    .compose(DataFilter.getFilter(id)::filter)
-                    .toFlowable(BackpressureStrategy.BUFFER);
+                    .compose(DataFilter.getFilter(id)::filter);
         }
         
         return Flowable.create(emitter -> {
