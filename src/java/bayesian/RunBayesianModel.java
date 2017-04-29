@@ -313,6 +313,7 @@ public class RunBayesianModel {
 
         csvReader content = new csvReader();
         String cnt = data.getData()
+                .toObservable()
                 .groupBy((DataValue dv) -> dv.getId())
                 .flatMap((GroupedObservable<Long, DataValue> group) -> {
                     String header;

@@ -165,6 +165,7 @@ public class DataToCSV {
      */
     public static Observable<String> dataToCSV(Data source) {
         return source.getData()
+                .toObservable()
                 // If a day is empty, we drop it entirely.
                 // Note: compose() on the entire stream
                 .compose(DataToCSV::dropEmptyDays)
@@ -185,6 +186,7 @@ public class DataToCSV {
                 // rows are generated sorted by their identifiers, we can deterministically create
                 // their respective headers by reusing the cached DataValues.
                 .flatMap(values -> source.getData()
+                        .toObservable()
                         .map(DataValue::getId)
                         .sorted()
                         .distinct()

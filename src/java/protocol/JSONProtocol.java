@@ -34,7 +34,9 @@ import async.Data;
 import async.DataReceiver;
 import async.DataValue;
 import database.DatabaseManager;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.flowables.GroupedFlowable;
 import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
 import java.time.Instant;
@@ -66,7 +68,7 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
      * @return Response
      */
     @Override
-    public Observable<JSONObject> processUsing(Data source) {
+    public Flowable<JSONObject> processUsing(Data source) {
         return source.getData()
                 // Each id signifies a new parameter, and we need to separate the data values
                 // for each parameter.
@@ -74,7 +76,7 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                 .groupBy(DataValue::getId)
                 // For each group of DataValue (remember they are grouped by the parameter's id)
                 // we must construct a unique JSONObject, as per protocol.
-                .flatMap((GroupedObservable<Long, DataValue> group) -> group
+                .flatMap((GroupedFlowable<Long, DataValue> group) -> group
                             // DataValue -> JSONObject
                             .map((DataValue dv) -> {
                                 JSONObject dataField = new JSONObject();
@@ -94,14 +96,20 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                             // "data" field of each parameter
                             .flatMap((JSONArray arr) -> 
                                     DatabaseManager.parameterIdToName(group.getKey())
-                                        .map(name -> {
-                                            JSONObject obj = new JSONObject();
-                                            // The key is the actual 'id' for the parameter.
-                                            obj.put("id", group.getKey());
-                                            obj.put("dataValues", arr);
-                                            return obj;
-                                        })
+                                            .toFlowable()
+                                            // We ignore the result because we merely use the presence
+                                            // or absence to determine whether we continue our current
+                                            // computation. If the parameter id is wrong, then we never get this far.
+                                            .map(_ignored -> {
+                                                JSONObject obj = new JSONObject();
+                                                // The key is the actual 'id' for the parameter.
+                                                obj.put("id", group.getKey());
+                                                obj.put("dataValues", arr);
+                                                return obj;
+                                            })
+                                            
                             )
+                        .doOnNext(System.out::println)
                 )
                 // Obtains all JSONObjects containing the data values for each parameter.
                 .buffer(Integer.MAX_VALUE)
@@ -116,7 +124,6 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                 // is held in the "resp" field.
                 .map((JSONArray arr) -> {
                     JSONObject response = new JSONObject();
-                    
                     response.put("data", arr);
                     return response;
                 });
@@ -129,8 +136,8 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
      * @return Async request result.
      */
     @Override
-    public Observable<JSONObject> process(JSONObject request) { 
-        return Observable.just(request)
+    public Flowable<JSONObject> process(JSONObject request) { 
+        return Flowable.just(request)
                 // From the request, process and obtain the data for it.
                 .map((JSONObject queryData) -> {
                     Long startTime = (Long) queryData.get("startTime");
@@ -142,7 +149,8 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                     return DataReceiver.getData(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(endTime), id);
                 })
                 // Defer further processing
-                .flatMap(this::processUsing);
+                .map(this::processUsing)
+                .flatMap(x -> x);
     }
     
     

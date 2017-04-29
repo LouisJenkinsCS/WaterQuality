@@ -7,6 +7,7 @@ package servlets;
 
 import async.DataReceiver;
 import database.DatabaseManager;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
@@ -34,7 +35,7 @@ import static utilities.TimestampUtils.toUTCInstant;
  *
  * @author lpj11535
  */
-@WebServlet(name = "DataServlet", urlPatterns = {"/DataServlet"}, asyncSupported=true)
+@WebServlet(name = "DataServlet", urlPatterns = {"/DataServlet"}, asyncSupported = true)
 public class DataServlet extends HttpServlet {
 
     /**
@@ -54,11 +55,10 @@ public class DataServlet extends HttpServlet {
         database.UserManager um = database.Database.getDatabaseManagement().getUserManager();
         common.User user = (common.User) session.getAttribute("user");
         String action = request.getParameter("action");
-        
+
         if (action == null) {
             return;
         }
-        
 
         if (action.trim().equalsIgnoreCase("fetchQuery")) {
             String data = request.getParameter("query");
@@ -78,8 +78,7 @@ public class DataServlet extends HttpServlet {
             } catch (ParseException ex) {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        /*
+        } /*
          * getMostRecent
          * {data:[{
          *  id:
@@ -87,24 +86,22 @@ public class DataServlet extends HttpServlet {
          *  value:
          *  }]
          *  }
-         */
-        else if (action.trim().equalsIgnoreCase("getMostRecent")) {
+         */ else if (action.trim().equalsIgnoreCase("getMostRecent")) {
             AsyncContext async = request.startAsync();
-            System.out.println("Async Available: " + async.getRequest().isAsyncSupported() + ", Async Started: " + async.getRequest().isAsyncStarted());
+            
+            // Get most recent readings from Netronix's 'LAST' readings
             DataReceiver.getData(DataReceiver.LATEST_DATE_URL)
+                    // Everything is performed on another thread, freeing the Apache tomcat thread.
                     .subscribeOn(Schedulers.computation())
                     .map((JSONObject obj) -> (JSONArray) obj.get("data"))
                     .flatMap(JSONUtils::flattenJSONArray)
-                    .doOnNext(System.out::println)
                     .map((JSONObject obj) -> Triplet.with((Long) obj.get("id"), (Double) obj.get("value"), toUTCInstant((String) obj.get("timestamp")).toEpochMilli()))
-                    .flatMap((Triplet<Long, Double, Long> triplet) -> Observable
-                            .just(triplet.getValue0())
-                            .map(DatabaseManager::remoteSourceToDatabaseId)
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
+                    // Drop the source id in favor for the database id...
+                    .flatMap((Triplet<Long, Double, Long> triplet) -> DatabaseManager.remoteSourceToDatabaseId(triplet.getValue0())
                             .map(triplet::setAt0)
+                            .toObservable()
                     )
-                    .doOnNext(System.out::println)
+                    // (id, value, time)
                     .map((Triplet<Long, Double, Long> triplet) -> {
                         JSONObject obj = new JSONObject();
                         obj.put("id", triplet.getValue0());
@@ -112,7 +109,6 @@ public class DataServlet extends HttpServlet {
                         obj.put("value", triplet.getValue1());
                         return obj;
                     })
-                    .doOnNext(System.out::println)
                     .buffer(Integer.MAX_VALUE)
                     .map(JSONUtils::toJSONArray)
                     .map((JSONArray arr) -> {
@@ -120,15 +116,11 @@ public class DataServlet extends HttpServlet {
                         resp.put("data", arr);
                         return resp;
                     })
-                    .doOnNext(System.out::println)
-                    .subscribe(obj -> { 
+                    .subscribe(obj -> {
                         async.getResponse().getWriter().append(obj.toJSONString());
                         async.complete();
                     });
-                    
-                    
-                    
-                    
+
         }
 
     }

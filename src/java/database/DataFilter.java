@@ -33,6 +33,7 @@ package database;
 import async.DataReceiver;
 import async.DataValue;
 import com.github.davidmoten.rx.jdbc.Database;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -115,6 +116,8 @@ public class DataFilter {
     }
     
     
+    
+    
     /**
      * Uses a RCU (Read-Copy-Update) synchronization strategy to update the filter.
      * This approach allows the filter to be used by clients, locally, without needing
@@ -146,6 +149,11 @@ public class DataFilter {
     }
     
     public Observable<DataValue> filter(Observable<DataValue> data) {
+        Set<Long> currentFilter = filter.get();
+        return data.filter((DataValue dv) -> !currentFilter.contains(dv.getTimestamp().toEpochMilli()));
+    }
+    
+    public Flowable<DataValue> filter(Flowable<DataValue> data) {
         Set<Long> currentFilter = filter.get();
         return data.filter((DataValue dv) -> !currentFilter.contains(dv.getTimestamp().toEpochMilli()));
     }

@@ -31,6 +31,7 @@
 package protocol;
 
 import async.Data;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 /**
@@ -41,6 +42,6 @@ import io.reactivex.Observable;
  * @author Louis Jenkins
  */
 public interface Protocol<T, R> {
-    Observable<R> process(T t);
-    Observable<R> processUsing(Data source);
+    Flowable<R> process(T t);
+    Flowable<R> processUsing(Data source);
 }

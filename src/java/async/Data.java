@@ -30,7 +30,7 @@
  */
 package async;
 
-import io.reactivex.observables.ConnectableObservable;
+import io.reactivex.flowables.ConnectableFlowable;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,14 +43,14 @@ import java.util.List;
  * data from a query to be used later.
  */
 public class Data {
-    private ConnectableObservable<DataValue> data;
+    private ConnectableFlowable<DataValue> data;
 
-    public Data(ConnectableObservable<DataValue> data) {
+    public Data(ConnectableFlowable<DataValue> data) {
         this.data = data;
         data.connect();
     }
 
-    public ConnectableObservable<DataValue> getData() {
+    public ConnectableFlowable<DataValue> getData() {
         return data;
     }
     
