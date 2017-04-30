@@ -78,7 +78,8 @@ public class DataServlet extends HttpServlet {
             } catch (ParseException ex) {
                 Logger.getLogger(ControlServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } /*
+        }
+        /*
          * getMostRecent
          * {data:[{
          *  id:
