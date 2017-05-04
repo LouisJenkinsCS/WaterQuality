@@ -48,12 +48,12 @@
         <title>Dashboard</title>
     </head>
     <div id="myNav" class="overlay">
-  <p class="overlay-content">
-    The server is still in early development! What you are seeing is liable to change and is not a final representation of the product!
-    <br>
-    Note: The sensor may or may not be down right now, as of 4/26/2017
-  </p>
-</div>
+        <p class="overlay-content">
+            The server is still in early development! What you are seeing is liable to change and is not a final representation of the product!
+            <br>
+            Note: The sensor may or may not be down right now, as of 4/26/2017
+        </p>
+    </div>
     <!--<body id="loader" onload="checkUser(); startingData();">-->
         <body id="loader" onload="blockButtons(); startingData();">
         <img id="backPhoto" src="images/Creek.jpeg">
@@ -160,9 +160,9 @@
                         <input class="dateselector" id="graph_end_time" type="text">
                         <!--<input class="dateselector" id="graph_end_date" name="graph_end_date" type="datetime-local" min="" max="">-->
                     </div>
-                    <div id="graph_parameters" style="margin: 0 auto;">
+                    <center>Sensor Data - Last Updated: <span class="last_updated">temp val</span></center><br>
+                    <div id="graph_parameters" style="margin-left: 1em//0 auto;">
                         <div id="graph_sensor_parameters">
-                            <center>Sensor Data</center><BR>
                             <table id="sensor_formatted_table" style="width: 100%; margin: 0 auto;" class="parameter_table">
                                 <thead>
                                     <tr>
@@ -173,7 +173,7 @@
                                             Unit
                                         </td>
                                         <td>
-                                            Last Updated
+                                            Most Recent Data
                                         </td>
                                     </tr>
                                 </thead>
@@ -218,13 +218,15 @@
                         <input class="dateselector" id="table_end_date" type="text">
                         <input class="dateselector" id="table_end_time" type="text">
                     </div>
-                    <div id="select_all_div">
+                    <center>Sensor Data - Last Updated: <span class="last_updated">temp val</span></center>
+                    <div id="select_all_div" style="padding-left:1em">
                         <input type="checkbox" onclick="toggle('Table_form',this); fetch();" class="select_all_box" value="select_all_data">
                         Select All Data
-                    </div>
+                    </div><br/>
                     <div id="table_parameters">
                         <div id="table_sensor_parameters">
-                            <center>Sensor Data</center><br>
+                            <!--<center>Sensor Data - Last Updated: <span class="last_updated">temp val</span></center>-->
+                            <br>
                             <input type="checkbox" onclick="toggle('table_sensor_parameters',this); fetch();"class="select_all_box" value="select_all_data">
                             Select All Sensor Data<br>
                             
@@ -238,7 +240,7 @@
                                             Unit
                                         </td>
                                         <td>
-                                            Last Updated
+                                            Most Recent Data
                                         </td>
                                     </tr>
                                 </thead>

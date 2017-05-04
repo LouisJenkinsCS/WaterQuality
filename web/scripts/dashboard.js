@@ -750,14 +750,29 @@ function getMostRecent(){
          *  }
          */
         //var html="";
-        for(var i=0; i<data.length; i++){
+        for(var i=0; i < data.length; i++){
             var sensorrecent=document.getElementsByClassName("recent_sensor_"+data[i].id);
-            var html= formatDate(new Date(data[i].time));
+//            var html= formatDate(new Date(data[i].time));
+            var html = data[i].value;
             if(html!=null){
-                for(var j=0; j<sensorrecent.length; j++){
+                for(var j=0; j < sensorrecent.length; j++){
                     sensorrecent[j].innerHTML=html;
                 }
             }
         }
+        var recentdate = document.getElementsByClassName("last_updated");
+        
+        var tempDate = new Date(data[0].time);
+
+        //8 hours difference to accommodate formatting of
+        //formatDate() in general.js and timezone change
+        tempDate -= 28800000;
+        
+        var displayTime = new Date(tempDate);
+        
+        if(displayTime !== null)
+            for(var j=0; j < recentdate.length; j++)
+                recentdate[j].innerHTML = formatDate(displayTime);
+                
     });
 }
