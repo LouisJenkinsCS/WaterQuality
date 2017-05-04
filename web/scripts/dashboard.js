@@ -597,7 +597,7 @@ function startingData() {
         }
         else{
             var respData = JSON.parse(resp);
-            $("#overlayNote").html(respData["note"]);
+            $("#overlayNote").html(marked(respData["note"]));
         }
     });
     post("AdminServlet", {action: "getParameters", data: 3}, function (resp) {
