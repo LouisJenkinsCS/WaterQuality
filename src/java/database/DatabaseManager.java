@@ -120,6 +120,41 @@ public class DatabaseManager {
             }
         }
     }
+    
+    public static void createNotesTable()    
+    {
+        Statement createTable = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            createTable = conn.createStatement();
+            String createSQL = "Create Table IF NOT EXISTS Notes("
+                    + "timeRecorded varchar(25) primary key,"
+                    + "note varchar(2048)"
+                    + ");";
+            createTable.execute(createSQL);
+        }
+        catch (Exception ex)//SQLException ex 
+        {
+            LogError("Error creating Data Value Table: " + ex);
+        }
+        finally
+        {
+            try
+            {
+                if(createTable != null)
+                    createTable.close();
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+            }
+            catch(SQLException e)
+            {
+                LogError("Error closing statement:" + e);
+            }
+        }
+    }
+
 
     /*
         Creates a table to log the errors that may occur
@@ -1365,5 +1400,88 @@ public class DatabaseManager {
             }
         }
         return false;
+    }
+    
+    public static boolean modifyNote(String note, User admin) 
+    {
+        if(admin == null || admin.getUserRole() != UserRole.SystemAdmin)
+            return false;
+        
+        PreparedStatement modifyNote = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String getSQL = "Update Notes SET note = ? WHERE time = 'default';";
+            modifyNote = conn.prepareStatement(getSQL);
+            modifyNote.setString(1, note);
+            modifyNote.executeUpdate();
+            return true;
+        }
+        catch(SQLException e)
+        {
+            LogError("Error modifying note: " + e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(modifyNote != null)
+                    modifyNote.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return false;
+    }
+    
+    public static JSONObject getNote() 
+    {
+        JSONObject note = new JSONObject();
+        Statement selectNote = null;
+        ResultSet selectedNote = null;
+        Connection conn = null;
+        try
+        {
+            conn = Web_MYSQL_Helper.getConnection();
+            String query = "Select * from Notes where time = 'default'";
+            selectNote = conn.createStatement();
+            selectedNote = selectNote.executeQuery(query);
+            
+            if(selectedNote.next())
+            {
+                note.put("note", selectedNote.getString("note"));
+                return note;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch(SQLException e)
+        {
+            LogError("Error retrieving note: " + e);
+        }
+        finally
+        {
+            try
+            {
+                if(conn != null)
+                    Web_MYSQL_Helper.returnConnection(conn);
+                if(selectNote != null)
+                    selectNote.close();
+                if(selectedNote != null)
+                    selectedNote.close();
+            }
+            catch(Exception excep)
+            {
+                LogError("Error closing statement or result set: " + excep);
+            }
+        }
+        return null;
     }
 }

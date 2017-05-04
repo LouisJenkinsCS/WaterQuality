@@ -17,7 +17,7 @@
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.js"></script>
         
-       
+        <link rel="stylesheet" href="styles/markdown.css" type="text/css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -48,23 +48,16 @@
         <title>Dashboard</title>
     </head>
     <div id="myNav" class="overlay">
-        <p class="overlay-content">
-            The server is still in early development! What you are seeing is liable to change and is not a final representation of the product!
-            <br>
-            Note: The sensor may or may not be down right now, as of 4/26/2017
-        </p>
-    </div>
+        <button style='float:right; margin-right: 1em; margin-top: 1em;' onclick="$('#myNav').slideUp('slow');" value="X"></button>
+  <p class="overlay-content" id="overlayNote"></p>
+</div>
     <!--<body id="loader" onload="checkUser(); startingData();">-->
         <body id="loader" onload="blockButtons(); startingData();">
         <img id="backPhoto" src="images/Creek.jpeg">
         <header class="title_bar_container">
             <div id="HeaderText">Water Quality</div>
-            <a href="loginScreen.jsp">
-            <button id="Login_Button">Login</button>
-            </a>
-            <a href="admin.jsp">
-                <button id="Admin_Button">Admin</button>
-            </a>
+            <button id="Login_Button" onclick="location.href='loginScreen.jsp'">Login</button>
+            <button id="Admin_Button" onclick="location.href='admin.jsp'">Admin</button>
         </header>
             
             <script>
@@ -107,7 +100,7 @@
         <!--The <code>dashboard_container</code> sections holds all of other 
             sections on the dashboard page-->
         <section class = "content_container1" id = "dashboard_container">
-            <header class = "content_title_bar" id="login_header">
+            <header class = "content_title_bar" id="dashboard_header">
                 <div class = "title" >
                     Dashboard
                 </div>
@@ -121,16 +114,16 @@
                 <ul class="tab">
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Graph');"
                            id="GraphTab">Graph</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table');
-                           "id="TableTab">Table</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Table');" 
+                           id="TableTab">Table</a></li>
                 </ul>
                 <!--The contents of the Graph tab-->
                 <div id="Graph" class="tabcontent" style="width:auto; height:auto;">
                 </div>
                 <!--The contents of the table tab-->
                 <div id="Table" class="tabcontent">
-                    <h4 align="center">Excel and PDF downloads require Adobe Flash</h4>
-                    <table align="center" id="data_table" onclick="">
+                    <h4>Excel and PDF downloads require Adobe Flash</h4>
+                    <table id="data_table">
                         <thead><tr><th></th></tr></thead>
                     </table>
                 </div>
@@ -139,7 +132,7 @@
             <!--This contains the forms for selecting date range and parameters
                 for each of the tabs in the <code>graph_container</code> section-->
             <aside class = "content_container2" id = "dashboard_data_container">
-                <header class = "content_title_bar" id="login_header">
+                <header class = "content_title_bar" id="parameters_header">
                     <div class = "title" >
                         Data Type
                     </div>
@@ -148,13 +141,13 @@
                     range and parameters for the graph tab-->
                 <form class="data_type_form" id="Graph_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
-                    </br>
+                    <BR>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
                         <input class="dateselector" id="graph_start_date" type="text">
                         <input class="dateselector" id="graph_start_time" type="text">
                         <!--<input class="dateselector" id="graph_start_date" name="graph_start_date"type="datetime-local" min="" max="">-->
-                        </BR>to</BR>
+                        <BR>to<BR>
                         End Date:
                         <input class="dateselector" id="graph_end_date" type="text">
                         <input class="dateselector" id="graph_end_time" type="text">
@@ -202,18 +195,19 @@
                             </table>
                         </div>
                     </div>
+                    </center>
                     <br>
                 </form>
                 <!--The <code>Table_form</code> is the form for selecting date 
                     range and parameters for the table tab-->
                 <form class="data_type_form" id="Table_form" action="ControlServlet" method = "POST">
                     <!--Allows the user to select a range of dates for data viewing-->
-                    </br>
+                    <br>
                     <div id="dateselectordiv" onclick="dateLimits();">
                         Start Date:
                         <input class="dateselector" id="table_start_date" type="text">
                         <input class="dateselector" id="table_start_time" type="text">
-                        </BR>to</BR>
+                        <BR>to<BR>
                         End Date:
                         <input class="dateselector" id="table_end_date" type="text">
                         <input class="dateselector" id="table_end_time" type="text">
@@ -249,7 +243,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <br>
+                        <BR>
                         <div id="table_manual_parameters">
                             <center>Manual Data</center><br>
                             <input type="checkbox" onclick="toggle('table_manual_parameters',this); fetch();"class="select_all_box" value="select_all_data">
@@ -271,6 +265,7 @@
                             </table>
                         </div> 
                     </div>
+                    </center>
                     <br>
                 </form>
             </aside><br>
@@ -280,7 +275,7 @@
             <!--This will need to pull text from a file which Brandon already-->
             <!--typed and had Dr. Rier edit.-->
             <section class = "content_container2" id = "dashboard_data_description">
-                <header class = "content_title_bar" id = "login_header">
+                <header class = "content_title_bar" id = "description_header">
                     <div class = "title">
                         Description
                     </div>
@@ -299,7 +294,7 @@
             </section>
             
         </section>
-                     
+        
         <script>
             // Custom this to set theme, see: http://www.highcharts.com/docs/chart-design-and-style/design-and-style
             Highcharts.theme = {
@@ -441,15 +436,4 @@
                 series: []
             });
         </script>
-        <script>            
-        </script>
-        
-        
-
-
-
-
-
-
-
     </body>

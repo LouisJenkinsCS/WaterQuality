@@ -34,28 +34,27 @@ import database.DatabaseManager;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.reactivex.observables.GroupedObservable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Queue;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import org.javatuples.Pair;
+import java.util.stream.Stream;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -72,83 +71,23 @@ import utilities.JSONUtils;
  */
 public class DataReceiver {
     
-    public static final String LATEST_DATE_URL = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
-    
-    // TODO: Quit being lazy and create a single map which holds the data needed
-    // The keys are the exact same, and only differ in values.
-    private static final Map<Long, DataParameter> PARAMETER_MAP = new HashMap<>();
-    
-    // Read-in and fill map of descriptions.
-    static {
-        // The file 'descriptions.json' contains the descriptions for parameters,
-        // which need to be displayed when selected. This is also used to filter
-        // out any API data that we do not have a description of.
-        String filename = "resources/descriptions.json";
-        List<DataParameter> parameters = new ArrayList<>();
-        
-        Observable
-                .just(filename)
-                .map(FileUtils::readAll)
-                .map(str -> (JSONObject) new JSONParser().parse(str))
-                .map(obj -> (JSONArray) obj.get("descriptions"))
-                .flatMap(JSONUtils::flattenJSONArray)
-                .blockingSubscribe((JSONObject obj) -> parameters.add(new DataParameter((String) obj.get("name"), (String) obj.get("description"))));
-        
-        // Fill the map so we only need to obtain it once on startup.
-        // The map will contain a list of identifiers (being the very same
-        // identifier displayed in dashboard.jsp) to their actual identifier. This
-        // MUST be refactored before actual release, but should be sufficient for now.
-
-        // This is the URL used to obtain ALL data for the sensor within the past
-        // 15 minutes. This is important as, again, it holds ALL of the data. So
-        // we can use this to construct our map. 
-        // We want to make some API calls next. Given the above URL, we can then
-        // make a connection and obtain the JSON data sent.
-        getData(LATEST_DATE_URL)
-                // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
-                // We need to obtain the "data" parameter, which a JSONArray.
-                .map((JSONObject obj) -> (JSONArray) obj.get("data"))
-                // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
-                // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
-                // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                .flatMap(JSONUtils::flattenJSONArray)
-                // Filter out any parameters we do not contain a description for
-                .filter((JSONObject obj) -> parameters
-                        .stream()
-                        .map(DataParameter::getName)
-                        // TODO: Fix Protocol so that it does not crash when no data is available. For now
-                        // removing Turbidity.
-                        .filter((String name) -> !name.equals("Turbidity"))
-                        .anyMatch((name -> name.equals(obj.get("name"))))
-                )
-                // Update the current DataParameters loaded with the data from the JSON and add it
-                // to our map.
-                .blockingSubscribe((JSONObject obj) -> {
-                    List<DataParameter> parameter = parameters
-                            .stream()
-                            .filter((DataParameter param) -> param.getName().equals(obj.get("name")))
-                            .collect(Collectors.toList());
-                    
-                    // NOTE: This will be refactored, but for now, Dr. Rier's description
-                    // contains two "Temperature" fields, and they are literally indistinguishable from each other.
-                    // Because of this, when we find "Temperature", we assign them randomly to their description
-                    // as a temporary workaround.
-                    DataParameter param = parameter.get(0);
-                    param.fromJSON(obj);
-                    PARAMETER_MAP.put(param.getId(), param);
-                    parameters.remove(param);
-                });
-    }
-    
-    
+    /**
+     * The maximum amount of data to be fetched from Netronix at once. It is limited to prevent
+     * potential denial of service where we have requests asking for, say, years of data at a time.
+     * In the case of too many requests asking for too much, we can end up with an OOM situation quickly.
+     * This is merely a simple counter-measure to handle actually valid requests, a true DDOS would be
+     * impossible to prevent.
+     * 
+     * Reminder: Netronix gets data in 15 minutes chunks, so you can easily calculate the amount of data
+     * being obtained for each query. Too much means more memory usage and backpressure, too little means
+     * we become IO Bound.
+     */
+    private static final Period MAX_CHUNK_PERIOD = Period.ofWeeks(4);
     
     /**
-     * Obtain all sensor parameter names.
-     * @return All sensor parameter names.
+     * URL to obtain the most recent data; useful for obtaining all sensor parameter names, units, etc.
      */
-    public static Observable<DataParameter> getParameters() {
-        return Observable.fromIterable(PARAMETER_MAP.values());
-    }
+    public static final String LATEST_DATE_URL = "https://ienvironet.com/api/data/last/0A178632?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
     
     /**
      * Obtain DataValues from a query for all supplied keys that are within the
@@ -173,58 +112,66 @@ public class DataReceiver {
                 ).replay());
     }
     
+    /**
+     * Obtains chunks of data based on request, one month at a time.
+     * @param start
+     * @param end
+     * @param key
+     * @return 
+     */
+    private static Flowable<DataValue> getChunkedData(Instant start, Instant end, long key) {
+        // Require a mutable container to be used and updated within container.
+        AtomicReference<Instant> currentTime = new AtomicReference<>(start);
+        Queue<DataValue> chunks = new ArrayDeque<>();
+        // Note: Flowable is synchronous, hence the queue does not need to require extra synchronization
+        return Flowable.generate(emitter -> {
+            // Request more data...
+            while (chunks.isEmpty()) {
+                // Get current week of data, advance for next query by a week.
+                Instant current = currentTime.getAndUpdate(curr -> curr.plus(MAX_CHUNK_PERIOD));
+                // Empty and obtained all data? We're finished.
+                if (!current.isBefore(end)) {
+                    emitter.onComplete();
+                    return;
+                }
+                
+                // Otherwise obtain data for that week...
+                getJSONData(getParameterURL(current, current.plus(MAX_CHUNK_PERIOD), key))
+                        .subscribeOn(Schedulers.io())
+                        // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
+                        // We need to obtain the "data" parameter, which a JSONArray.
+                        .map((JSONObject obj) -> (JSONArray) obj.get("data"))
+                        // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
+                        // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
+                        // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
+                        .flatMap(JSONUtils::flattenJSONArray)
+                        // We take both the timestamp (X-Axis) and the value (Y-Axis).
+                        // This data is what is returned as a DataValue.
+                        .map((JSONObject obj) -> new DataValue(key, (String) obj.get("timestamp"), (Double) obj.get("value")))
+                        // The server sometimes sends duplicate data values for timestamps, so we filter them here.
+                        .distinct(dv -> dv.getTimestamp())
+                        .blockingForEach(chunks::add);
+                
+                System.out.println("(" + current.toString() + ") - Retrieved " + chunks.size() + " units of data for " + DatabaseManager.remoteSourceToDatabaseId(key).flatMap(DatabaseManager::parameterIdToName).blockingGet());
+            }
+                        
+            emitter.onNext(chunks.remove());
+        });
+    }
+    
     public static Data getRemoteData(Instant start, Instant end, Long ...keys) {
-        
-        return new Data(Observable
+        // We request data from Netronix in monthly intervals.
+        return new Data(Flowable
                 // For each key
                 .fromArray(keys)
-                .flatMap((Long key) ->
-                    getData(getParameterURL(start, end, key))
-                            // For an example of the format given see: https://gist.github.com/LouisJenkinsCS/cca0069178f194329d55aabf33c28418
-                            // We need to obtain the "data" parameter, which a JSONArray.
-                            .map((JSONObject obj) -> (JSONArray) obj.get("data"))
-                            // A JSONArray implements the Iterable interface, just like any Collection such as an ArrayList would.
-                            // Because of this we can go from the Collection itself to the items it contains. Hence, a collection
-                            // containing ({1, 2, 3}) will be converted into the respective elements, (1, 2, 3).
-                            .flatMap(JSONUtils::flattenJSONArray)
-                            // We take both the timestamp (X-Axis) and the value (Y-Axis).
-                            // This data is what is returned as a DataValue.
-                            .map((JSONObject obj) -> new DataValue(key, (String) obj.get("timestamp"), (Double) obj.get("value")))
-                            // The server sometimes sends duplicate data values for timestamps, so we filter them here.
-                            .distinct(dv -> dv.getTimestamp())
-                )
-                .toFlowable(BackpressureStrategy.BUFFER)
+                // Chunk data for each key...
+                .map((Long key) -> getChunkedData(start, end, key))
+                // Merge all into one continuous stream
+                .buffer(Integer.MAX_VALUE)
+                .flatMap(Flowable::merge)
                 // 'replay' is a way to say that we want to take ALL items up to this point (being the DataValues), cache it, and then
                 // resend it each and every time it is subscribed to (pretty much meaning this becomes reusable).
                 .replay());
-    }
-    
-    /**
-     * Generates HTML for the descriptions for each unique parameter of the underlying source.
-     * The parameters are bolded and centered on their own line, while the descriptions
-     * are displayed below them.
-     * @param source Data.
-     * @return Generated HTML of descriptions.
-     */
-    public static String generateDescriptions(Data source) {
-        StringBuilder descriptions = new StringBuilder();
-        source.getData()
-                .map(DataValue::getId)
-                .distinct()
-                .map(PARAMETER_MAP::get)
-                .map((DataParameter parameter) -> "\n<center><h1>" + parameter.getName() + "</center></h1>\n" + parameter.getDescription())
-                .blockingSubscribe(descriptions::append);
-        
-        return descriptions.toString();
-    }
-        
-    public static String getParameterName(long id) {
-        DataParameter param = PARAMETER_MAP.get(id);
-        if (param == null) {
-            return null;
-        }
-        
-        return param.getName();
     }
     
     /**
@@ -238,13 +185,15 @@ public class DataReceiver {
        return "https://ienvironet.com/api/data/" + start.getEpochSecond() + ":" + end.getEpochSecond() + "/" + id + ".json?auth_token=avfzf6dn7xgv48qnpdhqzvlkz5ke7184";
     }
     
+    
+    
     /**
      * Obtain the JSON from the passed URL. The URL SHOULD be one that corresponds to
      * the environet API. The data is taken as JSON.
      * @param url
      * @return Data from URL as JSON.
      */
-    public static Observable<JSONObject> getData(String url) {
+    public static Observable<JSONObject> getJSONData(String url) {
         return Observable.just(url)
                 // From the URL, construct an actual URL (remember, the above is a String)
                 .map(URL::new)

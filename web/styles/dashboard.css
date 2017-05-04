@@ -345,15 +345,14 @@ input[type="checkbox"]:hover, input[type="datetime-local"]:hover{
     cursor:default;
 }
 
-#table_exports, #select_all_div{
+#table_exports{
     display:inline-block;
     text-align:center;
 }
 
 #graph_parameters, #table_parameters{
     display:inline-block;
-    float:left;
-    margin-left:2.5%;
+    text-align: left;
     margin-bottom: 2.5%
 }
 

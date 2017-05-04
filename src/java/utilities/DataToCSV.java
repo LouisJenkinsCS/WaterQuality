@@ -4,6 +4,7 @@ import async.Data;
 import async.DataReceiver;
 import async.DataValue;
 import bayesian.RunBayesianModel;
+import database.DatabaseManager;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.internal.functions.Functions;
@@ -190,7 +191,7 @@ public class DataToCSV {
                         .map(DataValue::getId)
                         .sorted()
                         .distinct()
-                        .map(DataReceiver::getParameterName)
+                        .flatMap(id -> DatabaseManager.parameterIdToName(id).toObservable())
                         .buffer(Integer.MAX_VALUE)
                         .map(list -> list.stream().collect(Collectors.joining(",")))
                         .map(header -> "Timestamp," + header)

@@ -137,7 +137,7 @@ function openTab(evt, tabName) {
                 if (tabName === "Graph") {
                     chart.redraw();
                     chart.reflow();
-                }
+                } 
             }),
         step: (n, tween) => {
                 if ((n % 25) === 0) {
@@ -158,9 +158,14 @@ function openTab(evt, tabName) {
     //Switches between the forms depending on which tab is open
     form = document.getElementsByClassName("data_type_form");
     for (i = 0; i < form.length; i++) {
-        form[i].style.display = "none";
+        $(form[i]).finish();
+        $(form[i]).hide("slow");
+        //form[i].style.display = "none";
     }
-    document.getElementById(current + "_form").style.display = "block";
+    $('#' + tabName + '_form').finish().show("slow",() => {
+                $('#' + tabName+'_form').css("display", "block");
+            });
+    //document.getElementById(current + "_form").style.display = "block";
 
     descriptions = document.getElementsByClassName("description");
     for (i = 0; i < descriptions.length; i++) {
@@ -346,7 +351,8 @@ function fetchData(json) {
                     $('#Graph_description', '#Table_description').html(marked(description));
                     $('#Graph_description', '#Table_description').fadeIn("slow");
                 });
-        document.getElementById("Graph_description").innerHTML = document.getElementById("Table_description").innerHTML = marked(description);
+        document.getElementById("Graph_description").innerHTML = document.getElementById("Table_description").innerHTML = 
+                "<div class='markdown-preview' data-use-github-style>" + marked(description) + "</div>";
     } else {
         var description = "";
         if (getCookie("id") == "Table") {
@@ -363,7 +369,7 @@ function fetchData(json) {
             }
             $('#Table_description')
                 .fadeOut("slow", () => {
-                    $('#Table_description').html(marked(description));
+                    $('#Table_description').html("<div class='markdown-preview' data-use-github-style>" + marked(description) + "</div>");
                     $('#Table_description').fadeIn("slow");
                 });
         }
@@ -397,7 +403,7 @@ function fetchData(json) {
             }
             $('#Graph_description')
                 .fadeOut("slow", () => {
-                    $('#Graph_description').html(marked(description));
+                    $('#Graph_description').html("<div class='markdown-preview' data-use-github-style>" + marked(description) + "</div>");
                     $('#Graph_description').fadeIn("slow");
                 });
         }
@@ -585,6 +591,15 @@ function startingData() {
         $("#myNav").height(($(window).height() / 2) + "px");
         $("#admin_notes").show();
     })
+    post("AdminServlet", {action: "getNotes"}, function (resp) {
+        if (resp.hasOwnProperty("status")) {
+            window.alert("Error getting notes");
+        }
+        else{
+            var respData = JSON.parse(resp);
+            $("#overlayNote").html(marked(respData["note"]));
+        }
+    });
     post("AdminServlet", {action: "getParameters", data: 3}, function (resp) {
 
 //        console.log(JSON.parse(resp));

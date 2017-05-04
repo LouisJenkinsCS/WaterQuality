@@ -91,7 +91,7 @@ public class DataServlet extends HttpServlet {
             AsyncContext async = request.startAsync();
             
             // Get most recent readings from Netronix's 'LAST' readings
-            DataReceiver.getData(DataReceiver.LATEST_DATE_URL)
+            DataReceiver.getJSONData(DataReceiver.LATEST_DATE_URL)
                     // Everything is performed on another thread, freeing the Apache tomcat thread.
                     .subscribeOn(Schedulers.computation())
                     .map((JSONObject obj) -> (JSONArray) obj.get("data"))

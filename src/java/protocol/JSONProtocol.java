@@ -152,5 +152,15 @@ public class JSONProtocol implements Protocol<JSONObject, JSONObject> {
                 .flatMap(x -> x);
     }
     
+    public static void main(String[] args) {
+        Observable.range(1, 1000)
+            .map(x -> x * 2)
+            .flatMap(x -> Observable
+                    .range(1, x)
+                    .reduce(0, (y, z) -> y + z)
+                    .toObservable()
+            )
+            .subscribe(System.out::println);
+    }
     
 }

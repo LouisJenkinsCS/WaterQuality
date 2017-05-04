@@ -210,24 +210,57 @@ function fillPageEditParams() {
                 '<br><br>' +
                 '</section>' +
                 '<section style="width: 95%;" class="section_edit_desc">' +
-                '<div style="width: 100%; border: 1px solid black;" class="modal" name="preview" id="modal_preview">' +
-                '<span class="close" id="close-modal-box">&times;</span>' +
-                '<div style="min-width: 100%; min-height:100%; border: 1px solid black;" name="preview" id="textarea_preview">' +
+                 '<div style="height:100%; width: 100%; border: 1px solid black;" class="modal" name="descr_preview" id="descr_modal_preview">' +
+                '<div id="descr_preview" style="min-width: 49.5%; position: absolute; top: 1%; left: 0%; resize: none; width: 49.5%;">'+
+                '<textarea style="resize:none; width:100%;" name="notes" id="textarea_descr_preview">' +
+                '</textarea>'+
+                '</div>'+
+                '<div style="background-color:white; position: absolute; left: 50.5%; top: 1%; min-width: 49.5%; max-width: 49.5%; border: 1px solid black;"'+
+                'name="notes_preview" class="markdown-preview" data-use-github-style id="descr_textarea_preview">' +
                 '</div><br><br>' +
                 '</section>'
                 );
-        
-        document.getElementById("close-modal-box").onclick = function() {
-            document.getElementById("modal_preview").style.display = "none";
-        }
         
         
     });
 }
 
+function closeOnOutsideClick_descr(e) {
+    var container = $("#descr_modal_preview");
+
+    if (!container.is(e.target) // if the target of the click isn't the container...
+        && container.has(e.target).length === 0) // ... nor a descendant of the container
+    {
+        $(document.getElementById('textarea_desc')).val($(document.getElementById('textarea_descr_preview')).val());
+        container.hide("slow");
+        $(document).unbind('mouseup', closeOnOutsideClick_descr);
+    }
+}
+
 function showPreview() {
-    document.getElementById('textarea_preview').innerHTML = marked(document.getElementById('textarea_desc').value);
-    document.getElementById("modal_preview").style.display = "inline-block";
+    $(document.getElementById('textarea_descr_preview')).val($(document.getElementById('textarea_desc')).val());
+    $(document.getElementById('descr_textarea_preview')).html(marked($(document.getElementById('textarea_desc')).val()));
+    $(document).mouseup(closeOnOutsideClick_descr);
+    
+    $(document.getElementById("descr_modal_preview")).show("slow", () => {
+        var preview = $(document.getElementById('descr_textarea_preview'));
+        var textarea = $(document.getElementById('textarea_descr_preview'));
+        var previewPaddTop = parseInt(preview.css('padding-top').substring(0, 2));
+        var textareaPaddTop = parseInt(textarea.css('padding-top').substring(0, 2));
+        var previewPaddBott = parseInt(preview.css('padding-bottom').substring(0, 2));
+        var textareaPaddBott = parseInt(textarea.css('padding-bottom').substring(0, 2))
+        var previewPadding = previewPaddTop + previewPaddBott;
+        var textareaPadding = textareaPaddTop + textareaPaddBott;
+        $(document.getElementById('textarea_descr_preview')).css('height', ($(document.getElementById('descr_modal_preview')).outerHeight() - textareaPadding)+ 'px');
+        $(document.getElementById('textarea_descr_preview')).css('max-height', ($(document.getElementById('descr_modal_preview')).outerHeight() - textareaPadding) + 'px');
+        $(document.getElementById('descr_textarea_preview')).css('height', ($(document.getElementById('descr_modal_preview')).outerHeight() - previewPadding) + 'px');
+        $(document.getElementById('descr_textarea_preview')).css('max-height', ($(document.getElementById('descr_modal_preview')).outerHeight() - previewPadding) + 'px');
+    });
+    
+    
+    $('#textarea_descr_preview').on('input propertychange paste', () => {
+            $('#descr_textarea_preview').html(marked($('#textarea_descr_preview').val()));
+    });
 }
 
 /*
@@ -239,7 +272,7 @@ function viewDescription() {
 
     for (var i = 0; i < cached_names.length; i++) {
         if (cached_names[i] === $paramName) {
-            document.getElementById('textarea_desc').innerHTML = cached_Descriptions[i];
+            $(document.getElementById('textarea_desc')).val(cached_Descriptions[i]);
             document.getElementById("paramchange").value = cached_names[i];
             saved_id = cached_ids[i];
             saved_name = cached_names[i];
