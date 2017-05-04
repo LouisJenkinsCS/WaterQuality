@@ -27,13 +27,31 @@ function fillPageNotes(){
                 '</div><br><br>' +
                 '</section>'
                 );
-    document.getElementById('textarea_notes').innerHTML = "# Notes\n" +
-            "The server is still in early development! What you are seeing is liable to change and is not a final representation of the product!" +
-            "\nNote: The sensor may or may not be down right now, as of 4/26/2017";
+        
+    post("AdminServlet", {action: "getNotes"}, function (resp) {
+        if (resp.hasOwnProperty("status")) {
+            window.alert("Error getting notes");
+        }
+        else{
+            var respData = JSON.parse(resp);
+            document.getElementById('textarea_notes').innerHTML =respData["note"];
+        }
+    });
 }
 
 function editNotes(){
-    
+    var editRequest = {action: 'editNotes',
+        note: $('#textarea_notes').val()
+    };
+
+    post("AdminServlet", editRequest, function (resp) {
+        var respData = JSON.parse(resp);
+        if (respData["status"] === "Success") {
+            window.alert("Notes update successful.");
+        } else {
+            window.alert("Notes Update Failed");
+        }
+    });
 }
 
 function closeOnOutsideClick_notes(e) {

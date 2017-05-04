@@ -591,6 +591,15 @@ function startingData() {
         $("#myNav").height(($(window).height() / 2) + "px");
         $("#admin_notes").show();
     })
+    post("AdminServlet", {action: "getNotes"}, function (resp) {
+        if (resp.hasOwnProperty("status")) {
+            window.alert("Error getting notes");
+        }
+        else{
+            var respData = JSON.parse(resp);
+            $("#overlayNote").html(respData["note"]);
+        }
+    });
     post("AdminServlet", {action: "getParameters", data: 3}, function (resp) {
 
 //        console.log(JSON.parse(resp));

@@ -1412,7 +1412,7 @@ public class DatabaseManager {
         try
         {
             conn = Web_MYSQL_Helper.getConnection();
-            String getSQL = "Update Notes SET note = ? WHERE time = default;";
+            String getSQL = "Update Notes SET note = ? WHERE time = 'default';";
             modifyNote = conn.prepareStatement(getSQL);
             modifyNote.setString(1, note);
             modifyNote.executeUpdate();
@@ -1448,13 +1448,13 @@ public class DatabaseManager {
         try
         {
             conn = Web_MYSQL_Helper.getConnection();
-            String query = "Select * from Notes where time = default";
+            String query = "Select * from Notes where time = 'default'";
             selectNote = conn.createStatement();
             selectedNote = selectNote.executeQuery(query);
             
             if(selectedNote.next())
             {
-                note.put("note", selectedNote.getString(1));
+                note.put("note", selectedNote.getString("note"));
                 return note;
             }
             else

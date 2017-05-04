@@ -49,10 +49,8 @@
     </head>
     <div id="myNav" class="overlay">
         <button style='float:right; margin-right: 1em; margin-top: 1em;' onclick="$('#myNav').slideUp('slow');" value="X"></button>
-  <p class="overlay-content">
-    The server is still in early development! What you are seeing is liable to change and is not a final representation of the product!
-    <br>
-    Note: The sensor may or may not be down right now, as of 4/26/2017
+  <p class="overlay-content" id="overlayNote">
+    Replace me
   </p>
 </div>
     <!--<body id="loader" onload="checkUser(); startingData();">-->
