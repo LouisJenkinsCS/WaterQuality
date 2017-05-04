@@ -49,9 +49,7 @@
     </head>
     <div id="myNav" class="overlay">
         <button style='float:right; margin-right: 1em; margin-top: 1em;' onclick="$('#myNav').slideUp('slow');" value="X"></button>
-  <p class="overlay-content" id="overlayNote">
-    Replace me
-  </p>
+  <p class="overlay-content" id="overlayNote"></p>
 </div>
     <!--<body id="loader" onload="checkUser(); startingData();">-->
         <body id="loader" onload="blockButtons(); startingData();">

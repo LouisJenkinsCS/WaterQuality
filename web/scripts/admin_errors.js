@@ -1,9 +1,12 @@
-
-//This function simply pulls the AJAX_functions.js script
-//to allow the current script to use AJAX functions
+/*
+ * A tab for viewing the errors stored in the database
+ */
 $.getScript("scripts/AJAX_functions.js", function () {});
 $.getScript("scripts/datetimepicker.js", function () {});
 
+/*
+ * Generates the page and initializes the table and date pickers
+ */
 function fillPageErrors()
 {
     $('#Errors').append(
@@ -48,9 +51,12 @@ function fillPageErrors()
 }
 ;
 
+/*
+ * Fills the table with errors within the time range on the time pickers
+ */
 function filterErrors()
 {
-    //The entered/selected parameters are stored
+    //Compensate for EST and daylight savings time
     var deleteStartDate = new Date($('#errors_startdate').val());
     if (deleteStartDate.dst())
         deleteStartDate = deleteStartDate.getTime() - 14400000;

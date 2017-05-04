@@ -1,12 +1,20 @@
+/*
+ * A tab to register a new user
+ */
+
 $.getScript("scripts/AJAX_functions.js", function () {});
 $.getScript("scripts/general.js", function () {});
 
 var options_roles = "";
 
+/*
+ * Generates the page initially
+ */
 function fillPageRegisterUser() {
 
     var rolesRequest = {action: 'getRoles'};
 
+//why is this here?
 //    get("AdminServlet", rolesRequest, function (response)
 //    {
 //        var parameter_names = JSON.parse(response)["data"];
@@ -77,8 +85,12 @@ function fillPageRegisterUser() {
     //<form> tag might be removed when implementing AJAX (unsure).
 };
 
+/*
+ * Registers the user with information entered
+ */
 function registerUser()
-{
+{   
+    //stops if passwords don't match and prompts the user
     if ($('#password').val() !== $('#confirmpassword').val())
     {
         window.alert("Your passwords do not match");
@@ -98,6 +110,7 @@ function registerUser()
         var respData = JSON.parse(resp);
         if (respData["status"] === "Success")
         {
+            //clears the text fields afterwards if successful
             window.alert("User Register Successful");
             document.getElementById("username").value = "";
             document.getElementById("password").value = "";
