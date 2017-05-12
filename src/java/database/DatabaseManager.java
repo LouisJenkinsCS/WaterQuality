@@ -38,7 +38,7 @@ import security.SecurityCode;
  * @author Tyler Mutzek & Louis Jenkins
  */
 public class DatabaseManager {
-    
+
     public static final AtomicReference<CacheBundle> CACHE = new AtomicReference<>(new CacheBundle());
 
     static {
@@ -92,13 +92,11 @@ public class DatabaseManager {
             }
         }
     }
-    
-    public static void createNotesTable()    
-    {
+
+    public static void createNotesTable() {
         Statement createTable = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "Create Table IF NOT EXISTS Notes("
@@ -106,33 +104,27 @@ public class DatabaseManager {
                     + "note varchar(2048)"
                     + ");";
             createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
+        } catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
+        } finally {
+            try {
+                if (createTable != null) {
                     createTable.close();
-                if(conn != null)
+                }
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
+                }
+            } catch (SQLException e) {
                 LogError("Error closing statement:" + e);
             }
         }
     }
-    
-    public static void createManualDataParametersTable()    
-    {
+
+    public static void createManualDataParametersTable() {
         Statement createTable = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "CREATE TABLE manual_data_parameters ("
@@ -141,33 +133,27 @@ public class DatabaseManager {
                     + "PRIMARY KEY (parameter_id)"
                     + ");";
             createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
+        } catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
+        } finally {
+            try {
+                if (createTable != null) {
                     createTable.close();
-                if(conn != null)
+                }
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
+                }
+            } catch (SQLException e) {
                 LogError("Error closing statement:" + e);
             }
         }
     }
-    
-    public static void createRemoteDataParametersTable()    
-    {
+
+    public static void createRemoteDataParametersTable() {
         Statement createTable = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "CREATE TABLE remote_data_parameters ("
@@ -175,33 +161,27 @@ public class DatabaseManager {
                     + " PRIMARY KEY (parameter_id)"
                     + ");";
             createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
+        } catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
+        } finally {
+            try {
+                if (createTable != null) {
                     createTable.close();
-                if(conn != null)
+                }
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
+                }
+            } catch (SQLException e) {
                 LogError("Error closing statement:" + e);
             }
         }
     }
-    
-    public static void createDataParametersTable()    
-    {
+
+    public static void createDataParametersTable() {
         Statement createTable = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "CREATE TABLE data_parameters ("
@@ -211,33 +191,27 @@ public class DatabaseManager {
                     + "PRIMARY KEY (id)"
                     + ");";
             createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
+        } catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
+        } finally {
+            try {
+                if (createTable != null) {
                     createTable.close();
-                if(conn != null)
+                }
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
+                }
+            } catch (SQLException e) {
                 LogError("Error closing statement:" + e);
             }
         }
     }
-    
-    public static void createDataDescriptionsTable()    
-    {
+
+    public static void createDataDescriptionsTable() {
         Statement createTable = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "CREATE TABLE data_descriptions ("
@@ -247,33 +221,27 @@ public class DatabaseManager {
                     + "PRIMARY KEY (id, parameter_id)"
                     + ");";
             createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
+        } catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
+        } finally {
+            try {
+                if (createTable != null) {
                     createTable.close();
-                if(conn != null)
+                }
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
+                }
+            } catch (SQLException e) {
                 LogError("Error closing statement:" + e);
             }
         }
     }
-    
-    public static void createDataFilterTable()    
-    {
+
+    public static void createDataFilterTable() {
         Statement createTable = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "CREATE TABLE data_filter ("
@@ -282,33 +250,27 @@ public class DatabaseManager {
                     + "PRIMARY KEY (parameter_id, `time`)"
                     + ");";
             createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
+        } catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
+        } finally {
+            try {
+                if (createTable != null) {
                     createTable.close();
-                if(conn != null)
+                }
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
+                }
+            } catch (SQLException e) {
                 LogError("Error closing statement:" + e);
             }
         }
     }
-    
-    public static void createDataValuesTable()    
-    {
+
+    public static void createDataValuesTable() {
         Statement createTable = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             createTable = conn.createStatement();
             String createSQL = "CREATE TABLE data_values ("
@@ -318,22 +280,18 @@ public class DatabaseManager {
                     + "PRIMARY KEY (parameter_id, `time`)"
                     + ");";
             createTable.execute(createSQL);
-        }
-        catch (Exception ex)//SQLException ex 
+        } catch (Exception ex)//SQLException ex 
         {
             LogError("Error creating Data Value Table: " + ex);
-        }
-        finally
-        {
-            try
-            {
-                if(createTable != null)
+        } finally {
+            try {
+                if (createTable != null) {
                     createTable.close();
-                if(conn != null)
+                }
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-            }
-            catch(SQLException e)
-            {
+                }
+            } catch (SQLException e) {
                 LogError("Error closing statement:" + e);
             }
         }
@@ -441,14 +399,14 @@ public class DatabaseManager {
         String name = currentMapping.get(id);
         return name == null ? Maybe.empty() : Maybe.just(name);
     }
-    
+
     public static Maybe<Long> remoteSourceToDatabaseId(Long source) {
         CacheBundle bundle = CACHE.get();
         ImmutableBiMap<Long, Long> currentMapping = bundle.paramIdToRemoteSource.inverse();
         Long databaseId = currentMapping.get(source);
         return databaseId == null ? Maybe.empty() : Maybe.just(databaseId);
     }
-    
+
     public static Maybe<Long> databaseIdToRemoteSource(Long databaseId) {
         CacheBundle bundle = CACHE.get();
         ImmutableBiMap<Long, Long> currentMapping = bundle.paramIdToRemoteSource;
@@ -530,17 +488,17 @@ public class DatabaseManager {
             while (mappingResults.next()) {
                 mappings.put(mappingResults.getLong(1), mappingResults.getString(2));
             }
-            
+
             // RCU...
             while (true) {
                 // Read
                 CacheBundle bundle = CACHE.get();
-                
+
                 // Copy (and Modify)
                 CacheBundle newBundle = new CacheBundle();
                 newBundle.paramIdToRemoteSource = bundle.paramIdToRemoteSource;
                 newBundle.paramIdToName = ImmutableBiMap.copyOf(mappings);
-                
+
                 // Update
                 if (CACHE.compareAndSet(bundle, newBundle)) {
                     break;
@@ -593,12 +551,12 @@ public class DatabaseManager {
             while (true) {
                 // Read
                 CacheBundle bundle = CACHE.get();
-                
+
                 // Copy (and Modify)
                 CacheBundle newBundle = new CacheBundle();
                 newBundle.paramIdToRemoteSource = ImmutableBiMap.copyOf(mappings);
                 newBundle.paramIdToName = bundle.paramIdToName;
-                
+
                 // Update
                 if (CACHE.compareAndSet(bundle, newBundle)) {
                     break;
@@ -630,7 +588,7 @@ public class DatabaseManager {
         if (id == null) {
             return Flowable.error(new IllegalArgumentException("Name: " + name + " is not a valid mapping to an identifier..."));
         }
-        
+
         //  If we are remote, we can just return it as is.
         Long remoteId = bundle.paramIdToRemoteSource.get(id);
         if (remoteId != null) {
@@ -640,13 +598,13 @@ public class DatabaseManager {
                     .map((DataValue dv) -> new DataValue(id, dv.getTimestamp(), dv.getValue()))
                     .compose(DataFilter.getFilter(id)::filter);
         }
-        
+
         return Flowable.create(emitter -> {
-            
+
             PreparedStatement selectDataValues = null;
             ResultSet dataValueResults = null;
             Connection conn = null;
-            
+
             try {
                 String query = "select time, value from data_values where parameter_id = ? and time < ? and time > ?";
                 conn = Web_MYSQL_Helper.getConnection();
@@ -1008,23 +966,25 @@ public class DatabaseManager {
             selectUser.setString(1, username);
             selectUser.setString(2, password);
             validatee = selectUser.executeQuery();
-            validatee.next();
-            System.out.println(Integer.parseInt(validatee.getString("userNumber")));
-            u = new User(
-                    Integer.parseInt(validatee.getString("userNumber")),
-                    validatee.getString("loginName"),
-                    validatee.getString("password"),
-                    validatee.getString("salt"),
-                    validatee.getString("lastName"),
-                    validatee.getString("firstName"),
-                    validatee.getString("emailAddress"),
-                    UserRole.getUserRole(validatee.getString("userRole")),
-                    LocalDateTime.parse(validatee.getString("lastLoginTime")),
-                    LocalDateTime.parse(validatee.getString("lastAttemptedLoginTime")),
-                    validatee.getInt("loginCount"),
-                    validatee.getInt("attemptedLoginCount"),
-                    validatee.getBoolean("locked")
-            );
+            if (validatee.next()) {
+                u = new User(
+                        Integer.parseInt(validatee.getString("userNumber")),
+                        validatee.getString("loginName"),
+                        validatee.getString("password"),
+                        validatee.getString("salt"),
+                        validatee.getString("lastName"),
+                        validatee.getString("firstName"),
+                        validatee.getString("emailAddress"),
+                        UserRole.getUserRole(validatee.getString("userRole")),
+                        LocalDateTime.parse(validatee.getString("lastLoginTime")),
+                        LocalDateTime.parse(validatee.getString("lastAttemptedLoginTime")),
+                        validatee.getInt("loginCount"),
+                        validatee.getInt("attemptedLoginCount"),
+                        validatee.getBoolean("locked")
+                );
+            }
+            else
+                return null;
         } catch (Exception e) {
             LogError("Error validating user \"" + username + "\": " + e);
         } finally {
@@ -1157,7 +1117,7 @@ public class DatabaseManager {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
             conn = Web_MYSQL_Helper.getConnection();
             String getDescrSQL = "select description from data_descriptions where parameter_id = ?";
@@ -1167,7 +1127,7 @@ public class DatabaseManager {
             if (rs.next()) {
                 return Maybe.just(rs.getString(1));
             }
-            
+
             return Maybe.error(new IllegalArgumentException("Id: \"" + id + "\" lacks an appropriate description..."));
         } catch (Exception e) {
             LogError("Error obtaining description for \"" + id + "\": " + e);
@@ -1208,8 +1168,8 @@ public class DatabaseManager {
             getUserByLogin = conn.prepareStatement(getSQL);
             getUserByLogin.setString(1, loginName);
             selectedUser = getUserByLogin.executeQuery();
-            selectedUser.next();
-            salt = selectedUser.getString("salt");
+            if(selectedUser.next())
+                salt = selectedUser.getString("salt");
         } catch (SQLException e) {
             LogError("Error retrieving salt by login name for \"" + loginName + "\": " + e);
         } finally {
@@ -1355,16 +1315,17 @@ public class DatabaseManager {
         }
         return errorListFinal;
     }
-    
+
     /**
      * Obtains a stream of all manual parameter names.
+     *
      * @return Stream of manual parameter names.
      */
     public static io.reactivex.Observable<String> getManualParameterNames() {
         CacheBundle bundle = CACHE.get();
         ImmutableBiMap<Long, String> currentParameterMappings = bundle.paramIdToName;
         ImmutableBiMap<Long, Long> currentRemoteIdMappings = bundle.paramIdToRemoteSource;
-        
+
         return Observable.fromIterable(
                 currentParameterMappings.keySet()
                         .stream()
@@ -1373,16 +1334,17 @@ public class DatabaseManager {
                         .collect(Collectors.toList())
         );
     }
-    
+
     /**
      * Obtains a stream of all remote parameter names.
+     *
      * @return Stream of remote parameter names.
      */
     public static Observable<String> getRemoteParameterNames() {
         CacheBundle bundle = CACHE.get();
         ImmutableBiMap<Long, String> currentParameterMappings = bundle.paramIdToName;
         ImmutableBiMap<Long, Long> currentRemoteIdMappings = bundle.paramIdToRemoteSource;
-        
+
         return Observable.fromIterable(
                 currentParameterMappings.keySet()
                         .stream()
@@ -1539,84 +1501,69 @@ public class DatabaseManager {
         }
         return false;
     }
-    
-    public static boolean modifyNote(String note, User admin) 
-    {
-        if(admin == null || admin.getUserRole() != UserRole.SystemAdmin)
+
+    public static boolean modifyNote(String note, User admin) {
+        if (admin == null || admin.getUserRole() != UserRole.SystemAdmin) {
             return false;
-        
+        }
+
         PreparedStatement modifyNote = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             String getSQL = "Update Notes SET note = ? WHERE time = 'default';";
             modifyNote = conn.prepareStatement(getSQL);
             modifyNote.setString(1, note);
             modifyNote.executeUpdate();
             return true;
-        }
-        catch(SQLException e)
-        {
+        } catch (SQLException e) {
             LogError("Error modifying note: " + e);
-        }
-        finally
-        {
-            try
-            {
-                if(conn != null)
+        } finally {
+            try {
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-                if(modifyNote != null)
+                }
+                if (modifyNote != null) {
                     modifyNote.close();
-            }
-            catch(Exception excep)
-            {
+                }
+            } catch (Exception excep) {
                 LogError("Error closing statement or result set: " + excep);
             }
         }
         return false;
     }
-    
-    public static JSONObject getNote() 
-    {
+
+    public static JSONObject getNote() {
         JSONObject note = new JSONObject();
         Statement selectNote = null;
         ResultSet selectedNote = null;
         Connection conn = null;
-        try
-        {
+        try {
             conn = Web_MYSQL_Helper.getConnection();
             String query = "Select * from Notes where time = 'default'";
             selectNote = conn.createStatement();
             selectedNote = selectNote.executeQuery(query);
-            
-            if(selectedNote.next())
-            {
+
+            if (selectedNote.next()) {
                 note.put("note", selectedNote.getString("note"));
                 return note;
-            }
-            else
-            {
+            } else {
                 return null;
             }
-        }
-        catch(SQLException e)
-        {
+        } catch (SQLException e) {
             LogError("Error retrieving note: " + e);
-        }
-        finally
-        {
-            try
-            {
-                if(conn != null)
+        } finally {
+            try {
+                if (conn != null) {
                     Web_MYSQL_Helper.returnConnection(conn);
-                if(selectNote != null)
+                }
+                if (selectNote != null) {
                     selectNote.close();
-                if(selectedNote != null)
+                }
+                if (selectedNote != null) {
                     selectedNote.close();
-            }
-            catch(Exception excep)
-            {
+                }
+            } catch (Exception excep) {
                 LogError("Error closing statement or result set: " + excep);
             }
         }
